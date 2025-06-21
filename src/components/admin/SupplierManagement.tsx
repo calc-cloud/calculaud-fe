@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,7 +85,7 @@ const SupplierManagement = () => {
   }, [searchQuery]);
 
   return (
-    <Card className="h-full flex flex-col">
+    <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
         <CardTitle className="text-lg">Supplier Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -125,9 +124,9 @@ const SupplierManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent className="pt-0 flex-1 flex flex-col min-h-0">
-        <div className="flex flex-col h-full space-y-4">
-          <div className="relative flex-shrink-0">
+      <CardContent className="pt-0 flex-1 flex flex-col overflow-hidden">
+        <div className="flex flex-col h-full">
+          <div className="relative flex-shrink-0 mb-4">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
             <Input
               placeholder="Search suppliers..."
@@ -137,10 +136,10 @@ const SupplierManagement = () => {
             />
           </div>
           
-          <div className="flex-1 min-h-0">
-            <div className="grid grid-cols-3 gap-4 h-full">
+          <div className="flex-1 overflow-y-auto mb-4">
+            <div className="grid grid-cols-3 gap-6">
               {paginatedSuppliers.map((supplier) => (
-                <div key={supplier.id} className="p-4 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors h-fit">
+                <div key={supplier.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div className="flex items-center justify-between">
                     <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
                       {supplier.name}
