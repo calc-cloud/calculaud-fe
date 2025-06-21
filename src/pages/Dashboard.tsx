@@ -10,18 +10,18 @@ import { FilterBar } from '@/components/common/FilterBar';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 
-// Mock data for demonstration
+// Mock data for demonstration - in a real app this would come from an API
 const mockPurposes: Purpose[] = [
   {
     id: '1',
-    description: 'פיתוח מערכת רכש',
-    content: 'פיתוח מערכת ניהול רכש מקיפה עם React ו-TypeScript',
+    description: 'Software Development Services',
+    content: 'Development of procurement management system with React and TypeScript',
     supplier: 'TechCorp Solutions',
     hierarchy_id: 'H001',
-    hierarchy_name: 'מחלקת IT',
+    hierarchy_name: 'IT Department',
     status: 'In Progress',
     expected_delivery: '2024-07-15',
-    comments: 'הפרויקט מתקדם כמתוכנן',
+    comments: 'Project is progressing well, on schedule',
     service_type: 'Software',
     creation_time: '2024-06-01T10:00:00Z',
     last_modified: '2024-06-15T14:30:00Z',
@@ -42,7 +42,7 @@ const mockPurposes: Purpose[] = [
             emf_id: 'emf-1',
             amount: 25000,
             currency: 'USD',
-            description: 'שלב פיתוח ראשון'
+            description: 'Development phase 1'
           }
         ]
       }
@@ -51,11 +51,11 @@ const mockPurposes: Purpose[] = [
   },
   {
     id: '2',
-    description: 'רכש ציוד חומרה',
-    content: 'רכישת שרתים וציוד רשת עבור שדרוג מרכז הנתונים',
+    description: 'Hardware Procurement',
+    content: 'Purchase of new servers and networking equipment for data center upgrade',
     supplier: 'Hardware Plus Inc',
     hierarchy_id: 'H002',
-    hierarchy_name: 'תשתיות',
+    hierarchy_name: 'Infrastructure',
     status: 'Pending',
     expected_delivery: '2024-08-01',
     service_type: 'Hardware',
@@ -67,11 +67,11 @@ const mockPurposes: Purpose[] = [
   },
   {
     id: '3',
-    description: 'שירותי ייעוץ',
-    content: 'ייעוץ לשיפור תהליכים עסקיים וטרנספורמציה דיגיטלית',
+    description: 'Consulting Services',
+    content: 'Business process optimization and digital transformation consulting',
     supplier: 'Strategic Advisors LLC',
     hierarchy_id: 'H003',
-    hierarchy_name: 'תפעול',
+    hierarchy_name: 'Operations',
     status: 'Completed',
     expected_delivery: '2024-05-30',
     service_type: 'Consulting',
@@ -90,7 +90,7 @@ const mockPurposes: Purpose[] = [
             emf_id: 'emf-3',
             amount: 15000,
             currency: 'USD',
-            description: 'דמי ייעוץ'
+            description: 'Consulting fees'
           }
         ]
       }
@@ -188,8 +188,8 @@ const Dashboard: React.FC = () => {
   const handleDeletePurpose = (purposeId: string) => {
     setPurposes(prev => prev.filter(p => p.id !== purposeId));
     toast({
-      title: "תכלית נמחקה",
-      description: "התכלית נמחקה בהצלחה.",
+      title: "Purpose deleted",
+      description: "The purpose has been successfully deleted.",
     });
   };
 
@@ -206,8 +206,8 @@ const Dashboard: React.FC = () => {
       
       setPurposes(prev => [newPurpose, ...prev]);
       toast({
-        title: "תכלית נוצרה",
-        description: "תכלית חדשה נוצרה בהצלחה.",
+        title: "Purpose created",
+        description: "New purpose has been successfully created.",
       });
     } else if (modalMode === 'edit' && selectedPurpose) {
       setPurposes(prev => prev.map(p => 
@@ -216,30 +216,30 @@ const Dashboard: React.FC = () => {
           : p
       ));
       toast({
-        title: "תכלית עודכנה",
-        description: "התכלית עודכנה בהצלחה.",
+        title: "Purpose updated",
+        description: "Purpose has been successfully updated.",
       });
     }
   };
 
   const handleExport = () => {
     toast({
-      title: "יצוא התחיל",
-      description: "הנתונים שלך יהיו מוכנים בקרוב.",
+      title: "Export initiated",
+      description: "Your data export will be ready shortly.",
     });
   };
 
   return (
-    <div className="space-y-6" dir="rtl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">לוח בקרת רכש</h2>
-          <p className="text-gray-600 mt-1">ניהול תכליות רכש ומעקב אחר התקדמות</p>
+          <h2 className="text-3xl font-bold text-gray-900">Procurement Dashboard</h2>
+          <p className="text-gray-600 mt-1">Manage your procurement purposes and track progress</p>
         </div>
         <Button onClick={handleCreatePurpose} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          צור תכלית
+          Create Purpose
         </Button>
       </div>
 
@@ -247,7 +247,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">סה״כ תכליות</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Purposes</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -257,7 +257,7 @@ const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ממתין</CardTitle>
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
@@ -267,7 +267,7 @@ const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">בתהליך</CardTitle>
+            <CardTitle className="text-sm font-medium">In Progress</CardTitle>
             <Clock className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
@@ -277,7 +277,7 @@ const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">הושלם</CardTitle>
+            <CardTitle className="text-sm font-medium">Completed</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -287,7 +287,7 @@ const Dashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">ערך כולל</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -307,11 +307,11 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            מציג {filteredPurposes.length} מתוך {purposes.length} תכליות
+            Showing {filteredPurposes.length} of {purposes.length} purposes
           </p>
           {Object.keys(filters).length > 0 && (
             <Badge variant="secondary">
-              {Object.keys(filters).filter(key => filters[key as keyof PurposeFilters]).length} מסננים פעילים
+              {Object.keys(filters).filter(key => filters[key as keyof PurposeFilters]).length} filters applied
             </Badge>
           )}
         </div>
