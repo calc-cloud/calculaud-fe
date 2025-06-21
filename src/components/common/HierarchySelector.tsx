@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -26,7 +27,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   selectedIds,
   onSelectionChange
 }) => {
-  const [openSections, setOpenSections] = React.useState<Set<string>>(new Set(['Unit']));
+  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set());
 
   const getLabel = () => {
     if (selectedIds.length === 0) return 'Hierarchy';
@@ -46,18 +47,14 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  const clearAll = () => {
-    onSelectionChange([]);
-  };
-
-  const toggleSection = (type: string) => {
-    const newOpenSections = new Set(openSections);
-    if (newOpenSections.has(type)) {
-      newOpenSections.delete(type);
+  const toggleExpanded = (nodeId: string) => {
+    const newExpandedNodes = new Set(expandedNodes);
+    if (newExpandedNodes.has(nodeId)) {
+      newExpandedNodes.delete(nodeId);
     } else {
-      newOpenSections.add(type);
+      newExpandedNodes.add(nodeId);
     }
-    setOpenSections(newOpenSections);
+    setExpandedNodes(newExpandedNodes);
   };
 
   const getTypeIcon = (type: string) => {
@@ -77,56 +74,83 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  // Group hierarchies by type in a specific order
-  const hierarchyTypes = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'] as const;
-  const groupedHierarchies = hierarchyTypes.reduce((acc, type) => {
-    const items = hierarchies.filter(h => h.type === type);
-    if (items.length > 0) {
-      acc[type] = items;
-    }
-    return acc;
-  }, {} as Record<string, HierarchyItem[]>);
+  // Build tree structure from flat hierarchy list
+  const buildTreeStructure = (items: HierarchyItem[]): HierarchyItem[] => {
+    const itemMap = new Map<string, HierarchyItem>();
+    const roots: HierarchyItem[] = [];
 
-  const renderHierarchyGroup = (type: string, items: HierarchyItem[]) => {
-    const isOpen = openSections.has(type);
-    
+    // First pass: create map of all items
+    items.forEach(item => {
+      itemMap.set(item.id, { ...item, children: [] });
+    });
+
+    // Second pass: build parent-child relationships
+    items.forEach(item => {
+      const itemWithChildren = itemMap.get(item.id)!;
+      if (item.parentId && itemMap.has(item.parentId)) {
+        const parent = itemMap.get(item.parentId)!;
+        parent.children = parent.children || [];
+        parent.children.push(itemWithChildren);
+      } else {
+        roots.push(itemWithChildren);
+      }
+    });
+
+    return roots;
+  };
+
+  const treeStructure = buildTreeStructure(hierarchies);
+
+  const renderTreeNode = (node: HierarchyItem, level: number = 0) => {
+    const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = expandedNodes.has(node.id);
+    const paddingLeft = level * 16;
+
     return (
-      <Collapsible key={type} open={isOpen} onOpenChange={() => toggleSection(type)}>
-        <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-sm hover:bg-gray-50 rounded border-b border-gray-100">
-          <div className="flex items-center space-x-2">
-            {isOpen ? (
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-gray-400" />
-            )}
-            {getTypeIcon(type)}
-            <span className="font-medium text-gray-700">{type.toLowerCase()}</span>
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pl-6">
-          {items.map(hierarchy => (
-            <DropdownMenuItem
-              key={hierarchy.id}
-              className="cursor-pointer flex items-center space-x-3 py-2 px-3 hover:bg-blue-50"
-              onSelect={(e) => e.preventDefault()}
+      <div key={node.id}>
+        <div 
+          className="flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer"
+          style={{ paddingLeft: `${paddingLeft + 8}px` }}
+        >
+          {hasChildren ? (
+            <div 
+              className="flex items-center mr-2"
+              onClick={() => toggleExpanded(node.id)}
             >
-              <Checkbox
-                checked={selectedIds.includes(hierarchy.id)}
-                onCheckedChange={() => handleSelect(hierarchy.id)}
-              />
-              {getTypeIcon(hierarchy.type)}
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900">{hierarchy.name}</span>
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                    {hierarchy.type.toLowerCase()}
-                  </span>
-                </div>
-              </div>
-            </DropdownMenuItem>
-          ))}
-        </CollapsibleContent>
-      </Collapsible>
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="h-4 w-4 text-gray-400" />
+              )}
+            </div>
+          ) : (
+            <div className="w-6" />
+          )}
+          
+          <Checkbox
+            checked={selectedIds.includes(node.id)}
+            onCheckedChange={() => handleSelect(node.id)}
+            className="mr-2"
+          />
+          
+          {getTypeIcon(node.type)}
+          
+          <div className="flex-1 ml-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-900">{node.name}</span>
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2">
+                {node.type.toLowerCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        {hasChildren && isExpanded && (
+          <div>
+            {node.children!.map(child => renderTreeNode(child, level + 1))}
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -140,17 +164,16 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[350px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
         <div className="py-2">
-          {Object.entries(groupedHierarchies).map(([type, items]) => 
-            renderHierarchyGroup(type, items)
+          {treeStructure.length > 0 ? (
+            treeStructure.map(node => renderTreeNode(node))
+          ) : (
+            <div className="px-4 py-8 text-sm text-gray-500 text-center">
+              No organizational units available
+            </div>
           )}
         </div>
-        
-        {Object.keys(groupedHierarchies).length === 0 && (
-          <div className="px-4 py-8 text-sm text-gray-500 text-center">
-            No organizational units available
-          </div>
-        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
+
