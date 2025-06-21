@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -127,7 +126,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 <TableCell>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="cursor-help">
+                      <div>
                         {getLastHierarchyLevel(purpose.hierarchy_name)}
                       </div>
                     </TooltipTrigger>
