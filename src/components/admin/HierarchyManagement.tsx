@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -252,7 +251,7 @@ const HierarchyManagement = () => {
                 <>
                   <div>
                     <Label htmlFor="parentType" className="text-sm">Parent Type</Label>
-                    <Select value={selectedParentType} onValueChange={setSelectedParentType}>
+                    <Select value={selectedParentType} onValueChange={(value) => setSelectedParentType(value as HierarchyType | '')}>
                       <SelectTrigger className="h-8">
                         <SelectValue placeholder="Select parent type" />
                       </SelectTrigger>
