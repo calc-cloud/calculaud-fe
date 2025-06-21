@@ -1,9 +1,7 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Edit, Trash2 } from 'lucide-react';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 
@@ -30,6 +28,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 
   const getEMFIds = (purpose: Purpose) => {
     return purpose.emfs.map(emf => emf.id).join(', ');
+  };
+
+  const handleRowClick = (purpose: Purpose) => {
+    onView(purpose);
   };
 
   if (isLoading) {
@@ -63,12 +65,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             <TableHead>Total Cost</TableHead>
             <TableHead>Expected Delivery</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {purposes.map((purpose) => (
-            <TableRow key={purpose.id}>
+            <TableRow 
+              key={purpose.id} 
+              onClick={() => handleRowClick(purpose)}
+              className="cursor-pointer hover:bg-muted/50"
+            >
               <TableCell className="font-medium max-w-[200px] truncate">
                 {purpose.description}
               </TableCell>
@@ -97,31 +102,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
               </TableCell>
               <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
               <TableCell>{formatDate(purpose.creation_time)}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onView(purpose)}
-                  >
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(purpose)}
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onDelete(purpose.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
