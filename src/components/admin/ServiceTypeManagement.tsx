@@ -132,7 +132,7 @@ const ServiceTypeManagement = () => {
             />
           </div>
           
-          <div className="flex-1 overflow-y-auto mb-4">
+          <div className="flex-1 overflow-y-auto">
             <div className="grid grid-cols-3 gap-6">
               {paginatedServiceTypes.map((serviceType) => (
                 <div key={serviceType.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
@@ -172,7 +172,7 @@ const ServiceTypeManagement = () => {
             </div>
           </div>
 
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 mt-2">
             <TablePagination
               currentPage={currentPage}
               totalPages={totalPages}
