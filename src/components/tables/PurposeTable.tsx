@@ -34,7 +34,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     });
 
     const formatAmount = (amount: number) => {
-      return amount % 1 === 0 ? amount.toString() : amount.toFixed(2);
+      const formattedNumber = amount % 1 === 0 ? amount.toString() : amount.toFixed(2);
+      return parseFloat(formattedNumber).toLocaleString();
     };
 
     const getCurrencySymbol = (currency: string) => {
