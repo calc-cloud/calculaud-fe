@@ -3,7 +3,15 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
-import { HierarchyItem } from '@/types';
+
+interface HierarchyItem {
+  id: string;
+  type: 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
+  name: string;
+  parentId?: string;
+  fullPath: string;
+  children?: HierarchyItem[];
+}
 
 interface HierarchySelectorProps {
   hierarchies: HierarchyItem[];
