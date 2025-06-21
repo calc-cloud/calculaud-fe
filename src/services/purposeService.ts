@@ -180,21 +180,22 @@ class PurposeService {
     return params;
   }
 
-  // Map frontend purpose data to API request format
-  mapPurposeToApiRequest(
+  // Map frontend purpose data to API create request format
+  mapPurposeToCreateRequest(
     frontendPurpose: any,
     hierarchies: any[],
     suppliers: any[],
     serviceTypes: any[]
-  ): CreatePurposeRequest | UpdatePurposeRequest {
-    const mapped: any = {
-      description: frontendPurpose.description,
+  ): CreatePurposeRequest {
+    const mapped: CreatePurposeRequest = {
+      description: frontendPurpose.description || '',
+      hierarchy_id: 1, // Default value, will be overridden below
+      expected_delivery: frontendPurpose.expected_delivery || '',
+      status: frontendPurpose.status || 'PENDING',
       content: frontendPurpose.content,
-      expected_delivery: frontendPurpose.expected_delivery,
-      comments: frontendPurpose.comments,
-      status: frontendPurpose.status,
       supplier: frontendPurpose.supplier,
-      service_type: frontendPurpose.service_type
+      service_type: frontendPurpose.service_type,
+      comments: frontendPurpose.comments
     };
 
     // Map hierarchy name to ID
@@ -207,6 +208,65 @@ class PurposeService {
 
     // Map EMFs
     if (frontendPurpose.emfs && frontendPurpose.emfs.length > 0) {
+      mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
+        emf_id: emf.id,
+        order_id: emf.order_id || undefined,
+        order_creation_date: emf.order_creation_date || undefined,
+        demand_id: emf.demand_id || undefined,
+        demand_creation_date: emf.demand_creation_date || undefined,
+        bikushit_id: emf.bikushit_id || undefined,
+        bikushit_creation_date: emf.bikushit_creation_date || undefined,
+        costs: emf.costs.map((cost: any) => ({
+          currency: cost.currency,
+          amount: cost.amount
+        }))
+      }));
+    }
+
+    return mapped;
+  }
+
+  // Map frontend purpose data to API update request format
+  mapPurposeToUpdateRequest(
+    frontendPurpose: any,
+    hierarchies: any[],
+    suppliers: any[],
+    serviceTypes: any[]
+  ): UpdatePurposeRequest {
+    const mapped: UpdatePurposeRequest = {};
+
+    if (frontendPurpose.description !== undefined) {
+      mapped.description = frontendPurpose.description;
+    }
+    if (frontendPurpose.content !== undefined) {
+      mapped.content = frontendPurpose.content;
+    }
+    if (frontendPurpose.expected_delivery !== undefined) {
+      mapped.expected_delivery = frontendPurpose.expected_delivery;
+    }
+    if (frontendPurpose.comments !== undefined) {
+      mapped.comments = frontendPurpose.comments;
+    }
+    if (frontendPurpose.status !== undefined) {
+      mapped.status = frontendPurpose.status;
+    }
+    if (frontendPurpose.supplier !== undefined) {
+      mapped.supplier = frontendPurpose.supplier;
+    }
+    if (frontendPurpose.service_type !== undefined) {
+      mapped.service_type = frontendPurpose.service_type;
+    }
+
+    // Map hierarchy name to ID
+    if (frontendPurpose.hierarchy_name) {
+      const hierarchy = hierarchies.find(h => h.fullPath === frontendPurpose.hierarchy_name || h.name === frontendPurpose.hierarchy_name);
+      if (hierarchy) {
+        mapped.hierarchy_id = parseInt(hierarchy.id);
+      }
+    }
+
+    // Map EMFs
+    if (frontendPurpose.emfs !== undefined) {
       mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
         emf_id: emf.id,
         order_id: emf.order_id || undefined,

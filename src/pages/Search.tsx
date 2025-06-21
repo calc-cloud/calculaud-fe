@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';

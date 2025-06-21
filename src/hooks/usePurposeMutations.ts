@@ -12,7 +12,7 @@ export const usePurposeMutations = () => {
 
   const createPurpose = useMutation({
     mutationFn: (purposeData: Partial<Purpose>) => {
-      const apiRequest = purposeService.mapPurposeToApiRequest(
+      const apiRequest = purposeService.mapPurposeToCreateRequest(
         purposeData,
         hierarchies,
         suppliers,
@@ -38,7 +38,7 @@ export const usePurposeMutations = () => {
 
   const updatePurpose = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Purpose> }) => {
-      const apiRequest = purposeService.mapPurposeToApiRequest(
+      const apiRequest = purposeService.mapPurposeToUpdateRequest(
         data,
         hierarchies,
         suppliers,
