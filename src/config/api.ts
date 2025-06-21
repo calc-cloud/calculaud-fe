@@ -4,6 +4,7 @@ export const API_CONFIG = {
   ENDPOINTS: {
     SERVICE_TYPES: '/service-types/',
     SUPPLIERS: '/suppliers/',
+    HIERARCHIES: '/hierarchies/',
   },
   PAGINATION: {
     DEFAULT_PAGE: 1,
