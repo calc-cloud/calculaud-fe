@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,7 @@ interface CreateHierarchyModalProps {
   editItem?: Hierarchy | null;
 }
 
-const hierarchyOrder: HierarchyType[] = ['UNIT', 'CENTER', 'ANAF', 'TEAM', 'MADOR'];
+const hierarchyOrder: HierarchyType[] = ['UNIT', 'CENTER', 'ANAF', 'MADOR', 'TEAM'];
 
 const getHierarchyIcon = (type: HierarchyType) => {
   switch (type) {
@@ -26,10 +25,10 @@ const getHierarchyIcon = (type: HierarchyType) => {
       return Building;
     case 'ANAF':
       return Users;
-    case 'TEAM':
-      return UserCheck;
     case 'MADOR':
       return User;
+    case 'TEAM':
+      return UserCheck;
   }
 };
 
