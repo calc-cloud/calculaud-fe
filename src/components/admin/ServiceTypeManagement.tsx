@@ -1,135 +1,145 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search, MoreHorizontal } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { Plus, Edit, Trash2, Search, MoreHorizontal, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
-import { useAdminData } from '@/contexts/AdminDataContext';
+import { serviceTypeService } from '@/services/serviceTypeService';
+import { ServiceType } from '@/types/serviceTypes';
+import { API_CONFIG } from '@/config/api';
+import ServiceTypeModal from './ServiceTypeModal';
 
 const ServiceTypeManagement = () => {
-  const { serviceTypes, setServiceTypes } = useAdminData();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingServiceType, setEditingServiceType] = useState<any>(null);
-  const [serviceTypeName, setServiceTypeName] = useState('');
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingServiceType, setEditingServiceType] = useState<ServiceType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [serviceTypeToDelete, setServiceTypeToDelete] = useState<any>(null);
+  const [serviceTypeToDelete, setServiceTypeToDelete] = useState<ServiceType | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
-  const itemsPerPage = 12;
+  const itemsPerPage = API_CONFIG.PAGINATION.DEFAULT_LIMIT;
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, API_CONFIG.SEARCH.DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch]);
+
+  // Fetch service types
+  const fetchServiceTypes = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await serviceTypeService.getServiceTypes({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: debouncedSearch || undefined,
+      });
+      
+      setServiceTypes(response.data);
+      setTotalPages(response.total_pages);
+      setTotalCount(response.total);
+    } catch (error) {
+      console.error('Error fetching service types:', error);
+      toast({
+        title: "Error loading service types",
+        description: "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [currentPage, debouncedSearch, itemsPerPage, toast]);
+
+  useEffect(() => {
+    fetchServiceTypes();
+  }, [fetchServiceTypes]);
 
   const handleCreate = () => {
     setEditingServiceType(null);
-    setServiceTypeName('');
-    setIsDialogOpen(true);
+    setIsModalOpen(true);
   };
 
-  const handleEdit = (serviceType: any) => {
+  const handleEdit = (serviceType: ServiceType) => {
     setEditingServiceType(serviceType);
-    setServiceTypeName(serviceType.name);
-    setIsDialogOpen(true);
+    setIsModalOpen(true);
   };
 
-  const handleSave = () => {
-    if (!serviceTypeName.trim()) {
-      toast({ title: "Please enter a service type name", variant: "destructive" });
-      return;
+  const handleSave = async (name: string, editId?: number) => {
+    try {
+      if (editId) {
+        await serviceTypeService.updateServiceType(editId, { name });
+        toast({ title: "Service type updated successfully" });
+      } else {
+        await serviceTypeService.createServiceType({ name });
+        toast({ title: "Service type created successfully" });
+      }
+      
+      await fetchServiceTypes();
+    } catch (error) {
+      console.error('Error saving service type:', error);
+      toast({
+        title: "Error saving service type",
+        description: error instanceof Error ? error.message : "Please try again later.",
+        variant: "destructive"
+      });
+      throw error; // Re-throw to let modal handle loading state
     }
-
-    if (editingServiceType) {
-      setServiceTypes(prev => prev.map(st => 
-        st.id === editingServiceType.id 
-          ? { ...st, name: serviceTypeName.trim() }
-          : st
-      ));
-      toast({ title: "Service type updated successfully" });
-    } else {
-      const newServiceType = {
-        id: Date.now().toString(),
-        name: serviceTypeName.trim()
-      };
-      setServiceTypes(prev => [...prev, newServiceType]);
-      toast({ title: "Service type created successfully" });
-    }
-    
-    setIsDialogOpen(false);
   };
 
-  const handleDeleteClick = (serviceType: any) => {
+  const handleDeleteClick = (serviceType: ServiceType) => {
     setServiceTypeToDelete(serviceType);
     setDeleteDialogOpen(true);
   };
 
-  const handleDelete = () => {
-    if (serviceTypeToDelete) {
-      setServiceTypes(prev => prev.filter(st => st.id !== serviceTypeToDelete.id));
+  const handleDelete = async () => {
+    if (!serviceTypeToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await serviceTypeService.deleteServiceType(serviceTypeToDelete.id);
       toast({ title: "Service type deleted successfully" });
       setDeleteDialogOpen(false);
       setServiceTypeToDelete(null);
+      await fetchServiceTypes();
+    } catch (error) {
+      console.error('Error deleting service type:', error);
+      toast({
+        title: "Error deleting service type",
+        description: error instanceof Error ? error.message : "Please try again later.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
-
-  // Filter service types based on search query
-  const filteredServiceTypes = serviceTypes.filter(serviceType =>
-    serviceType.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredServiceTypes.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedServiceTypes = filteredServiceTypes.slice(startIndex, endIndex);
-
-  // Reset to page 1 when search changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
 
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
         <CardTitle className="text-lg">Service Type Management</CardTitle>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={handleCreate} size="sm">
-              <Plus className="h-4 w-4 mr-1" />
-              Add Service Type
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingServiceType ? 'Edit Service Type' : 'Create New Service Type'}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="serviceTypeName" className="text-sm mb-2 block">Service Type Name</Label>
-                <Input
-                  id="serviceTypeName"
-                  value={serviceTypeName}
-                  onChange={(e) => setServiceTypeName(e.target.value)}
-                  placeholder="Enter service type name"
-                  className="h-8"
-                />
-              </div>
-              <div className="flex justify-end space-x-2 pt-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="sm">
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} size="sm">
-                  {editingServiceType ? 'Update' : 'Create'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={handleCreate} size="sm" disabled={isLoading}>
+          <Plus className="h-4 w-4 mr-1" />
+          Add Service Type
+        </Button>
       </CardHeader>
       <CardContent className="pt-2 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-col h-full">
@@ -140,13 +150,21 @@ const ServiceTypeManagement = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-9 focus-visible:ring-1"
+              disabled={isLoading}
             />
           </div>
           
           <div className="flex-1 overflow-y-auto">
-            {paginatedServiceTypes.length > 0 ? (
+            {isLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <Loader className="h-8 w-8 text-gray-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-gray-500 text-lg font-medium">Loading service types...</p>
+                </div>
+              </div>
+            ) : serviceTypes.length > 0 ? (
               <div className="grid grid-cols-3 gap-6">
-                {paginatedServiceTypes.map((serviceType) => (
+                {serviceTypes.map((serviceType) => (
                   <div key={serviceType.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex items-center justify-between">
                       <p className="font-medium truncate flex-1 mr-3" title={serviceType.name}>
@@ -179,14 +197,14 @@ const ServiceTypeManagement = () => {
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg font-medium">No service types found</p>
                   <p className="text-gray-400 text-sm mt-1">
-                    {searchQuery ? `No service types match "${searchQuery}"` : 'No service types available'}
+                    {debouncedSearch ? `No service types match "${debouncedSearch}"` : 'No service types available'}
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {filteredServiceTypes.length > 0 && (
+          {!isLoading && totalCount > 0 && (
             <div className="flex-shrink-0 mt-4">
               <TablePagination
                 currentPage={currentPage}
@@ -198,6 +216,13 @@ const ServiceTypeManagement = () => {
         </div>
       </CardContent>
 
+      <ServiceTypeModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        editItem={editingServiceType}
+        onSave={handleSave}
+      />
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -207,9 +232,9 @@ const ServiceTypeManagement = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Delete
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

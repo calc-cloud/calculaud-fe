@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { ServiceType } from '@/types/serviceTypes';
 
 interface HierarchyItem {
   id: string;
@@ -14,18 +14,14 @@ interface SupplierItem {
   name: string;
 }
 
-interface ServiceTypeItem {
-  id: string;
-  name: string;
-}
-
 interface AdminDataContextType {
   hierarchies: HierarchyItem[];
   setHierarchies: React.Dispatch<React.SetStateAction<HierarchyItem[]>>;
   suppliers: SupplierItem[];
   setSuppliers: React.Dispatch<React.SetStateAction<SupplierItem[]>>;
-  serviceTypes: ServiceTypeItem[];
-  setServiceTypes: React.Dispatch<React.SetStateAction<ServiceTypeItem[]>>;
+  // Service types now managed via API, keeping for backward compatibility
+  serviceTypes: { id: string; name: string }[];
+  setServiceTypes: React.Dispatch<React.SetStateAction<{ id: string; name: string }[]>>;
 }
 
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
@@ -66,14 +62,8 @@ export const AdminDataProvider: React.FC<{ children: ReactNode }> = ({ children 
     { id: '8', name: 'CloudTech Inc' }
   ]);
 
-  const [serviceTypes, setServiceTypes] = useState<ServiceTypeItem[]>([
-    { id: '1', name: 'Consulting' },
-    { id: '2', name: 'Software' },
-    { id: '3', name: 'Hardware' },
-    { id: '4', name: 'Maintenance' },
-    { id: '5', name: 'Training' },
-    { id: '6', name: 'Other' }
-  ]);
+  // Keep legacy service types for backward compatibility
+  const [serviceTypes, setServiceTypes] = useState<{ id: string; name: string }[]>([]);
 
   return (
     <AdminDataContext.Provider value={{
