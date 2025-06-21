@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +77,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             <TableHead>Total Cost</TableHead>
             <TableHead>Expected Delivery</TableHead>
             <TableHead>Last Modified</TableHead>
-            <TableHead>Created</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -119,8 +117,12 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 {getTotalCostWithCurrencies(purpose)}
               </TableCell>
               <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
-              <TableCell>{formatDate(purpose.last_modified)}</TableCell>
-              <TableCell>{formatDate(purpose.creation_time)}</TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <div className="text-sm">{formatDate(purpose.last_modified)}</div>
+                  <div className="text-xs text-muted-foreground">Created: {formatDate(purpose.creation_time)}</div>
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
