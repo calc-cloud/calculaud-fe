@@ -27,17 +27,19 @@ const Search: React.FC = () => {
     selectedPurpose,
     setSelectedPurpose,
     currentPage,
-    setCurrentPage
+    setCurrentPage,
+    totalPages,
+    totalCount,
+    isLoading,
+    error
   } = usePurposeData();
 
   const { toast } = useToast();
   const itemsPerPage = 10;
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredPurposes.length / itemsPerPage);
+  // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedPurposes = filteredPurposes.slice(startIndex, endIndex);
+  const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
 
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
@@ -77,6 +79,20 @@ const Search: React.FC = () => {
     exportPurposesToCSV(filteredPurposes, toast);
   };
 
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-center">
+            <p className="text-destructive mb-2">Failed to load purposes</p>
+            <p className="text-sm text-muted-foreground">{error.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <FilterBar
@@ -93,17 +109,17 @@ const Search: React.FC = () => {
       <ResultsSummary
         startIndex={startIndex}
         endIndex={endIndex}
-        filteredCount={filteredPurposes.length}
+        filteredCount={totalCount}
         filters={filters}
         sortConfig={sortConfig}
       />
 
       <PurposeTable
-        purposes={paginatedPurposes}
+        purposes={filteredPurposes}
         onView={handleViewPurpose}
         onEdit={handleEditPurpose}
         onDelete={handleDeletePurpose}
-        isLoading={false}
+        isLoading={isLoading}
       />
 
       <TablePagination

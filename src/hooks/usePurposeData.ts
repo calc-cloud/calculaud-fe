@@ -1,76 +1,70 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
-import { SortConfig, sortPurposes } from '@/utils/sorting';
-import { mockPurposes } from '@/data/mockPurposes';
+import { SortConfig } from '@/utils/sorting';
+import { purposeService } from '@/services/purposeService';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 export const usePurposeData = () => {
-  const [purposes, setPurposes] = useState<Purpose[]>(mockPurposes);
-  const [filteredPurposes, setFilteredPurposes] = useState<Purpose[]>(mockPurposes);
+  const { hierarchies, suppliers, serviceTypes } = useAdminData();
   const [filters, setFilters] = useState<PurposeFilters>({});
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'creation_time', direction: 'desc' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Filter and sort purposes based on current filters and sort config
-  useEffect(() => {
-    let filtered = purposes;
+  // Build API parameters from current state
+  const apiParams = useMemo(() => {
+    return purposeService.mapFiltersToApiParams(
+      filters,
+      sortConfig,
+      currentPage,
+      itemsPerPage,
+      hierarchies,
+      suppliers,
+      serviceTypes
+    );
+  }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes]);
 
-    if (filters.search_query) {
-      const query = filters.search_query.toLowerCase();
-      filtered = filtered.filter(purpose => {
-        // Search in description and content
-        const matchesDescriptionOrContent = 
-          purpose.description.toLowerCase().includes(query) ||
-          purpose.content.toLowerCase().includes(query);
-        
-        // Search in EMF IDs
-        const matchesEMF = purpose.emfs.some(emf => 
-          emf.id.toLowerCase().includes(query)
-        );
-        
-        return matchesDescriptionOrContent || matchesEMF;
-      });
+  // Fetch purposes from API
+  const {
+    data: apiResponse,
+    isLoading,
+    error,
+    refetch
+  } = useQuery({
+    queryKey: ['purposes', apiParams],
+    queryFn: () => purposeService.getPurposes(apiParams),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Transform API response to match frontend structure
+  const { purposes, filteredPurposes, totalPages, totalCount } = useMemo(() => {
+    if (!apiResponse) {
+      return {
+        purposes: [],
+        filteredPurposes: [],
+        totalPages: 0,
+        totalCount: 0
+      };
     }
 
-    if (filters.service_type && filters.service_type.length > 0) {
-      filtered = filtered.filter(purpose => filters.service_type!.includes(purpose.service_type));
-    }
+    const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+    
+    return {
+      purposes: transformed.purposes,
+      filteredPurposes: transformed.purposes, // No client-side filtering needed
+      totalPages: transformed.pages,
+      totalCount: transformed.total
+    };
+  }, [apiResponse, hierarchies]);
 
-    if (filters.status && filters.status.length > 0) {
-      filtered = filtered.filter(purpose => filters.status!.includes(purpose.status));
-    }
-
-    if (filters.hierarchy_id) {
-      if (Array.isArray(filters.hierarchy_id)) {
-        filtered = filtered.filter(purpose => 
-          filters.hierarchy_id!.includes(purpose.hierarchy_id)
-        );
-      } else {
-        filtered = filtered.filter(purpose => 
-          purpose.hierarchy_id === filters.hierarchy_id
-        );
-      }
-    }
-
-    if (filters.supplier && filters.supplier.length > 0) {
-      filtered = filtered.filter(purpose => 
-        filters.supplier!.some(supplierFilter => 
-          typeof supplierFilter === 'string' && purpose.supplier.toLowerCase().includes(supplierFilter.toLowerCase())
-        )
-      );
-    }
-
-    // Apply sorting
-    const sortedFiltered = sortPurposes(filtered, sortConfig);
-    setFilteredPurposes(sortedFiltered);
-  }, [filters, purposes, sortConfig]);
-
-  // Calculate dashboard statistics
+  // Calculate dashboard statistics from current purposes
   const stats = useMemo(() => {
-    const total = purposes.length;
+    const total = totalCount;
     const pending = purposes.filter(p => p.status === 'PENDING').length;
     const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
     const completed = purposes.filter(p => p.status === 'COMPLETED').length;
@@ -82,21 +76,35 @@ export const usePurposeData = () => {
     }, 0);
 
     return { total, pending, inProgress, completed, totalCost };
-  }, [purposes]);
+  }, [purposes, totalCount]);
+
+  // Update purposes (for edit functionality)
+  const setPurposes = (updater: (prev: Purpose[]) => Purpose[]) => {
+    // For now, we'll handle this locally but in a real app you'd call an API
+    console.log('setPurposes called - would need API integration for mutations');
+    // Refetch data to ensure consistency
+    refetch();
+  };
 
   // Reset to first page when filters or sorting change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters, sortConfig]);
+  const handleFiltersChange = (newFilters: PurposeFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleSortChange = (newSortConfig: SortConfig) => {
+    setSortConfig(newSortConfig);
+    setCurrentPage(1); // Reset to first page
+  };
 
   return {
     purposes,
     setPurposes,
     filteredPurposes,
     filters,
-    setFilters,
+    setFilters: handleFiltersChange,
     sortConfig,
-    setSortConfig,
+    setSortConfig: handleSortChange,
     isModalOpen,
     setIsModalOpen,
     modalMode,
@@ -105,6 +113,11 @@ export const usePurposeData = () => {
     setSelectedPurpose,
     currentPage,
     setCurrentPage,
-    stats
+    totalPages,
+    totalCount,
+    stats,
+    isLoading,
+    error,
+    refetch
   };
 };

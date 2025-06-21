@@ -90,3 +90,12 @@ export interface PaginatedResponse<T> {
   limit: number;
   total_pages: number;
 }
+
+// Add specific API response type for purposes
+export interface PurposesApiResponse {
+  items: Purpose[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+}
