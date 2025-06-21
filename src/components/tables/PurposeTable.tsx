@@ -7,7 +7,7 @@ import { Eye, Edit, Trash2 } from 'lucide-react';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 
-interface Purp​oseTableProps {
+interface PurposeTableProps {
   purposes: Purpose[];
   onView: (purpose: Purpose) => void;
   onEdit: (purpose: Purpose) => void;
