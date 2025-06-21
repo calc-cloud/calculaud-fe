@@ -132,14 +132,14 @@ const ServiceTypeManagement = () => {
             />
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {paginatedServiceTypes.map((serviceType) => (
               <div key={serviceType.id} className="p-2 border rounded text-xs bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div className="flex flex-col space-y-2">
-                  <p className="font-medium truncate text-center" title={serviceType.name}>
+                <div className="flex items-center justify-between">
+                  <p className="font-medium truncate flex-1 mr-2" title={serviceType.name}>
                     {serviceType.name}
                   </p>
-                  <div className="flex justify-center space-x-1">
+                  <div className="flex space-x-1 flex-shrink-0">
                     <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)} className="h-6 w-6 p-0">
                       <Edit className="h-3 w-3" />
                     </Button>
