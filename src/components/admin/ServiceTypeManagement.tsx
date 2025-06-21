@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +25,7 @@ const ServiceTypeManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingServiceType, setEditingServiceType] = useState<ServiceTypeItem | null>(null);
   const [serviceTypeName, setServiceTypeName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { toast } = useToast();
 
@@ -71,6 +71,11 @@ const ServiceTypeManagement = () => {
     toast({ title: "Service type deleted successfully" });
   };
 
+  // Filter service types based on search query
+  const filteredServiceTypes = serviceTypes.filter(serviceType =>
+    serviceType.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -111,40 +116,52 @@ const ServiceTypeManagement = () => {
         </Dialog>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {serviceTypes.map((serviceType) => (
-            <div key={serviceType.id} className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <p className="font-medium">{serviceType.name}</p>
+        <div className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search service types..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            {filteredServiceTypes.map((serviceType) => (
+              <div key={serviceType.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <p className="font-medium">{serviceType.name}</p>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this service type? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(serviceType.id)}>
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)}>
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to delete this service type? This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(serviceType.id)}>
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </CardContent>
     </Card>
