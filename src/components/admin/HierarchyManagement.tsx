@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -236,7 +235,8 @@ const HierarchyManagement = () => {
     setSelectedParent('');
   }, [selectedParentType]);
 
-  return <Card className="h-full">
+  return (
+    <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">Hierarchy Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -425,7 +425,8 @@ const HierarchyManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>;
+    </Card>
+  );
 };
 
 export default HierarchyManagement;
