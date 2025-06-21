@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -130,7 +129,7 @@ const Dashboard: React.FC = () => {
       } else {
         // Single hierarchy ID (legacy support)
         filtered = filtered.filter(purpose => 
-          purpose.hierarchy_id.toLowerCase().includes(filters.hierarchy_id!.toLowerCase())
+          purpose.hierarchy_id === filters.hierarchy_id
         );
       }
     }
