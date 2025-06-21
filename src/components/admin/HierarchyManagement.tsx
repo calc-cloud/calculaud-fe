@@ -204,7 +204,7 @@ const HierarchyManagement = () => {
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogFooter>
+          </AlertDialogContent>
         </AlertDialog>
       </Card>
 
