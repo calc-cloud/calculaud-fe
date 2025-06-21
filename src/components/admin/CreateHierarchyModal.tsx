@@ -205,9 +205,9 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
           {/* Parent Selection - Only show if there are available parent types */}
           {availableParentTypes.length > 0 && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-5 gap-4">
               {/* Parent Type Selection */}
-              <div className="space-y-2">
+              <div className="col-span-2 space-y-2">
                 <label className="text-sm font-medium">Parent Type (Optional)</label>
                 <Select value={parentType} onValueChange={handleParentTypeChange} disabled={isLoading}>
                   <SelectTrigger>
@@ -230,7 +230,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               </div>
 
               {/* Parent Hierarchy Selection */}
-              <div className="space-y-2">
+              <div className="col-span-3 space-y-2">
                 <label className="text-sm font-medium">
                   {parentType ? `Parent ${formatTypeDisplay(parentType)}` : 'Parent Hierarchy'}
                 </label>
