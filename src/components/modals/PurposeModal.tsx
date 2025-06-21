@@ -17,6 +17,7 @@ import { Purpose, ModalMode } from '@/types';
 import { SERVICE_TYPES, PURPOSE_STATUSES } from '@/utils/constants';
 import { EMFSection } from '../sections/EMFSection';
 import { FileUpload } from '../common/FileUpload';
+import { formatDate } from '@/utils/dateUtils';
 
 interface PurposeModalProps {
   isOpen: boolean;
@@ -157,6 +158,22 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             </div>
           )}
         </DialogHeader>
+
+        {/* Metadata Section - only show in view mode */}
+        {mode === 'view' && purpose && (
+          <div className="bg-muted/30 rounded-lg p-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <Label className="text-muted-foreground font-medium">Last Modified</Label>
+                <p className="mt-1">{formatDate(purpose.last_modified)}</p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground font-medium">Created</Label>
+                <p className="mt-1">{formatDate(purpose.creation_time)}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-6">
           {/* Basic Information */}
