@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -172,7 +173,7 @@ const Dashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleRowClick = (purpose: Purpose) => {
+  const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
     setModalMode('view');
     setIsModalOpen(true);
@@ -319,7 +320,9 @@ const Dashboard: React.FC = () => {
       {/* Purposes Table */}
       <PurposeTable
         purposes={filteredPurposes}
-        onRowClick={handleRowClick}
+        onView={handleViewPurpose}
+        onEdit={handleEditPurpose}
+        onDelete={handleDeletePurpose}
         isLoading={false}
       />
 
