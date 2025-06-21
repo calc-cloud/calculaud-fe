@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -261,12 +260,12 @@ const HierarchyManagement = () => {
                   onValueChange={(value) => {
                     if (value) setSelectedType(value as HierarchyType);
                   }} 
-                  className="mt-1 flex-wrap justify-start"
+                  className="mt-1 w-full grid grid-cols-5 gap-1"
                 >
                   {hierarchyTypes.map(type => {
                     const Icon = getHierarchyIcon(type);
                     return (
-                      <ToggleGroupItem key={type} value={type} size="sm" className="flex items-center gap-1">
+                      <ToggleGroupItem key={type} value={type} size="sm" className="flex items-center gap-1 flex-1">
                         <Icon className="h-3 w-3" />
                         <span className="text-xs">{type}</span>
                       </ToggleGroupItem>
