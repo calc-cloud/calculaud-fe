@@ -43,8 +43,6 @@ const HierarchyManagement = () => {
         return Building;
       case 'ANAF':
         return Users;
-      case 'MADOR':
-        return User; // Using User icon for MADOR
       case 'TEAM':
         return UserCheck;
       default:
