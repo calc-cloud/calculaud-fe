@@ -5,16 +5,17 @@ import { supplierService } from '@/services/supplierService';
 export const useSuppliers = () => {
   return useQuery({
     queryKey: ['suppliers'],
-    queryFn: () => {
+    queryFn: async () => {
       console.log('useSuppliers: Fetching suppliers from backend');
-      return supplierService.getSuppliers();
+      try {
+        const data = await supplierService.getSuppliers();
+        console.log('useSuppliers success:', data);
+        return data;
+      } catch (error) {
+        console.error('useSuppliers error:', error);
+        throw error;
+      }
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
-    onError: (error: any) => {
-      console.error('useSuppliers error:', error);
-    },
-    onSuccess: (data: any) => {
-      console.log('useSuppliers success:', data);
-    }
   });
 };
