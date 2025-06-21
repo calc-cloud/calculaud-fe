@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 type HierarchyType = 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
 
@@ -21,21 +22,7 @@ interface HierarchyItem {
 }
 
 const HierarchyManagement = () => {
-  const [hierarchies, setHierarchies] = useState<HierarchyItem[]>([
-    {
-      id: '1',
-      type: 'Unit',
-      name: 'North Unit',
-      fullPath: 'North Unit'
-    },
-    {
-      id: '2',
-      type: 'Center',
-      name: 'Tech Center',
-      parentId: '1',
-      fullPath: 'North Unit > Tech Center'
-    }
-  ]);
+  const { hierarchies, setHierarchies } = useAdminData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHierarchy, setEditingHierarchy] = useState<HierarchyItem | null>(null);
   const [selectedType, setSelectedType] = useState<HierarchyType>('Unit');

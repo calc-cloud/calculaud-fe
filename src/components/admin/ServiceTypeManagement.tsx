@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,23 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-
-interface ServiceTypeItem {
-  id: string;
-  name: string;
-}
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 const ServiceTypeManagement = () => {
-  const [serviceTypes, setServiceTypes] = useState<ServiceTypeItem[]>([
-    { id: '1', name: 'Consulting' },
-    { id: '2', name: 'Software' },
-    { id: '3', name: 'Hardware' },
-    { id: '4', name: 'Maintenance' },
-    { id: '5', name: 'Training' },
-    { id: '6', name: 'Other' }
-  ]);
+  const { serviceTypes, setServiceTypes } = useAdminData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingServiceType, setEditingServiceType] = useState<ServiceTypeItem | null>(null);
+  const [editingServiceType, setEditingServiceType] = useState<any>(null);
   const [serviceTypeName, setServiceTypeName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -35,7 +25,7 @@ const ServiceTypeManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (serviceType: ServiceTypeItem) => {
+  const handleEdit = (serviceType: any) => {
     setEditingServiceType(serviceType);
     setServiceTypeName(serviceType.name);
     setIsDialogOpen(true);
@@ -55,7 +45,7 @@ const ServiceTypeManagement = () => {
       ));
       toast({ title: "Service type updated successfully" });
     } else {
-      const newServiceType: ServiceTypeItem = {
+      const newServiceType = {
         id: Date.now().toString(),
         name: serviceTypeName.trim()
       };

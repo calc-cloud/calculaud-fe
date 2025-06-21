@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface SupplierItem {
   id: string;
@@ -14,18 +15,9 @@ interface SupplierItem {
 }
 
 const SupplierManagement = () => {
-  const [suppliers, setSuppliers] = useState<SupplierItem[]>([
-    { id: '1', name: 'TechCorp Solutions' },
-    { id: '2', name: 'Hardware Plus Inc' },
-    { id: '3', name: 'Strategic Advisors LLC' },
-    { id: '4', name: 'Global Tech Services' },
-    { id: '5', name: 'Innovation Partners' },
-    { id: '6', name: 'Digital Solutions Co' },
-    { id: '7', name: 'Enterprise Systems Ltd' },
-    { id: '8', name: 'CloudTech Inc' }
-  ]);
+  const { suppliers, setSuppliers } = useAdminData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<SupplierItem | null>(null);
+  const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [supplierName, setSupplierName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -37,7 +29,7 @@ const SupplierManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (supplier: SupplierItem) => {
+  const handleEdit = (supplier: any) => {
     setEditingSupplier(supplier);
     setSupplierName(supplier.name);
     setIsDialogOpen(true);
@@ -57,7 +49,7 @@ const SupplierManagement = () => {
       ));
       toast({ title: "Supplier updated successfully" });
     } else {
-      const newSupplier: SupplierItem = {
+      const newSupplier = {
         id: Date.now().toString(),
         name: supplierName.trim()
       };

@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Search, Filter, X, ChevronDown } from 'lucide-react';
-import { PurposeFilters, ServiceType, PurposeStatus, Supplier } from '@/types';
-import { SERVICE_TYPES, PURPOSE_STATUSES, SUPPLIERS } from '@/utils/constants';
+import { Search, X, ChevronDown } from 'lucide-react';
+import { PurposeFilters } from '@/types';
+import { HierarchySelector } from './HierarchySelector';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface FilterBarProps {
   filters: PurposeFilters;
@@ -20,6 +21,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onFiltersChange,
   onExport
 }) => {
+  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+
   const updateFilter = (key: keyof PurposeFilters, value: string | string[] | undefined) => {
     onFiltersChange({
       ...filters,
@@ -27,16 +30,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     });
   };
 
-  const toggleServiceType = (serviceType: ServiceType) => {
+  const toggleServiceType = (serviceTypeName: string) => {
     const currentTypes = filters.service_type || [];
-    const updatedTypes = currentTypes.includes(serviceType)
-      ? currentTypes.filter(type => type !== serviceType)
-      : [...currentTypes, serviceType];
+    const updatedTypes = currentTypes.includes(serviceTypeName as any)
+      ? currentTypes.filter(type => type !== serviceTypeName)
+      : [...currentTypes, serviceTypeName as any];
     
     updateFilter('service_type', updatedTypes.length > 0 ? updatedTypes : undefined);
   };
 
-  const toggleStatus = (status: PurposeStatus) => {
+  const toggleStatus = (status: any) => {
     const currentStatuses = filters.status || [];
     const updatedStatuses = currentStatuses.includes(status)
       ? currentStatuses.filter(s => s !== status)
@@ -45,11 +48,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     updateFilter('status', updatedStatuses.length > 0 ? updatedStatuses : undefined);
   };
 
-  const toggleSupplier = (supplier: Supplier) => {
+  const toggleSupplier = (supplierName: string) => {
     const currentSuppliers = filters.supplier || [];
-    const updatedSuppliers = currentSuppliers.includes(supplier)
-      ? currentSuppliers.filter(s => s !== supplier)
-      : [...currentSuppliers, supplier];
+    const updatedSuppliers = currentSuppliers.includes(supplierName as any)
+      ? currentSuppliers.filter(s => s !== supplierName)
+      : [...currentSuppliers, supplierName as any];
     
     updateFilter('supplier', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
   };
@@ -83,6 +86,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     return `${selectedSuppliers.length} selected`;
   };
 
+  const PURPOSE_STATUSES = ['Pending', 'In Progress', 'Rejected', 'Completed'];
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -98,6 +103,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Filter Controls */}
       <div className="flex flex-wrap gap-3">
+        {/* Hierarchy Selector */}
+        <HierarchySelector
+          hierarchies={hierarchies}
+          selectedIds={filters.hierarchy_id ? [filters.hierarchy_id] : []}
+          onSelectionChange={(selectedIds) => 
+            updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds[0] : undefined)
+          }
+        />
+
         {/* Service Type Multi-Select */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -107,17 +121,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
-            {SERVICE_TYPES.map((type) => (
+            {serviceTypes.map((type) => (
               <DropdownMenuItem
-                key={type}
+                key={type.id}
                 className="flex items-center space-x-2 cursor-pointer"
                 onSelect={(e) => e.preventDefault()}
               >
                 <Checkbox
-                  checked={(filters.service_type || []).includes(type)}
-                  onCheckedChange={() => toggleServiceType(type)}
+                  checked={(filters.service_type || []).includes(type.name as any)}
+                  onCheckedChange={() => toggleServiceType(type.name)}
                 />
-                <span>{type}</span>
+                <span>{type.name}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -139,7 +153,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 onSelect={(e) => e.preventDefault()}
               >
                 <Checkbox
-                  checked={(filters.status || []).includes(status)}
+                  checked={(filters.status || []).includes(status as any)}
                   onCheckedChange={() => toggleStatus(status)}
                 />
                 <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
@@ -159,28 +173,21 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
-            {SUPPLIERS.map((supplier) => (
+            {suppliers.map((supplier) => (
               <DropdownMenuItem
-                key={supplier}
+                key={supplier.id}
                 className="flex items-center space-x-2 cursor-pointer"
                 onSelect={(e) => e.preventDefault()}
               >
                 <Checkbox
-                  checked={(filters.supplier || []).includes(supplier)}
-                  onCheckedChange={() => toggleSupplier(supplier)}
+                  checked={(filters.supplier || []).includes(supplier.name as any)}
+                  onCheckedChange={() => toggleSupplier(supplier.name)}
                 />
-                <span className="truncate">{supplier}</span>
+                <span className="truncate">{supplier.name}</span>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <Input
-          placeholder="Hierarchy ID"
-          value={filters.hierarchy_id || ''}
-          onChange={(e) => updateFilter('hierarchy_id', e.target.value)}
-          className="w-[130px]"
-        />
 
         <div className="flex items-center gap-2 ml-auto">
           {activeFiltersCount > 0 && (
@@ -240,7 +247,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           )}
           {filters.hierarchy_id && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              Hierarchy: {filters.hierarchy_id}
+              Unit: {hierarchies.find(h => h.id === filters.hierarchy_id)?.name || filters.hierarchy_id}
               <X 
                 className="h-3 w-3 cursor-pointer" 
                 onClick={() => updateFilter('hierarchy_id', undefined)}
