@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -139,21 +138,6 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[350px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
-        <div className="p-3 border-b bg-gray-50">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium text-gray-900">Select Organizational Units</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearAll}
-              className="text-xs text-gray-500 hover:text-gray-700"
-            >
-              Clear All
-            </Button>
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Choose units, centers, anafs, madofs, or teams.</p>
-        </div>
-        
         <div className="py-2">
           {Object.entries(groupedHierarchies).map(([type, items]) => 
             renderHierarchyGroup(type, items)
