@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
   const addEMF = () => {
     const newEMF: EMF = {
-      id: `emf-${Date.now()}`,
+      id: '',
       purpose_id: '',
       creation_date: getTodayString(),
       costs: []
@@ -94,12 +95,12 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
         <p className="text-muted-foreground text-sm">No EMFs added yet.</p>
       )}
 
-      {emfs.map((emf) => (
-        <Card key={emf.id}>
+      {emfs.map((emf, index) => (
+        <Card key={`${emf.id || 'new'}-${index}`}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
-                EMF {emf.id}
+                EMF {emf.id || 'New EMF'}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
@@ -108,9 +109,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setExpandedEMF(expandedEMF === emf.id ? null : emf.id)}
+                  onClick={() => setExpandedEMF(expandedEMF === `${emf.id || 'new'}-${index}` ? null : `${emf.id || 'new'}-${index}`)}
                 >
-                  {expandedEMF === emf.id ? 'Collapse' : 'Expand'}
+                  {expandedEMF === `${emf.id || 'new'}-${index}` ? 'Collapse' : 'Expand'}
                 </Button>
                 {!isReadOnly && (
                   <Button
@@ -125,9 +126,18 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             </div>
           </CardHeader>
 
-          {expandedEMF === emf.id && (
+          {expandedEMF === `${emf.id || 'new'}-${index}` && (
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>EMF ID</Label>
+                  <Input
+                    value={emf.id}
+                    onChange={(e) => updateEMF(emf.id, { id: e.target.value })}
+                    disabled={isReadOnly}
+                    placeholder="Enter EMF ID"
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label>Creation Date</Label>
                   <Input
