@@ -239,7 +239,7 @@ const HierarchyManagement = () => {
           </div>
           
           <div className="space-y-1">
-            {paginatedHierarchies.map(hierarchy => <div key={hierarchy.id} className="flex items-center justify-between p-2 border rounded text-sm bg-gray-50">
+            {paginatedHierarchies.map(hierarchy => <div key={hierarchy.id} className="flex items-center justify-between p-2 border rounded text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium truncate">{hierarchy.fullPath}</p>
                   <p className="text-xs text-gray-500">Type: {hierarchy.type}</p>
