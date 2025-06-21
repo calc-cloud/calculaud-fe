@@ -34,7 +34,7 @@ const HierarchyManagement = () => {
   const {
     toast
   } = useToast();
-  const itemsPerPage = 15;
+  const itemsPerPage = 10;
   
   const getHierarchyIcon = (type: HierarchyType) => {
     switch (type) {
