@@ -45,6 +45,8 @@ const HierarchyManagement = () => {
         return Users;
       case 'TEAM':
         return UserCheck;
+      case 'MADOR':
+        return User;
       default:
         return Building2;
     }

@@ -16,7 +16,7 @@ interface CreateHierarchyModalProps {
   editItem?: Hierarchy | null;
 }
 
-const hierarchyOrder: HierarchyType[] = ['UNIT', 'CENTER', 'ANAF', 'TEAM'];
+const hierarchyOrder: HierarchyType[] = ['UNIT', 'CENTER', 'ANAF', 'TEAM', 'MADOR'];
 
 const getHierarchyIcon = (type: HierarchyType) => {
   switch (type) {
@@ -28,6 +28,8 @@ const getHierarchyIcon = (type: HierarchyType) => {
       return Users;
     case 'TEAM':
       return UserCheck;
+    case 'MADOR':
+      return User;
   }
 };
 
