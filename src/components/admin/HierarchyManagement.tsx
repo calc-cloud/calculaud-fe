@@ -42,8 +42,7 @@ const HierarchyManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hierarchyToDelete, setHierarchyToDelete] = useState<HierarchyItem | null>(null);
-  const [parentComboboxOpen, setParentComboboxOpen] = useState(false);
-  const [parentSearchValue, setParentSearchValue] = useState('');
+  const [parentDropdownOpen, setParentDropdownOpen] = useState(false);
   const {
     toast
   } = useToast();
@@ -210,12 +209,6 @@ const HierarchyManagement = () => {
 
   const availableParentTypes = getAvailableParentTypes(selectedType);
   const parentOptions = selectedParentType ? getParentOptions(selectedParentType) : [];
-  const filteredParentOptions = selectedParentType 
-    ? getParentOptions(selectedParentType).filter(parent =>
-        parent.fullPath.toLowerCase().includes(parentSearchValue.toLowerCase()) ||
-        parent.name.toLowerCase().includes(parentSearchValue.toLowerCase())
-      )
-    : [];
 
   // Filter hierarchies based on search query
   const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.fullPath.toLowerCase().includes(searchQuery.toLowerCase()) || hierarchy.type.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -235,13 +228,11 @@ const HierarchyManagement = () => {
   React.useEffect(() => {
     setSelectedParentType('');
     setSelectedParent('');
-    setParentSearchValue('');
   }, [selectedType]);
 
   // Reset parent hierarchy when parent type changes
   React.useEffect(() => {
     setSelectedParent('');
-    setParentSearchValue('');
   }, [selectedParentType]);
 
   return <Card className="h-full">
@@ -254,7 +245,7 @@ const HierarchyManagement = () => {
               Add Hierarchy
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-xl">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>
                 {editingHierarchy ? 'Edit Hierarchy' : 'Create New Hierarchy'}
@@ -304,12 +295,12 @@ const HierarchyManagement = () => {
                   {selectedParentType && (
                     <div className="col-span-2">
                       <Label htmlFor="parent" className="text-sm">Parent {selectedParentType}</Label>
-                      <Popover open={parentComboboxOpen} onOpenChange={setParentComboboxOpen}>
+                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             role="combobox"
-                            aria-expanded={parentComboboxOpen}
+                            aria-expanded={parentDropdownOpen}
                             className="w-full justify-between h-8"
                           >
                             {selectedParent
@@ -318,25 +309,19 @@ const HierarchyManagement = () => {
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command shouldFilter={false}>
-                            <CommandInput 
-                              placeholder={`Search ${selectedParentType.toLowerCase()}...`}
-                              value={parentSearchValue}
-                              onValueChange={setParentSearchValue}
-                              className="h-9"
-                            />
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                          <Command>
+                            <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} />
                             <CommandList>
                               <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                               <CommandGroup>
-                                {filteredParentOptions.map(parent => (
+                                {parentOptions.map(parent => (
                                   <CommandItem
                                     key={parent.id}
-                                    value={parent.id}
+                                    value={parent.fullPath}
                                     onSelect={() => {
                                       setSelectedParent(parent.id);
-                                      setParentComboboxOpen(false);
-                                      setParentSearchValue('');
+                                      setParentDropdownOpen(false);
                                     }}
                                   >
                                     <Check
