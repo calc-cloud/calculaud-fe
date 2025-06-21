@@ -183,16 +183,16 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Bikushit Date</Label>
+                  <Label>Bikushit Creation Date</Label>
                   <Input
                     type="date"
-                    value={emf.bikushit_date || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_date: e.target.value })}
+                    value={emf.bikushit_creation_date || ''}
+                    onChange={(e) => updateEMF(index, { bikushit_creation_date: e.target.value })}
                     disabled={isReadOnly}
                   />
-                  {emf.bikushit_date && (
+                  {emf.bikushit_creation_date && (
                     <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.bikushit_date)} days since bikushit
+                      {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
                     </span>
                   )}
                 </div>
@@ -210,16 +210,16 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Demand Date</Label>
+                  <Label>Demand Creation Date</Label>
                   <Input
                     type="date"
-                    value={emf.demand_date || ''}
-                    onChange={(e) => updateEMF(index, { demand_date: e.target.value })}
+                    value={emf.demand_creation_date || ''}
+                    onChange={(e) => updateEMF(index, { demand_creation_date: e.target.value })}
                     disabled={isReadOnly}
                   />
-                  {emf.demand_date && (
+                  {emf.demand_creation_date && (
                     <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.demand_date)} days since demand
+                      {calculateDaysSince(emf.demand_creation_date)} days since demand
                     </span>
                   )}
                 </div>
@@ -237,16 +237,16 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Order Date</Label>
+                  <Label>Order Creation Date</Label>
                   <Input
                     type="date"
-                    value={emf.order_date || ''}
-                    onChange={(e) => updateEMF(index, { order_date: e.target.value })}
+                    value={emf.order_creation_date || ''}
+                    onChange={(e) => updateEMF(index, { order_creation_date: e.target.value })}
                     disabled={isReadOnly}
                   />
-                  {emf.order_date && (
+                  {emf.order_creation_date && (
                     <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.order_date)} days since order
+                      {calculateDaysSince(emf.order_creation_date)} days since order
                     </span>
                   )}
                 </div>

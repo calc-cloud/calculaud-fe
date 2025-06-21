@@ -23,11 +23,11 @@ export interface EMF {
   purpose_id: string;
   creation_date: string;
   demand_id?: string;
-  demand_date?: string;
+  demand_creation_date?: string;
   order_id?: string;
-  order_date?: string;
+  order_creation_date?: string;
   bikushit_id?: string;
-  bikushit_date?: string;
+  bikushit_creation_date?: string;
   costs: EMFCost[];
 }
 
