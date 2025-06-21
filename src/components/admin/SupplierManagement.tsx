@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +24,7 @@ const SupplierManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
-  const itemsPerPage = 15;
+  const itemsPerPage = 12;
 
   const handleCreate = () => {
     setEditingSupplier(null);
