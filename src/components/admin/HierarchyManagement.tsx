@@ -42,7 +42,8 @@ const HierarchyManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hierarchyToDelete, setHierarchyToDelete] = useState<HierarchyItem | null>(null);
-  const [parentDropdownOpen, setParentDropdownOpen] = useState(false);
+  const [parentComboboxOpen, setParentComboboxOpen] = useState(false);
+  const [parentSearchValue, setParentSearchValue] = useState('');
   const {
     toast
   } = useToast();
@@ -209,6 +210,12 @@ const HierarchyManagement = () => {
 
   const availableParentTypes = getAvailableParentTypes(selectedType);
   const parentOptions = selectedParentType ? getParentOptions(selectedParentType) : [];
+  const filteredParentOptions = selectedParentType 
+    ? getParentOptions(selectedParentType).filter(parent =>
+        parent.fullPath.toLowerCase().includes(parentSearchValue.toLowerCase()) ||
+        parent.name.toLowerCase().includes(parentSearchValue.toLowerCase())
+      )
+    : [];
 
   // Filter hierarchies based on search query
   const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.fullPath.toLowerCase().includes(searchQuery.toLowerCase()) || hierarchy.type.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -228,11 +235,13 @@ const HierarchyManagement = () => {
   React.useEffect(() => {
     setSelectedParentType('');
     setSelectedParent('');
+    setParentSearchValue('');
   }, [selectedType]);
 
   // Reset parent hierarchy when parent type changes
   React.useEffect(() => {
     setSelectedParent('');
+    setParentSearchValue('');
   }, [selectedParentType]);
 
   return <Card className="h-full">
@@ -295,12 +304,12 @@ const HierarchyManagement = () => {
                   {selectedParentType && (
                     <div className="col-span-2">
                       <Label htmlFor="parent" className="text-sm">Parent {selectedParentType}</Label>
-                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen} modal={false}>
+                      <Popover open={parentComboboxOpen} onOpenChange={setParentComboboxOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             role="combobox"
-                            aria-expanded={parentDropdownOpen}
+                            aria-expanded={parentComboboxOpen}
                             className="w-full justify-between h-8"
                           >
                             {selectedParent
@@ -310,21 +319,24 @@ const HierarchyManagement = () => {
                           </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command>
+                          <Command shouldFilter={false}>
                             <CommandInput 
-                              placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
+                              placeholder={`Search ${selectedParentType.toLowerCase()}...`}
+                              value={parentSearchValue}
+                              onValueChange={setParentSearchValue}
                               className="h-9"
                             />
                             <CommandList>
                               <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                               <CommandGroup>
-                                {parentOptions.map(parent => (
+                                {filteredParentOptions.map(parent => (
                                   <CommandItem
                                     key={parent.id}
-                                    value={`${parent.name} ${parent.fullPath}`}
+                                    value={parent.id}
                                     onSelect={() => {
                                       setSelectedParent(parent.id);
-                                      setParentDropdownOpen(false);
+                                      setParentComboboxOpen(false);
+                                      setParentSearchValue('');
                                     }}
                                   >
                                     <Check
