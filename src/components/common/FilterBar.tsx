@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -94,7 +93,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by description, content, or supplier..."
+          placeholder="Search by description, content, or EMF ID..."
           value={filters.search_query || ''}
           onChange={(e) => updateFilter('search_query', e.target.value)}
           className="pl-10"

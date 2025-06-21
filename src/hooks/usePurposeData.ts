@@ -20,11 +20,19 @@ export const usePurposeData = () => {
 
     if (filters.search_query) {
       const query = filters.search_query.toLowerCase();
-      filtered = filtered.filter(purpose => 
-        purpose.description.toLowerCase().includes(query) ||
-        purpose.content.toLowerCase().includes(query) ||
-        purpose.supplier.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter(purpose => {
+        // Search in description and content
+        const matchesDescriptionOrContent = 
+          purpose.description.toLowerCase().includes(query) ||
+          purpose.content.toLowerCase().includes(query);
+        
+        // Search in EMF IDs
+        const matchesEMF = purpose.emfs.some(emf => 
+          emf.id.toLowerCase().includes(query)
+        );
+        
+        return matchesDescriptionOrContent || matchesEMF;
+      });
     }
 
     if (filters.service_type && filters.service_type.length > 0) {
