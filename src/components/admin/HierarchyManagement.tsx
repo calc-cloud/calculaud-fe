@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,9 +12,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
-
 type HierarchyType = 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
-
 interface HierarchyItem {
   id: string;
   type: HierarchyType;
@@ -23,9 +20,11 @@ interface HierarchyItem {
   parentId?: string;
   fullPath: string;
 }
-
 const HierarchyManagement = () => {
-  const { hierarchies, setHierarchies } = useAdminData();
+  const {
+    hierarchies,
+    setHierarchies
+  } = useAdminData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHierarchy, setEditingHierarchy] = useState<HierarchyItem | null>(null);
   const [selectedType, setSelectedType] = useState<HierarchyType>('Unit');
@@ -35,35 +34,31 @@ const HierarchyManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hierarchyToDelete, setHierarchyToDelete] = useState<HierarchyItem | null>(null);
-
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const itemsPerPage = 15; // Increased from 10
 
   const hierarchyTypes: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
-
   const getParentOptions = (type: HierarchyType) => {
     const typeOrder = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
     const currentIndex = typeOrder.indexOf(type);
     if (currentIndex === 0) return []; // Unit has no parent
-    
+
     const parentType = typeOrder[currentIndex - 1] as HierarchyType;
     return hierarchies.filter(h => h.type === parentType);
   };
-
   const getParentTypeName = (type: HierarchyType): string => {
     const typeOrder = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
     const currentIndex = typeOrder.indexOf(type);
     if (currentIndex === 0) return '';
     return typeOrder[currentIndex - 1];
   };
-
   const buildFullPath = (name: string, parentId?: string): string => {
     if (!parentId) return name;
-    
     const parent = hierarchies.find(h => h.id === parentId);
     return parent ? `${parent.fullPath} > ${name}` : name;
   };
-
   const handleCreate = () => {
     setEditingHierarchy(null);
     setSelectedType('Unit');
@@ -71,7 +66,6 @@ const HierarchyManagement = () => {
     setHierarchyName('');
     setIsDialogOpen(true);
   };
-
   const handleEdit = (hierarchy: HierarchyItem) => {
     setEditingHierarchy(hierarchy);
     setSelectedType(hierarchy.type);
@@ -79,46 +73,46 @@ const HierarchyManagement = () => {
     setHierarchyName(hierarchy.name);
     setIsDialogOpen(true);
   };
-
   const handleSave = () => {
     if (!hierarchyName.trim()) {
-      toast({ title: "Please enter a hierarchy name", variant: "destructive" });
+      toast({
+        title: "Please enter a hierarchy name",
+        variant: "destructive"
+      });
       return;
     }
-
     const parentOptions = getParentOptions(selectedType);
     if (parentOptions.length > 0 && !selectedParent) {
       const parentTypeName = getParentTypeName(selectedType);
-      toast({ title: `Please select a parent ${parentTypeName}`, variant: "destructive" });
+      toast({
+        title: `Please select a parent ${parentTypeName}`,
+        variant: "destructive"
+      });
       return;
     }
 
     // For types that require a parent but no parent options exist, show error
     if (selectedType !== 'Unit' && parentOptions.length === 0) {
       const parentTypeName = getParentTypeName(selectedType);
-      toast({ 
-        title: `No ${parentTypeName} hierarchies available`, 
+      toast({
+        title: `No ${parentTypeName} hierarchies available`,
         description: `Please create a ${parentTypeName} hierarchy first.`,
-        variant: "destructive" 
+        variant: "destructive"
       });
       return;
     }
-
     const fullPath = buildFullPath(hierarchyName, selectedParent || undefined);
-    
     if (editingHierarchy) {
-      setHierarchies(prev => prev.map(h => 
-        h.id === editingHierarchy.id 
-          ? { 
-              ...h, 
-              type: selectedType,
-              name: hierarchyName,
-              parentId: selectedParent || undefined,
-              fullPath
-            }
-          : h
-      ));
-      toast({ title: "Hierarchy updated successfully" });
+      setHierarchies(prev => prev.map(h => h.id === editingHierarchy.id ? {
+        ...h,
+        type: selectedType,
+        name: hierarchyName,
+        parentId: selectedParent || undefined,
+        fullPath
+      } : h));
+      toast({
+        title: "Hierarchy updated successfully"
+      });
     } else {
       const newHierarchy: HierarchyItem = {
         id: Date.now().toString(),
@@ -128,63 +122,55 @@ const HierarchyManagement = () => {
         fullPath
       };
       setHierarchies(prev => [...prev, newHierarchy]);
-      toast({ title: "Hierarchy created successfully" });
+      toast({
+        title: "Hierarchy created successfully"
+      });
     }
-    
     setIsDialogOpen(false);
   };
-
   const handleDeleteClick = (hierarchy: HierarchyItem) => {
     setHierarchyToDelete(hierarchy);
     setDeleteDialogOpen(true);
   };
-
   const handleDelete = () => {
     if (hierarchyToDelete) {
       // Check if this hierarchy has children
       const hasChildren = hierarchies.some(h => h.parentId === hierarchyToDelete.id);
       if (hasChildren) {
-        toast({ 
-          title: "Cannot delete hierarchy", 
+        toast({
+          title: "Cannot delete hierarchy",
           description: "This hierarchy has child hierarchies. Please delete them first.",
-          variant: "destructive" 
+          variant: "destructive"
         });
         setDeleteDialogOpen(false);
         setHierarchyToDelete(null);
         return;
       }
-
       setHierarchies(prev => prev.filter(h => h.id !== hierarchyToDelete.id));
-      toast({ title: "Hierarchy deleted successfully" });
+      toast({
+        title: "Hierarchy deleted successfully"
+      });
       setDeleteDialogOpen(false);
       setHierarchyToDelete(null);
     }
   };
-
   const parentOptions = getParentOptions(selectedType);
   const parentTypeName = getParentTypeName(selectedType);
 
   // Filter hierarchies based on search query
-  const filteredHierarchies = hierarchies.filter(hierarchy =>
-    hierarchy.fullPath.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    hierarchy.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.fullPath.toLowerCase().includes(searchQuery.toLowerCase()) || hierarchy.type.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredHierarchies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedHierarchies = filteredHierarchies
-    .sort((a, b) => a.fullPath.localeCompare(b.fullPath))
-    .slice(startIndex, endIndex);
+  const paginatedHierarchies = filteredHierarchies.sort((a, b) => a.fullPath.localeCompare(b.fullPath)).slice(startIndex, endIndex);
 
   // Reset to page 1 when search changes
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
-
-  return (
-    <Card className="h-full">
+  return <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">Hierarchy Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -203,50 +189,34 @@ const HierarchyManagement = () => {
             <div className="space-y-3">
               <div>
                 <Label className="text-sm">Hierarchy Type</Label>
-                <RadioGroup 
-                  value={selectedType} 
-                  onValueChange={(value) => {
-                    setSelectedType(value as HierarchyType);
-                    setSelectedParent(''); // Clear parent when type changes
-                  }}
-                  className="mt-1"
-                >
-                  {hierarchyTypes.map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
+                <RadioGroup value={selectedType} onValueChange={value => {
+                setSelectedType(value as HierarchyType);
+                setSelectedParent(''); // Clear parent when type changes
+              }} className="mt-1">
+                  {hierarchyTypes.map(type => <div key={type} className="flex items-center space-x-2">
                       <RadioGroupItem value={type} id={type} />
                       <Label htmlFor={type} className="text-sm">{type}</Label>
-                    </div>
-                  ))}
+                    </div>)}
                 </RadioGroup>
               </div>
 
-              {selectedType !== 'Unit' && (
-                <div>
+              {selectedType !== 'Unit' && <div>
                   <Label htmlFor="parent" className="text-sm">Parent {parentTypeName}</Label>
                   <Select value={selectedParent} onValueChange={setSelectedParent}>
                     <SelectTrigger className="h-8">
                       <SelectValue placeholder={`Select parent ${parentTypeName.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      {parentOptions.map((parent) => (
-                        <SelectItem key={parent.id} value={parent.id}>
+                      {parentOptions.map(parent => <SelectItem key={parent.id} value={parent.id}>
                           {parent.fullPath}
-                        </SelectItem>
-                      ))}
+                        </SelectItem>)}
                     </SelectContent>
                   </Select>
-                </div>
-              )}
+                </div>}
 
               <div>
                 <Label htmlFor="name" className="text-sm">{selectedType} Name</Label>
-                <Input
-                  id="name"
-                  value={hierarchyName}
-                  onChange={(e) => setHierarchyName(e.target.value)}
-                  placeholder={`Enter ${selectedType.toLowerCase()} name`}
-                  className="h-8"
-                />
+                <Input id="name" value={hierarchyName} onChange={e => setHierarchyName(e.target.value)} placeholder={`Enter ${selectedType.toLowerCase()} name`} className="h-8" />
               </div>
 
               <div className="flex justify-end space-x-2 pt-2">
@@ -265,17 +235,11 @@ const HierarchyManagement = () => {
         <div className="space-y-3">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
-            <Input
-              placeholder="Search hierarchies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-7 h-8 text-sm"
-            />
+            <Input placeholder="Search hierarchies..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-7 h-8 text-sm" />
           </div>
           
           <div className="space-y-1">
-            {paginatedHierarchies.map((hierarchy) => (
-              <div key={hierarchy.id} className="flex items-center justify-between p-2 border rounded text-sm">
+            {paginatedHierarchies.map(hierarchy => <div key={hierarchy.id} className="flex items-center justify-between p-2 border rounded text-sm bg-gray-50">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium truncate">{hierarchy.fullPath}</p>
                   <p className="text-xs text-gray-500">Type: {hierarchy.type}</p>
@@ -299,15 +263,10 @@ const HierarchyManagement = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              </div>
-            ))}
+              </div>)}
           </div>
 
-          <TablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <TablePagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
       </CardContent>
 
@@ -327,8 +286,6 @@ const HierarchyManagement = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Card>
-  );
+    </Card>;
 };
-
 export default HierarchyManagement;
