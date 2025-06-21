@@ -8,80 +8,111 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+
+type HierarchyType = 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
 
 interface HierarchyItem {
   id: string;
-  unit: string;
-  center: string;
-  anaf: string;
-  mador: string;
-  team: string;
+  type: HierarchyType;
   name: string;
+  parentId?: string;
+  fullPath: string;
 }
 
 const HierarchyManagement = () => {
   const [hierarchies, setHierarchies] = useState<HierarchyItem[]>([
     {
       id: '1',
-      unit: 'North Unit',
-      center: 'Tech Center',
-      anaf: 'Development Branch',
-      mador: 'Software Department',
-      team: 'Frontend Team',
-      name: 'North Unit > Tech Center > Development Branch > Software Department > Frontend Team'
+      type: 'Unit',
+      name: 'North Unit',
+      fullPath: 'North Unit'
+    },
+    {
+      id: '2',
+      type: 'Center',
+      name: 'Tech Center',
+      parentId: '1',
+      fullPath: 'North Unit > Tech Center'
     }
   ]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHierarchy, setEditingHierarchy] = useState<HierarchyItem | null>(null);
-  const [formData, setFormData] = useState({
-    unit: '',
-    center: '',
-    anaf: '',
-    mador: '',
-    team: ''
-  });
+  const [selectedType, setSelectedType] = useState<HierarchyType>('Unit');
+  const [selectedParent, setSelectedParent] = useState<string>('');
+  const [hierarchyName, setHierarchyName] = useState('');
 
   const { toast } = useToast();
 
+  const hierarchyTypes: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
+
+  const getParentOptions = (type: HierarchyType) => {
+    const typeOrder = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
+    const currentIndex = typeOrder.indexOf(type);
+    if (currentIndex === 0) return []; // Unit has no parent
+    
+    const parentType = typeOrder[currentIndex - 1];
+    return hierarchies.filter(h => h.type === parentType);
+  };
+
+  const buildFullPath = (name: string, parentId?: string): string => {
+    if (!parentId) return name;
+    
+    const parent = hierarchies.find(h => h.id === parentId);
+    return parent ? `${parent.fullPath} > ${name}` : name;
+  };
+
   const handleCreate = () => {
     setEditingHierarchy(null);
-    setFormData({
-      unit: '',
-      center: '',
-      anaf: '',
-      mador: '',
-      team: ''
-    });
+    setSelectedType('Unit');
+    setSelectedParent('');
+    setHierarchyName('');
     setIsDialogOpen(true);
   };
 
   const handleEdit = (hierarchy: HierarchyItem) => {
     setEditingHierarchy(hierarchy);
-    setFormData({
-      unit: hierarchy.unit,
-      center: hierarchy.center,
-      anaf: hierarchy.anaf,
-      mador: hierarchy.mador,
-      team: hierarchy.team
-    });
+    setSelectedType(hierarchy.type);
+    setSelectedParent(hierarchy.parentId || '');
+    setHierarchyName(hierarchy.name);
     setIsDialogOpen(true);
   };
 
   const handleSave = () => {
-    const name = `${formData.unit} > ${formData.center} > ${formData.anaf} > ${formData.mador} > ${formData.team}`;
+    if (!hierarchyName.trim()) {
+      toast({ title: "Please enter a hierarchy name", variant: "destructive" });
+      return;
+    }
+
+    const parentOptions = getParentOptions(selectedType);
+    if (parentOptions.length > 0 && !selectedParent) {
+      toast({ title: "Please select a parent hierarchy", variant: "destructive" });
+      return;
+    }
+
+    const fullPath = buildFullPath(hierarchyName, selectedParent || undefined);
     
     if (editingHierarchy) {
       setHierarchies(prev => prev.map(h => 
         h.id === editingHierarchy.id 
-          ? { ...h, ...formData, name }
+          ? { 
+              ...h, 
+              type: selectedType,
+              name: hierarchyName,
+              parentId: selectedParent || undefined,
+              fullPath
+            }
           : h
       ));
       toast({ title: "Hierarchy updated successfully" });
     } else {
       const newHierarchy: HierarchyItem = {
         id: Date.now().toString(),
-        ...formData,
-        name
+        type: selectedType,
+        name: hierarchyName,
+        parentId: selectedParent || undefined,
+        fullPath
       };
       setHierarchies(prev => [...prev, newHierarchy]);
       toast({ title: "Hierarchy created successfully" });
@@ -91,9 +122,22 @@ const HierarchyManagement = () => {
   };
 
   const handleDelete = (id: string) => {
+    // Check if this hierarchy has children
+    const hasChildren = hierarchies.some(h => h.parentId === id);
+    if (hasChildren) {
+      toast({ 
+        title: "Cannot delete hierarchy", 
+        description: "This hierarchy has child hierarchies. Please delete them first.",
+        variant: "destructive" 
+      });
+      return;
+    }
+
     setHierarchies(prev => prev.filter(h => h.id !== id));
     toast({ title: "Hierarchy deleted successfully" });
   };
+
+  const parentOptions = getParentOptions(selectedType);
 
   return (
     <Card>
@@ -114,50 +158,52 @@ const HierarchyManagement = () => {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="unit">Unit</Label>
-                <Input
-                  id="unit"
-                  value={formData.unit}
-                  onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                  placeholder="Enter unit name"
-                />
+                <Label>Hierarchy Type</Label>
+                <RadioGroup 
+                  value={selectedType} 
+                  onValueChange={(value) => {
+                    setSelectedType(value as HierarchyType);
+                    setSelectedParent(''); // Clear parent when type changes
+                  }}
+                  className="mt-2"
+                >
+                  {hierarchyTypes.map((type) => (
+                    <div key={type} className="flex items-center space-x-2">
+                      <RadioGroupItem value={type} id={type} />
+                      <Label htmlFor={type}>{type}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
               </div>
+
+              {parentOptions.length > 0 && (
+                <div>
+                  <Label htmlFor="parent">Parent {getParentOptions(selectedType)[0]?.type || 'Hierarchy'}</Label>
+                  <Select value={selectedParent} onValueChange={setSelectedParent}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select parent hierarchy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {parentOptions.map((parent) => (
+                        <SelectItem key={parent.id} value={parent.id}>
+                          {parent.fullPath}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
               <div>
-                <Label htmlFor="center">Center</Label>
+                <Label htmlFor="name">{selectedType} Name</Label>
                 <Input
-                  id="center"
-                  value={formData.center}
-                  onChange={(e) => setFormData({ ...formData, center: e.target.value })}
-                  placeholder="Enter center name"
+                  id="name"
+                  value={hierarchyName}
+                  onChange={(e) => setHierarchyName(e.target.value)}
+                  placeholder={`Enter ${selectedType.toLowerCase()} name`}
                 />
               </div>
-              <div>
-                <Label htmlFor="anaf">Anaf</Label>
-                <Input
-                  id="anaf"
-                  value={formData.anaf}
-                  onChange={(e) => setFormData({ ...formData, anaf: e.target.value })}
-                  placeholder="Enter anaf name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="mador">Mador</Label>
-                <Input
-                  id="mador"
-                  value={formData.mador}
-                  onChange={(e) => setFormData({ ...formData, mador: e.target.value })}
-                  placeholder="Enter mador name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="team">Team</Label>
-                <Input
-                  id="team"
-                  value={formData.team}
-                  onChange={(e) => setFormData({ ...formData, team: e.target.value })}
-                  placeholder="Enter team name"
-                />
-              </div>
+
               <div className="flex justify-end space-x-2 pt-4">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
                   Cancel
@@ -172,10 +218,13 @@ const HierarchyManagement = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          {hierarchies.map((hierarchy) => (
+          {hierarchies
+            .sort((a, b) => a.fullPath.localeCompare(b.fullPath))
+            .map((hierarchy) => (
             <div key={hierarchy.id} className="flex items-center justify-between p-3 border rounded-lg">
               <div>
-                <p className="font-medium">{hierarchy.name}</p>
+                <p className="font-medium">{hierarchy.fullPath}</p>
+                <p className="text-sm text-gray-500">Type: {hierarchy.type}</p>
               </div>
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={() => handleEdit(hierarchy)}>
