@@ -248,7 +248,7 @@ const HierarchyManagement = () => {
               </div>
 
               {availableParentTypes.length > 0 && (
-                <>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="parentType" className="text-sm">Parent Type</Label>
                     <Select value={selectedParentType} onValueChange={(value) => setSelectedParentType(value as HierarchyType | '')}>
@@ -313,7 +313,7 @@ const HierarchyManagement = () => {
                       </Popover>
                     </div>
                   )}
-                </>
+                </div>
               )}
 
               <div>
