@@ -40,24 +40,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button onClick={handleCreatePurpose} className="flex items-center gap-2">
+              <Button 
+                onClick={handleCreatePurpose} 
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-colors"
+              >
                 <Plus className="h-4 w-4" />
                 Create Purpose
               </Button>
-              <Link to="/">
-                <Button 
-                  variant={location.pathname === '/' ? 'default' : 'ghost'}
-                >
-                  Search
-                </Button>
-              </Link>
-              <Link to="/admin">
-                <Button 
-                  variant={location.pathname === '/admin' ? 'default' : 'ghost'}
-                >
-                  Admin
-                </Button>
-              </Link>
+              <div className="flex items-center space-x-2 ml-4 border-l pl-4">
+                <Link to="/">
+                  <Button 
+                    variant={location.pathname === '/' ? 'default' : 'ghost'}
+                  >
+                    Search
+                  </Button>
+                </Link>
+                <Link to="/admin">
+                  <Button 
+                    variant={location.pathname === '/admin' ? 'default' : 'ghost'}
+                  >
+                    Admin
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
