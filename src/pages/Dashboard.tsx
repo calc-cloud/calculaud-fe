@@ -5,6 +5,7 @@ import { PurposeModal } from '@/components/modals/PurposeModal';
 import { FilterBar } from '@/components/common/FilterBar';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
 // Mock data for demonstration - in a real app this would come from an API
 const mockPurposes: Purpose[] = [
@@ -95,7 +96,10 @@ const Dashboard: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
+  const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
+
+  const itemsPerPage = 10;
 
   // Filter purposes based on current filters
   React.useEffect(() => {
@@ -159,6 +163,17 @@ const Dashboard: React.FC = () => {
     return { total, pending, inProgress, completed, totalCost };
   }, [purposes]);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPurposes.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedPurposes = filteredPurposes.slice(startIndex, endIndex);
+
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
     setModalMode('view');
@@ -200,6 +215,38 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink
+            onClick={() => handlePageChange(i)}
+            isActive={currentPage === i}
+            className="cursor-pointer"
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -219,7 +266,7 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            Showing {filteredPurposes.length} of {purposes.length} purposes
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredPurposes.length)} of {filteredPurposes.length} purposes
           </p>
           {Object.keys(filters).length > 0 && (
             <Badge variant="secondary">
@@ -231,12 +278,37 @@ const Dashboard: React.FC = () => {
 
       {/* Purposes Table */}
       <PurposeTable
-        purposes={filteredPurposes}
+        purposes={paginatedPurposes}
         onView={handleViewPurpose}
         onEdit={handleEditPurpose}
         onDelete={handleDeletePurpose}
         isLoading={false}
       />
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {renderPaginationItems()}
+              
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Purpose Modal */}
       <PurposeModal
