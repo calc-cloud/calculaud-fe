@@ -135,12 +135,12 @@ const ServiceTypeManagement = () => {
       <CardContent className="pt-0 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="relative flex-shrink-0 mb-4">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400 z-10" />
             <Input
               placeholder="Search service types..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-7 h-8 text-sm"
+              className="pl-7 h-8 text-sm border border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
           
@@ -187,13 +187,15 @@ const ServiceTypeManagement = () => {
             )}
           </div>
 
-          <div className="flex-shrink-0 mt-2">
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
+          {filteredServiceTypes.length > 0 && (
+            <div className="flex-shrink-0 mt-2">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </div>
       </CardContent>
 
