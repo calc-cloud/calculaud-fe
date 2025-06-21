@@ -21,11 +21,11 @@ interface ServiceTypeItem {
 
 interface AdminDataContextType {
   hierarchies: HierarchyItem[];
-  setHierarchies: (hierarchies: HierarchyItem[]) => void;
+  setHierarchies: React.Dispatch<React.SetStateAction<HierarchyItem[]>>;
   suppliers: SupplierItem[];
-  setSuppliers: (suppliers: SupplierItem[]) => void;
+  setSuppliers: React.Dispatch<React.SetStateAction<SupplierItem[]>>;
   serviceTypes: ServiceTypeItem[];
-  setServiceTypes: (serviceTypes: ServiceTypeItem[]) => void;
+  setServiceTypes: React.Dispatch<React.SetStateAction<ServiceTypeItem[]>>;
 }
 
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
