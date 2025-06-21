@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -46,7 +47,6 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [hierarchyName, setHierarchyName] = useState('');
   const [parentPopoverOpen, setParentPopoverOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
 
   // Get valid parent types (only higher hierarchy levels)
   const getValidParentTypes = (currentType: HierarchyType): HierarchyType[] => {
@@ -79,7 +79,6 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const handleParentSelect = (parentId: string) => {
     setSelectedParentId(parentId);
     setParentPopoverOpen(false);
-    setSearchValue('');
   };
 
   const handleCreate = () => {
@@ -200,21 +199,15 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-[200px] p-0 z-[60]" align="start" side="bottom" sideOffset={5}>
-                    <Command shouldFilter={false}>
+                    <Command>
                       <CommandInput 
                         placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
                         className="h-9"
-                        value={searchValue}
-                        onValueChange={setSearchValue}
                       />
                       <CommandList>
                         <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                         <CommandGroup>
-                          {availableParents
-                            .filter(parent => 
-                              parent.name.toLowerCase().includes(searchValue.toLowerCase())
-                            )
-                            .map((parent) => (
+                          {availableParents.map((parent) => (
                             <CommandItem
                               key={parent.id}
                               value={parent.name}
