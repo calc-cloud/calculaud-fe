@@ -365,12 +365,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-3xl font-bold text-gray-900">Procurement Dashboard</h2>
-        <p className="text-gray-600 mt-1">Manage your procurement purposes and track progress</p>
-      </div>
-
       {/* Filter Bar */}
       <FilterBar
         filters={filters}
