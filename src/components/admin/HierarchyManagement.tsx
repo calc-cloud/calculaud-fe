@@ -325,7 +325,7 @@ const HierarchyManagement = () => {
                                   <CommandItem
                                     key={parent.id}
                                     value={parent.name}
-                                    onSelect={() => {
+                                    onSelect={(currentValue) => {
                                       setSelectedParent(parent.id);
                                       setParentDropdownOpen(false);
                                     }}
