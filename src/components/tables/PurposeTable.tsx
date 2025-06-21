@@ -68,8 +68,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Description</TableHead>
-            <TableHead>Content</TableHead>
+            <TableHead className="w-32">Description</TableHead>
+            <TableHead className="w-32">Content</TableHead>
             <TableHead>Supplier</TableHead>
             <TableHead>Hierarchy</TableHead>
             <TableHead>Service Type</TableHead>
@@ -87,11 +87,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
               onClick={() => handleRowClick(purpose)}
               className="cursor-pointer hover:bg-muted/50"
             >
-              <TableCell className="font-medium max-w-[200px] truncate">
-                {purpose.description}
+              <TableCell className="font-medium w-32">
+                <div className="line-clamp-2 text-sm leading-tight">
+                  {purpose.description}
+                </div>
               </TableCell>
-              <TableCell className="max-w-[200px] truncate">
-                {purpose.content}
+              <TableCell className="w-32">
+                <div className="line-clamp-2 text-sm leading-tight">
+                  {purpose.content}
+                </div>
               </TableCell>
               <TableCell>{purpose.supplier}</TableCell>
               <TableCell>{purpose.hierarchy_name}</TableCell>
