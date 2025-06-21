@@ -51,7 +51,7 @@ const HierarchyManagement = () => {
     const currentIndex = typeOrder.indexOf(type);
     if (currentIndex === 0) return []; // Unit has no parent
     
-    const parentType = typeOrder[currentIndex - 1];
+    const parentType = typeOrder[currentIndex - 1] as HierarchyType;
     return hierarchies.filter(h => h.type === parentType);
   };
 
@@ -95,6 +95,17 @@ const HierarchyManagement = () => {
     if (parentOptions.length > 0 && !selectedParent) {
       const parentTypeName = getParentTypeName(selectedType);
       toast({ title: `Please select a parent ${parentTypeName}`, variant: "destructive" });
+      return;
+    }
+
+    // For types that require a parent but no parent options exist, show error
+    if (selectedType !== 'Unit' && parentOptions.length === 0) {
+      const parentTypeName = getParentTypeName(selectedType);
+      toast({ 
+        title: `No ${parentTypeName} hierarchies available`, 
+        description: `Please create a ${parentTypeName} hierarchy first.`,
+        variant: "destructive" 
+      });
       return;
     }
 
@@ -184,7 +195,7 @@ const HierarchyManagement = () => {
                 </RadioGroup>
               </div>
 
-              {parentOptions.length > 0 && (
+              {selectedType !== 'Unit' && (
                 <div>
                   <Label htmlFor="parent">Parent {parentTypeName}</Label>
                   <Select value={selectedParent} onValueChange={setSelectedParent}>
