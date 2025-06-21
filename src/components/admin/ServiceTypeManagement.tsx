@@ -166,13 +166,11 @@ const ServiceTypeManagement = () => {
             ))}
           </div>
 
-          {totalPages > 1 && (
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          )}
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </CardContent>
     </Card>
