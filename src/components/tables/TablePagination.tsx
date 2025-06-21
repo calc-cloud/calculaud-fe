@@ -2,13 +2,13 @@
 import React from 'react';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 
-interface DashboardPaginationProps {
+interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-export const DashboardPagination: React.FC<DashboardPaginationProps> = ({
+export const TablePagination: React.FC<TablePaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange

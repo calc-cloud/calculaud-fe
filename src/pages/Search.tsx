@@ -3,9 +3,9 @@ import React from 'react';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';
 import { FilterBar } from '@/components/common/FilterBar';
-import { SortControls } from '@/components/dashboard/SortControls';
-import { ResultsSummary } from '@/components/dashboard/ResultsSummary';
-import { DashboardPagination } from '@/components/dashboard/DashboardPagination';
+import { SortControls } from '@/components/search/SortControls';
+import { ResultsSummary } from '@/components/search/ResultsSummary';
+import { TablePagination } from '@/components/tables/TablePagination';
 import { Purpose } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 import { usePurposeData } from '@/hooks/usePurposeData';
@@ -106,7 +106,7 @@ const Search: React.FC = () => {
         isLoading={false}
       />
 
-      <DashboardPagination
+      <TablePagination
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
