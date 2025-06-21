@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -138,7 +139,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
         <DialogHeader>
           <DialogTitle>Create New Hierarchy</DialogTitle>
           <DialogDescription>
-            Create a new hierarchy level in your organizational structure.
+            Create a new hierarchy item by selecting its type and parent.
           </DialogDescription>
         </DialogHeader>
         
@@ -201,13 +202,15 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[400px] p-0 z-[9999]" align="start">
-                    <Command>
-                      <CommandInput 
-                        placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
-                        className="h-9"
-                      />
-                      <CommandList>
+                  <PopoverContent className="w-[300px] p-0 z-[60] bg-white border shadow-lg" align="start" side="bottom" sideOffset={5}>
+                    <Command className="bg-white">
+                      <div className="flex items-center border-b px-3">
+                        <CommandInput 
+                          placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
+                          className="h-9 border-0 focus:ring-0 focus:outline-none bg-transparent"
+                        />
+                      </div>
+                      <CommandList className="max-h-[200px]">
                         <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                         <CommandGroup>
                           {availableParents.map((parent) => (
@@ -261,3 +264,4 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     </Dialog>
   );
 };
+
