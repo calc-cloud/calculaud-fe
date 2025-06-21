@@ -6,15 +6,16 @@ import { FilterBar } from '@/components/common/FilterBar';
 import { SortControls } from '@/components/search/SortControls';
 import { ResultsSummary } from '@/components/search/ResultsSummary';
 import { TablePagination } from '@/components/tables/TablePagination';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 import { Purpose } from '@/types';
-import { useToast } from '@/components/ui/use-toast';
 import { usePurposeData } from '@/hooks/usePurposeData';
+import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { exportPurposesToCSV } from '@/utils/csvExport';
 
 const Search: React.FC = () => {
   const {
     purposes,
-    setPurposes,
     filteredPurposes,
     filters,
     setFilters,
@@ -34,12 +35,19 @@ const Search: React.FC = () => {
     error
   } = usePurposeData();
 
-  const { toast } = useToast();
+  const { createPurpose, updatePurpose, deletePurpose } = usePurposeMutations();
+
   const itemsPerPage = 10;
 
   // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
+
+  const handleCreatePurpose = () => {
+    setSelectedPurpose(undefined);
+    setModalMode('create');
+    setIsModalOpen(true);
+  };
 
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
@@ -54,29 +62,23 @@ const Search: React.FC = () => {
   };
 
   const handleDeletePurpose = (purposeId: string) => {
-    setPurposes(prev => prev.filter(p => p.id !== purposeId));
-    toast({
-      title: "Purpose deleted",
-      description: "The purpose has been successfully deleted.",
-    });
+    deletePurpose.mutate(purposeId);
   };
 
   const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    if (modalMode === 'edit' && selectedPurpose) {
-      setPurposes(prev => prev.map(p => 
-        p.id === selectedPurpose.id 
-          ? { ...p, ...purposeData, last_modified: new Date().toISOString() }
-          : p
-      ));
-      toast({
-        title: "Purpose updated",
-        description: "Purpose has been successfully updated.",
+    if (modalMode === 'create') {
+      createPurpose.mutate(purposeData);
+    } else if (modalMode === 'edit' && selectedPurpose) {
+      updatePurpose.mutate({ 
+        id: selectedPurpose.id, 
+        data: purposeData 
       });
     }
+    setIsModalOpen(false);
   };
 
   const handleExport = () => {
-    exportPurposesToCSV(filteredPurposes, toast);
+    exportPurposesToCSV(filteredPurposes);
   };
 
   // Show error state
@@ -95,6 +97,14 @@ const Search: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Search Purposes</h1>
+        <Button onClick={handleCreatePurpose} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Create Purpose
+        </Button>
+      </div>
+
       <FilterBar
         filters={filters}
         onFiltersChange={setFilters}

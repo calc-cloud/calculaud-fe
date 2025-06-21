@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -17,7 +18,9 @@ import { PURPOSE_STATUSES } from '@/utils/constants';
 import { EMFSection } from '../sections/EMFSection';
 import { FileUpload } from '../common/FileUpload';
 import { formatDate } from '@/utils/dateUtils';
-import { useAdminData } from '@/contexts/AdminDataContext';
+import { useHierarchies } from '@/hooks/useHierarchies';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import { useServiceTypes } from '@/hooks/useServiceTypes';
 import { useToast } from '@/hooks/use-toast';
 
 interface PurposeModalProps {
@@ -39,7 +42,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   onEdit,
   onDelete
 }) => {
-  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  const { data: hierarchiesData, isLoading: hierarchiesLoading } = useHierarchies();
+  const { data: suppliersData, isLoading: suppliersLoading } = useSuppliers();
+  const { data: serviceTypesData, isLoading: serviceTypesLoading } = useServiceTypes();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState<Partial<Purpose>>({
@@ -60,6 +65,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   const isReadOnly = mode === 'view';
   const isEditing = mode === 'edit';
   const isCreating = mode === 'create';
+
+  // Get backend data arrays
+  const hierarchies = hierarchiesData?.items || [];
+  const suppliers = suppliersData?.items || [];
+  const serviceTypes = serviceTypesData?.items || [];
 
   // Initialize form data when purpose changes
   useEffect(() => {
@@ -151,6 +161,23 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
   const handleFieldChange = (field: keyof Purpose, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSupplierChange = (supplierName: string) => {
+    handleFieldChange('supplier', supplierName);
+  };
+
+  const handleHierarchyChange = (hierarchyName: string) => {
+    handleFieldChange('hierarchy_name', hierarchyName);
+    // Also set hierarchy_id for API mapping
+    const hierarchy = hierarchies.find(h => h.name === hierarchyName);
+    if (hierarchy) {
+      handleFieldChange('hierarchy_id', hierarchy.id.toString());
+    }
+  };
+
+  const handleServiceTypeChange = (serviceTypeName: string) => {
+    handleFieldChange('service_type', serviceTypeName);
   };
 
   const handleDelete = () => {
@@ -270,10 +297,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               ) : (
                 <Select
                   value={formData.supplier || ''}
-                  onValueChange={(value) => handleFieldChange('supplier', value)}
+                  onValueChange={handleSupplierChange}
+                  disabled={suppliersLoading}
                 >
                   <SelectTrigger className={!formData.supplier && !isReadOnly ? 'border-red-300' : ''}>
-                    <SelectValue placeholder="Select supplier" />
+                    <SelectValue placeholder={suppliersLoading ? "Loading suppliers..." : "Select supplier"} />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((supplier) => (
@@ -311,15 +339,16 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             ) : (
               <Select
                 value={formData.hierarchy_name || ''}
-                onValueChange={(value) => handleFieldChange('hierarchy_name', value)}
+                onValueChange={handleHierarchyChange}
+                disabled={hierarchiesLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select hierarchy" />
+                  <SelectValue placeholder={hierarchiesLoading ? "Loading hierarchies..." : "Select hierarchy"} />
                 </SelectTrigger>
                 <SelectContent>
                   {hierarchies.map((hierarchy) => (
-                    <SelectItem key={hierarchy.id} value={hierarchy.fullPath}>
-                      {hierarchy.fullPath}
+                    <SelectItem key={hierarchy.id} value={hierarchy.name}>
+                      {hierarchy.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -332,11 +361,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
               <Select
                 value={formData.service_type}
-                onValueChange={(value) => handleFieldChange('service_type', value)}
-                disabled={isReadOnly}
+                onValueChange={handleServiceTypeChange}
+                disabled={isReadOnly || serviceTypesLoading}
               >
                 <SelectTrigger className={!formData.service_type && !isReadOnly ? 'border-red-300' : ''}>
-                  <SelectValue placeholder="Select service type" />
+                  <SelectValue placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"} />
                 </SelectTrigger>
                 <SelectContent>
                   {serviceTypes.map((type) => (

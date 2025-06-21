@@ -1,4 +1,3 @@
-
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -58,10 +57,66 @@ export interface EMFCost {
   amount: number;
 }
 
+// Request interfaces for create/update
+export interface CreatePurposeRequest {
+  hierarchy_id: number;
+  expected_delivery: string;
+  comments?: string;
+  status: string;
+  supplier?: string;
+  content?: string;
+  description: string;
+  service_type?: string;
+  emfs?: CreateEMFRequest[];
+}
+
+export interface CreateEMFRequest {
+  emf_id: string;
+  order_id?: string;
+  order_creation_date?: string;
+  demand_id?: string;
+  demand_creation_date?: string;
+  bikushit_id?: string;
+  bikushit_creation_date?: string;
+  costs: CreateCostRequest[];
+}
+
+export interface CreateCostRequest {
+  currency: string;
+  amount: number;
+}
+
+export interface UpdatePurposeRequest {
+  hierarchy_id?: number;
+  expected_delivery?: string;
+  comments?: string;
+  status?: string;
+  supplier?: string;
+  content?: string;
+  description?: string;
+  service_type?: string;
+  emfs?: CreateEMFRequest[];
+}
+
 class PurposeService {
   async getPurposes(params: PurposeApiParams): Promise<PurposeApiResponse> {
     console.log('Fetching purposes with params:', params);
     return apiService.get<PurposeApiResponse>('/purposes/', params);
+  }
+
+  async createPurpose(data: CreatePurposeRequest): Promise<Purpose> {
+    console.log('Creating purpose with data:', data);
+    return apiService.post<Purpose>('/purposes/', data);
+  }
+
+  async updatePurpose(id: string, data: UpdatePurposeRequest): Promise<Purpose> {
+    console.log('Updating purpose with id:', id, 'data:', data);
+    return apiService.patch<Purpose>(`/purposes/${id}`, data);
+  }
+
+  async deletePurpose(id: string): Promise<void> {
+    console.log('Deleting purpose with id:', id);
+    return apiService.delete<void>(`/purposes/${id}`);
   }
 
   // Map frontend filters to API parameters
@@ -123,6 +178,51 @@ class PurposeService {
     }
 
     return params;
+  }
+
+  // Map frontend purpose data to API request format
+  mapPurposeToApiRequest(
+    frontendPurpose: any,
+    hierarchies: any[],
+    suppliers: any[],
+    serviceTypes: any[]
+  ): CreatePurposeRequest | UpdatePurposeRequest {
+    const mapped: any = {
+      description: frontendPurpose.description,
+      content: frontendPurpose.content,
+      expected_delivery: frontendPurpose.expected_delivery,
+      comments: frontendPurpose.comments,
+      status: frontendPurpose.status,
+      supplier: frontendPurpose.supplier,
+      service_type: frontendPurpose.service_type
+    };
+
+    // Map hierarchy name to ID
+    if (frontendPurpose.hierarchy_name) {
+      const hierarchy = hierarchies.find(h => h.fullPath === frontendPurpose.hierarchy_name || h.name === frontendPurpose.hierarchy_name);
+      if (hierarchy) {
+        mapped.hierarchy_id = parseInt(hierarchy.id);
+      }
+    }
+
+    // Map EMFs
+    if (frontendPurpose.emfs && frontendPurpose.emfs.length > 0) {
+      mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
+        emf_id: emf.id,
+        order_id: emf.order_id || undefined,
+        order_creation_date: emf.order_creation_date || undefined,
+        demand_id: emf.demand_id || undefined,
+        demand_creation_date: emf.demand_creation_date || undefined,
+        bikushit_id: emf.bikushit_id || undefined,
+        bikushit_creation_date: emf.bikushit_creation_date || undefined,
+        costs: emf.costs.map((cost: any) => ({
+          currency: cost.currency,
+          amount: cost.amount
+        }))
+      }));
+    }
+
+    return mapped;
   }
 
   private mapSortField(field: string): string {

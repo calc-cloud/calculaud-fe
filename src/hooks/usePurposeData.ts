@@ -78,14 +78,6 @@ export const usePurposeData = () => {
     return { total, pending, inProgress, completed, totalCost };
   }, [purposes, totalCount]);
 
-  // Update purposes (for edit functionality)
-  const setPurposes = (updater: (prev: Purpose[]) => Purpose[]) => {
-    // For now, we'll handle this locally but in a real app you'd call an API
-    console.log('setPurposes called - would need API integration for mutations');
-    // Refetch data to ensure consistency
-    refetch();
-  };
-
   // Reset to first page when filters or sorting change
   const handleFiltersChange = (newFilters: PurposeFilters) => {
     setFilters(newFilters);
@@ -99,7 +91,6 @@ export const usePurposeData = () => {
 
   return {
     purposes,
-    setPurposes,
     filteredPurposes,
     filters,
     setFilters: handleFiltersChange,
