@@ -1,15 +1,11 @@
 
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Check, ChevronDown, Building2, Building, Users, User, UserCheck } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Building2, Building, Users, User, UserCheck } from 'lucide-react';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -47,7 +43,6 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const [selectedParentType, setSelectedParentType] = useState<HierarchyType>('Unit');
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [hierarchyName, setHierarchyName] = useState('');
-  const [parentPopoverOpen, setParentPopoverOpen] = useState(false);
 
   // Get valid parent types (only higher hierarchy levels)
   const getValidParentTypes = (currentType: HierarchyType): HierarchyType[] => {
@@ -79,7 +74,6 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   const handleParentSelect = (parentId: string) => {
     setSelectedParentId(parentId);
-    setParentPopoverOpen(false);
   };
 
   const handleCreate = () => {
@@ -190,50 +184,24 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
               <div className="space-y-2 col-span-2">
                 <label className="text-sm font-medium">Parent {selectedParentType}</label>
-                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={parentPopoverOpen}
-                      className="justify-between w-full"
-                    >
-                      {selectedParent ? selectedParent.name : `Select ${selectedParentType.toLowerCase()}...`}
-                      <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[300px] p-0 z-[60] bg-white border shadow-lg" align="start" side="bottom" sideOffset={5}>
-                    <Command className="bg-white">
-                      <div className="flex items-center border-b px-3">
-                        <CommandInput 
-                          placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
-                          className="h-9 border-0 focus:ring-0 focus:outline-none bg-transparent"
-                        />
-                      </div>
-                      <CommandList className="max-h-[200px]">
-                        <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
-                        <CommandGroup>
-                          {availableParents.map((parent) => (
-                            <CommandItem
-                              key={parent.id}
-                              value={parent.name}
-                              onSelect={() => handleParentSelect(parent.id)}
-                              className="cursor-pointer"
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  selectedParentId === parent.id ? "opacity-100" : "opacity-0"
-                                )}
-                              />
-                              {parent.name}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <Select value={selectedParentId} onValueChange={handleParentSelect}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Select ${selectedParentType.toLowerCase()}...`} />
+                  </SelectTrigger>
+                  <SelectContent className="z-[9999] bg-white border shadow-lg">
+                    {availableParents.length > 0 ? (
+                      availableParents.map((parent) => (
+                        <SelectItem key={parent.id} value={parent.id}>
+                          {parent.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="" disabled>
+                        No {selectedParentType.toLowerCase()} found
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
@@ -264,4 +232,3 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     </Dialog>
   );
 };
-
