@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,15 +105,13 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <span className="text-sm text-muted-foreground">
                   Total: ${getTotalCost(emf).toFixed(2)}
                 </span>
-                {!isReadOnly && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setExpandedEMF(expandedEMF === emf.id ? null : emf.id)}
-                  >
-                    {expandedEMF === emf.id ? 'Collapse' : 'Expand'}
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setExpandedEMF(expandedEMF === emf.id ? null : emf.id)}
+                >
+                  {expandedEMF === emf.id ? 'Collapse' : 'Expand'}
+                </Button>
                 {!isReadOnly && (
                   <Button
                     variant="outline"
@@ -128,7 +125,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             </div>
           </CardHeader>
 
-          {(expandedEMF === emf.id || isReadOnly) && (
+          {expandedEMF === emf.id && (
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
