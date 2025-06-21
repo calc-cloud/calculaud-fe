@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -56,6 +55,13 @@ const HierarchyManagement = () => {
     return hierarchies.filter(h => h.type === parentType);
   };
 
+  const getParentTypeName = (type: HierarchyType): string => {
+    const typeOrder = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
+    const currentIndex = typeOrder.indexOf(type);
+    if (currentIndex === 0) return '';
+    return typeOrder[currentIndex - 1];
+  };
+
   const buildFullPath = (name: string, parentId?: string): string => {
     if (!parentId) return name;
     
@@ -87,7 +93,8 @@ const HierarchyManagement = () => {
 
     const parentOptions = getParentOptions(selectedType);
     if (parentOptions.length > 0 && !selectedParent) {
-      toast({ title: "Please select a parent hierarchy", variant: "destructive" });
+      const parentTypeName = getParentTypeName(selectedType);
+      toast({ title: `Please select a parent ${parentTypeName}`, variant: "destructive" });
       return;
     }
 
@@ -138,6 +145,7 @@ const HierarchyManagement = () => {
   };
 
   const parentOptions = getParentOptions(selectedType);
+  const parentTypeName = getParentTypeName(selectedType);
 
   return (
     <Card>
@@ -178,10 +186,10 @@ const HierarchyManagement = () => {
 
               {parentOptions.length > 0 && (
                 <div>
-                  <Label htmlFor="parent">Parent {getParentOptions(selectedType)[0]?.type || 'Hierarchy'}</Label>
+                  <Label htmlFor="parent">Parent {parentTypeName}</Label>
                   <Select value={selectedParent} onValueChange={setSelectedParent}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select parent hierarchy" />
+                      <SelectValue placeholder={`Select parent ${parentTypeName.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
                       {parentOptions.map((parent) => (
