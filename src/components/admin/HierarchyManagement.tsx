@@ -245,7 +245,7 @@ const HierarchyManagement = () => {
               Add Hierarchy
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-xl">
             <DialogHeader>
               <DialogTitle>
                 {editingHierarchy ? 'Edit Hierarchy' : 'Create New Hierarchy'}
@@ -318,7 +318,7 @@ const HierarchyManagement = () => {
                                 {parentOptions.map(parent => (
                                   <CommandItem
                                     key={parent.id}
-                                    value={parent.fullPath}
+                                    value={`${parent.name} ${parent.fullPath}`}
                                     onSelect={() => {
                                       setSelectedParent(parent.id);
                                       setParentDropdownOpen(false);
