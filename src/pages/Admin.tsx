@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import HierarchyManagement from '@/components/admin/HierarchyManagement';
 import SupplierManagement from '@/components/admin/SupplierManagement';
 import ServiceTypeManagement from '@/components/admin/ServiceTypeManagement';
@@ -21,21 +20,15 @@ const Admin = () => {
         </TabsList>
         
         <TabsContent value="hierarchies" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
-            <HierarchyManagement />
-          </div>
+          <HierarchyManagement />
         </TabsContent>
         
         <TabsContent value="suppliers" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
-            <SupplierManagement />
-          </div>
+          <SupplierManagement />
         </TabsContent>
         
         <TabsContent value="service-types" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
-            <ServiceTypeManagement />
-          </div>
+          <ServiceTypeManagement />
         </TabsContent>
       </Tabs>
     </div>
