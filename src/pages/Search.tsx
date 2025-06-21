@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';
@@ -78,7 +77,8 @@ const Search: React.FC = () => {
   };
 
   const handleExport = () => {
-    exportPurposesToCSV(filteredPurposes);
+    const { toast } = require('@/hooks/use-toast');
+    exportPurposesToCSV(filteredPurposes, toast);
   };
 
   // Show error state
