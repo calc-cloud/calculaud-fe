@@ -33,7 +33,7 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
     // Create EMF details string
     const emfDetails = purpose.emfs.map(emf => {
       const emfCosts = emf.costs.map(cost => `${cost.amount} ${cost.currency}`).join('; ');
-      return `EMF ${emf.id}: Created ${emf.creation_date}${emf.demand_id ? `, Demand ${emf.demand_id} (${emf.demand_date})` : ''}${emf.order_id ? `, Order ${emf.order_id} (${emf.order_date})` : ''}${emf.bikushit_id ? `, Bikushit ${emf.bikushit_id} (${emf.bikushit_date})` : ''}, Costs: ${emfCosts}`;
+      return `EMF ${emf.id}: Created ${emf.creation_date}${emf.demand_id ? `, Demand ${emf.demand_id} (${emf.demand_creation_date})` : ''}${emf.order_id ? `, Order ${emf.order_id} (${emf.order_creation_date})` : ''}${emf.bikushit_id ? `, Bikushit ${emf.bikushit_id} (${emf.bikushit_creation_date})` : ''}, Costs: ${emfCosts}`;
     }).join(' | ');
 
     return [

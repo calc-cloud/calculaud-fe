@@ -21,9 +21,9 @@ export const mockPurposes: Purpose[] = [
         purpose_id: '1',
         creation_date: '2024-06-02',
         demand_id: 'D001',
-        demand_date: '2024-06-03',
+        demand_creation_date: '2024-06-03',
         order_id: 'O001',
-        order_date: '2024-06-05',
+        order_creation_date: '2024-06-05',
         costs: [
           {
             id: 'cost-1',
