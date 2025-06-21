@@ -59,9 +59,11 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const { data: hierarchiesData } = useHierarchies();
   const availableHierarchies = hierarchiesData?.items || [];
 
-  // Get available parent types (all types except the selected one)
+  // Get available parent types (only higher levels in hierarchy)
   const getAvailableParentTypes = (): HierarchyType[] => {
-    return hierarchyOrder.filter(type => type !== selectedType);
+    const currentIndex = hierarchyOrder.indexOf(selectedType);
+    // Return only types that come before the selected type (higher in hierarchy)
+    return hierarchyOrder.slice(0, currentIndex);
   };
 
   // Get available parent hierarchies based on selected parent type
@@ -201,7 +203,62 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
             </ToggleGroup>
           </div>
 
-          {/* Hierarchy Name */}
+          {/* Parent Selection - Only show if there are available parent types */}
+          {availableParentTypes.length > 0 && (
+            <div className="grid grid-cols-2 gap-4">
+              {/* Parent Type Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Parent Type (Optional)</label>
+                <Select value={parentType} onValueChange={handleParentTypeChange} disabled={isLoading}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select parent type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableParentTypes.map((type) => {
+                      const Icon = getHierarchyIcon(type);
+                      return (
+                        <SelectItem key={type} value={type}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="h-4 w-4" />
+                            {formatTypeDisplay(type)}
+                          </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Parent Hierarchy Selection */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {parentType ? `Parent ${formatTypeDisplay(parentType)}` : 'Parent Hierarchy'}
+                </label>
+                <Select 
+                  value={parentId?.toString() || ''} 
+                  onValueChange={handleParentHierarchyChange} 
+                  disabled={isLoading || !parentType}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      parentType 
+                        ? `Select parent ${formatTypeDisplay(parentType).toLowerCase()}` 
+                        : 'Select parent type first'
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableParentHierarchies.map((hierarchy) => (
+                      <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
+                        {hierarchy.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Hierarchy Name - Now at the end */}
           <div className="space-y-2">
             <label className="text-sm font-medium">
               {formatTypeDisplay(selectedType)} Name
@@ -213,48 +270,6 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               disabled={isLoading}
             />
           </div>
-
-          {/* Parent Type Selection */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Parent Type (Optional)</label>
-            <Select value={parentType} onValueChange={handleParentTypeChange} disabled={isLoading}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select parent type" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableParentTypes.map((type) => {
-                  const Icon = getHierarchyIcon(type);
-                  return (
-                    <SelectItem key={type} value={type}>
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4" />
-                        {formatTypeDisplay(type)}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Parent Hierarchy Selection */}
-          {parentType && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Parent {formatTypeDisplay(parentType)}</label>
-              <Select value={parentId?.toString() || ''} onValueChange={handleParentHierarchyChange} disabled={isLoading}>
-                <SelectTrigger>
-                  <SelectValue placeholder={`Select parent ${formatTypeDisplay(parentType).toLowerCase()}`} />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableParentHierarchies.map((hierarchy) => (
-                    <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
-                      {hierarchy.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
