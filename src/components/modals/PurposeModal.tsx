@@ -135,8 +135,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   };
 
   const handleSave = () => {
-    console.log('HandleSave called with formData:', formData);
+    console.log('=== PurposeModal.handleSave START ===');
+    console.log('Mode:', mode);
+    console.log('FormData:', formData);
     console.log('Available data - suppliers:', suppliers.length, 'hierarchies:', hierarchies.length, 'serviceTypes:', serviceTypes.length);
+    console.log('onSave function provided:', typeof onSave, !!onSave);
     
     const purposeErrors = validatePurpose();
     const emfErrors = validateEMFs();
@@ -152,17 +155,32 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       return;
     }
 
+    console.log('Validation passed, preparing purpose data...');
+
+    const purposeData = {
+      ...formData,
+      expected_delivery: expectedDeliveryDate ? expectedDeliveryDate.toISOString().split('T')[0] : ''
+    };
+
+    console.log('Final purposeData to be sent:', purposeData);
+
     if (onSave) {
-      const purposeData = {
-        ...formData,
-        expected_delivery: expectedDeliveryDate ? expectedDeliveryDate.toISOString().split('T')[0] : ''
-      };
-      console.log('Calling onSave with purposeData:', purposeData);
+      console.log('Calling onSave with purposeData...');
       onSave(purposeData);
+      console.log('onSave called successfully');
     } else {
-      console.log('onSave is not defined');
+      console.error('ERROR: onSave function is not provided!');
+      toast({
+        title: "Configuration Error",
+        description: "Save function is not properly configured",
+        variant: "destructive"
+      });
+      return;
     }
+
+    console.log('Closing modal...');
     onClose();
+    console.log('=== PurposeModal.handleSave END ===');
   };
 
   const handleFieldChange = (field: keyof Purpose, value: any) => {
