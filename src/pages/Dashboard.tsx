@@ -23,7 +23,6 @@ const mockPurposes: Purpose[] = [
     service_type: 'Software',
     creation_time: '2024-06-01T10:00:00Z',
     last_modified: '2024-06-15T14:30:00Z',
-    currency: 'USD',
     emfs: [
       {
         id: 'emf-1',
@@ -57,7 +56,6 @@ const mockPurposes: Purpose[] = [
     service_type: 'Hardware',
     creation_time: '2024-06-10T09:15:00Z',
     last_modified: '2024-06-10T09:15:00Z',
-    currency: 'USD',
     emfs: [],
     files: []
   },
@@ -73,7 +71,6 @@ const mockPurposes: Purpose[] = [
     service_type: 'Consulting',
     creation_time: '2024-04-15T11:00:00Z',
     last_modified: '2024-05-30T16:45:00Z',
-    currency: 'USD',
     emfs: [
       {
         id: 'emf-3',
