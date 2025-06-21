@@ -186,7 +186,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Parent {selectedParentType}</label>
-                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen}>
+                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen} modal={true}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -198,16 +198,18 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0" align="start">
+                  <PopoverContent className="w-[200px] p-0 z-[60]" align="start" side="bottom" sideOffset={5}>
                     <Command>
-                      <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} />
+                      <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} className="h-9" />
                       <CommandList>
                         <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                         <CommandGroup>
                           {availableParents.map((parent) => (
                             <CommandItem
                               key={parent.id}
+                              value={parent.name}
                               onSelect={() => handleParentSelect(parent.id)}
+                              className="cursor-pointer"
                             >
                               <Check
                                 className={cn(
