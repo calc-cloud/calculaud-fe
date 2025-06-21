@@ -1,3 +1,4 @@
+
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -325,7 +326,7 @@ class PurposeService {
       description: purpose.description,
       content: purpose.content,
       supplier: purpose.supplier,
-      hierarchy_id: purpose.hierarchy_id.toString(),
+      hierarchy_id: purpose.hierarchy_id ? purpose.hierarchy_id.toString() : '',
       hierarchy_name: this.getHierarchyName(purpose.hierarchy_id, hierarchies),
       status: this.mapApiStatusToFrontend(purpose.status),
       expected_delivery: purpose.expected_delivery,
@@ -361,7 +362,8 @@ class PurposeService {
     };
   }
 
-  private getHierarchyName(hierarchyId: number, hierarchies: any[]): string {
+  private getHierarchyName(hierarchyId: number | null, hierarchies: any[]): string {
+    if (!hierarchyId) return '';
     const hierarchy = hierarchies.find(h => parseInt(h.id) === hierarchyId);
     return hierarchy ? hierarchy.name : `Hierarchy ${hierarchyId}`;
   }
