@@ -59,14 +59,14 @@ export interface EMFCost {
 
 // Request interfaces for create/update
 export interface CreatePurposeRequest {
-  hierarchy_id: number;
-  expected_delivery: string;
+  hierarchy_id?: number;
+  expected_delivery?: string;
   comments?: string;
   status: string;
-  supplier_id?: number;
-  content?: string;
+  supplier_id: number;
+  content: string;
   description: string;
-  service_type_id?: number;
+  service_type_id: number;
   emfs?: CreateEMFRequest[];
 }
 
@@ -91,10 +91,10 @@ export interface UpdatePurposeRequest {
   expected_delivery?: string;
   comments?: string;
   status?: string;
-  supplier?: string;
+  supplier_id?: number;
   content?: string;
   description?: string;
-  service_type?: string;
+  service_type_id?: number;
   emfs?: CreateEMFRequest[];
 }
 
@@ -180,66 +180,32 @@ class PurposeService {
     return params;
   }
 
-  // Map frontend purpose data to API create request format
-  mapPurposeToCreateRequest(
-    frontendPurpose: any,
-    hierarchies: any[],
-    suppliers: any[],
-    serviceTypes: any[]
-  ): CreatePurposeRequest {
+  // Simplified mapping - IDs are already provided from the modal
+  mapPurposeToCreateRequest(purposeData: any): CreatePurposeRequest {
     const mapped: CreatePurposeRequest = {
-      description: frontendPurpose.description || '',
-      hierarchy_id: 1, // Default value, will be overridden below if provided
-      expected_delivery: '', // Will be set below if provided
-      status: frontendPurpose.status || 'PENDING'
+      description: purposeData.description,
+      content: purposeData.content,
+      supplier_id: purposeData.supplier_id,
+      service_type_id: purposeData.service_type_id,
+      status: purposeData.status || 'PENDING'
     };
 
-    // Only include fields that have values
-    if (frontendPurpose.content?.trim()) {
-      mapped.content = frontendPurpose.content.trim();
+    // Optional fields
+    if (purposeData.hierarchy_id) {
+      mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
     
-    if (frontendPurpose.supplier?.trim()) {
-      // Map supplier name to ID
-      const supplier = suppliers.find(s => s.name === frontendPurpose.supplier.trim());
-      if (supplier) {
-        mapped.supplier_id = supplier.id;
-      }
+    if (purposeData.expected_delivery) {
+      mapped.expected_delivery = purposeData.expected_delivery;
     }
     
-    if (frontendPurpose.service_type?.trim()) {
-      // Map service type name to ID
-      const serviceType = serviceTypes.find(st => st.name === frontendPurpose.service_type.trim());
-      if (serviceType) {
-        mapped.service_type_id = serviceType.id;
-      }
-    }
-    
-    if (frontendPurpose.comments?.trim()) {
-      mapped.comments = frontendPurpose.comments.trim();
+    if (purposeData.comments?.trim()) {
+      mapped.comments = purposeData.comments.trim();
     }
 
-    if (frontendPurpose.expected_delivery) {
-      mapped.expected_delivery = frontendPurpose.expected_delivery;
-    } else {
-      // Remove the field if no date is provided
-      delete (mapped as any).expected_delivery;
-    }
-
-    // Map hierarchy name to ID only if provided
-    if (frontendPurpose.hierarchy_name) {
-      const hierarchy = hierarchies.find(h => h.fullPath === frontendPurpose.hierarchy_name || h.name === frontendPurpose.hierarchy_name);
-      if (hierarchy) {
-        mapped.hierarchy_id = parseInt(hierarchy.id);
-      }
-    } else {
-      // Remove hierarchy_id if no hierarchy is selected
-      delete (mapped as any).hierarchy_id;
-    }
-
-    // Map EMFs only if provided
-    if (frontendPurpose.emfs && frontendPurpose.emfs.length > 0) {
-      mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
+    // Map EMFs if provided
+    if (purposeData.emfs && purposeData.emfs.length > 0) {
+      mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,
@@ -257,48 +223,38 @@ class PurposeService {
     return mapped;
   }
 
-  // Map frontend purpose data to API update request format
-  mapPurposeToUpdateRequest(
-    frontendPurpose: any,
-    hierarchies: any[],
-    suppliers: any[],
-    serviceTypes: any[]
-  ): UpdatePurposeRequest {
+  // Simplified update request mapping
+  mapPurposeToUpdateRequest(purposeData: any): UpdatePurposeRequest {
     const mapped: UpdatePurposeRequest = {};
 
-    if (frontendPurpose.description !== undefined) {
-      mapped.description = frontendPurpose.description;
+    if (purposeData.description !== undefined) {
+      mapped.description = purposeData.description;
     }
-    if (frontendPurpose.content !== undefined) {
-      mapped.content = frontendPurpose.content;
+    if (purposeData.content !== undefined) {
+      mapped.content = purposeData.content;
     }
-    if (frontendPurpose.expected_delivery !== undefined) {
-      mapped.expected_delivery = frontendPurpose.expected_delivery;
+    if (purposeData.supplier_id !== undefined) {
+      mapped.supplier_id = purposeData.supplier_id;
     }
-    if (frontendPurpose.comments !== undefined) {
-      mapped.comments = frontendPurpose.comments;
+    if (purposeData.service_type_id !== undefined) {
+      mapped.service_type_id = purposeData.service_type_id;
     }
-    if (frontendPurpose.status !== undefined) {
-      mapped.status = frontendPurpose.status;
+    if (purposeData.expected_delivery !== undefined) {
+      mapped.expected_delivery = purposeData.expected_delivery;
     }
-    if (frontendPurpose.supplier !== undefined) {
-      mapped.supplier = frontendPurpose.supplier;
+    if (purposeData.comments !== undefined) {
+      mapped.comments = purposeData.comments;
     }
-    if (frontendPurpose.service_type !== undefined) {
-      mapped.service_type = frontendPurpose.service_type;
+    if (purposeData.status !== undefined) {
+      mapped.status = purposeData.status;
     }
-
-    // Map hierarchy name to ID
-    if (frontendPurpose.hierarchy_name) {
-      const hierarchy = hierarchies.find(h => h.fullPath === frontendPurpose.hierarchy_name || h.name === frontendPurpose.hierarchy_name);
-      if (hierarchy) {
-        mapped.hierarchy_id = parseInt(hierarchy.id);
-      }
+    if (purposeData.hierarchy_id !== undefined) {
+      mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
 
     // Map EMFs
-    if (frontendPurpose.emfs !== undefined) {
-      mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
+    if (purposeData.emfs !== undefined) {
+      mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,

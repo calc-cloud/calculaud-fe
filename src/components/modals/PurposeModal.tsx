@@ -21,6 +21,8 @@ import { useHierarchies } from '@/hooks/useHierarchies';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useServiceTypes } from '@/hooks/useServiceTypes';
 import { useToast } from '@/hooks/use-toast';
+import { Supplier } from '@/types/suppliers';
+import { ServiceType } from '@/types/serviceTypes';
 
 interface PurposeModalProps {
   isOpen: boolean;
@@ -30,6 +32,15 @@ interface PurposeModalProps {
   onSave?: (purpose: Partial<Purpose>) => void;
   onEdit?: (purpose: Purpose) => void;
   onDelete?: (purposeId: string) => void;
+}
+
+// Extended form data interface to store full objects
+interface ExtendedFormData extends Omit<Partial<Purpose>, 'supplier' | 'service_type'> {
+  selectedSupplier?: Supplier | null;
+  selectedServiceType?: ServiceType | null;
+  // Keep original fields for backward compatibility
+  supplier?: string;
+  service_type?: string;
 }
 
 export const PurposeModal: React.FC<PurposeModalProps> = ({
@@ -46,16 +57,16 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   const { data: serviceTypesData, isLoading: serviceTypesLoading } = useServiceTypes();
   const { toast } = useToast();
   
-  const [formData, setFormData] = useState<Partial<Purpose>>({
+  const [formData, setFormData] = useState<ExtendedFormData>({
     description: '',
     content: '',
-    supplier: '',
+    selectedSupplier: null,
+    selectedServiceType: null,
     hierarchy_id: '',
     hierarchy_name: '',
     status: 'PENDING',
     expected_delivery: '',
     comments: '',
-    service_type: 'Other',
     emfs: [],
     files: []
   });
@@ -73,7 +84,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   // Initialize form data when purpose changes
   useEffect(() => {
     if (purpose) {
-      setFormData(purpose);
+      // Find full objects based on purpose data
+      const selectedSupplier = suppliers.find(s => s.name === purpose.supplier) || null;
+      const selectedServiceType = serviceTypes.find(st => st.name === purpose.service_type) || null;
+      
+      setFormData({
+        ...purpose,
+        selectedSupplier,
+        selectedServiceType
+      });
       if (purpose.expected_delivery) {
         setExpectedDeliveryDate(new Date(purpose.expected_delivery));
       }
@@ -81,19 +100,19 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       setFormData({
         description: '',
         content: '',
-        supplier: '',
+        selectedSupplier: null,
+        selectedServiceType: null,
         hierarchy_id: '',
         hierarchy_name: '',
         status: 'PENDING',
         expected_delivery: '',
         comments: '',
-        service_type: 'Other',
         emfs: [],
         files: []
       });
       setExpectedDeliveryDate(undefined);
     }
-  }, [purpose, isOpen]);
+  }, [purpose, isOpen, suppliers, serviceTypes]);
 
   const validatePurpose = () => {
     const errors: string[] = [];
@@ -101,13 +120,13 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     if (!formData.description?.trim()) {
       errors.push('Description is required');
     }
-    if (!formData.supplier?.trim()) {
+    if (!formData.selectedSupplier) {
       errors.push('Supplier is required');
     }
     if (!formData.content?.trim()) {
       errors.push('Content is required');
     }
-    if (!formData.service_type) {
+    if (!formData.selectedServiceType) {
       errors.push('Service type is required');
     }
 
@@ -138,8 +157,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     console.log('=== PurposeModal.handleSave START ===');
     console.log('Mode:', mode);
     console.log('FormData:', formData);
-    console.log('Available data - suppliers:', suppliers.length, 'hierarchies:', hierarchies.length, 'serviceTypes:', serviceTypes.length);
-    console.log('onSave function provided:', typeof onSave, !!onSave);
     
     const purposeErrors = validatePurpose();
     const emfErrors = validateEMFs();
@@ -157,21 +174,23 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
     console.log('Validation passed, preparing purpose data...');
 
-    // Only include fields that have actual values
-    const purposeData: Partial<Purpose> = {};
+    // Prepare purpose data with IDs directly from selected objects
+    const purposeData: any = {};
     
     // Required fields - always include
     if (formData.description?.trim()) {
       purposeData.description = formData.description.trim();
     }
-    if (formData.supplier?.trim()) {
-      purposeData.supplier = formData.supplier.trim();
+    if (formData.selectedSupplier) {
+      purposeData.supplier_id = formData.selectedSupplier.id;
+      purposeData.supplier = formData.selectedSupplier.name; // Keep for display
     }
     if (formData.content?.trim()) {
       purposeData.content = formData.content.trim();
     }
-    if (formData.service_type) {
-      purposeData.service_type = formData.service_type;
+    if (formData.selectedServiceType) {
+      purposeData.service_type_id = formData.selectedServiceType.id;
+      purposeData.service_type = formData.selectedServiceType.name; // Keep for display
     }
     
     // Optional fields - only include if they have values
@@ -183,7 +202,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     if (formData.status && formData.status !== 'PENDING') {
       purposeData.status = formData.status;
     } else if (!formData.status) {
-      // Only set default if no status is provided
       purposeData.status = 'PENDING';
     }
     
@@ -224,12 +242,17 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     console.log('=== PurposeModal.handleSave END ===');
   };
 
-  const handleFieldChange = (field: keyof Purpose, value: any) => {
+  const handleFieldChange = (field: keyof ExtendedFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSupplierChange = (supplierName: string) => {
-    handleFieldChange('supplier', supplierName);
+  const handleSupplierChange = (supplierId: string) => {
+    const selectedSupplier = suppliers.find(s => s.id.toString() === supplierId) || null;
+    setFormData(prev => ({ 
+      ...prev, 
+      selectedSupplier,
+      supplier: selectedSupplier?.name || ''
+    }));
   };
 
   const handleHierarchyChange = (hierarchyName: string) => {
@@ -241,8 +264,13 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     }
   };
 
-  const handleServiceTypeChange = (serviceTypeName: string) => {
-    handleFieldChange('service_type', serviceTypeName);
+  const handleServiceTypeChange = (serviceTypeId: string) => {
+    const selectedServiceType = serviceTypes.find(st => st.id.toString() === serviceTypeId) || null;
+    setFormData(prev => ({ 
+      ...prev, 
+      selectedServiceType,
+      service_type: selectedServiceType?.name || ''
+    }));
   };
 
   const handleDelete = () => {
@@ -356,21 +384,21 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               {isReadOnly ? (
                 <Input
                   id="supplier"
-                  value={formData.supplier || ''}
+                  value={formData.selectedSupplier?.name || formData.supplier || ''}
                   disabled={true}
                 />
               ) : (
                 <Select
-                  value={formData.supplier || ''}
+                  value={formData.selectedSupplier?.id.toString() || ''}
                   onValueChange={handleSupplierChange}
                   disabled={suppliersLoading}
                 >
-                  <SelectTrigger className={!formData.supplier && !isReadOnly ? 'border-red-300' : ''}>
+                  <SelectTrigger className={!formData.selectedSupplier && !isReadOnly ? 'border-red-300' : ''}>
                     <SelectValue placeholder={suppliersLoading ? "Loading suppliers..." : "Select supplier"} />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map((supplier) => (
-                      <SelectItem key={supplier.id} value={supplier.name}>
+                      <SelectItem key={supplier.id} value={supplier.id.toString()}>
                         {supplier.name}
                       </SelectItem>
                     ))}
@@ -425,16 +453,16 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             <div className="space-y-2">
               <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
               <Select
-                value={formData.service_type}
+                value={formData.selectedServiceType?.id.toString() || ''}
                 onValueChange={handleServiceTypeChange}
                 disabled={isReadOnly || serviceTypesLoading}
               >
-                <SelectTrigger className={!formData.service_type && !isReadOnly ? 'border-red-300' : ''}>
+                <SelectTrigger className={!formData.selectedServiceType && !isReadOnly ? 'border-red-300' : ''}>
                   <SelectValue placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"} />
                 </SelectTrigger>
                 <SelectContent>
                   {serviceTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.name}>
+                    <SelectItem key={type.id} value={type.id.toString()}>
                       {type.name}
                     </SelectItem>
                   ))}

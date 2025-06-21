@@ -1,28 +1,18 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { purposeService } from '@/services/purposeService';
-import { useAdminData } from '@/contexts/AdminDataContext';
 import { Purpose } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
 export const usePurposeMutations = () => {
   const queryClient = useQueryClient();
-  const { hierarchies, suppliers, serviceTypes } = useAdminData();
   const { toast } = useToast();
 
   const createPurpose = useMutation({
-    mutationFn: (purposeData: Partial<Purpose>) => {
+    mutationFn: (purposeData: any) => {
       console.log('Creating purpose with data:', purposeData);
-      console.log('Available hierarchies:', hierarchies);
-      console.log('Available suppliers:', suppliers);
-      console.log('Available serviceTypes:', serviceTypes);
       
-      const apiRequest = purposeService.mapPurposeToCreateRequest(
-        purposeData,
-        hierarchies,
-        suppliers,
-        serviceTypes
-      );
+      const apiRequest = purposeService.mapPurposeToCreateRequest(purposeData);
       console.log('Mapped API request:', apiRequest);
       return purposeService.createPurpose(apiRequest);
     },
@@ -44,14 +34,9 @@ export const usePurposeMutations = () => {
   });
 
   const updatePurpose = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Purpose> }) => {
+    mutationFn: ({ id, data }: { id: string; data: any }) => {
       console.log('Updating purpose with id:', id, 'data:', data);
-      const apiRequest = purposeService.mapPurposeToUpdateRequest(
-        data,
-        hierarchies,
-        suppliers,
-        serviceTypes
-      );
+      const apiRequest = purposeService.mapPurposeToUpdateRequest(data);
       console.log('Mapped update API request:', apiRequest);
       return purposeService.updatePurpose(id, apiRequest);
     },
