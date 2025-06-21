@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -137,6 +137,9 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create New Hierarchy</DialogTitle>
+          <DialogDescription>
+            Create a new hierarchy level in your organizational structure.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
@@ -186,7 +189,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
               <div className="space-y-2 col-span-2">
                 <label className="text-sm font-medium">Parent {selectedParentType}</label>
-                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen} modal={true}>
+                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -198,7 +201,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0 z-[60]" align="start" side="bottom" sideOffset={5}>
+                  <PopoverContent className="w-[400px] p-0 z-[9999]" align="start">
                     <Command>
                       <CommandInput 
                         placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
