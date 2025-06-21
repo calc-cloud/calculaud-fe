@@ -10,25 +10,93 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
-import { useAdminData } from '@/contexts/AdminDataContext';
-
-interface SupplierItem {
-  id: string;
-  name: string;
-}
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supplierService } from '@/services/supplierService';
+import { Supplier } from '@/types/suppliers';
 
 const SupplierManagement = () => {
-  const { suppliers, setSuppliers } = useAdminData();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingSupplier, setEditingSupplier] = useState<any>(null);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [supplierName, setSupplierName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [supplierToDelete, setSupplierToDelete] = useState<any>(null);
+  const [supplierToDelete, setSupplierToDelete] = useState<Supplier | null>(null);
 
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const itemsPerPage = 12;
+
+  // Fetch suppliers with search and pagination
+  const { data: suppliersResponse, isLoading, error } = useQuery({
+    queryKey: ['suppliers', currentPage, searchQuery],
+    queryFn: () => supplierService.getSuppliers({
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchQuery || undefined
+    }),
+  });
+
+  console.log('Fetching suppliers with params:', { page: currentPage, limit: itemsPerPage, search: searchQuery });
+
+  // Create supplier mutation
+  const createMutation = useMutation({
+    mutationFn: supplierService.createSupplier,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast({ title: "Supplier created successfully" });
+      setIsDialogOpen(false);
+      setSupplierName('');
+    },
+    onError: (error: any) => {
+      console.error('Create supplier error:', error);
+      toast({ 
+        title: "Failed to create supplier", 
+        description: error.message || "An error occurred",
+        variant: "destructive" 
+      });
+    },
+  });
+
+  // Update supplier mutation
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => 
+      supplierService.updateSupplier(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast({ title: "Supplier updated successfully" });
+      setIsDialogOpen(false);
+      setSupplierName('');
+      setEditingSupplier(null);
+    },
+    onError: (error: any) => {
+      console.error('Update supplier error:', error);
+      toast({ 
+        title: "Failed to update supplier", 
+        description: error.message || "An error occurred",
+        variant: "destructive" 
+      });
+    },
+  });
+
+  // Delete supplier mutation
+  const deleteMutation = useMutation({
+    mutationFn: supplierService.deleteSupplier,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['suppliers'] });
+      toast({ title: "Supplier deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSupplierToDelete(null);
+    },
+    onError: (error: any) => {
+      console.error('Delete supplier error:', error);
+      toast({ 
+        title: "Failed to delete supplier", 
+        description: error.message || "An error occurred",
+        variant: "destructive" 
+      });
+    },
+  });
 
   const handleCreate = () => {
     setEditingSupplier(null);
@@ -36,7 +104,7 @@ const SupplierManagement = () => {
     setIsDialogOpen(true);
   };
 
-  const handleEdit = (supplier: any) => {
+  const handleEdit = (supplier: Supplier) => {
     setEditingSupplier(supplier);
     setSupplierName(supplier.name);
     setIsDialogOpen(true);
@@ -49,53 +117,33 @@ const SupplierManagement = () => {
     }
 
     if (editingSupplier) {
-      setSuppliers(prev => prev.map(s => 
-        s.id === editingSupplier.id 
-          ? { ...s, name: supplierName.trim() }
-          : s
-      ));
-      toast({ title: "Supplier updated successfully" });
+      updateMutation.mutate({
+        id: editingSupplier.id,
+        data: { name: supplierName.trim() }
+      });
     } else {
-      const newSupplier = {
-        id: Date.now().toString(),
-        name: supplierName.trim()
-      };
-      setSuppliers(prev => [...prev, newSupplier]);
-      toast({ title: "Supplier created successfully" });
+      createMutation.mutate({ name: supplierName.trim() });
     }
-    
-    setIsDialogOpen(false);
   };
 
-  const handleDeleteClick = (supplier: any) => {
+  const handleDeleteClick = (supplier: Supplier) => {
     setSupplierToDelete(supplier);
     setDeleteDialogOpen(true);
   };
 
   const handleDelete = () => {
     if (supplierToDelete) {
-      setSuppliers(prev => prev.filter(s => s.id !== supplierToDelete.id));
-      toast({ title: "Supplier deleted successfully" });
-      setDeleteDialogOpen(false);
-      setSupplierToDelete(null);
+      deleteMutation.mutate(supplierToDelete.id);
     }
   };
-
-  // Filter suppliers based on search query
-  const filteredSuppliers = suppliers.filter(supplier =>
-    supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedSuppliers = filteredSuppliers.slice(startIndex, endIndex);
 
   // Reset to page 1 when search changes
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+
+  const suppliers = suppliersResponse?.items || [];
+  const totalPages = suppliersResponse?.pages || 0;
 
   return (
     <Card className="h-full flex flex-col overflow-hidden">
@@ -129,8 +177,12 @@ const SupplierManagement = () => {
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="sm">
                   Cancel
                 </Button>
-                <Button onClick={handleSave} size="sm">
-                  {editingSupplier ? 'Update' : 'Create'}
+                <Button 
+                  onClick={handleSave} 
+                  size="sm"
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
+                  {createMutation.isPending || updateMutation.isPending ? 'Saving...' : (editingSupplier ? 'Update' : 'Create')}
                 </Button>
               </div>
             </div>
@@ -150,9 +202,22 @@ const SupplierManagement = () => {
           </div>
           
           <div className="flex-1 overflow-y-auto">
-            {paginatedSuppliers.length > 0 ? (
+            {isLoading ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center my-4">
+                  <p className="text-gray-500 text-lg font-medium">Loading suppliers...</p>
+                </div>
+              </div>
+            ) : error ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center my-4">
+                  <p className="text-red-500 text-lg font-medium">Error loading suppliers</p>
+                  <p className="text-gray-400 text-sm mt-1">Please try again</p>
+                </div>
+              </div>
+            ) : suppliers.length > 0 ? (
               <div className="grid grid-cols-3 gap-6">
-                {paginatedSuppliers.map((supplier) => (
+                {suppliers.map((supplier) => (
                   <div key={supplier.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex items-center justify-between">
                       <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
@@ -192,7 +257,7 @@ const SupplierManagement = () => {
             )}
           </div>
 
-          {filteredSuppliers.length > 0 && (
+          {suppliersResponse && suppliersResponse.total > 0 && (
             <div className="flex-shrink-0 mt-4">
               <TablePagination
                 currentPage={currentPage}
@@ -214,8 +279,11 @@ const SupplierManagement = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
-              Delete
+            <AlertDialogAction 
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
