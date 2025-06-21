@@ -86,8 +86,8 @@ const SupplierManagement = () => {
   }, [searchQuery]);
 
   return (
-    <Card className="h-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
         <CardTitle className="text-lg">Supplier Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -125,9 +125,9 @@ const SupplierManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent className="pt-0 pb-4">
-        <div className="space-y-6">
-          <div className="relative">
+      <CardContent className="pt-0 flex-1 flex flex-col min-h-0">
+        <div className="flex flex-col h-full space-y-4">
+          <div className="relative flex-shrink-0">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
             <Input
               placeholder="Search suppliers..."
@@ -137,49 +137,53 @@ const SupplierManagement = () => {
             />
           </div>
           
-          <div className="grid grid-cols-3 gap-4">
-            {paginatedSuppliers.map((supplier) => (
-              <div key={supplier.id} className="p-4 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
-                    {supplier.name}
-                  </p>
-                  <div className="flex space-x-2 flex-shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)} className="h-7 w-7 p-0">
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete this supplier? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(supplier.id)}>
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+          <div className="flex-1 min-h-0">
+            <div className="grid grid-cols-3 gap-4 h-full">
+              {paginatedSuppliers.map((supplier) => (
+                <div key={supplier.id} className="p-4 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors h-fit">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
+                      {supplier.name}
+                    </p>
+                    <div className="flex space-x-2 flex-shrink-0">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)} className="h-7 w-7 p-0">
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this supplier? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDelete(supplier.id)}>
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          <TablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <div className="flex-shrink-0">
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
