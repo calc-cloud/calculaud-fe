@@ -76,6 +76,11 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     setSelectedParentId('');
   };
 
+  const handleParentSelect = (parentId: string) => {
+    setSelectedParentId(parentId);
+    setParentPopoverOpen(false);
+  };
+
   const handleCreate = () => {
     if (!hierarchyName.trim()) {
       toast({
@@ -193,7 +198,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
+                  <PopoverContent className="w-[200px] p-0" align="start">
                     <Command>
                       <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} />
                       <CommandList>
@@ -202,11 +207,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                           {availableParents.map((parent) => (
                             <CommandItem
                               key={parent.id}
-                              value={parent.id}
-                              onSelect={() => {
-                                setSelectedParentId(parent.id);
-                                setParentPopoverOpen(false);
-                              }}
+                              onSelect={() => handleParentSelect(parent.id)}
                             >
                               <Check
                                 className={cn(
