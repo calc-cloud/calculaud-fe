@@ -13,10 +13,11 @@ import { CalendarIcon, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Purpose, ModalMode } from '@/types';
-import { SERVICE_TYPES, PURPOSE_STATUSES } from '@/utils/constants';
+import { PURPOSE_STATUSES } from '@/utils/constants';
 import { EMFSection } from '../sections/EMFSection';
 import { FileUpload } from '../common/FileUpload';
 import { formatDate } from '@/utils/dateUtils';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface PurposeModalProps {
   isOpen: boolean;
@@ -37,6 +38,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   onEdit,
   onDelete
 }) => {
+  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  
   const [formData, setFormData] = useState<Partial<Purpose>>({
     description: '',
     content: '',
@@ -190,13 +193,29 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier</Label>
-              <Input
-                id="supplier"
-                value={formData.supplier || ''}
-                onChange={(e) => handleFieldChange('supplier', e.target.value)}
-                disabled={isReadOnly}
-                placeholder="Enter supplier name"
-              />
+              {isReadOnly ? (
+                <Input
+                  id="supplier"
+                  value={formData.supplier || ''}
+                  disabled={true}
+                />
+              ) : (
+                <Select
+                  value={formData.supplier || ''}
+                  onValueChange={(value) => handleFieldChange('supplier', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select supplier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {suppliers.map((supplier) => (
+                      <SelectItem key={supplier.id} value={supplier.name}>
+                        {supplier.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
@@ -214,13 +233,29 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="hierarchy_name">Hierarchy</Label>
-            <Input
-              id="hierarchy_name"
-              value={formData.hierarchy_name || ''}
-              onChange={(e) => handleFieldChange('hierarchy_name', e.target.value)}
-              disabled={isReadOnly}
-              placeholder="Enter hierarchy"
-            />
+            {isReadOnly ? (
+              <Input
+                id="hierarchy_name"
+                value={formData.hierarchy_name || ''}
+                disabled={true}
+              />
+            ) : (
+              <Select
+                value={formData.hierarchy_name || ''}
+                onValueChange={(value) => handleFieldChange('hierarchy_name', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select hierarchy" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hierarchies.map((hierarchy) => (
+                    <SelectItem key={hierarchy.id} value={hierarchy.fullPath}>
+                      {hierarchy.fullPath}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,9 +270,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                   <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {SERVICE_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                  {serviceTypes.map((type) => (
+                    <SelectItem key={type.id} value={type.name}>
+                      {type.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
