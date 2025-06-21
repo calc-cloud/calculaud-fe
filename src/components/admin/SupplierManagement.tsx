@@ -115,7 +115,7 @@ const SupplierManagement = () => {
             </DialogHeader>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="supplierName" className="text-sm">Supplier Name</Label>
+                <Label htmlFor="supplierName" className="text-sm mb-2 block">Supplier Name</Label>
                 <Input
                   id="supplierName"
                   value={supplierName}

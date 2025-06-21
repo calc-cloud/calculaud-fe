@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -111,7 +110,7 @@ const ServiceTypeManagement = () => {
             </DialogHeader>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="serviceTypeName" className="text-sm">Service Type Name</Label>
+                <Label htmlFor="serviceTypeName" className="text-sm mb-2 block">Service Type Name</Label>
                 <Input
                   id="serviceTypeName"
                   value={serviceTypeName}
