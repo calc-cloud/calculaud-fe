@@ -1,4 +1,3 @@
-
 // Core entity types for the Procurement Management System
 
 export interface Purpose {
@@ -29,7 +28,6 @@ export interface EMF {
   order_date?: string;
   bikushit_id?: string;
   bikushit_date?: string;
-  is_completed: boolean;
   costs: EMFCost[];
 }
 
@@ -38,7 +36,6 @@ export interface EMFCost {
   emf_id: string;
   amount: number;
   currency: string;
-  description?: string;
 }
 
 export interface PurposeFile {

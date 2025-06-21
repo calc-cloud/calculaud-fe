@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Trash2 } from 'lucide-react';
 import { EMF, EMFCost } from '@/types';
@@ -28,7 +27,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       id: `emf-${Date.now()}`,
       purpose_id: '',
       creation_date: getTodayString(),
-      is_completed: false,
       costs: []
     };
     onEMFsChange([...emfs, newEMF]);
@@ -49,8 +47,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       id: `cost-${Date.now()}`,
       emf_id: emfId,
       amount: 0,
-      currency: 'USD',
-      description: ''
+      currency: 'USD'
     };
     
     updateEMF(emfId, {
@@ -102,7 +99,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 EMF {emf.id}
-                {emf.is_completed && <Badge variant="default">Completed</Badge>}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
@@ -144,18 +140,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <span className="text-xs text-muted-foreground">
                     {calculateDaysSince(emf.creation_date)} days ago
                   </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`completed-${emf.id}`}
-                      checked={emf.is_completed}
-                      onCheckedChange={(checked) => updateEMF(emf.id, { is_completed: !!checked })}
-                      disabled={isReadOnly}
-                    />
-                    <Label htmlFor={`completed-${emf.id}`}>Mark as Completed</Label>
-                  </div>
                 </div>
               </div>
 
@@ -218,19 +202,12 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 {emf.costs.map((cost) => (
                   <div key={cost.id} className="flex items-center gap-2 p-2 border rounded">
                     <Input
-                      placeholder="Description"
-                      value={cost.description || ''}
-                      onChange={(e) => updateCost(emf.id, cost.id, { description: e.target.value })}
-                      disabled={isReadOnly}
-                      className="flex-1"
-                    />
-                    <Input
                       type="number"
                       placeholder="Amount"
                       value={cost.amount}
                       onChange={(e) => updateCost(emf.id, cost.id, { amount: Number(e.target.value) })}
                       disabled={isReadOnly}
-                      className="w-24"
+                      className="w-32"
                     />
                     <span className="text-sm text-muted-foreground w-8">{cost.currency}</span>
                     {!isReadOnly && (

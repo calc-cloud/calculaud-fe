@@ -33,14 +33,12 @@ const mockPurposes: Purpose[] = [
         demand_date: '2024-06-03',
         order_id: 'O001',
         order_date: '2024-06-05',
-        is_completed: false,
         costs: [
           {
             id: 'cost-1',
             emf_id: 'emf-1',
             amount: 25000,
-            currency: 'USD',
-            description: 'Development phase 1'
+            currency: 'USD'
           }
         ]
       }
@@ -81,14 +79,12 @@ const mockPurposes: Purpose[] = [
         id: 'emf-3',
         purpose_id: '3',
         creation_date: '2024-04-16',
-        is_completed: true,
         costs: [
           {
             id: 'cost-3',
             emf_id: 'emf-3',
             amount: 15000,
-            currency: 'USD',
-            description: 'Consulting fees'
+            currency: 'USD'
           }
         ]
       }
