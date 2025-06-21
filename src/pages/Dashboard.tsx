@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -173,7 +172,7 @@ const Dashboard: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleViewPurpose = (purpose: Purpose) => {
+  const handleRowClick = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
     setModalMode('view');
     setIsModalOpen(true);
@@ -197,7 +196,7 @@ const Dashboard: React.FC = () => {
     if (modalMode === 'create') {
       const newPurpose: Purpose = {
         ...purposeData,
-        id: `new-${Date.now()}`,
+        id: `purpose-${Date.now()}`,
         creation_time: new Date().toISOString(),
         last_modified: new Date().toISOString(),
         emfs: purposeData.emfs || [],
@@ -320,9 +319,7 @@ const Dashboard: React.FC = () => {
       {/* Purposes Table */}
       <PurposeTable
         purposes={filteredPurposes}
-        onView={handleViewPurpose}
-        onEdit={handleEditPurpose}
-        onDelete={handleDeletePurpose}
+        onRowClick={handleRowClick}
         isLoading={false}
       />
 

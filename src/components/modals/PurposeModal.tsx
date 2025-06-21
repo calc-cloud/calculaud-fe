@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -32,27 +32,51 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   purpose,
   onSave
 }) => {
-  const [formData, setFormData] = useState<Partial<Purpose>>(
-    purpose || {
-      description: '',
-      content: '',
-      supplier: '',
-      hierarchy_id: '',
-      hierarchy_name: '',
-      status: 'Pending',
-      expected_delivery: '',
-      comments: '',
-      service_type: 'Other',
-      currency: 'USD',
-      emfs: [],
-      files: []
-    }
-  );
+  const [formData, setFormData] = useState<Partial<Purpose>>({
+    description: '',
+    content: '',
+    supplier: '',
+    hierarchy_id: '',
+    hierarchy_name: '',
+    status: 'Pending',
+    expected_delivery: '',
+    comments: '',
+    service_type: 'Other',
+    currency: 'USD',
+    emfs: [],
+    files: []
+  });
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date>();
 
   const isReadOnly = mode === 'view';
   const isEditing = mode === 'edit';
   const isCreating = mode === 'create';
+
+  // Initialize form data when purpose changes
+  useEffect(() => {
+    if (purpose) {
+      setFormData(purpose);
+      if (purpose.expected_delivery) {
+        setExpectedDeliveryDate(new Date(purpose.expected_delivery));
+      }
+    } else {
+      setFormData({
+        description: '',
+        content: '',
+        supplier: '',
+        hierarchy_id: '',
+        hierarchy_name: '',
+        status: 'Pending',
+        expected_delivery: '',
+        comments: '',
+        service_type: 'Other',
+        currency: 'USD',
+        emfs: [],
+        files: []
+      });
+      setExpectedDeliveryDate(undefined);
+    }
+  }, [purpose, isOpen]);
 
   const handleSave = () => {
     if (onSave) {
@@ -63,6 +87,10 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       onSave(purposeData);
     }
     onClose();
+  };
+
+  const handleFieldChange = (field: keyof Purpose, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const modalTitle = isCreating ? 'Create Purpose' : isEditing ? 'Edit Purpose' : 'Purpose Details';
@@ -82,8 +110,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Input
                 id="description"
                 value={formData.description || ''}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) => handleFieldChange('description', e.target.value)}
                 disabled={isReadOnly}
+                placeholder="Enter purpose description"
               />
             </div>
 
@@ -92,8 +121,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Input
                 id="supplier"
                 value={formData.supplier || ''}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
+                onChange={(e) => handleFieldChange('supplier', e.target.value)}
                 disabled={isReadOnly}
+                placeholder="Enter supplier name"
               />
             </div>
           </div>
@@ -103,10 +133,35 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             <Textarea
               id="content"
               value={formData.content || ''}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              onChange={(e) => handleFieldChange('content', e.target.value)}
               disabled={isReadOnly}
               rows={3}
+              placeholder="Describe the purpose content in detail..."
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="hierarchy_id">Hierarchy ID</Label>
+              <Input
+                id="hierarchy_id"
+                value={formData.hierarchy_id || ''}
+                onChange={(e) => handleFieldChange('hierarchy_id', e.target.value)}
+                disabled={isReadOnly}
+                placeholder="Enter hierarchy ID"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hierarchy_name">Hierarchy Name</Label>
+              <Input
+                id="hierarchy_name"
+                value={formData.hierarchy_name || ''}
+                onChange={(e) => handleFieldChange('hierarchy_name', e.target.value)}
+                disabled={isReadOnly}
+                placeholder="Enter hierarchy name"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -114,11 +169,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Label htmlFor="service_type">Service Type</Label>
               <Select
                 value={formData.service_type}
-                onValueChange={(value) => setFormData({ ...formData, service_type: value as any })}
+                onValueChange={(value) => handleFieldChange('service_type', value)}
                 disabled={isReadOnly}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
                 <SelectContent>
                   {SERVICE_TYPES.map((type) => (
@@ -134,11 +189,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as any })}
+                onValueChange={(value) => handleFieldChange('status', value)}
                 disabled={isReadOnly}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
                   {PURPOSE_STATUSES.map((status) => (
@@ -156,11 +211,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               <Label htmlFor="currency">Currency</Label>
               <Select
                 value={formData.currency}
-                onValueChange={(value) => setFormData({ ...formData, currency: value })}
+                onValueChange={(value) => handleFieldChange('currency', value)}
                 disabled={isReadOnly}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent>
                   {CURRENCIES.map((currency) => (
@@ -205,23 +260,24 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             <Textarea
               id="comments"
               value={formData.comments || ''}
-              onChange={(e) => setFormData({ ...formData, comments: e.target.value })}
+              onChange={(e) => handleFieldChange('comments', e.target.value)}
               disabled={isReadOnly}
               rows={2}
+              placeholder="Add any additional comments..."
             />
           </div>
 
           {/* EMF Section */}
           <EMFSection
             emfs={formData.emfs || []}
-            onEMFsChange={(emfs) => setFormData({ ...formData, emfs })}
+            onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
             isReadOnly={isReadOnly}
           />
 
           {/* File Upload Section */}
           <FileUpload
             files={formData.files || []}
-            onFilesChange={(files) => setFormData({ ...formData, files })}
+            onFilesChange={(files) => handleFieldChange('files', files)}
             isReadOnly={isReadOnly}
           />
         </div>
@@ -232,7 +288,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           </Button>
           {!isReadOnly && (
             <Button onClick={handleSave}>
-              {isCreating ? 'Create' : 'Save Changes'}
+              {isCreating ? 'Create Purpose' : 'Save Changes'}
             </Button>
           )}
         </DialogFooter>
