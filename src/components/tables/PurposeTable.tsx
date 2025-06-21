@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +33,32 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       });
     });
 
+    const formatAmount = (amount: number) => {
+      return amount % 1 === 0 ? amount.toString() : amount.toFixed(2);
+    };
+
+    const getCurrencySymbol = (currency: string) => {
+      switch (currency) {
+        case 'SUPPORT_USD':
+        case 'AVAILABLE_USD':
+          return '$';
+        case 'ILS':
+          return '₪';
+        default:
+          return currency;
+      }
+    };
+
     const costStrings = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${amount.toFixed(2)} ${currency}`
+      ([currency, amount]) => `${getCurrencySymbol(currency)}${formatAmount(amount)}`
     );
 
-    return costStrings.length > 0 ? costStrings.join(', ') : '0.00';
+    return {
+      display: costStrings.length > 0 ? costStrings.join(', ') : '0',
+      details: Object.entries(costsByCurrency).map(
+        ([currency, amount]) => `${formatAmount(amount)} ${currency}`
+      ).join(', ') || '0'
+    };
   };
 
   const getEMFIds = (purpose: Purpose) => {
@@ -106,62 +128,74 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {purposes.map((purpose) => (
-              <TableRow 
-                key={purpose.id} 
-                onClick={() => handleRowClick(purpose)}
-                className="cursor-pointer hover:bg-muted/50"
-              >
-                <TableCell className="font-medium w-32">
-                  <div className="line-clamp-2 text-sm leading-tight">
-                    {purpose.description}
-                  </div>
-                </TableCell>
-                <TableCell className="w-32">
-                  <div className="line-clamp-2 text-sm leading-tight">
-                    {purpose.content}
-                  </div>
-                </TableCell>
-                <TableCell>{purpose.supplier}</TableCell>
-                <TableCell>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        {getLastHierarchyLevel(purpose.hierarchy_name)}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{purpose.hierarchy_name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TableCell>
-                <TableCell>
-                  <Badge variant="outline">{purpose.service_type}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge 
-                    variant={purpose.status === 'COMPLETED' ? 'default' : 
-                             purpose.status === 'IN_PROGRESS' ? 'secondary' :
-                             purpose.status === 'PENDING' ? 'outline' : 'outline'}
-                  >
-                    {getStatusDisplay(purpose.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="max-w-[150px] truncate">
-                  {getEMFIds(purpose) || 'None'}
-                </TableCell>
-                <TableCell className="max-w-[150px] truncate">
-                  {getTotalCostWithCurrencies(purpose)}
-                </TableCell>
-                <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <div className="text-sm">{formatDate(purpose.last_modified)}</div>
-                    <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+            {purposes.map((purpose) => {
+              const totalCost = getTotalCostWithCurrencies(purpose);
+              return (
+                <TableRow 
+                  key={purpose.id} 
+                  onClick={() => handleRowClick(purpose)}
+                  className="cursor-pointer hover:bg-muted/50"
+                >
+                  <TableCell className="font-medium w-32">
+                    <div className="line-clamp-2 text-sm leading-tight">
+                      {purpose.description}
+                    </div>
+                  </TableCell>
+                  <TableCell className="w-32">
+                    <div className="line-clamp-2 text-sm leading-tight">
+                      {purpose.content}
+                    </div>
+                  </TableCell>
+                  <TableCell>{purpose.supplier}</TableCell>
+                  <TableCell>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          {getLastHierarchyLevel(purpose.hierarchy_name)}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{purpose.hierarchy_name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{purpose.service_type}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant={purpose.status === 'COMPLETED' ? 'default' : 
+                               purpose.status === 'IN_PROGRESS' ? 'secondary' :
+                               purpose.status === 'PENDING' ? 'outline' : 'outline'}
+                    >
+                      {getStatusDisplay(purpose.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="max-w-[150px] truncate">
+                    {getEMFIds(purpose) || 'None'}
+                  </TableCell>
+                  <TableCell className="max-w-[150px] truncate">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          {totalCost.display}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{totalCost.details}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <div className="text-sm">{formatDate(purpose.last_modified)}</div>
+                      <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
