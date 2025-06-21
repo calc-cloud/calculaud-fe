@@ -136,9 +136,9 @@ const SupplierManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent className="pt-0 flex-1 flex flex-col overflow-hidden">
+      <CardContent className="pt-2 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-col h-full">
-          <div className="relative flex-shrink-0 mb-4">
+          <div className="relative flex-shrink-0 mb-4 mt-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search suppliers..."
