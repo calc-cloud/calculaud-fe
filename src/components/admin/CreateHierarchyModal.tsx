@@ -1,6 +1,7 @@
 
+
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
@@ -137,6 +138,9 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create New Hierarchy</DialogTitle>
+          <DialogDescription>
+            Create a new hierarchy item by selecting its type and parent.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-4">
@@ -186,7 +190,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
               <div className="space-y-2 col-span-2">
                 <label className="text-sm font-medium">Parent {selectedParentType}</label>
-                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen} modal={true}>
+                <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -198,13 +202,15 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                       <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-[200px] p-0 z-[60]" align="start" side="bottom" sideOffset={5}>
-                    <Command>
-                      <CommandInput 
-                        placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
-                        className="h-9"
-                      />
-                      <CommandList>
+                  <PopoverContent className="w-[300px] p-0 z-[60] bg-white border shadow-lg" align="start" side="bottom" sideOffset={5}>
+                    <Command className="bg-white">
+                      <div className="flex items-center border-b px-3">
+                        <CommandInput 
+                          placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
+                          className="h-9 border-0 focus:ring-0 focus:outline-none bg-transparent"
+                        />
+                      </div>
+                      <CommandList className="max-h-[200px]">
                         <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                         <CommandGroup>
                           {availableParents.map((parent) => (
@@ -258,3 +264,4 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     </Dialog>
   );
 };
+
