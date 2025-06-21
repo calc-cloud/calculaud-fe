@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +30,7 @@ const HierarchyManagement = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hierarchyToDelete, setHierarchyToDelete] = useState<HierarchyItem | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [editingHierarchy, setEditingHierarchy] = useState<HierarchyItem | null>(null);
   const {
     toast
   } = useToast();
@@ -54,11 +54,13 @@ const HierarchyManagement = () => {
   };
 
   const handleCreate = () => {
+    setEditingHierarchy(null);
     setCreateModalOpen(true);
   };
 
   const handleEdit = (hierarchy: HierarchyItem) => {
-    // Edit functionality can be implemented later
+    setEditingHierarchy(hierarchy);
+    setCreateModalOpen(true);
   };
 
   const handleDeleteClick = (hierarchy: HierarchyItem) => {
@@ -86,6 +88,13 @@ const HierarchyManagement = () => {
       });
       setDeleteDialogOpen(false);
       setHierarchyToDelete(null);
+    }
+  };
+
+  const handleModalClose = (open: boolean) => {
+    setCreateModalOpen(open);
+    if (!open) {
+      setEditingHierarchy(null);
     }
   };
 
@@ -195,13 +204,14 @@ const HierarchyManagement = () => {
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+          </AlertDialogFooter>
         </AlertDialog>
       </Card>
 
       <CreateHierarchyModal 
         open={createModalOpen} 
-        onOpenChange={setCreateModalOpen} 
+        onOpenChange={handleModalClose}
+        editItem={editingHierarchy}
       />
     </>
   );

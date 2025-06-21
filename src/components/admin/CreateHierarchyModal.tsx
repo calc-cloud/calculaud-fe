@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,9 +11,18 @@ import { useToast } from '@/hooks/use-toast';
 
 type HierarchyType = 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
 
+interface HierarchyItem {
+  id: string;
+  type: HierarchyType;
+  name: string;
+  parentId?: string;
+  fullPath: string;
+}
+
 interface CreateHierarchyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editItem?: HierarchyItem | null;
 }
 
 const hierarchyOrder: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
@@ -35,7 +44,8 @@ const getHierarchyIcon = (type: HierarchyType) => {
 
 export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   open,
-  onOpenChange
+  onOpenChange,
+  editItem
 }) => {
   const { hierarchies, setHierarchies } = useAdminData();
   const { toast } = useToast();
@@ -43,6 +53,33 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const [selectedParentType, setSelectedParentType] = useState<HierarchyType>('Unit');
   const [selectedParentId, setSelectedParentId] = useState<string>('');
   const [hierarchyName, setHierarchyName] = useState('');
+
+  const isEditing = !!editItem;
+
+  // Initialize form with edit data when editing
+  useEffect(() => {
+    if (editItem && open) {
+      setSelectedType(editItem.type);
+      setHierarchyName(editItem.name);
+      
+      if (editItem.parentId) {
+        const parent = hierarchies.find(h => h.id === editItem.parentId);
+        if (parent) {
+          setSelectedParentType(parent.type);
+          setSelectedParentId(editItem.parentId);
+        }
+      } else {
+        setSelectedParentType('Unit');
+        setSelectedParentId('');
+      }
+    } else if (!editItem) {
+      // Reset form when creating new
+      setSelectedType('Unit');
+      setSelectedParentType('Unit');
+      setSelectedParentId('');
+      setHierarchyName('');
+    }
+  }, [editItem, open, hierarchies]);
 
   // Get valid parent types (only higher hierarchy levels)
   const getValidParentTypes = (currentType: HierarchyType): HierarchyType[] => {
@@ -52,6 +89,14 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   // Get available parent hierarchies of the selected parent type
   const getAvailableParents = () => {
+    // When editing, exclude the current item and its children from parent options
+    if (isEditing && editItem) {
+      return hierarchies.filter(h => 
+        h.type === selectedParentType && 
+        h.id !== editItem.id &&
+        !h.fullPath.startsWith(editItem.fullPath + ' > ')
+      );
+    }
     return hierarchies.filter(h => h.type === selectedParentType);
   };
 
@@ -76,7 +121,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     setSelectedParentId(parentId);
   };
 
-  const handleCreate = () => {
+  const handleSave = () => {
     if (!hierarchyName.trim()) {
       toast({
         title: "Name required",
@@ -95,28 +140,61 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       return;
     }
 
-    const newHierarchy = {
-      id: Date.now().toString(),
-      type: selectedType,
-      name: hierarchyName.trim(),
-      parentId: selectedType === 'Unit' ? undefined : selectedParentId,
-      fullPath: selectedType === 'Unit' 
-        ? hierarchyName.trim()
-        : `${selectedParent?.fullPath} > ${hierarchyName.trim()}`
-    };
+    const fullPath = selectedType === 'Unit' 
+      ? hierarchyName.trim()
+      : `${selectedParent?.fullPath} > ${hierarchyName.trim()}`;
 
-    setHierarchies(prev => [...prev, newHierarchy]);
-    
-    toast({
-      title: "Hierarchy created successfully"
-    });
+    if (isEditing && editItem) {
+      // Update existing hierarchy
+      const updatedHierarchy = {
+        ...editItem,
+        type: selectedType,
+        name: hierarchyName.trim(),
+        parentId: selectedType === 'Unit' ? undefined : selectedParentId,
+        fullPath
+      };
 
-    // Reset form
-    setSelectedType('Unit');
-    setSelectedParentType('Unit');
-    setSelectedParentId('');
-    setHierarchyName('');
-    onOpenChange(false);
+      setHierarchies(prev => {
+        const updated = prev.map(h => h.id === editItem.id ? updatedHierarchy : h);
+        
+        // Update children paths if the parent path changed
+        if (editItem.fullPath !== fullPath) {
+          return updated.map(h => {
+            if (h.fullPath.startsWith(editItem.fullPath + ' > ')) {
+              const childPath = h.fullPath.substring(editItem.fullPath.length + 3);
+              return {
+                ...h,
+                fullPath: `${fullPath} > ${childPath}`
+              };
+            }
+            return h;
+          });
+        }
+        
+        return updated;
+      });
+
+      toast({
+        title: "Hierarchy updated successfully"
+      });
+    } else {
+      // Create new hierarchy
+      const newHierarchy = {
+        id: Date.now().toString(),
+        type: selectedType,
+        name: hierarchyName.trim(),
+        parentId: selectedType === 'Unit' ? undefined : selectedParentId,
+        fullPath
+      };
+
+      setHierarchies(prev => [...prev, newHierarchy]);
+      
+      toast({
+        title: "Hierarchy created successfully"
+      });
+    }
+
+    handleCancel();
   };
 
   const handleCancel = () => {
@@ -131,9 +209,14 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Create New Hierarchy</DialogTitle>
+          <DialogTitle>
+            {isEditing ? 'Edit Hierarchy' : 'Create New Hierarchy'}
+          </DialogTitle>
           <DialogDescription>
-            Create a new hierarchy item by selecting its type and parent.
+            {isEditing 
+              ? 'Update the hierarchy item details.'
+              : 'Create a new hierarchy item by selecting its type and parent.'
+            }
           </DialogDescription>
         </DialogHeader>
         
@@ -224,8 +307,8 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleCreate}>
-            Create
+          <Button onClick={handleSave}>
+            {isEditing ? 'Update' : 'Create'}
           </Button>
         </div>
       </DialogContent>
