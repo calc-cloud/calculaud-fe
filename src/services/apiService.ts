@@ -36,6 +36,12 @@ class ApiService {
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
 
+      // Handle 204 No Content responses
+      if (response.status === 204) {
+        console.log('204 No Content response - returning undefined');
+        return undefined as T;
+      }
+
       const data = await response.json();
       console.log('API response data:', data);
       return data;
