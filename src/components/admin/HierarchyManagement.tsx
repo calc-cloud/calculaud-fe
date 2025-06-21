@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
 type HierarchyType = 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
@@ -30,8 +30,10 @@ const HierarchyManagement = () => {
   const [selectedParent, setSelectedParent] = useState<string>('');
   const [hierarchyName, setHierarchyName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
+  const itemsPerPage = 10;
 
   const hierarchyTypes: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
 
@@ -153,6 +155,19 @@ const HierarchyManagement = () => {
     hierarchy.type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredHierarchies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedHierarchies = filteredHierarchies
+    .sort((a, b) => a.fullPath.localeCompare(b.fullPath))
+    .slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -243,9 +258,7 @@ const HierarchyManagement = () => {
           </div>
           
           <div className="space-y-2">
-            {filteredHierarchies
-              .sort((a, b) => a.fullPath.localeCompare(b.fullPath))
-              .map((hierarchy) => (
+            {paginatedHierarchies.map((hierarchy) => (
               <div key={hierarchy.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">{hierarchy.fullPath}</p>
@@ -280,6 +293,14 @@ const HierarchyManagement = () => {
               </div>
             ))}
           </div>
+
+          {totalPages > 1 && (
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </CardContent>
     </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface SupplierItem {
@@ -21,8 +21,10 @@ const SupplierManagement = () => {
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [supplierName, setSupplierName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
+  const itemsPerPage = 10;
 
   const handleCreate = () => {
     setEditingSupplier(null);
@@ -70,6 +72,17 @@ const SupplierManagement = () => {
   const filteredSuppliers = suppliers.filter(supplier =>
     supplier.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredSuppliers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedSuppliers = filteredSuppliers.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   return (
     <Card>
@@ -123,7 +136,7 @@ const SupplierManagement = () => {
           </div>
           
           <div className="space-y-2">
-            {filteredSuppliers.map((supplier) => (
+            {paginatedSuppliers.map((supplier) => (
               <div key={supplier.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div>
                   <p className="font-medium">{supplier.name}</p>
@@ -157,6 +170,14 @@ const SupplierManagement = () => {
               </div>
             ))}
           </div>
+
+          {totalPages > 1 && (
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
