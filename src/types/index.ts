@@ -59,12 +59,13 @@ export type PurposeStatus = 'Pending' | 'In Progress' | 'Rejected' | 'Completed'
 
 export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance' | 'Training' | 'Other';
 
+export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic Advisors LLC' | 'Global Tech Services' | 'Innovation Partners' | 'Digital Solutions Co' | 'Enterprise Systems Ltd' | 'CloudTech Inc';
+
 // Filter and search types
 export interface PurposeFilters {
   hierarchy_id?: string;
-  emf_id?: string;
   service_type?: ServiceType[];
-  supplier?: string;
+  supplier?: Supplier[];
   status?: PurposeStatus[];
   search_query?: string;
 }

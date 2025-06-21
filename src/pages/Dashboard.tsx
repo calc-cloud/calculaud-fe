@@ -115,8 +115,7 @@ const Dashboard: React.FC = () => {
       filtered = filtered.filter(purpose => 
         purpose.description.toLowerCase().includes(query) ||
         purpose.content.toLowerCase().includes(query) ||
-        purpose.supplier.toLowerCase().includes(query) ||
-        purpose.emfs.some(emf => emf.id.toLowerCase().includes(query))
+        purpose.supplier.toLowerCase().includes(query)
       );
     }
 
@@ -134,15 +133,9 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    if (filters.supplier) {
+    if (filters.supplier && filters.supplier.length > 0) {
       filtered = filtered.filter(purpose => 
-        purpose.supplier.toLowerCase().includes(filters.supplier!.toLowerCase())
-      );
-    }
-
-    if (filters.emf_id) {
-      filtered = filtered.filter(purpose => 
-        purpose.emfs.some(emf => emf.id.toLowerCase().includes(filters.emf_id!.toLowerCase()))
+        filters.supplier!.includes(purpose.supplier as any)
       );
     }
 

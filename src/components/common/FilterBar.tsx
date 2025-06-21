@@ -6,8 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Search, Filter, X, ChevronDown } from 'lucide-react';
-import { PurposeFilters, ServiceType, PurposeStatus } from '@/types';
-import { SERVICE_TYPES, PURPOSE_STATUSES } from '@/utils/constants';
+import { PurposeFilters, ServiceType, PurposeStatus, Supplier } from '@/types';
+import { SERVICE_TYPES, PURPOSE_STATUSES, SUPPLIERS } from '@/utils/constants';
 
 interface FilterBarProps {
   filters: PurposeFilters;
@@ -45,6 +45,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     updateFilter('status', updatedStatuses.length > 0 ? updatedStatuses : undefined);
   };
 
+  const toggleSupplier = (supplier: Supplier) => {
+    const currentSuppliers = filters.supplier || [];
+    const updatedSuppliers = currentSuppliers.includes(supplier)
+      ? currentSuppliers.filter(s => s !== supplier)
+      : [...currentSuppliers, supplier];
+    
+    updateFilter('supplier', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
+  };
+
   const clearFilters = () => {
     onFiltersChange({});
   };
@@ -67,13 +76,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     return `${selectedStatuses.length} selected`;
   };
 
+  const getSupplierLabel = () => {
+    const selectedSuppliers = filters.supplier || [];
+    if (selectedSuppliers.length === 0) return 'Suppliers';
+    if (selectedSuppliers.length === 1) return selectedSuppliers[0];
+    return `${selectedSuppliers.length} selected`;
+  };
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search by description, content, or EMF ID..."
+          placeholder="Search by description, content, or supplier..."
           value={filters.search_query || ''}
           onChange={(e) => updateFilter('search_query', e.target.value)}
           className="pl-10"
@@ -90,7 +106,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md">
+          <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
             {SERVICE_TYPES.map((type) => (
               <DropdownMenuItem
                 key={type}
@@ -115,7 +131,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md">
+          <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
             {PURPOSE_STATUSES.map((status) => (
               <DropdownMenuItem
                 key={status}
@@ -134,25 +150,36 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        {/* Supplier Multi-Select Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-[160px] justify-between">
+              {getSupplierLabel()}
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
+            {SUPPLIERS.map((supplier) => (
+              <DropdownMenuItem
+                key={supplier}
+                className="flex items-center space-x-2 cursor-pointer"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <Checkbox
+                  checked={(filters.supplier || []).includes(supplier)}
+                  onCheckedChange={() => toggleSupplier(supplier)}
+                />
+                <span className="truncate">{supplier}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Input
           placeholder="Hierarchy ID"
           value={filters.hierarchy_id || ''}
           onChange={(e) => updateFilter('hierarchy_id', e.target.value)}
           className="w-[130px]"
-        />
-
-        <Input
-          placeholder="EMF ID"
-          value={filters.emf_id || ''}
-          onChange={(e) => updateFilter('emf_id', e.target.value)}
-          className="w-[100px]"
-        />
-
-        <Input
-          placeholder="Supplier"
-          value={filters.supplier || ''}
-          onChange={(e) => updateFilter('supplier', e.target.value)}
-          className="w-[120px]"
         />
 
         <div className="flex items-center gap-2 ml-auto">
@@ -198,30 +225,25 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               ))}
             </div>
           )}
+          {filters.supplier && filters.supplier.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {filters.supplier.map((supplier) => (
+                <Badge key={supplier} variant="secondary" className="flex items-center gap-1">
+                  Supplier: {supplier}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => toggleSupplier(supplier)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          )}
           {filters.hierarchy_id && (
             <Badge variant="secondary" className="flex items-center gap-1">
               Hierarchy: {filters.hierarchy_id}
               <X 
                 className="h-3 w-3 cursor-pointer" 
                 onClick={() => updateFilter('hierarchy_id', undefined)}
-              />
-            </Badge>
-          )}
-          {filters.emf_id && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              EMF: {filters.emf_id}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilter('emf_id', undefined)}
-              />
-            </Badge>
-          )}
-          {filters.supplier && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              Supplier: {filters.supplier}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilter('supplier', undefined)}
               />
             </Badge>
           )}
