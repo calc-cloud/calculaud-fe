@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Building, Users, User, UserCheck } from 'lucide-react';
+import { Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Hierarchy, HierarchyType } from '@/types/hierarchies';
+import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
 
 interface CreateHierarchyModalProps {
   open: boolean;
@@ -45,6 +46,10 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   const isEditing = !!editItem;
 
+  // Mutation hooks
+  const createMutation = useCreateHierarchy();
+  const updateMutation = useUpdateHierarchy();
+
   // Initialize form with edit data when editing
   useEffect(() => {
     if (editItem && open) {
@@ -63,7 +68,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!hierarchyName.trim()) {
       toast({
         title: "Name required",
@@ -73,14 +78,31 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       return;
     }
 
-    // TODO: Implement actual create/update functionality
-    toast({
-      title: isEditing ? "Update functionality not implemented yet" : "Create functionality not implemented yet",
-      description: "This will be implemented in the next step.",
-      variant: "destructive"
-    });
+    try {
+      if (isEditing && editItem) {
+        // Update existing hierarchy
+        await updateMutation.mutateAsync({
+          id: editItem.id,
+          data: {
+            type: selectedType,
+            name: hierarchyName.trim(),
+            // TODO: Add parent_id support when we implement parent selection
+          }
+        });
+      } else {
+        // Create new hierarchy
+        await createMutation.mutateAsync({
+          type: selectedType,
+          name: hierarchyName.trim(),
+          // TODO: Add parent_id support when we implement parent selection
+        });
+      }
 
-    handleCancel();
+      handleCancel();
+    } catch (error) {
+      // Error handling is done in the mutation hooks
+      console.error('Save hierarchy error:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -88,6 +110,8 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     setHierarchyName('');
     onOpenChange(false);
   };
+
+  const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -113,6 +137,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               value={selectedType} 
               onValueChange={handleTypeChange}
               className="justify-start w-full"
+              disabled={isLoading}
             >
               {hierarchyOrder.map((type) => {
                 const Icon = getHierarchyIcon(type);
@@ -139,16 +164,18 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               placeholder={`Enter ${formatTypeDisplay(selectedType).toLowerCase()} name`}
               value={hierarchyName}
               onChange={(e) => setHierarchyName(e.target.value)}
+              disabled={isLoading}
             />
           </div>
         </div>
 
         {/* Footer */}
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button variant="outline" onClick={handleCancel} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             {isEditing ? 'Update' : 'Create'}
           </Button>
         </div>

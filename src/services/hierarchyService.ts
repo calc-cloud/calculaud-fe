@@ -22,15 +22,22 @@ export class HierarchyService {
   }
 
   async createHierarchy(data: HierarchyCreateRequest): Promise<Hierarchy> {
+    console.log('HierarchyService.createHierarchy called with data:', data);
     return apiService.post<Hierarchy>(this.endpoint, data);
   }
 
   async updateHierarchy(id: number, data: HierarchyUpdateRequest): Promise<Hierarchy> {
-    return apiService.patch<Hierarchy>(`${this.endpoint}${id}`, data);
+    console.log('HierarchyService.updateHierarchy called with id:', id, 'data:', data);
+    // Note: Update endpoint doesn't end with /
+    const updateEndpoint = this.endpoint.replace('/', '') + '/' + id;
+    return apiService.patch<Hierarchy>(updateEndpoint, data);
   }
 
   async deleteHierarchy(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}`);
+    console.log('HierarchyService.deleteHierarchy called with id:', id);
+    // Note: Delete endpoint doesn't end with /
+    const deleteEndpoint = this.endpoint.replace('/', '') + '/' + id;
+    return apiService.delete<void>(deleteEndpoint);
   }
 }
 

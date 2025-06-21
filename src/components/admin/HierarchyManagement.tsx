@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { TablePagination } from '@/components/tables/TablePagination';
 import { CreateHierarchyModal } from './CreateHierarchyModal';
 import { useHierarchies } from '@/hooks/useHierarchies';
+import { useDeleteHierarchy } from '@/hooks/useHierarchyMutations';
 import { Hierarchy, HierarchyType } from '@/types/hierarchies';
 
 const HierarchyManagement = () => {
@@ -30,6 +31,9 @@ const HierarchyManagement = () => {
     sort_by: 'name',
     sort_order: 'asc'
   });
+
+  // Delete mutation
+  const deleteMutation = useDeleteHierarchy();
   
   const getHierarchyIcon = (type: HierarchyType) => {
     switch (type) {
@@ -65,16 +69,16 @@ const HierarchyManagement = () => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (hierarchyToDelete) {
-      // TODO: Implement actual delete functionality
-      toast({
-        title: "Delete functionality not implemented yet",
-        description: "This will be implemented in the next step.",
-        variant: "destructive"
-      });
-      setDeleteDialogOpen(false);
-      setHierarchyToDelete(null);
+      try {
+        await deleteMutation.mutateAsync(hierarchyToDelete.id);
+        setDeleteDialogOpen(false);
+        setHierarchyToDelete(null);
+      } catch (error) {
+        // Error handling is done in the mutation hook
+        console.error('Delete hierarchy error:', error);
+      }
     }
   };
 
@@ -150,7 +154,7 @@ const HierarchyManagement = () => {
       <Card className="h-full flex flex-col overflow-hidden">
         <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
           <CardTitle className="text-lg">Hierarchy Management</CardTitle>
-          <Button onClick={handleCreate} size="sm">
+          <Button onClick={handleCreate} size="sm" disabled={isLoading}>
             <Plus className="h-4 w-4 mr-1" />
             Add Hierarchy
           </Button>
@@ -164,6 +168,7 @@ const HierarchyManagement = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 h-9 focus-visible:ring-1"
+                disabled={isLoading}
               />
             </div>
             
@@ -179,7 +184,7 @@ const HierarchyManagement = () => {
                       <div className="flex space-x-1 ml-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                            <Button variant="outline" size="sm" className="h-7 w-7 p-0" disabled={deleteMutation.isPending}>
                               <MoreHorizontal className="h-3 w-3" />
                             </Button>
                           </DropdownMenuTrigger>
@@ -188,7 +193,11 @@ const HierarchyManagement = () => {
                               <Edit className="h-3 w-3 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDeleteClick(hierarchy)} className="text-red-600">
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteClick(hierarchy)} 
+                              className="text-red-600"
+                              disabled={deleteMutation.isPending}
+                            >
                               <Trash2 className="h-3 w-3 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -229,12 +238,13 @@ const HierarchyManagement = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Hierarchy</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this hierarchy? This action cannot be undone.
+              Are you sure you want to delete "{hierarchyToDelete?.name}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>
+            <AlertDialogCancel disabled={deleteMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleteMutation.isPending}>
+              {deleteMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
