@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,7 +181,7 @@ const SupplierManagement = () => {
               </div>
             ) : (
               <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
+                <div className="text-center my-4">
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-500 text-lg font-medium">No suppliers found</p>
                   <p className="text-gray-400 text-sm mt-1">
