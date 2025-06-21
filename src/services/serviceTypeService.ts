@@ -24,11 +24,11 @@ export class ServiceTypeService {
   }
 
   async updateServiceType(id: number, data: ServiceTypeUpdateRequest): Promise<ServiceType> {
-    return apiService.patch<ServiceType>(`${this.endpoint}/${id}`, data);
+    return apiService.patch<ServiceType>(`${this.endpoint}${id}`, data);
   }
 
   async deleteServiceType(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}/${id}`);
+    return apiService.delete<void>(`${this.endpoint}${id}`);
   }
 }
 
