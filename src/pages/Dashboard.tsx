@@ -253,7 +253,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleExport = () => {
-    // Convert filtered purposes to CSV
+    // Convert filtered purposes to CSV with all details
     const csvHeaders = [
       'ID',
       'Description',
@@ -267,13 +267,26 @@ const Dashboard: React.FC = () => {
       'Creation Time',
       'Last Modified',
       'Comments',
-      'Total Cost'
+      'Total Cost',
+      'Currency',
+      'EMF Count',
+      'EMF Details',
+      'Files Count'
     ];
 
     const csvRows = filteredPurposes.map(purpose => {
       const totalCost = purpose.emfs.reduce((sum, emf) => 
         sum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
       );
+
+      // Get currency from first cost entry, default to USD
+      const currency = purpose.emfs[0]?.costs[0]?.currency || 'USD';
+
+      // Create EMF details string
+      const emfDetails = purpose.emfs.map(emf => {
+        const emfCosts = emf.costs.map(cost => `${cost.amount} ${cost.currency}`).join('; ');
+        return `EMF ${emf.id}: Created ${emf.creation_date}${emf.demand_id ? `, Demand ${emf.demand_id} (${emf.demand_date})` : ''}${emf.order_id ? `, Order ${emf.order_id} (${emf.order_date})` : ''}${emf.bikushit_id ? `, Bikushit ${emf.bikushit_id} (${emf.bikushit_date})` : ''}, Costs: ${emfCosts}`;
+      }).join(' | ');
 
       return [
         purpose.id,
@@ -288,7 +301,11 @@ const Dashboard: React.FC = () => {
         purpose.creation_time,
         purpose.last_modified,
         purpose.comments ? `"${purpose.comments.replace(/"/g, '""')}"` : '',
-        totalCost
+        totalCost,
+        currency,
+        purpose.emfs.length,
+        emfDetails ? `"${emfDetails.replace(/"/g, '""')}"` : '',
+        purpose.files.length
       ];
     });
 
@@ -309,7 +326,7 @@ const Dashboard: React.FC = () => {
 
     toast({
       title: "Export completed",
-      description: `Successfully exported ${filteredPurposes.length} purposes to CSV.`,
+      description: `Successfully exported ${filteredPurposes.length} purposes with full details to CSV.`,
     });
   };
 
