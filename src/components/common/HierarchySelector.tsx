@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -28,10 +29,10 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   const [openSections, setOpenSections] = React.useState<Set<string>>(new Set(['Unit']));
 
   const getLabel = () => {
-    if (selectedIds.length === 0) return 'Select Organizational Units';
+    if (selectedIds.length === 0) return 'Hierarchy';
     if (selectedIds.length === 1) {
       const selected = hierarchies.find(h => h.id === selectedIds[0]);
-      return selected ? selected.name : 'Select Organizational Units';
+      return selected ? selected.name : 'Hierarchy';
     }
     return `${selectedIds.length} selected`;
   };
