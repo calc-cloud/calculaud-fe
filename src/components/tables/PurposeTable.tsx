@@ -2,6 +2,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 
@@ -83,75 +84,88 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   }
 
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-32">Description</TableHead>
-            <TableHead className="w-32">Content</TableHead>
-            <TableHead>Supplier</TableHead>
-            <TableHead>Hierarchy</TableHead>
-            <TableHead>Service Type</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>EMF IDs</TableHead>
-            <TableHead>Total Cost</TableHead>
-            <TableHead>Expected Delivery</TableHead>
-            <TableHead>
-              <div className="flex flex-col">
-                <div className="font-medium">Last Modified</div>
-                <div className="text-xs font-normal text-muted-foreground">Created</div>
-              </div>
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {purposes.map((purpose) => (
-            <TableRow 
-              key={purpose.id} 
-              onClick={() => handleRowClick(purpose)}
-              className="cursor-pointer hover:bg-muted/50"
-            >
-              <TableCell className="font-medium w-32">
-                <div className="line-clamp-2 text-sm leading-tight">
-                  {purpose.description}
-                </div>
-              </TableCell>
-              <TableCell className="w-32">
-                <div className="line-clamp-2 text-sm leading-tight">
-                  {purpose.content}
-                </div>
-              </TableCell>
-              <TableCell>{purpose.supplier}</TableCell>
-              <TableCell>{getLastHierarchyLevel(purpose.hierarchy_name)}</TableCell>
-              <TableCell>
-                <Badge variant="outline">{purpose.service_type}</Badge>
-              </TableCell>
-              <TableCell>
-                <Badge 
-                  variant={purpose.status === 'COMPLETED' ? 'default' : 
-                           purpose.status === 'IN_PROGRESS' ? 'secondary' :
-                           purpose.status === 'PENDING' ? 'outline' : 'outline'}
-                >
-                  {getStatusDisplay(purpose.status)}
-                </Badge>
-              </TableCell>
-              <TableCell className="max-w-[150px] truncate">
-                {getEMFIds(purpose) || 'None'}
-              </TableCell>
-              <TableCell className="max-w-[150px] truncate">
-                {getTotalCostWithCurrencies(purpose)}
-              </TableCell>
-              <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
-              <TableCell>
+    <TooltipProvider>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-32">Description</TableHead>
+              <TableHead className="w-32">Content</TableHead>
+              <TableHead>Supplier</TableHead>
+              <TableHead>Hierarchy</TableHead>
+              <TableHead>Service Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>EMF IDs</TableHead>
+              <TableHead>Total Cost</TableHead>
+              <TableHead>Expected Delivery</TableHead>
+              <TableHead>
                 <div className="flex flex-col">
-                  <div className="text-sm">{formatDate(purpose.last_modified)}</div>
-                  <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
+                  <div className="font-medium">Last Modified</div>
+                  <div className="text-xs font-normal text-muted-foreground">Created</div>
                 </div>
-              </TableCell>
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {purposes.map((purpose) => (
+              <TableRow 
+                key={purpose.id} 
+                onClick={() => handleRowClick(purpose)}
+                className="cursor-pointer hover:bg-muted/50"
+              >
+                <TableCell className="font-medium w-32">
+                  <div className="line-clamp-2 text-sm leading-tight">
+                    {purpose.description}
+                  </div>
+                </TableCell>
+                <TableCell className="w-32">
+                  <div className="line-clamp-2 text-sm leading-tight">
+                    {purpose.content}
+                  </div>
+                </TableCell>
+                <TableCell>{purpose.supplier}</TableCell>
+                <TableCell>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        {getLastHierarchyLevel(purpose.hierarchy_name)}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{purpose.hierarchy_name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">{purpose.service_type}</Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    variant={purpose.status === 'COMPLETED' ? 'default' : 
+                             purpose.status === 'IN_PROGRESS' ? 'secondary' :
+                             purpose.status === 'PENDING' ? 'outline' : 'outline'}
+                  >
+                    {getStatusDisplay(purpose.status)}
+                  </Badge>
+                </TableCell>
+                <TableCell className="max-w-[150px] truncate">
+                  {getEMFIds(purpose) || 'None'}
+                </TableCell>
+                <TableCell className="max-w-[150px] truncate">
+                  {getTotalCostWithCurrencies(purpose)}
+                </TableCell>
+                <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
+                <TableCell>
+                  <div className="flex flex-col">
+                    <div className="text-sm">{formatDate(purpose.last_modified)}</div>
+                    <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </TooltipProvider>
   );
 };
