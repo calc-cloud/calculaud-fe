@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,20 +6,20 @@ import { Plus } from 'lucide-react';
 import { PurposeModal } from '@/components/modals/PurposeModal';
 import { Purpose, ModalMode } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
+
 interface LayoutProps {
   children: React.ReactNode;
 }
-const Layout: React.FC<LayoutProps> = ({
-  children
-}) => {
+
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
   };
+
   const handleSavePurpose = (purposeData: Partial<Purpose>) => {
     // For now, we'll just show a toast. In a real app, this would integrate with a global state management solution
     toast({
@@ -27,8 +28,10 @@ const Layout: React.FC<LayoutProps> = ({
     });
     console.log('New purpose created:', purposeData);
   };
-  return <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
@@ -64,6 +67,8 @@ const Layout: React.FC<LayoutProps> = ({
 
       {/* Global Purpose Modal */}
       <PurposeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} mode="create" onSave={handleSavePurpose} />
-    </div>;
+    </div>
+  );
 };
+
 export default Layout;
