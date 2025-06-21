@@ -6,8 +6,6 @@ import { FilterBar } from '@/components/common/FilterBar';
 import { SortControls } from '@/components/search/SortControls';
 import { ResultsSummary } from '@/components/search/ResultsSummary';
 import { TablePagination } from '@/components/tables/TablePagination';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { Purpose } from '@/types';
 import { usePurposeData } from '@/hooks/usePurposeData';
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
@@ -42,13 +40,6 @@ const Search: React.FC = () => {
   // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
-
-  const handleCreatePurpose = () => {
-    console.log('=== Search.handleCreatePurpose ===');
-    setSelectedPurpose(undefined);
-    setModalMode('create');
-    setIsModalOpen(true);
-  };
 
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
@@ -122,10 +113,6 @@ const Search: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Search Purposes</h1>
-        <Button onClick={handleCreatePurpose} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Create Purpose
-        </Button>
       </div>
 
       <FilterBar
