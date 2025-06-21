@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -121,9 +122,17 @@ const Dashboard: React.FC = () => {
     }
 
     if (filters.hierarchy_id) {
-      filtered = filtered.filter(purpose => 
-        purpose.hierarchy_id.toLowerCase().includes(filters.hierarchy_id!.toLowerCase())
-      );
+      if (Array.isArray(filters.hierarchy_id)) {
+        // Multiple hierarchy IDs selected
+        filtered = filtered.filter(purpose => 
+          filters.hierarchy_id!.includes(purpose.hierarchy_id)
+        );
+      } else {
+        // Single hierarchy ID (legacy support)
+        filtered = filtered.filter(purpose => 
+          purpose.hierarchy_id.toLowerCase().includes(filters.hierarchy_id!.toLowerCase())
+        );
+      }
     }
 
     if (filters.supplier && filters.supplier.length > 0) {
