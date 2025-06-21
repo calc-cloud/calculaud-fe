@@ -295,7 +295,7 @@ const HierarchyManagement = () => {
                   {selectedParentType && (
                     <div className="col-span-2">
                       <Label htmlFor="parent" className="text-sm">Parent {selectedParentType}</Label>
-                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen}>
+                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen} modal={false}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -309,7 +309,7 @@ const HierarchyManagement = () => {
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                           <Command>
                             <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} />
                             <CommandList>
