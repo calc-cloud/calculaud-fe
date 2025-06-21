@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,7 @@ import { Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-rea
 import { useToast } from '@/hooks/use-toast';
 import { Hierarchy, HierarchyType } from '@/types/hierarchies';
 import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
+import { useHierarchies } from '@/hooks/useHierarchies';
 
 interface CreateHierarchyModalProps {
   open: boolean;
@@ -44,6 +46,8 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState<HierarchyType>('UNIT');
   const [hierarchyName, setHierarchyName] = useState('');
+  const [parentType, setParentType] = useState<HierarchyType | ''>('');
+  const [parentId, setParentId] = useState<number | null>(null);
 
   const isEditing = !!editItem;
 
@@ -51,22 +55,59 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const createMutation = useCreateHierarchy();
   const updateMutation = useUpdateHierarchy();
 
+  // Fetch hierarchies for parent selection
+  const { data: hierarchiesData } = useHierarchies();
+  const availableHierarchies = hierarchiesData?.items || [];
+
+  // Get available parent types (all types except the selected one)
+  const getAvailableParentTypes = (): HierarchyType[] => {
+    return hierarchyOrder.filter(type => type !== selectedType);
+  };
+
+  // Get available parent hierarchies based on selected parent type
+  const getAvailableParentHierarchies = (): Hierarchy[] => {
+    if (!parentType) return [];
+    return availableHierarchies.filter(h => h.type === parentType);
+  };
+
   // Initialize form with edit data when editing
   useEffect(() => {
     if (editItem && open) {
       setSelectedType(editItem.type);
       setHierarchyName(editItem.name);
+      // Find parent info if exists
+      if (editItem.parent_id) {
+        const parent = availableHierarchies.find(h => h.id === editItem.parent_id);
+        if (parent) {
+          setParentType(parent.type);
+          setParentId(parent.id);
+        }
+      }
     } else if (!editItem) {
       // Reset form when creating new
       setSelectedType('UNIT');
       setHierarchyName('');
+      setParentType('');
+      setParentId(null);
     }
-  }, [editItem, open]);
+  }, [editItem, open, availableHierarchies]);
 
   const handleTypeChange = (type: string) => {
     if (type) {
       setSelectedType(type as HierarchyType);
+      // Reset parent selection when type changes
+      setParentType('');
+      setParentId(null);
     }
+  };
+
+  const handleParentTypeChange = (type: string) => {
+    setParentType(type as HierarchyType);
+    setParentId(null); // Reset parent hierarchy when parent type changes
+  };
+
+  const handleParentHierarchyChange = (value: string) => {
+    setParentId(value ? parseInt(value) : null);
   };
 
   const handleSave = async () => {
@@ -87,7 +128,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
           data: {
             type: selectedType,
             name: hierarchyName.trim(),
-            // TODO: Add parent_id support when we implement parent selection
+            parent_id: parentId,
           }
         });
       } else {
@@ -95,7 +136,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
         await createMutation.mutateAsync({
           type: selectedType,
           name: hierarchyName.trim(),
-          // TODO: Add parent_id support when we implement parent selection
+          parent_id: parentId,
         });
       }
 
@@ -109,10 +150,14 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   const handleCancel = () => {
     setSelectedType('UNIT');
     setHierarchyName('');
+    setParentType('');
+    setParentId(null);
     onOpenChange(false);
   };
 
   const isLoading = createMutation.isPending || updateMutation.isPending;
+  const availableParentTypes = getAvailableParentTypes();
+  const availableParentHierarchies = getAvailableParentHierarchies();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,7 +169,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
           <DialogDescription>
             {isEditing 
               ? 'Update the hierarchy item details.'
-              : 'Create a new hierarchy item by selecting its type.'
+              : 'Create a new hierarchy item by selecting its type and optional parent.'
             }
           </DialogDescription>
         </DialogHeader>
@@ -168,6 +213,48 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               disabled={isLoading}
             />
           </div>
+
+          {/* Parent Type Selection */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Parent Type (Optional)</label>
+            <Select value={parentType} onValueChange={handleParentTypeChange} disabled={isLoading}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select parent type" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableParentTypes.map((type) => {
+                  const Icon = getHierarchyIcon(type);
+                  return (
+                    <SelectItem key={type} value={type}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {formatTypeDisplay(type)}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Parent Hierarchy Selection */}
+          {parentType && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Parent {formatTypeDisplay(parentType)}</label>
+              <Select value={parentId?.toString() || ''} onValueChange={handleParentHierarchyChange} disabled={isLoading}>
+                <SelectTrigger>
+                  <SelectValue placeholder={`Select parent ${formatTypeDisplay(parentType).toLowerCase()}`} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableParentHierarchies.map((hierarchy) => (
+                    <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
+                      {hierarchy.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
