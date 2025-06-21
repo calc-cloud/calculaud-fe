@@ -1,14 +1,15 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search, MoreHorizontal } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, MoreHorizontal, Building2, Building, Users, User, UserCheck } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -49,6 +50,23 @@ const HierarchyManagement = () => {
   const itemsPerPage = 15;
 
   const hierarchyTypes: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
+  
+  const getHierarchyIcon = (type: HierarchyType) => {
+    switch (type) {
+      case 'Unit':
+        return Building2;
+      case 'Center':
+        return Building;
+      case 'Anaf':
+        return Users;
+      case 'Mador':
+        return User;
+      case 'Team':
+        return UserCheck;
+      default:
+        return Building2;
+    }
+  };
   
   const getAvailableParentTypes = (type: HierarchyType): HierarchyType[] => {
     const typeOrder = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
@@ -237,14 +255,24 @@ const HierarchyManagement = () => {
             <div className="space-y-3">
               <div>
                 <Label className="text-sm">Hierarchy Type</Label>
-                <RadioGroup value={selectedType} onValueChange={value => {
-                setSelectedType(value as HierarchyType);
-              }} className="mt-1">
-                  {hierarchyTypes.map(type => <div key={type} className="flex items-center space-x-2">
-                      <RadioGroupItem value={type} id={type} />
-                      <Label htmlFor={type} className="text-sm">{type}</Label>
-                    </div>)}
-                </RadioGroup>
+                <ToggleGroup 
+                  type="single" 
+                  value={selectedType} 
+                  onValueChange={(value) => {
+                    if (value) setSelectedType(value as HierarchyType);
+                  }} 
+                  className="mt-1 flex-wrap justify-start"
+                >
+                  {hierarchyTypes.map(type => {
+                    const Icon = getHierarchyIcon(type);
+                    return (
+                      <ToggleGroupItem key={type} value={type} size="sm" className="flex items-center gap-1">
+                        <Icon className="h-3 w-3" />
+                        <span className="text-xs">{type}</span>
+                      </ToggleGroupItem>
+                    );
+                  })}
+                </ToggleGroup>
               </div>
 
               {availableParentTypes.length > 0 && (
