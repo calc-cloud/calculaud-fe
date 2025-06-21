@@ -302,7 +302,8 @@ const HierarchyManagement = () => {
                             variant="outline"
                             role="combobox"
                             aria-expanded={parentDropdownOpen}
-                            className="w-full justify-between h-8 bg-background"
+                            className="w-full justify-between h-8 bg-background pointer-events-auto"
+                            disabled={false}
                           >
                             <span className="truncate">
                               {selectedParent
