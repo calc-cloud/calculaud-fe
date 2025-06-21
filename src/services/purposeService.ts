@@ -1,4 +1,3 @@
-
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -64,10 +63,10 @@ export interface CreatePurposeRequest {
   expected_delivery: string;
   comments?: string;
   status: string;
-  supplier?: string;
+  supplier_id?: number;
   content?: string;
   description: string;
-  service_type?: string;
+  service_type_id?: number;
   emfs?: CreateEMFRequest[];
 }
 
@@ -201,11 +200,19 @@ class PurposeService {
     }
     
     if (frontendPurpose.supplier?.trim()) {
-      mapped.supplier = frontendPurpose.supplier.trim();
+      // Map supplier name to ID
+      const supplier = suppliers.find(s => s.name === frontendPurpose.supplier.trim());
+      if (supplier) {
+        mapped.supplier_id = supplier.id;
+      }
     }
     
     if (frontendPurpose.service_type?.trim()) {
-      mapped.service_type = frontendPurpose.service_type.trim();
+      // Map service type name to ID
+      const serviceType = serviceTypes.find(st => st.name === frontendPurpose.service_type.trim());
+      if (serviceType) {
+        mapped.service_type_id = serviceType.id;
+      }
     }
     
     if (frontendPurpose.comments?.trim()) {
@@ -362,7 +369,6 @@ class PurposeService {
         purpose_id: purpose.id.toString(),
         creation_date: emf.creation_time,
         demand_id: emf.demand_id || undefined,
-        demand_creation_date: emf.demand_creation_date || undefined,
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,
         bikushit_id: emf.bikushit_id || undefined,
