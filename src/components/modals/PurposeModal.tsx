@@ -157,10 +157,51 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
     console.log('Validation passed, preparing purpose data...');
 
-    const purposeData = {
-      ...formData,
-      expected_delivery: expectedDeliveryDate ? expectedDeliveryDate.toISOString().split('T')[0] : ''
-    };
+    // Only include fields that have actual values
+    const purposeData: Partial<Purpose> = {};
+    
+    // Required fields - always include
+    if (formData.description?.trim()) {
+      purposeData.description = formData.description.trim();
+    }
+    if (formData.supplier?.trim()) {
+      purposeData.supplier = formData.supplier.trim();
+    }
+    if (formData.content?.trim()) {
+      purposeData.content = formData.content.trim();
+    }
+    if (formData.service_type) {
+      purposeData.service_type = formData.service_type;
+    }
+    
+    // Optional fields - only include if they have values
+    if (formData.hierarchy_name?.trim()) {
+      purposeData.hierarchy_name = formData.hierarchy_name.trim();
+      purposeData.hierarchy_id = formData.hierarchy_id;
+    }
+    
+    if (formData.status && formData.status !== 'PENDING') {
+      purposeData.status = formData.status;
+    } else if (!formData.status) {
+      // Only set default if no status is provided
+      purposeData.status = 'PENDING';
+    }
+    
+    if (expectedDeliveryDate) {
+      purposeData.expected_delivery = expectedDeliveryDate.toISOString().split('T')[0];
+    }
+    
+    if (formData.comments?.trim()) {
+      purposeData.comments = formData.comments.trim();
+    }
+    
+    if (formData.emfs && formData.emfs.length > 0) {
+      purposeData.emfs = formData.emfs;
+    }
+    
+    if (formData.files && formData.files.length > 0) {
+      purposeData.files = formData.files;
+    }
 
     console.log('Final purposeData to be sent:', purposeData);
 

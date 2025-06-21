@@ -190,24 +190,47 @@ class PurposeService {
   ): CreatePurposeRequest {
     const mapped: CreatePurposeRequest = {
       description: frontendPurpose.description || '',
-      hierarchy_id: 1, // Default value, will be overridden below
-      expected_delivery: frontendPurpose.expected_delivery || '',
-      status: frontendPurpose.status || 'PENDING',
-      content: frontendPurpose.content,
-      supplier: frontendPurpose.supplier,
-      service_type: frontendPurpose.service_type,
-      comments: frontendPurpose.comments
+      hierarchy_id: 1, // Default value, will be overridden below if provided
+      expected_delivery: '', // Will be set below if provided
+      status: frontendPurpose.status || 'PENDING'
     };
 
-    // Map hierarchy name to ID
+    // Only include fields that have values
+    if (frontendPurpose.content?.trim()) {
+      mapped.content = frontendPurpose.content.trim();
+    }
+    
+    if (frontendPurpose.supplier?.trim()) {
+      mapped.supplier = frontendPurpose.supplier.trim();
+    }
+    
+    if (frontendPurpose.service_type?.trim()) {
+      mapped.service_type = frontendPurpose.service_type.trim();
+    }
+    
+    if (frontendPurpose.comments?.trim()) {
+      mapped.comments = frontendPurpose.comments.trim();
+    }
+
+    if (frontendPurpose.expected_delivery) {
+      mapped.expected_delivery = frontendPurpose.expected_delivery;
+    } else {
+      // Remove the field if no date is provided
+      delete (mapped as any).expected_delivery;
+    }
+
+    // Map hierarchy name to ID only if provided
     if (frontendPurpose.hierarchy_name) {
       const hierarchy = hierarchies.find(h => h.fullPath === frontendPurpose.hierarchy_name || h.name === frontendPurpose.hierarchy_name);
       if (hierarchy) {
         mapped.hierarchy_id = parseInt(hierarchy.id);
       }
+    } else {
+      // Remove hierarchy_id if no hierarchy is selected
+      delete (mapped as any).hierarchy_id;
     }
 
-    // Map EMFs
+    // Map EMFs only if provided
     if (frontendPurpose.emfs && frontendPurpose.emfs.length > 0) {
       mapped.emfs = frontendPurpose.emfs.map((emf: any) => ({
         emf_id: emf.id,
