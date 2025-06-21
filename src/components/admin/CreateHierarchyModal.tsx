@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -135,7 +136,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>Create New Hierarchy</DialogTitle>
         </DialogHeader>
@@ -168,7 +169,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
           {/* Parent Type and Parent Selection */}
           {selectedType !== 'Unit' && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Parent Type</label>
                 <Select value={selectedParentType} onValueChange={handleParentTypeChange}>
@@ -185,7 +186,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                 </Select>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <label className="text-sm font-medium">Parent {selectedParentType}</label>
                 <Popover open={parentPopoverOpen} onOpenChange={setParentPopoverOpen} modal={true}>
                   <PopoverTrigger asChild>
