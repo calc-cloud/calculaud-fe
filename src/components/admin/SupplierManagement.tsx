@@ -87,7 +87,7 @@ const SupplierManagement = () => {
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
+      <CardHeader className="flex flex-row items-center justify-between pb-4">
         <CardTitle className="text-lg">Supplier Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -125,8 +125,8 @@ const SupplierManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent className="pt-0 pb-2">
-        <div className="space-y-3">
+      <CardContent className="pt-0 pb-4">
+        <div className="space-y-6">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
             <Input
@@ -137,20 +137,20 @@ const SupplierManagement = () => {
             />
           </div>
           
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-4">
             {paginatedSuppliers.map((supplier) => (
-              <div key={supplier.id} className="p-2 border rounded text-xs bg-gray-50 hover:bg-gray-100 transition-colors">
+              <div key={supplier.id} className="p-4 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium truncate flex-1 mr-2" title={supplier.name}>
+                  <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
                     {supplier.name}
                   </p>
-                  <div className="flex space-x-1 flex-shrink-0">
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)} className="h-6 w-6 p-0">
+                  <div className="flex space-x-2 flex-shrink-0">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)} className="h-7 w-7 p-0">
                       <Edit className="h-3 w-3" />
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button variant="destructive" size="sm" className="h-6 w-6 p-0">
+                        <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </AlertDialogTrigger>
