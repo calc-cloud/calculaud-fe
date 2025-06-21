@@ -12,12 +12,18 @@ export const usePurposeMutations = () => {
 
   const createPurpose = useMutation({
     mutationFn: (purposeData: Partial<Purpose>) => {
+      console.log('Creating purpose with data:', purposeData);
+      console.log('Available hierarchies:', hierarchies);
+      console.log('Available suppliers:', suppliers);
+      console.log('Available serviceTypes:', serviceTypes);
+      
       const apiRequest = purposeService.mapPurposeToCreateRequest(
         purposeData,
         hierarchies,
         suppliers,
         serviceTypes
       );
+      console.log('Mapped API request:', apiRequest);
       return purposeService.createPurpose(apiRequest);
     },
     onSuccess: () => {
@@ -28,6 +34,7 @@ export const usePurposeMutations = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Create purpose error:', error);
       toast({
         title: "Error creating purpose",
         description: error.message || "Failed to create purpose",
@@ -38,12 +45,14 @@ export const usePurposeMutations = () => {
 
   const updatePurpose = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Purpose> }) => {
+      console.log('Updating purpose with id:', id, 'data:', data);
       const apiRequest = purposeService.mapPurposeToUpdateRequest(
         data,
         hierarchies,
         suppliers,
         serviceTypes
       );
+      console.log('Mapped update API request:', apiRequest);
       return purposeService.updatePurpose(id, apiRequest);
     },
     onSuccess: () => {
@@ -54,6 +63,7 @@ export const usePurposeMutations = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Update purpose error:', error);
       toast({
         title: "Error updating purpose",
         description: error.message || "Failed to update purpose",
@@ -63,7 +73,10 @@ export const usePurposeMutations = () => {
   });
 
   const deletePurpose = useMutation({
-    mutationFn: (id: string) => purposeService.deletePurpose(id),
+    mutationFn: (id: string) => {
+      console.log('Deleting purpose with id:', id);
+      return purposeService.deletePurpose(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purposes'] });
       toast({
@@ -72,6 +85,7 @@ export const usePurposeMutations = () => {
       });
     },
     onError: (error: any) => {
+      console.error('Delete purpose error:', error);
       toast({
         title: "Error deleting purpose",
         description: error.message || "Failed to delete purpose",

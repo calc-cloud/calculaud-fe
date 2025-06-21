@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -136,11 +135,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   };
 
   const handleSave = () => {
+    console.log('HandleSave called with formData:', formData);
+    console.log('Available data - suppliers:', suppliers.length, 'hierarchies:', hierarchies.length, 'serviceTypes:', serviceTypes.length);
+    
     const purposeErrors = validatePurpose();
     const emfErrors = validateEMFs();
     const allErrors = [...purposeErrors, ...emfErrors];
 
     if (allErrors.length > 0) {
+      console.log('Validation errors:', allErrors);
       toast({
         title: "Validation Error",
         description: allErrors.join('. '),
@@ -154,7 +157,10 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         ...formData,
         expected_delivery: expectedDeliveryDate ? expectedDeliveryDate.toISOString().split('T')[0] : ''
       };
+      console.log('Calling onSave with purposeData:', purposeData);
       onSave(purposeData);
+    } else {
+      console.log('onSave is not defined');
     }
     onClose();
   };
