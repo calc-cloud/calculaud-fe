@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, MoreHorizontal } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
@@ -17,6 +18,8 @@ const ServiceTypeManagement = () => {
   const [serviceTypeName, setServiceTypeName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serviceTypeToDelete, setServiceTypeToDelete] = useState<any>(null);
 
   const { toast } = useToast();
   const itemsPerPage = 12;
@@ -58,9 +61,18 @@ const ServiceTypeManagement = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setServiceTypes(prev => prev.filter(st => st.id !== id));
-    toast({ title: "Service type deleted successfully" });
+  const handleDeleteClick = (serviceType: any) => {
+    setServiceTypeToDelete(serviceType);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (serviceTypeToDelete) {
+      setServiceTypes(prev => prev.filter(st => st.id !== serviceTypeToDelete.id));
+      toast({ title: "Service type deleted successfully" });
+      setDeleteDialogOpen(false);
+      setServiceTypeToDelete(null);
+    }
   };
 
   // Filter service types based on search query
@@ -139,32 +151,23 @@ const ServiceTypeManagement = () => {
                     <p className="font-medium truncate flex-1 mr-3" title={serviceType.name}>
                       {serviceType.name}
                     </p>
-                    <div className="flex space-x-2 flex-shrink-0">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)} className="h-7 w-7 p-0">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this service type? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(serviceType.id)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                          <MoreHorizontal className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(serviceType)}>
+                          <Edit className="h-3 w-3 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteClick(serviceType)} className="text-red-600">
+                          <Trash2 className="h-3 w-3 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}
@@ -180,6 +183,23 @@ const ServiceTypeManagement = () => {
           </div>
         </div>
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this service type? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

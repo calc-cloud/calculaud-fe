@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, MoreHorizontal } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
@@ -22,6 +23,8 @@ const SupplierManagement = () => {
   const [supplierName, setSupplierName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [supplierToDelete, setSupplierToDelete] = useState<any>(null);
 
   const { toast } = useToast();
   const itemsPerPage = 12;
@@ -63,9 +66,18 @@ const SupplierManagement = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    setSuppliers(prev => prev.filter(s => s.id !== id));
-    toast({ title: "Supplier deleted successfully" });
+  const handleDeleteClick = (supplier: any) => {
+    setSupplierToDelete(supplier);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (supplierToDelete) {
+      setSuppliers(prev => prev.filter(s => s.id !== supplierToDelete.id));
+      toast({ title: "Supplier deleted successfully" });
+      setDeleteDialogOpen(false);
+      setSupplierToDelete(null);
+    }
   };
 
   // Filter suppliers based on search query
@@ -144,32 +156,23 @@ const SupplierManagement = () => {
                     <p className="font-medium truncate flex-1 mr-3" title={supplier.name}>
                       {supplier.name}
                     </p>
-                    <div className="flex space-x-2 flex-shrink-0">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(supplier)} className="h-7 w-7 p-0">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete this supplier? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(supplier.id)}>
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                          <MoreHorizontal className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(supplier)}>
+                          <Edit className="h-3 w-3 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeleteClick(supplier)} className="text-red-600">
+                          <Trash2 className="h-3 w-3 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}
@@ -185,6 +188,23 @@ const SupplierManagement = () => {
           </div>
         </div>
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Supplier</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this supplier? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
