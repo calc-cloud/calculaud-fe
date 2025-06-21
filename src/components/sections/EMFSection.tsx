@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -143,6 +142,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
           {expandedEMF === index && (
             <CardContent className="space-y-4">
+              {/* EMF ID and Creation Date */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>EMF ID <span className="text-red-500">*</span></Label>
@@ -166,6 +166,33 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   {emf.creation_date && (
                     <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.creation_date)} days ago
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Bikushit Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Bikushit ID</Label>
+                  <Input
+                    value={emf.bikushit_id || ''}
+                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
+                    disabled={isReadOnly}
+                    placeholder="Enter bikushit ID"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Bikushit Date</Label>
+                  <Input
+                    type="date"
+                    value={emf.bikushit_date || ''}
+                    onChange={(e) => updateEMF(index, { bikushit_date: e.target.value })}
+                    disabled={isReadOnly}
+                  />
+                  {emf.bikushit_date && (
+                    <span className="text-xs text-muted-foreground">
+                      {calculateDaysSince(emf.bikushit_date)} days since bikushit
                     </span>
                   )}
                 </div>
@@ -220,33 +247,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   {emf.order_date && (
                     <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.order_date)} days since order
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* Bikushit Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Bikushit ID</Label>
-                  <Input
-                    value={emf.bikushit_id || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter bikushit ID"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Bikushit Date</Label>
-                  <Input
-                    type="date"
-                    value={emf.bikushit_date || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_date: e.target.value })}
-                    disabled={isReadOnly}
-                  />
-                  {emf.bikushit_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.bikushit_date)} days since bikushit
                     </span>
                   )}
                 </div>
