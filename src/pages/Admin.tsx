@@ -21,19 +21,19 @@ const Admin = () => {
         </TabsList>
         
         <TabsContent value="hierarchies" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-scroll">
+          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
             <HierarchyManagement />
           </div>
         </TabsContent>
         
         <TabsContent value="suppliers" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-scroll">
+          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
             <SupplierManagement />
           </div>
         </TabsContent>
         
         <TabsContent value="service-types" className="flex-1 mt-4 min-h-0">
-          <div className="h-full overflow-y-scroll">
+          <div className="h-full overflow-y-auto pr-4" style={{ scrollbarGutter: 'stable' }}>
             <ServiceTypeManagement />
           </div>
         </TabsContent>
