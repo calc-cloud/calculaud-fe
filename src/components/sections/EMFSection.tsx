@@ -22,7 +22,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
   onEMFsChange,
   isReadOnly
 }) => {
-  const [expandedEMF, setExpandedEMF] = useState<string | null>(null);
+  const [expandedEMF, setExpandedEMF] = useState<number | null>(null);
 
   const addEMF = () => {
     const newEMF: EMF = {
@@ -96,11 +96,11 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       )}
 
       {emfs.map((emf, index) => (
-        <Card key={`emf-${index}`}>
+        <Card key={index}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
-                EMF {emf.id || 'New EMF'}
+                {emf.id || 'New EMF'}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
@@ -109,9 +109,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setExpandedEMF(expandedEMF === `emf-${index}` ? null : `emf-${index}`)}
+                  onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
                 >
-                  {expandedEMF === `emf-${index}` ? 'Collapse' : 'Expand'}
+                  {expandedEMF === index ? 'Collapse' : 'Expand'}
                 </Button>
                 {!isReadOnly && (
                   <Button
@@ -126,7 +126,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             </div>
           </CardHeader>
 
-          {expandedEMF === `emf-${index}` && (
+          {expandedEMF === index && (
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
