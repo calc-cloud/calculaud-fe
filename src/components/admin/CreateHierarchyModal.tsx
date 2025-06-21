@@ -148,7 +148,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               type="single" 
               value={selectedType} 
               onValueChange={handleTypeChange}
-              className="justify-start"
+              className="justify-start w-full"
             >
               {hierarchyOrder.map((type) => {
                 const Icon = getHierarchyIcon(type);
@@ -156,7 +156,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                   <ToggleGroupItem 
                     key={type} 
                     value={type}
-                    className="flex items-center gap-2 px-3 py-2"
+                    className="flex items-center gap-2 px-3 py-2 flex-1"
                   >
                     <Icon className="h-4 w-4" />
                     {type}
