@@ -16,6 +16,8 @@ export class ServiceTypeService {
     limit?: number;
     search?: string;
   }): Promise<ServiceTypesResponse> {
+    console.log('ServiceTypeService.getServiceTypes called with params:', params);
+    console.log('Making request to endpoint:', this.endpoint);
     return apiService.get<ServiceTypesResponse>(this.endpoint, params);
   }
 

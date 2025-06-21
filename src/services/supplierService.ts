@@ -23,6 +23,8 @@ export class SupplierService {
     limit?: number;
     search?: string;
   }): Promise<SuppliersResponse> {
+    console.log('SupplierService.getSuppliers called with params:', params);
+    console.log('Making request to endpoint:', this.endpoint);
     return apiService.get<SuppliersResponse>(this.endpoint, params);
   }
 
