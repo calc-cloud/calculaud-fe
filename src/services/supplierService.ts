@@ -1,3 +1,4 @@
+
 import { apiService } from './apiService';
 import { API_CONFIG } from '@/config/api';
 import { 
@@ -30,11 +31,11 @@ export class SupplierService {
   }
 
   async updateSupplier(id: number, data: SupplierUpdateRequest): Promise<Supplier> {
-    return apiService.patch<Supplier>(`${this.endpoint}${id}/`, data);
+    return apiService.patch<Supplier>(`${this.endpoint}${id}`, data);
   }
 
   async deleteSupplier(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}/`);
+    return apiService.delete<void>(`${this.endpoint}${id}`);
   }
 }
 
