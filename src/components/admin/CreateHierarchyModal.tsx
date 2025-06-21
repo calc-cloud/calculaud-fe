@@ -135,7 +135,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Create New Hierarchy</DialogTitle>
         </DialogHeader>
@@ -148,7 +148,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               type="single" 
               value={selectedType} 
               onValueChange={handleTypeChange}
-              className="justify-start flex-wrap"
+              className="justify-start"
             >
               {hierarchyOrder.map((type) => {
                 const Icon = getHierarchyIcon(type);
