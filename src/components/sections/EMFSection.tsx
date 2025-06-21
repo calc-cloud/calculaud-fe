@@ -34,42 +34,42 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
     onEMFsChange([...emfs, newEMF]);
   };
 
-  const updateEMF = (emfId: string, updates: Partial<EMF>) => {
+  const updateEMF = (emfIndex: number, updates: Partial<EMF>) => {
     onEMFsChange(
-      emfs.map(emf => emf.id === emfId ? { ...emf, ...updates } : emf)
+      emfs.map((emf, index) => index === emfIndex ? { ...emf, ...updates } : emf)
     );
   };
 
-  const deleteEMF = (emfId: string) => {
-    onEMFsChange(emfs.filter(emf => emf.id !== emfId));
+  const deleteEMF = (emfIndex: number) => {
+    onEMFsChange(emfs.filter((_, index) => index !== emfIndex));
   };
 
-  const addCost = (emfId: string) => {
+  const addCost = (emfIndex: number) => {
     const newCost: EMFCost = {
       id: `cost-${Date.now()}`,
-      emf_id: emfId,
+      emf_id: emfs[emfIndex].id,
       amount: 0,
       currency: 'USD'
     };
     
-    updateEMF(emfId, {
-      costs: [...(emfs.find(emf => emf.id === emfId)?.costs || []), newCost]
+    updateEMF(emfIndex, {
+      costs: [...(emfs[emfIndex]?.costs || []), newCost]
     });
   };
 
-  const updateCost = (emfId: string, costId: string, updates: Partial<EMFCost>) => {
-    const emf = emfs.find(e => e.id === emfId);
+  const updateCost = (emfIndex: number, costId: string, updates: Partial<EMFCost>) => {
+    const emf = emfs[emfIndex];
     if (emf) {
-      updateEMF(emfId, {
+      updateEMF(emfIndex, {
         costs: emf.costs.map(cost => cost.id === costId ? { ...cost, ...updates } : cost)
       });
     }
   };
 
-  const deleteCost = (emfId: string, costId: string) => {
-    const emf = emfs.find(e => e.id === emfId);
+  const deleteCost = (emfIndex: number, costId: string) => {
+    const emf = emfs[emfIndex];
     if (emf) {
-      updateEMF(emfId, {
+      updateEMF(emfIndex, {
         costs: emf.costs.filter(cost => cost.id !== costId)
       });
     }
@@ -96,7 +96,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       )}
 
       {emfs.map((emf, index) => (
-        <Card key={`${emf.id || 'new'}-${index}`}>
+        <Card key={`emf-${index}`}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
@@ -109,15 +109,15 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setExpandedEMF(expandedEMF === `${emf.id || 'new'}-${index}` ? null : `${emf.id || 'new'}-${index}`)}
+                  onClick={() => setExpandedEMF(expandedEMF === `emf-${index}` ? null : `emf-${index}`)}
                 >
-                  {expandedEMF === `${emf.id || 'new'}-${index}` ? 'Collapse' : 'Expand'}
+                  {expandedEMF === `emf-${index}` ? 'Collapse' : 'Expand'}
                 </Button>
                 {!isReadOnly && (
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => deleteEMF(emf.id)}
+                    onClick={() => deleteEMF(index)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -126,14 +126,14 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             </div>
           </CardHeader>
 
-          {expandedEMF === `${emf.id || 'new'}-${index}` && (
+          {expandedEMF === `emf-${index}` && (
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>EMF ID</Label>
                   <Input
                     value={emf.id}
-                    onChange={(e) => updateEMF(emf.id, { id: e.target.value })}
+                    onChange={(e) => updateEMF(index, { id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter EMF ID"
                   />
@@ -143,7 +143,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <Input
                     type="date"
                     value={emf.creation_date}
-                    onChange={(e) => updateEMF(emf.id, { creation_date: e.target.value })}
+                    onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
                     disabled={isReadOnly}
                   />
                   <span className="text-xs text-muted-foreground">
@@ -157,7 +157,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <Label>Demand ID</Label>
                   <Input
                     value={emf.demand_id || ''}
-                    onChange={(e) => updateEMF(emf.id, { demand_id: e.target.value })}
+                    onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
                     disabled={isReadOnly}
                   />
                   {emf.demand_date && (
@@ -171,7 +171,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <Label>Order ID</Label>
                   <Input
                     value={emf.order_id || ''}
-                    onChange={(e) => updateEMF(emf.id, { order_id: e.target.value })}
+                    onChange={(e) => updateEMF(index, { order_id: e.target.value })}
                     disabled={isReadOnly}
                   />
                   {emf.order_date && (
@@ -185,7 +185,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <Label>Bikushit ID</Label>
                   <Input
                     value={emf.bikushit_id || ''}
-                    onChange={(e) => updateEMF(emf.id, { bikushit_id: e.target.value })}
+                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
                     disabled={isReadOnly}
                   />
                   {emf.bikushit_date && (
@@ -201,7 +201,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium">Costs</Label>
                   {!isReadOnly && (
-                    <Button onClick={() => addCost(emf.id)} size="sm" variant="outline">
+                    <Button onClick={() => addCost(index)} size="sm" variant="outline">
                       <Plus className="h-3 w-3 mr-1" />
                       Add Cost
                     </Button>
@@ -214,13 +214,13 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       type="number"
                       placeholder="Amount"
                       value={cost.amount}
-                      onChange={(e) => updateCost(emf.id, cost.id, { amount: Number(e.target.value) })}
+                      onChange={(e) => updateCost(index, cost.id, { amount: Number(e.target.value) })}
                       disabled={isReadOnly}
                       className="w-32"
                     />
                     <Select
                       value={cost.currency}
-                      onValueChange={(value) => updateCost(emf.id, cost.id, { currency: value })}
+                      onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
                       disabled={isReadOnly}
                     >
                       <SelectTrigger className="w-20">
@@ -238,7 +238,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => deleteCost(emf.id, cost.id)}
+                        onClick={() => deleteCost(index, cost.id)}
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
