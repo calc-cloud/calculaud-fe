@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -295,34 +296,40 @@ const HierarchyManagement = () => {
                   {selectedParentType && (
                     <div className="col-span-2">
                       <Label htmlFor="parent" className="text-sm">Parent {selectedParentType}</Label>
-                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen} modal={false}>
+                      <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             role="combobox"
                             aria-expanded={parentDropdownOpen}
-                            className="w-full justify-between h-8"
+                            className="w-full justify-between h-8 bg-background"
                           >
-                            {selectedParent
-                              ? parentOptions.find(parent => parent.id === selectedParent)?.fullPath
-                              : `Select parent ${selectedParentType.toLowerCase()}...`}
+                            <span className="truncate">
+                              {selectedParent
+                                ? parentOptions.find(parent => parent.id === selectedParent)?.name || `Select ${selectedParentType.toLowerCase()}...`
+                                : `Select ${selectedParentType.toLowerCase()}...`}
+                            </span>
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                          <Command>
-                            <CommandInput placeholder={`Search ${selectedParentType.toLowerCase()}...`} />
-                            <CommandList>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-background border shadow-lg" align="start">
+                          <Command className="bg-background">
+                            <CommandInput 
+                              placeholder={`Search ${selectedParentType.toLowerCase()}...`} 
+                              className="h-9"
+                            />
+                            <CommandList className="max-h-[200px]">
                               <CommandEmpty>No {selectedParentType.toLowerCase()} found.</CommandEmpty>
                               <CommandGroup>
                                 {parentOptions.map(parent => (
                                   <CommandItem
                                     key={parent.id}
-                                    value={parent.fullPath}
+                                    value={parent.name}
                                     onSelect={() => {
                                       setSelectedParent(parent.id);
                                       setParentDropdownOpen(false);
                                     }}
+                                    className="cursor-pointer"
                                   >
                                     <Check
                                       className={cn(
@@ -330,7 +337,10 @@ const HierarchyManagement = () => {
                                         selectedParent === parent.id ? "opacity-100" : "opacity-0"
                                       )}
                                     />
-                                    {parent.fullPath}
+                                    <div>
+                                      <div className="font-medium">{parent.name}</div>
+                                      <div className="text-xs text-muted-foreground">{parent.fullPath}</div>
+                                    </div>
                                   </CommandItem>
                                 ))}
                               </CommandGroup>
