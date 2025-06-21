@@ -72,22 +72,30 @@ export const useDeleteHierarchy = () => {
     onError: (error: any) => {
       console.error('Delete hierarchy error:', error);
       
-      // Check if it's a 400 error (likely due to children)
+      // Extract the actual error message from the API response
+      const errorMessage = error?.response?.data?.detail || 
+                          error?.detail || 
+                          error?.message || 
+                          "An error occurred while deleting the hierarchy.";
+      
+      // Check if it's a children-related error
       const isChildrenError = error?.response?.status === 400 || 
                              error?.status === 400 ||
-                             error?.message?.toLowerCase().includes('children') ||
-                             error?.message?.toLowerCase().includes('child');
+                             errorMessage.toLowerCase().includes('children') ||
+                             errorMessage.toLowerCase().includes('child');
       
       if (isChildrenError) {
         toast({
           title: "Cannot delete hierarchy",
-          description: "This hierarchy cannot be deleted because it has child hierarchies. Please delete all child hierarchies first.",
+          description: errorMessage.includes('children') || errorMessage.includes('child') 
+            ? errorMessage 
+            : "This hierarchy cannot be deleted because it has child hierarchies. Please delete all child hierarchies first.",
           variant: "destructive",
         });
       } else {
         toast({
           title: "Failed to delete hierarchy",
-          description: error.message || "An error occurred while deleting the hierarchy.",
+          description: errorMessage,
           variant: "destructive",
         });
       }
