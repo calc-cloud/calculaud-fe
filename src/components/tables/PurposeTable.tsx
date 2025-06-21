@@ -43,6 +43,12 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     return purpose.emfs.map(emf => emf.id).join(', ');
   };
 
+  const getLastHierarchyLevel = (hierarchyName: string) => {
+    // Split by common separators and return the last part
+    const parts = hierarchyName.split(/[>/\\-]/).map(part => part.trim()).filter(part => part.length > 0);
+    return parts.length > 0 ? parts[parts.length - 1] : hierarchyName;
+  };
+
   const handleRowClick = (purpose: Purpose) => {
     onView(purpose);
   };
@@ -103,7 +109,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 </div>
               </TableCell>
               <TableCell>{purpose.supplier}</TableCell>
-              <TableCell>{purpose.hierarchy_name}</TableCell>
+              <TableCell>{getLastHierarchyLevel(purpose.hierarchy_name)}</TableCell>
               <TableCell>
                 <Badge variant="outline">{purpose.service_type}</Badge>
               </TableCell>
