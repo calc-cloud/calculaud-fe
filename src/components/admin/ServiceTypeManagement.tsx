@@ -19,7 +19,7 @@ const ServiceTypeManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
-  const itemsPerPage = 10;
+  const itemsPerPage = 15; // Increased from 10
 
   const handleCreate = () => {
     setEditingServiceType(null);
@@ -80,13 +80,13 @@ const ServiceTypeManagement = () => {
   }, [searchQuery]);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Service Type Management</CardTitle>
+    <Card className="h-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <CardTitle className="text-lg">Service Type Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={handleCreate} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
               Add Service Type
             </Button>
           </DialogTrigger>
@@ -96,21 +96,22 @@ const ServiceTypeManagement = () => {
                 {editingServiceType ? 'Edit Service Type' : 'Create New Service Type'}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label htmlFor="serviceTypeName">Service Type Name</Label>
+                <Label htmlFor="serviceTypeName" className="text-sm">Service Type Name</Label>
                 <Input
                   id="serviceTypeName"
                   value={serviceTypeName}
                   onChange={(e) => setServiceTypeName(e.target.value)}
                   placeholder="Enter service type name"
+                  className="h-8"
                 />
               </div>
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="sm">
                   Cancel
                 </Button>
-                <Button onClick={handleSave}>
+                <Button onClick={handleSave} size="sm">
                   {editingServiceType ? 'Update' : 'Create'}
                 </Button>
               </div>
@@ -118,32 +119,32 @@ const ServiceTypeManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
             <Input
               placeholder="Search service types..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-7 h-8 text-sm"
             />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1">
             {paginatedServiceTypes.map((serviceType) => (
-              <div key={serviceType.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">{serviceType.name}</p>
+              <div key={serviceType.id} className="flex items-center justify-between p-2 border rounded text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">{serviceType.name}</p>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)}>
-                    <Edit className="h-4 w-4" />
+                <div className="flex space-x-1 ml-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)} className="h-7 w-7 p-0">
+                    <Edit className="h-3 w-3" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>

@@ -33,7 +33,7 @@ const HierarchyManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
-  const itemsPerPage = 10;
+  const itemsPerPage = 15; // Increased from 10
 
   const hierarchyTypes: HierarchyType[] = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'];
 
@@ -169,13 +169,13 @@ const HierarchyManagement = () => {
   }, [searchQuery]);
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Hierarchy Management</CardTitle>
+    <Card className="h-full">
+      <CardHeader className="flex flex-row items-center justify-between pb-3">
+        <CardTitle className="text-lg">Hierarchy Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={handleCreate}>
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={handleCreate} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
               Add Hierarchy
             </Button>
           </DialogTrigger>
@@ -185,21 +185,21 @@ const HierarchyManagement = () => {
                 {editingHierarchy ? 'Edit Hierarchy' : 'Create New Hierarchy'}
               </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <Label>Hierarchy Type</Label>
+                <Label className="text-sm">Hierarchy Type</Label>
                 <RadioGroup 
                   value={selectedType} 
                   onValueChange={(value) => {
                     setSelectedType(value as HierarchyType);
                     setSelectedParent(''); // Clear parent when type changes
                   }}
-                  className="mt-2"
+                  className="mt-1"
                 >
                   {hierarchyTypes.map((type) => (
                     <div key={type} className="flex items-center space-x-2">
                       <RadioGroupItem value={type} id={type} />
-                      <Label htmlFor={type}>{type}</Label>
+                      <Label htmlFor={type} className="text-sm">{type}</Label>
                     </div>
                   ))}
                 </RadioGroup>
@@ -207,9 +207,9 @@ const HierarchyManagement = () => {
 
               {selectedType !== 'Unit' && (
                 <div>
-                  <Label htmlFor="parent">Parent {parentTypeName}</Label>
+                  <Label htmlFor="parent" className="text-sm">Parent {parentTypeName}</Label>
                   <Select value={selectedParent} onValueChange={setSelectedParent}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-8">
                       <SelectValue placeholder={`Select parent ${parentTypeName.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,20 +224,21 @@ const HierarchyManagement = () => {
               )}
 
               <div>
-                <Label htmlFor="name">{selectedType} Name</Label>
+                <Label htmlFor="name" className="text-sm">{selectedType} Name</Label>
                 <Input
                   id="name"
                   value={hierarchyName}
                   onChange={(e) => setHierarchyName(e.target.value)}
                   placeholder={`Enter ${selectedType.toLowerCase()} name`}
+                  className="h-8"
                 />
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex justify-end space-x-2 pt-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} size="sm">
                   Cancel
                 </Button>
-                <Button onClick={handleSave}>
+                <Button onClick={handleSave} size="sm">
                   {editingHierarchy ? 'Update' : 'Create'}
                 </Button>
               </div>
@@ -245,33 +246,33 @@ const HierarchyManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="pt-0">
+        <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
             <Input
               placeholder="Search hierarchies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-7 h-8 text-sm"
             />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1">
             {paginatedHierarchies.map((hierarchy) => (
-              <div key={hierarchy.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div>
-                  <p className="font-medium">{hierarchy.fullPath}</p>
-                  <p className="text-sm text-gray-500">Type: {hierarchy.type}</p>
+              <div key={hierarchy.id} className="flex items-center justify-between p-2 border rounded text-sm">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium truncate">{hierarchy.fullPath}</p>
+                  <p className="text-xs text-gray-500">Type: {hierarchy.type}</p>
                 </div>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(hierarchy)}>
-                    <Edit className="h-4 w-4" />
+                <div className="flex space-x-1 ml-2">
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(hierarchy)} className="h-7 w-7 p-0">
+                    <Edit className="h-3 w-3" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
