@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -213,28 +212,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="hierarchy_id">Hierarchy ID</Label>
-              <Input
-                id="hierarchy_id"
-                value={formData.hierarchy_id || ''}
-                onChange={(e) => handleFieldChange('hierarchy_id', e.target.value)}
-                disabled={isReadOnly}
-                placeholder="Enter hierarchy ID"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="hierarchy_name">Hierarchy Name</Label>
-              <Input
-                id="hierarchy_name"
-                value={formData.hierarchy_name || ''}
-                onChange={(e) => handleFieldChange('hierarchy_name', e.target.value)}
-                disabled={isReadOnly}
-                placeholder="Enter hierarchy name"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="hierarchy_name">Hierarchy</Label>
+            <Input
+              id="hierarchy_name"
+              value={formData.hierarchy_name || ''}
+              onChange={(e) => handleFieldChange('hierarchy_name', e.target.value)}
+              disabled={isReadOnly}
+              placeholder="Enter hierarchy"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
