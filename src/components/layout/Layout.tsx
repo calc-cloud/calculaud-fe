@@ -1,11 +1,15 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const location = useLocation();
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
@@ -15,6 +19,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <h1 className="text-xl font-semibold text-gray-900">
                 Procurement Management System
               </h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link to="/">
+                <Button 
+                  variant={location.pathname === '/' ? 'default' : 'ghost'}
+                >
+                  Dashboard
+                </Button>
+              </Link>
+              <Link to="/admin">
+                <Button 
+                  variant={location.pathname === '/admin' ? 'default' : 'ghost'}
+                >
+                  Admin
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
