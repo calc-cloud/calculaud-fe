@@ -278,6 +278,8 @@ const Dashboard: React.FC = () => {
         mode={modalMode}
         purpose={selectedPurpose}
         onSave={handleSavePurpose}
+        onEdit={handleEditPurpose}
+        onDelete={handleDeletePurpose}
       />
     </div>
   );

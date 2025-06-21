@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Purpose, ModalMode } from '@/types';
@@ -23,6 +23,8 @@ interface PurposeModalProps {
   mode: ModalMode;
   purpose?: Purpose;
   onSave?: (purpose: Partial<Purpose>) => void;
+  onEdit?: (purpose: Purpose) => void;
+  onDelete?: (purposeId: string) => void;
 }
 
 export const PurposeModal: React.FC<PurposeModalProps> = ({
@@ -30,7 +32,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   onClose,
   mode,
   purpose,
-  onSave
+  onSave,
+  onEdit,
+  onDelete
 }) => {
   const [formData, setFormData] = useState<Partial<Purpose>>({
     description: '',
@@ -93,13 +97,64 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleDelete = () => {
+    if (purpose && onDelete) {
+      onDelete(purpose.id);
+      onClose();
+    }
+  };
+
+  const handleEdit = () => {
+    if (purpose && onEdit) {
+      onEdit(purpose);
+    }
+  };
+
   const modalTitle = isCreating ? 'Create Purpose' : isEditing ? 'Edit Purpose' : 'Purpose Details';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="relative">
           <DialogTitle>{modalTitle}</DialogTitle>
+          {mode === 'view' && purpose && (
+            <div className="absolute right-8 top-0 flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEdit}
+                className="h-8 w-8 p-0"
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete the purpose
+                      "{purpose.description}".
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-6">
