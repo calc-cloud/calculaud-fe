@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 import { EMF, EMFCost } from '@/types';
 import { formatDate, calculateDaysSince, getTodayString } from '@/utils/dateUtils';
+import { CURRENCIES } from '@/utils/constants';
 
 interface EMFSectionProps {
   emfs: EMF[];
@@ -209,7 +211,22 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       disabled={isReadOnly}
                       className="w-32"
                     />
-                    <span className="text-sm text-muted-foreground w-8">{cost.currency}</span>
+                    <Select
+                      value={cost.currency}
+                      onValueChange={(value) => updateCost(emf.id, cost.id, { currency: value })}
+                      disabled={isReadOnly}
+                    >
+                      <SelectTrigger className="w-20">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CURRENCIES.map((currency) => (
+                          <SelectItem key={currency} value={currency}>
+                            {currency}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {!isReadOnly && (
                       <Button
                         variant="outline"

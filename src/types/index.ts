@@ -1,3 +1,4 @@
+
 // Core entity types for the Procurement Management System
 
 export interface Purpose {
@@ -13,7 +14,6 @@ export interface Purpose {
   service_type: ServiceType;
   creation_time: string;
   last_modified: string;
-  currency: string;
   emfs: EMF[];
   files: PurposeFile[];
 }

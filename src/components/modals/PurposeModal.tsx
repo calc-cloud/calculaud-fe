@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -13,7 +14,7 @@ import { CalendarIcon, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Purpose, ModalMode } from '@/types';
-import { SERVICE_TYPES, PURPOSE_STATUSES, CURRENCIES } from '@/utils/constants';
+import { SERVICE_TYPES, PURPOSE_STATUSES } from '@/utils/constants';
 import { EMFSection } from '../sections/EMFSection';
 import { FileUpload } from '../common/FileUpload';
 
@@ -46,7 +47,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     expected_delivery: '',
     comments: '',
     service_type: 'Other',
-    currency: 'USD',
     emfs: [],
     files: []
   });
@@ -74,7 +74,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         expected_delivery: '',
         comments: '',
         service_type: 'Other',
-        currency: 'USD',
         emfs: [],
         files: []
       });
@@ -221,7 +220,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="service_type">Service Type</Label>
               <Select
@@ -258,26 +257,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                       <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
                         {status}
                       </Badge>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Select
-                value={formData.currency}
-                onValueChange={(value) => handleFieldChange('currency', value)}
-                disabled={isReadOnly}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select currency" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((currency) => (
-                    <SelectItem key={currency} value={currency}>
-                      {currency}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -20,10 +20,23 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   onDelete,
   isLoading = false
 }) => {
-  const getTotalCost = (purpose: Purpose) => {
-    return purpose.emfs.reduce((total, emf) => 
-      total + emf.costs.reduce((emfTotal, cost) => emfTotal + cost.amount, 0), 0
+  const getTotalCostWithCurrencies = (purpose: Purpose) => {
+    const costsByCurrency: { [key: string]: number } = {};
+    
+    purpose.emfs.forEach(emf => {
+      emf.costs.forEach(cost => {
+        if (!costsByCurrency[cost.currency]) {
+          costsByCurrency[cost.currency] = 0;
+        }
+        costsByCurrency[cost.currency] += cost.amount;
+      });
+    });
+
+    const costStrings = Object.entries(costsByCurrency).map(
+      ([currency, amount]) => `${amount.toFixed(2)} ${currency}`
     );
+
+    return costStrings.length > 0 ? costStrings.join(', ') : '0.00';
   };
 
   const getEMFIds = (purpose: Purpose) => {
@@ -97,8 +110,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
               <TableCell className="max-w-[150px] truncate">
                 {getEMFIds(purpose) || 'None'}
               </TableCell>
-              <TableCell>
-                {getTotalCost(purpose).toFixed(2)} {purpose.currency}
+              <TableCell className="max-w-[150px] truncate">
+                {getTotalCostWithCurrencies(purpose)}
               </TableCell>
               <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
               <TableCell>{formatDate(purpose.creation_time)}</TableCell>
