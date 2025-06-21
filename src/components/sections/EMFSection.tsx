@@ -285,10 +285,10 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         onValueChange={(value) => updateCost(index, cost.id, { currency: value as any })}
                         disabled={isReadOnly}
                       >
-                        <SelectTrigger className="w-20">
+                        <SelectTrigger className="w-40">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white z-50">
                           {CURRENCIES.map((currency) => (
                             <SelectItem key={currency} value={currency}>
                               {currency}
