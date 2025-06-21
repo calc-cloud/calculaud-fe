@@ -238,17 +238,17 @@ const HierarchyManagement = () => {
             <Input placeholder="Search hierarchies..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-7 h-8 text-sm" />
           </div>
           
-          <div className="space-y-3">
-            {paginatedHierarchies.map(hierarchy => <div key={hierarchy.id} className="flex items-center justify-between p-4 border rounded text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+          <div className="space-y-2">
+            {paginatedHierarchies.map(hierarchy => <div key={hierarchy.id} className="flex items-center justify-between p-3 border rounded text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                 <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate text-base">{hierarchy.fullPath}</p>
-                  <p className="text-sm text-gray-500 mt-1">Type: {hierarchy.type}</p>
+                  <p className="font-medium truncate text-sm">{hierarchy.fullPath}</p>
+                  <p className="text-xs text-gray-500 mt-1">Type: {hierarchy.type}</p>
                 </div>
                 <div className="flex space-x-1 ml-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
+                      <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                        <MoreHorizontal className="h-3 w-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
