@@ -77,6 +77,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             <TableHead>EMF IDs</TableHead>
             <TableHead>Total Cost</TableHead>
             <TableHead>Expected Delivery</TableHead>
+            <TableHead>Last Modified</TableHead>
             <TableHead>Created</TableHead>
           </TableRow>
         </TableHeader>
@@ -118,6 +119,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 {getTotalCostWithCurrencies(purpose)}
               </TableCell>
               <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
+              <TableCell>{formatDate(purpose.last_modified)}</TableCell>
               <TableCell>{formatDate(purpose.creation_time)}</TableCell>
             </TableRow>
           ))}
