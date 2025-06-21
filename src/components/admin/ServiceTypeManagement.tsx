@@ -63,9 +63,10 @@ const ServiceTypeManagement = () => {
       });
       
       console.log('Service types fetch successful:', response);
-      setServiceTypes(response.data);
-      setTotalPages(response.total_pages);
-      setTotalCount(response.total);
+      // Fix: API returns 'items' not 'data', and 'pages' not 'total_pages'
+      setServiceTypes(response.items || []);
+      setTotalPages(response.pages || 1);
+      setTotalCount(response.total || 0);
     } catch (error) {
       console.error('Error fetching service types:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to connect to API');

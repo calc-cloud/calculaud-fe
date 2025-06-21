@@ -21,12 +21,15 @@ export interface ServiceTypeUpdateRequest {
   parent_id?: number;
 }
 
+// Updated to match actual API response structure
 export interface ServiceTypesResponse {
-  data: ServiceType[];
+  items: ServiceType[];
   total: number;
   page: number;
   limit: number;
-  total_pages: number;
+  pages: number;
+  has_next: boolean;
+  has_prev: boolean;
 }
 
 export interface ApiError {
