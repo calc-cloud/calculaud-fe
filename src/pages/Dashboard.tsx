@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus } from 'lucide-react';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';
 import { FilterBar } from '@/components/common/FilterBar';
@@ -161,12 +159,6 @@ const Dashboard: React.FC = () => {
     return { total, pending, inProgress, completed, totalCost };
   }, [purposes]);
 
-  const handleCreatePurpose = () => {
-    setSelectedPurpose(undefined);
-    setModalMode('create');
-    setIsModalOpen(true);
-  };
-
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
     setModalMode('view');
@@ -188,22 +180,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    if (modalMode === 'create') {
-      const newPurpose: Purpose = {
-        ...purposeData,
-        id: `purpose-${Date.now()}`,
-        creation_time: new Date().toISOString(),
-        last_modified: new Date().toISOString(),
-        emfs: purposeData.emfs || [],
-        files: purposeData.files || []
-      } as Purpose;
-      
-      setPurposes(prev => [newPurpose, ...prev]);
-      toast({
-        title: "Purpose created",
-        description: "New purpose has been successfully created.",
-      });
-    } else if (modalMode === 'edit' && selectedPurpose) {
+    if (modalMode === 'edit' && selectedPurpose) {
       setPurposes(prev => prev.map(p => 
         p.id === selectedPurpose.id 
           ? { ...p, ...purposeData, last_modified: new Date().toISOString() }
@@ -226,15 +203,9 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">Procurement Dashboard</h2>
-          <p className="text-gray-600 mt-1">Manage your procurement purposes and track progress</p>
-        </div>
-        <Button onClick={handleCreatePurpose} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Create Purpose
-        </Button>
+      <div>
+        <h2 className="text-3xl font-bold text-gray-900">Procurement Dashboard</h2>
+        <p className="text-gray-600 mt-1">Manage your procurement purposes and track progress</p>
       </div>
 
       {/* Filter Bar */}
