@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -140,12 +139,12 @@ const SupplierManagement = () => {
       <CardContent className="pt-0 flex-1 flex flex-col overflow-hidden">
         <div className="flex flex-col h-full">
           <div className="relative flex-shrink-0 mb-4">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search suppliers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-7 h-8 text-sm"
+              className="pl-10 h-9 focus-visible:ring-1"
             />
           </div>
           
@@ -192,13 +191,15 @@ const SupplierManagement = () => {
             )}
           </div>
 
-          <div className="flex-shrink-0 mt-2">
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </div>
+          {filteredSuppliers.length > 0 && (
+            <div className="flex-shrink-0 mt-4">
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </div>
       </CardContent>
 
