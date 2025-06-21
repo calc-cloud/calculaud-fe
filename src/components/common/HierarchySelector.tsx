@@ -3,7 +3,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface HierarchyItem {
   id: string;
@@ -25,6 +26,8 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   selectedIds,
   onSelectionChange
 }) => {
+  const [openSections, setOpenSections] = React.useState<Set<string>>(new Set(['Unit']));
+
   const getLabel = () => {
     if (selectedIds.length === 0) return 'Hierarchy';
     if (selectedIds.length === 1) {
@@ -47,6 +50,16 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     onSelectionChange([]);
   };
 
+  const toggleSection = (type: string) => {
+    const newOpenSections = new Set(openSections);
+    if (newOpenSections.has(type)) {
+      newOpenSections.delete(type);
+    } else {
+      newOpenSections.add(type);
+    }
+    setOpenSections(newOpenSections);
+  };
+
   // Group hierarchies by type in a specific order
   const hierarchyTypes = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'] as const;
   const groupedHierarchies = hierarchyTypes.reduce((acc, type) => {
@@ -58,25 +71,34 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   }, {} as Record<string, HierarchyItem[]>);
 
   const renderHierarchyGroup = (type: string, items: HierarchyItem[]) => {
+    const isOpen = openSections.has(type);
+    
     return (
-      <div key={type} className="px-2 py-1">
-        <div className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">
-          {type}
-        </div>
-        {items.map(hierarchy => (
-          <DropdownMenuItem
-            key={hierarchy.id}
-            className="cursor-pointer flex items-center space-x-2 py-1"
-            onSelect={(e) => e.preventDefault()}
-          >
-            <Checkbox
-              checked={selectedIds.includes(hierarchy.id)}
-              onCheckedChange={() => handleSelect(hierarchy.id)}
-            />
-            <span className="flex-1 text-sm">{hierarchy.name}</span>
-          </DropdownMenuItem>
-        ))}
-      </div>
+      <Collapsible key={type} open={isOpen} onOpenChange={() => toggleSection(type)}>
+        <CollapsibleTrigger className="flex items-center justify-between w-full px-2 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide hover:bg-gray-50 rounded">
+          <span>{type}</span>
+          {isOpen ? (
+            <ChevronDown className="h-3 w-3" />
+          ) : (
+            <ChevronRight className="h-3 w-3" />
+          )}
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pl-2">
+          {items.map(hierarchy => (
+            <DropdownMenuItem
+              key={hierarchy.id}
+              className="cursor-pointer flex items-center space-x-2 py-1 ml-2"
+              onSelect={(e) => e.preventDefault()}
+            >
+              <Checkbox
+                checked={selectedIds.includes(hierarchy.id)}
+                onCheckedChange={() => handleSelect(hierarchy.id)}
+              />
+              <span className="flex-1 text-sm">{hierarchy.name}</span>
+            </DropdownMenuItem>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
     );
   };
 
@@ -96,9 +118,11 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           Clear All
         </DropdownMenuItem>
         
-        {Object.entries(groupedHierarchies).map(([type, items]) => 
-          renderHierarchyGroup(type, items)
-        )}
+        <div className="py-2">
+          {Object.entries(groupedHierarchies).map(([type, items]) => 
+            renderHierarchyGroup(type, items)
+          )}
+        </div>
         
         {Object.keys(groupedHierarchies).length === 0 && (
           <div className="px-2 py-4 text-sm text-muted-foreground text-center">

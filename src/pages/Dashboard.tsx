@@ -137,7 +137,9 @@ const Dashboard: React.FC = () => {
 
     if (filters.supplier && filters.supplier.length > 0) {
       filtered = filtered.filter(purpose => 
-        filters.supplier!.includes(purpose.supplier as any)
+        filters.supplier!.some(supplierFilter => 
+          typeof supplierFilter === 'string' && purpose.supplier.toLowerCase().includes(supplierFilter.toLowerCase())
+        )
       );
     }
 
