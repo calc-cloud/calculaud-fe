@@ -63,9 +63,9 @@ export const usePurposeData = () => {
   // Calculate dashboard statistics
   const stats = useMemo(() => {
     const total = purposes.length;
-    const pending = purposes.filter(p => p.status === 'Pending').length;
-    const inProgress = purposes.filter(p => p.status === 'In Progress').length;
-    const completed = purposes.filter(p => p.status === 'Completed').length;
+    const pending = purposes.filter(p => p.status === 'PENDING').length;
+    const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
+    const completed = purposes.filter(p => p.status === 'COMPLETED').length;
     const totalCost = purposes.reduce((sum, purpose) => {
       const purposeCost = purpose.emfs.reduce((emfSum, emf) => 
         emfSum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0

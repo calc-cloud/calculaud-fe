@@ -54,7 +54,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       id: `cost-${Date.now()}`,
       emf_id: emfs[emfIndex].id,
       amount: 0,
-      currency: 'USD'
+      currency: 'SUPPORT_USD'
     };
     
     updateEMF(emfIndex, {
@@ -282,7 +282,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       />
                       <Select
                         value={cost.currency}
-                        onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
+                        onValueChange={(value) => updateCost(index, cost.id, { currency: value as any })}
                         disabled={isReadOnly}
                       >
                         <SelectTrigger className="w-20">
