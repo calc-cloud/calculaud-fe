@@ -324,6 +324,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                   selected={expectedDeliveryDate}
                   onSelect={setExpectedDeliveryDate}
                   initialFocus
+                  className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>
             </Popover>
