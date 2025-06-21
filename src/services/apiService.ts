@@ -6,6 +6,7 @@ class ApiService {
 
   constructor() {
     this.baseUrl = API_CONFIG.BASE_URL;
+    console.log('ApiService initialized with base URL:', this.baseUrl);
   }
 
   private async request<T>(
@@ -13,6 +14,7 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    console.log('Making API request to:', url, 'with options:', options);
     
     const config: RequestInit = {
       headers: {
@@ -22,16 +24,25 @@ class ApiService {
       ...options,
     };
 
-    const response = await fetch(url, config);
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ 
-        message: 'An error occurred' 
-      }));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
-    }
+    try {
+      const response = await fetch(url, config);
+      console.log('API response status:', response.status, 'for URL:', url);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ 
+          message: 'An error occurred' 
+        }));
+        console.error('API error response:', errorData);
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
 
-    return response.json();
+      const data = await response.json();
+      console.log('API response data:', data);
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error, 'for URL:', url);
+      throw error;
+    }
   }
 
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
