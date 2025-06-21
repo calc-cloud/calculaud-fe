@@ -209,9 +209,63 @@ const Dashboard: React.FC = () => {
   };
 
   const handleExport = () => {
+    // Convert filtered purposes to CSV
+    const csvHeaders = [
+      'ID',
+      'Description',
+      'Content',
+      'Supplier',
+      'Hierarchy ID',
+      'Hierarchy Name',
+      'Status',
+      'Expected Delivery',
+      'Service Type',
+      'Creation Time',
+      'Last Modified',
+      'Comments',
+      'Total Cost'
+    ];
+
+    const csvRows = filteredPurposes.map(purpose => {
+      const totalCost = purpose.emfs.reduce((sum, emf) => 
+        sum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
+      );
+
+      return [
+        purpose.id,
+        `"${purpose.description.replace(/"/g, '""')}"`,
+        `"${purpose.content.replace(/"/g, '""')}"`,
+        `"${purpose.supplier.replace(/"/g, '""')}"`,
+        purpose.hierarchy_id,
+        `"${purpose.hierarchy_name.replace(/"/g, '""')}"`,
+        purpose.status,
+        purpose.expected_delivery,
+        purpose.service_type,
+        purpose.creation_time,
+        purpose.last_modified,
+        purpose.comments ? `"${purpose.comments.replace(/"/g, '""')}"` : '',
+        totalCost
+      ];
+    });
+
+    const csvContent = [csvHeaders, ...csvRows]
+      .map(row => row.join(','))
+      .join('\n');
+
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `purposes_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     toast({
-      title: "Export initiated",
-      description: "Your data export will be ready shortly.",
+      title: "Export completed",
+      description: `Successfully exported ${filteredPurposes.length} purposes to CSV.`,
     });
   };
 
