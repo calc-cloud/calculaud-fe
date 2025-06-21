@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,7 @@ const ServiceTypeManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const { toast } = useToast();
-  const itemsPerPage = 15; // Increased from 10
+  const itemsPerPage = 15;
 
   const handleCreate = () => {
     setEditingServiceType(null);
@@ -81,7 +82,7 @@ const ServiceTypeManagement = () => {
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Service Type Management</CardTitle>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -119,7 +120,7 @@ const ServiceTypeManagement = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 pb-2">
         <div className="space-y-3">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-gray-400" />
@@ -131,37 +132,39 @@ const ServiceTypeManagement = () => {
             />
           </div>
           
-          <div className="space-y-1">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
             {paginatedServiceTypes.map((serviceType) => (
-              <div key={serviceType.id} className="flex items-center justify-between p-2 border rounded text-sm">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium truncate">{serviceType.name}</p>
-                </div>
-                <div className="flex space-x-1 ml-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)} className="h-7 w-7 p-0">
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this service type? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(serviceType.id)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+              <div key={serviceType.id} className="p-2 border rounded text-xs bg-gray-50 hover:bg-gray-100 transition-colors">
+                <div className="flex flex-col space-y-2">
+                  <p className="font-medium truncate text-center" title={serviceType.name}>
+                    {serviceType.name}
+                  </p>
+                  <div className="flex justify-center space-x-1">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(serviceType)} className="h-6 w-6 p-0">
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="sm" className="h-6 w-6 p-0">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Service Type</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this service type? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(serviceType.id)}>
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
               </div>
             ))}
