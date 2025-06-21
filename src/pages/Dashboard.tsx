@@ -6,6 +6,8 @@ import { FilterBar } from '@/components/common/FilterBar';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
 import { useToast } from '@/components/ui/use-toast';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowUpDown } from 'lucide-react';
 
 // Mock data for demonstration - in a real app this would come from an API
 const mockPurposes: Purpose[] = [
@@ -89,10 +91,19 @@ const mockPurposes: Purpose[] = [
   }
 ];
 
+type SortField = 'creation_time' | 'expected_delivery' | 'last_modified';
+type SortDirection = 'asc' | 'desc';
+
+interface SortConfig {
+  field: SortField;
+  direction: SortDirection;
+}
+
 const Dashboard: React.FC = () => {
   const [purposes, setPurposes] = useState<Purpose[]>(mockPurposes);
   const [filteredPurposes, setFilteredPurposes] = useState<Purpose[]>(mockPurposes);
   const [filters, setFilters] = useState<PurposeFilters>({});
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'creation_time', direction: 'desc' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
@@ -101,7 +112,40 @@ const Dashboard: React.FC = () => {
 
   const itemsPerPage = 10;
 
-  // Filter purposes based on current filters
+  // Sort purposes based on current sort configuration
+  const sortPurposes = (purposesToSort: Purpose[], config: SortConfig): Purpose[] => {
+    return [...purposesToSort].sort((a, b) => {
+      let aValue: string | Date;
+      let bValue: string | Date;
+
+      switch (config.field) {
+        case 'creation_time':
+          aValue = new Date(a.creation_time);
+          bValue = new Date(b.creation_time);
+          break;
+        case 'expected_delivery':
+          aValue = new Date(a.expected_delivery);
+          bValue = new Date(b.expected_delivery);
+          break;
+        case 'last_modified':
+          aValue = new Date(a.last_modified);
+          bValue = new Date(b.last_modified);
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return config.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return config.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  };
+
+  // Filter and sort purposes based on current filters and sort config
   React.useEffect(() => {
     let filtered = purposes;
 
@@ -124,12 +168,10 @@ const Dashboard: React.FC = () => {
 
     if (filters.hierarchy_id) {
       if (Array.isArray(filters.hierarchy_id)) {
-        // Multiple hierarchy IDs selected
         filtered = filtered.filter(purpose => 
           filters.hierarchy_id!.includes(purpose.hierarchy_id)
         );
       } else {
-        // Single hierarchy ID (legacy support)
         filtered = filtered.filter(purpose => 
           purpose.hierarchy_id === filters.hierarchy_id
         );
@@ -144,8 +186,10 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    setFilteredPurposes(filtered);
-  }, [filters, purposes]);
+    // Apply sorting
+    const sortedFiltered = sortPurposes(filtered, sortConfig);
+    setFilteredPurposes(sortedFiltered);
+  }, [filters, purposes, sortConfig]);
 
   // Calculate dashboard statistics
   const stats = React.useMemo(() => {
@@ -169,10 +213,10 @@ const Dashboard: React.FC = () => {
   const endIndex = startIndex + itemsPerPage;
   const paginatedPurposes = filteredPurposes.slice(startIndex, endIndex);
 
-  // Reset to first page when filters change
+  // Reset to first page when filters or sorting change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters, sortConfig]);
 
   const handleViewPurpose = (purpose: Purpose) => {
     setSelectedPurpose(purpose);
@@ -301,6 +345,24 @@ const Dashboard: React.FC = () => {
     return items;
   };
 
+  const handleSortChange = (value: string) => {
+    const [field, direction] = value.split('-') as [SortField, SortDirection];
+    setSortConfig({ field, direction });
+  };
+
+  const getSortDisplayName = (field: SortField): string => {
+    switch (field) {
+      case 'creation_time':
+        return 'Creation Time';
+      case 'expected_delivery':
+        return 'Expected Delivery';
+      case 'last_modified':
+        return 'Last Modified';
+      default:
+        return field;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -316,6 +378,27 @@ const Dashboard: React.FC = () => {
         onExport={handleExport}
       />
 
+      {/* Sort Controls */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">Sort by:</span>
+          <Select value={`${sortConfig.field}-${sortConfig.direction}`} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select sort option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="creation_time-desc">Creation Time (Newest First)</SelectItem>
+              <SelectItem value="creation_time-asc">Creation Time (Oldest First)</SelectItem>
+              <SelectItem value="expected_delivery-asc">Expected Delivery (Earliest First)</SelectItem>
+              <SelectItem value="expected_delivery-desc">Expected Delivery (Latest First)</SelectItem>
+              <SelectItem value="last_modified-desc">Last Modified (Recent First)</SelectItem>
+              <SelectItem value="last_modified-asc">Last Modified (Oldest First)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Results Summary */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -327,6 +410,9 @@ const Dashboard: React.FC = () => {
               {Object.keys(filters).filter(key => filters[key as keyof PurposeFilters]).length} filters applied
             </Badge>
           )}
+          <Badge variant="outline">
+            Sorted by {getSortDisplayName(sortConfig.field)} ({sortConfig.direction === 'asc' ? 'Ascending' : 'Descending'})
+          </Badge>
         </div>
       </div>
 
