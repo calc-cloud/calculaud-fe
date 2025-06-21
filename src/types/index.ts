@@ -63,9 +63,9 @@ export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance'
 export interface PurposeFilters {
   hierarchy_id?: string;
   emf_id?: string;
-  service_type?: ServiceType;
+  service_type?: ServiceType[];
   supplier?: string;
-  status?: PurposeStatus;
+  status?: PurposeStatus[];
   search_query?: string;
 }
 

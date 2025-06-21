@@ -120,12 +120,12 @@ const Dashboard: React.FC = () => {
       );
     }
 
-    if (filters.service_type) {
-      filtered = filtered.filter(purpose => purpose.service_type === filters.service_type);
+    if (filters.service_type && filters.service_type.length > 0) {
+      filtered = filtered.filter(purpose => filters.service_type!.includes(purpose.service_type));
     }
 
-    if (filters.status) {
-      filtered = filtered.filter(purpose => purpose.status === filters.status);
+    if (filters.status && filters.status.length > 0) {
+      filtered = filtered.filter(purpose => filters.status!.includes(purpose.status));
     }
 
     if (filters.hierarchy_id) {
