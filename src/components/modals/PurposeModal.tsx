@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -18,6 +19,7 @@ import { EMFSection } from '../sections/EMFSection';
 import { FileUpload } from '../common/FileUpload';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface PurposeModalProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   onDelete
 }) => {
   const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  const { toast } = useToast();
   
   const [formData, setFormData] = useState<Partial<Purpose>>({
     description: '',
@@ -84,7 +87,59 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     }
   }, [purpose, isOpen]);
 
+  const validatePurpose = () => {
+    const errors: string[] = [];
+
+    if (!formData.description?.trim()) {
+      errors.push('Description is required');
+    }
+    if (!formData.supplier?.trim()) {
+      errors.push('Supplier is required');
+    }
+    if (!formData.content?.trim()) {
+      errors.push('Content is required');
+    }
+    if (!formData.service_type) {
+      errors.push('Service type is required');
+    }
+
+    return errors;
+  };
+
+  const validateEMFs = () => {
+    const errors: string[] = [];
+
+    if (formData.emfs && formData.emfs.length > 0) {
+      formData.emfs.forEach((emf, index) => {
+        if (!emf.id?.trim()) {
+          errors.push(`EMF ${index + 1}: EMF ID is required`);
+        }
+        if (!emf.creation_date) {
+          errors.push(`EMF ${index + 1}: Creation date is required`);
+        }
+        if (!emf.costs || emf.costs.length === 0) {
+          errors.push(`EMF ${index + 1}: At least one cost is required`);
+        }
+      });
+    }
+
+    return errors;
+  };
+
   const handleSave = () => {
+    const purposeErrors = validatePurpose();
+    const emfErrors = validateEMFs();
+    const allErrors = [...purposeErrors, ...emfErrors];
+
+    if (allErrors.length > 0) {
+      toast({
+        title: "Validation Error",
+        description: allErrors.join('. '),
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (onSave) {
       const purposeData = {
         ...formData,
@@ -181,18 +236,19 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Description <span className="text-red-500">*</span></Label>
               <Input
                 id="description"
                 value={formData.description || ''}
                 onChange={(e) => handleFieldChange('description', e.target.value)}
                 disabled={isReadOnly}
                 placeholder="Enter purpose description"
+                className={!formData.description?.trim() && !isReadOnly ? 'border-red-300' : ''}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="supplier">Supplier</Label>
+              <Label htmlFor="supplier">Supplier <span className="text-red-500">*</span></Label>
               {isReadOnly ? (
                 <Input
                   id="supplier"
@@ -204,7 +260,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                   value={formData.supplier || ''}
                   onValueChange={(value) => handleFieldChange('supplier', value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className={!formData.supplier && !isReadOnly ? 'border-red-300' : ''}>
                     <SelectValue placeholder="Select supplier" />
                   </SelectTrigger>
                   <SelectContent>
@@ -220,7 +276,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content">Content <span className="text-red-500">*</span></Label>
             <Textarea
               id="content"
               value={formData.content || ''}
@@ -228,6 +284,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               disabled={isReadOnly}
               rows={3}
               placeholder="Describe the purpose content in detail..."
+              className={!formData.content?.trim() && !isReadOnly ? 'border-red-300' : ''}
             />
           </div>
 
@@ -260,13 +317,13 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="service_type">Service Type</Label>
+              <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
               <Select
                 value={formData.service_type}
                 onValueChange={(value) => handleFieldChange('service_type', value)}
                 disabled={isReadOnly}
               >
-                <SelectTrigger>
+                <SelectTrigger className={!formData.service_type && !isReadOnly ? 'border-red-300' : ''}>
                   <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
                 <SelectContent>

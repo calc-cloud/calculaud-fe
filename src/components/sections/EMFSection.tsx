@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,6 +31,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       costs: []
     };
     onEMFsChange([...emfs, newEMF]);
+    setExpandedEMF(emfs.length); // Automatically expand the new EMF
   };
 
   const updateEMF = (emfIndex: number, updates: Partial<EMF>) => {
@@ -42,6 +42,11 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
   const deleteEMF = (emfIndex: number) => {
     onEMFsChange(emfs.filter((_, index) => index !== emfIndex));
+    if (expandedEMF === emfIndex) {
+      setExpandedEMF(null);
+    } else if (expandedEMF !== null && expandedEMF > emfIndex) {
+      setExpandedEMF(expandedEMF - 1);
+    }
   };
 
   const addCost = (emfIndex: number) => {
@@ -79,6 +84,10 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
     return emf.costs.reduce((sum, cost) => sum + cost.amount, 0);
   };
 
+  const hasValidationErrors = (emf: EMF) => {
+    return !emf.id?.trim() || !emf.creation_date || emf.costs.length === 0;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -96,11 +105,16 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       )}
 
       {emfs.map((emf, index) => (
-        <Card key={index}>
+        <Card key={index} className={hasValidationErrors(emf) && !isReadOnly ? 'border-red-300' : ''}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 {emf.id || 'New EMF'}
+                {hasValidationErrors(emf) && !isReadOnly && (
+                  <Badge variant="destructive" className="text-xs">
+                    Incomplete
+                  </Badge>
+                )}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
@@ -130,25 +144,29 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>EMF ID</Label>
+                  <Label>EMF ID <span className="text-red-500">*</span></Label>
                   <Input
                     value={emf.id}
                     onChange={(e) => updateEMF(index, { id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter EMF ID"
+                    className={!emf.id?.trim() && !isReadOnly ? 'border-red-300' : ''}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Creation Date</Label>
+                  <Label>Creation Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={emf.creation_date}
                     onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
                     disabled={isReadOnly}
+                    className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
                   />
-                  <span className="text-xs text-muted-foreground">
-                    {calculateDaysSince(emf.creation_date)} days ago
-                  </span>
+                  {emf.creation_date && (
+                    <span className="text-xs text-muted-foreground">
+                      {calculateDaysSince(emf.creation_date)} days ago
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -199,7 +217,12 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
               {/* Costs Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium">Costs</Label>
+                  <Label className="text-sm font-medium">
+                    Costs <span className="text-red-500">*</span>
+                    {emf.costs.length === 0 && !isReadOnly && (
+                      <span className="text-red-500 text-xs ml-2">(At least one cost required)</span>
+                    )}
+                  </Label>
                   {!isReadOnly && (
                     <Button onClick={() => addCost(index)} size="sm" variant="outline">
                       <Plus className="h-3 w-3 mr-1" />
@@ -208,47 +231,51 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   )}
                 </div>
 
-                {emf.costs.map((cost) => (
-                  <div key={cost.id} className="flex items-center gap-2 p-2 border rounded">
-                    <Input
-                      type="number"
-                      placeholder="Amount"
-                      value={cost.amount}
-                      onChange={(e) => updateCost(index, cost.id, { amount: Number(e.target.value) })}
-                      disabled={isReadOnly}
-                      className="w-32"
-                    />
-                    <Select
-                      value={cost.currency}
-                      onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
-                      disabled={isReadOnly}
-                    >
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CURRENCIES.map((currency) => (
-                          <SelectItem key={currency} value={currency}>
-                            {currency}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {!isReadOnly && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => deleteCost(index, cost.id)}
+                <div className={emf.costs.length === 0 && !isReadOnly ? 'border border-red-300 rounded p-2' : ''}>
+                  {emf.costs.map((cost) => (
+                    <div key={cost.id} className="flex items-center gap-2 p-2 border rounded mb-2 last:mb-0">
+                      <Input
+                        type="number"
+                        placeholder="Amount"
+                        value={cost.amount}
+                        onChange={(e) => updateCost(index, cost.id, { amount: Number(e.target.value) })}
+                        disabled={isReadOnly}
+                        className="w-32"
+                      />
+                      <Select
+                        value={cost.currency}
+                        onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
+                        disabled={isReadOnly}
                       >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                        <SelectTrigger className="w-20">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CURRENCIES.map((currency) => (
+                            <SelectItem key={currency} value={currency}>
+                              {currency}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {!isReadOnly && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => deleteCost(index, cost.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
 
-                {emf.costs.length === 0 && (
-                  <p className="text-muted-foreground text-xs">No costs added yet.</p>
-                )}
+                  {emf.costs.length === 0 && (
+                    <p className="text-muted-foreground text-xs p-2">
+                      {isReadOnly ? 'No costs added yet.' : 'Please add at least one cost.'}
+                    </p>
+                  )}
+                </div>
               </div>
             </CardContent>
           )}
