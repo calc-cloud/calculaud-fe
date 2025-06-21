@@ -1,14 +1,16 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, MoreHorizontal } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
@@ -31,6 +33,8 @@ const HierarchyManagement = () => {
   const [hierarchyName, setHierarchyName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [hierarchyToDelete, setHierarchyToDelete] = useState<HierarchyItem | null>(null);
 
   const { toast } = useToast();
   const itemsPerPage = 15; // Increased from 10
@@ -130,20 +134,31 @@ const HierarchyManagement = () => {
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    // Check if this hierarchy has children
-    const hasChildren = hierarchies.some(h => h.parentId === id);
-    if (hasChildren) {
-      toast({ 
-        title: "Cannot delete hierarchy", 
-        description: "This hierarchy has child hierarchies. Please delete them first.",
-        variant: "destructive" 
-      });
-      return;
-    }
+  const handleDeleteClick = (hierarchy: HierarchyItem) => {
+    setHierarchyToDelete(hierarchy);
+    setDeleteDialogOpen(true);
+  };
 
-    setHierarchies(prev => prev.filter(h => h.id !== id));
-    toast({ title: "Hierarchy deleted successfully" });
+  const handleDelete = () => {
+    if (hierarchyToDelete) {
+      // Check if this hierarchy has children
+      const hasChildren = hierarchies.some(h => h.parentId === hierarchyToDelete.id);
+      if (hasChildren) {
+        toast({ 
+          title: "Cannot delete hierarchy", 
+          description: "This hierarchy has child hierarchies. Please delete them first.",
+          variant: "destructive" 
+        });
+        setDeleteDialogOpen(false);
+        setHierarchyToDelete(null);
+        return;
+      }
+
+      setHierarchies(prev => prev.filter(h => h.id !== hierarchyToDelete.id));
+      toast({ title: "Hierarchy deleted successfully" });
+      setDeleteDialogOpen(false);
+      setHierarchyToDelete(null);
+    }
   };
 
   const parentOptions = getParentOptions(selectedType);
@@ -266,30 +281,23 @@ const HierarchyManagement = () => {
                   <p className="text-xs text-gray-500">Type: {hierarchy.type}</p>
                 </div>
                 <div className="flex space-x-1 ml-2">
-                  <Button variant="outline" size="sm" onClick={() => handleEdit(hierarchy)} className="h-7 w-7 p-0">
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="h-7 w-7 p-0">
-                        <Trash2 className="h-3 w-3" />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                        <MoreHorizontal className="h-3 w-3" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Hierarchy</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this hierarchy? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(hierarchy.id)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(hierarchy)}>
+                        <Edit className="h-3 w-3 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDeleteClick(hierarchy)} className="text-red-600">
+                        <Trash2 className="h-3 w-3 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}
@@ -302,6 +310,23 @@ const HierarchyManagement = () => {
           />
         </div>
       </CardContent>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Hierarchy</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this hierarchy? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };
