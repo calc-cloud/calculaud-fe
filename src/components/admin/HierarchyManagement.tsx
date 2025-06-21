@@ -46,6 +46,10 @@ const HierarchyManagement = () => {
     }
   };
 
+  const formatTypeDisplay = (type: HierarchyType): string => {
+    return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+  };
+
   const handleCreate = () => {
     setEditingHierarchy(null);
     setCreateModalOpen(true);
@@ -170,7 +174,7 @@ const HierarchyManagement = () => {
                     <div key={hierarchy.id} className="flex items-center justify-between p-3 border rounded text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                       <div className="min-w-0 flex-1">
                         <p className="font-medium truncate text-sm">{hierarchy.path}</p>
-                        <p className="text-xs text-gray-500 mt-1">Type: {hierarchy.type}</p>
+                        <p className="text-xs text-gray-500 mt-1">Type: {formatTypeDisplay(hierarchy.type)}</p>
                       </div>
                       <div className="flex space-x-1 ml-2">
                         <DropdownMenu>
@@ -233,7 +237,7 @@ const HierarchyManagement = () => {
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+          </AlertDialogFooter>
         </AlertDialog>
       </Card>
 
