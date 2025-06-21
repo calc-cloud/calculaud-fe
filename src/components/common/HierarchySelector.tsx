@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown } from 'lucide-react';
 
 interface HierarchyItem {
@@ -24,35 +25,58 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   selectedIds,
   onSelectionChange
 }) => {
-  const selectedHierarchy = selectedIds.length > 0 
-    ? hierarchies.find(h => h.id === selectedIds[0])
-    : null;
-
   const getLabel = () => {
-    if (selectedHierarchy) {
-      return selectedHierarchy.name;
+    if (selectedIds.length === 0) return 'Hierarchy';
+    if (selectedIds.length === 1) {
+      const selected = hierarchies.find(h => h.id === selectedIds[0]);
+      return selected ? selected.name : 'Hierarchy';
     }
-    return 'Hierarchy';
+    return `${selectedIds.length} selected`;
   };
 
   const handleSelect = (hierarchyId: string) => {
-    onSelectionChange([hierarchyId]);
+    const isSelected = selectedIds.includes(hierarchyId);
+    if (isSelected) {
+      onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+    } else {
+      onSelectionChange([...selectedIds, hierarchyId]);
+    }
   };
 
-  const renderHierarchy = (hierarchy: HierarchyItem, level: number = 0) => {
-    const padding = level * 16;
-    
+  const clearAll = () => {
+    onSelectionChange([]);
+  };
+
+  // Group hierarchies by type in a specific order
+  const hierarchyTypes = ['Unit', 'Center', 'Anaf', 'Mador', 'Team'] as const;
+  const groupedHierarchies = hierarchyTypes.reduce((acc, type) => {
+    const items = hierarchies.filter(h => h.type === type);
+    if (items.length > 0) {
+      acc[type] = items;
+    }
+    return acc;
+  }, {} as Record<string, HierarchyItem[]>);
+
+  const renderHierarchyGroup = (type: string, items: HierarchyItem[]) => {
     return (
-      <React.Fragment key={hierarchy.id}>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          style={{ paddingLeft: `${8 + padding}px` }}
-          onClick={() => handleSelect(hierarchy.id)}
-        >
-          {hierarchy.name}
-        </DropdownMenuItem>
-        {hierarchy.children?.map(child => renderHierarchy(child, level + 1))}
-      </React.Fragment>
+      <div key={type} className="px-2 py-1">
+        <div className="text-xs font-semibold text-muted-foreground mb-1 uppercase tracking-wide">
+          {type}
+        </div>
+        {items.map(hierarchy => (
+          <DropdownMenuItem
+            key={hierarchy.id}
+            className="cursor-pointer flex items-center space-x-2 py-1"
+            onSelect={(e) => e.preventDefault()}
+          >
+            <Checkbox
+              checked={selectedIds.includes(hierarchy.id)}
+              onCheckedChange={() => handleSelect(hierarchy.id)}
+            />
+            <span className="flex-1 text-sm">{hierarchy.name}</span>
+          </DropdownMenuItem>
+        ))}
+      </div>
     );
   };
 
@@ -64,14 +88,23 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[250px] max-h-[300px] overflow-y-auto bg-white border shadow-md z-50">
+      <DropdownMenuContent className="w-[300px] max-h-[400px] overflow-y-auto bg-white border shadow-md z-50">
         <DropdownMenuItem
-          className="cursor-pointer font-medium"
-          onClick={() => onSelectionChange([])}
+          className="cursor-pointer font-medium border-b"
+          onClick={clearAll}
         >
-          All Hierarchies
+          Clear All
         </DropdownMenuItem>
-        {hierarchies.map(hierarchy => renderHierarchy(hierarchy))}
+        
+        {Object.entries(groupedHierarchies).map(([type, items]) => 
+          renderHierarchyGroup(type, items)
+        )}
+        
+        {Object.keys(groupedHierarchies).length === 0 && (
+          <div className="px-2 py-4 text-sm text-muted-foreground text-center">
+            No hierarchies available
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

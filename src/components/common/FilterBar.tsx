@@ -103,12 +103,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Filter Controls */}
       <div className="flex flex-wrap gap-3">
-        {/* Hierarchy Selector */}
+        {/* Hierarchy Selector - Updated to handle multiple selections */}
         <HierarchySelector
           hierarchies={hierarchies}
-          selectedIds={filters.hierarchy_id ? [filters.hierarchy_id] : []}
+          selectedIds={Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : [])}
           onSelectionChange={(selectedIds) => 
-            updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds[0] : undefined)
+            updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds : undefined)
           }
         />
 
@@ -246,13 +246,24 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </div>
           )}
           {filters.hierarchy_id && (
-            <Badge variant="secondary" className="flex items-center gap-1">
-              Unit: {hierarchies.find(h => h.id === filters.hierarchy_id)?.name || filters.hierarchy_id}
-              <X 
-                className="h-3 w-3 cursor-pointer" 
-                onClick={() => updateFilter('hierarchy_id', undefined)}
-              />
-            </Badge>
+            <div className="flex flex-wrap gap-1">
+              {(Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id]).map((hierarchyId) => {
+                const hierarchy = hierarchies.find(h => h.id === hierarchyId);
+                return (
+                  <Badge key={hierarchyId} variant="secondary" className="flex items-center gap-1">
+                    {hierarchy?.type}: {hierarchy?.name || hierarchyId}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => {
+                        const selectedIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
+                        const updatedIds = selectedIds.filter(id => id !== hierarchyId);
+                        updateFilter('hierarchy_id', updatedIds.length > 0 ? updatedIds : undefined);
+                      }}
+                    />
+                  </Badge>
+                );
+              })}
+            </div>
           )}
         </div>
       )}

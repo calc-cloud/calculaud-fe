@@ -60,7 +60,7 @@ export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic A
 
 // Filter and search types
 export interface PurposeFilters {
-  hierarchy_id?: string;
+  hierarchy_id?: string | string[]; // Updated to support multiple selections
   service_type?: ServiceType[];
   supplier?: Supplier[];
   status?: PurposeStatus[];
