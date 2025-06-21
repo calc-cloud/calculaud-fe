@@ -1,5 +1,4 @@
-
-export type HierarchyType = 'UNIT' | 'CENTER' | 'ANAF' | 'TEAM';
+export type HierarchyType = 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
 
 export interface Hierarchy {
   id: number;
