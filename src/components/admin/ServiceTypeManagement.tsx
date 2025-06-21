@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -144,34 +145,46 @@ const ServiceTypeManagement = () => {
           </div>
           
           <div className="flex-1 overflow-y-auto">
-            <div className="grid grid-cols-3 gap-6">
-              {paginatedServiceTypes.map((serviceType) => (
-                <div key={serviceType.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium truncate flex-1 mr-3" title={serviceType.name}>
-                      {serviceType.name}
-                    </p>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-7 w-7 p-0">
-                          <MoreHorizontal className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(serviceType)}>
-                          <Edit className="h-3 w-3 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDeleteClick(serviceType)} className="text-red-600">
-                          <Trash2 className="h-3 w-3 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+            {paginatedServiceTypes.length > 0 ? (
+              <div className="grid grid-cols-3 gap-6">
+                {paginatedServiceTypes.map((serviceType) => (
+                  <div key={serviceType.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium truncate flex-1 mr-3" title={serviceType.name}>
+                        {serviceType.name}
+                      </p>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                            <MoreHorizontal className="h-3 w-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEdit(serviceType)}>
+                            <Edit className="h-3 w-3 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteClick(serviceType)} className="text-red-600">
+                            <Trash2 className="h-3 w-3 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <div className="text-center">
+                  <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 text-lg font-medium">No service types found</p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {searchQuery ? `No service types match "${searchQuery}"` : 'No service types available'}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           <div className="flex-shrink-0 mt-2">
