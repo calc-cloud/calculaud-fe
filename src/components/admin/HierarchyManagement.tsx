@@ -245,7 +245,7 @@ const HierarchyManagement = () => {
               Add Hierarchy
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>
                 {editingHierarchy ? 'Edit Hierarchy' : 'Create New Hierarchy'}
@@ -275,7 +275,7 @@ const HierarchyManagement = () => {
               </div>
 
               {availableParentTypes.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <Label htmlFor="parentType" className="text-sm">Parent Type</Label>
                     <Select value={selectedParentType} onValueChange={(value) => setSelectedParentType(value as HierarchyType | '')}>
@@ -293,7 +293,7 @@ const HierarchyManagement = () => {
                   </div>
 
                   {selectedParentType && (
-                    <div>
+                    <div className="col-span-2">
                       <Label htmlFor="parent" className="text-sm">Parent {selectedParentType}</Label>
                       <Popover open={parentDropdownOpen} onOpenChange={setParentDropdownOpen}>
                         <PopoverTrigger asChild>
