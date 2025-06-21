@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import HierarchyManagement from '@/components/admin/HierarchyManagement';
 import SupplierManagement from '@/components/admin/SupplierManagement';
 import ServiceTypeManagement from '@/components/admin/ServiceTypeManagement';
 
 const Admin = () => {
   return (
-    <div className="space-y-4 h-full flex flex-col p-6 pt-2">
+    <div className="space-y-4 h-full flex flex-col p-6 pt-2 overflow-y-scroll">
       <div className="flex-shrink-0">
         <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
       </div>
