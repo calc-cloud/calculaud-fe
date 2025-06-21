@@ -1,3 +1,4 @@
+
 // Constants for the Procurement Management System
 
 export const SERVICE_TYPES: ServiceType[] = [
@@ -10,17 +11,15 @@ export const SERVICE_TYPES: ServiceType[] = [
 ];
 
 export const PURPOSE_STATUSES: PurposeStatus[] = [
-  'Pending',
-  'In Progress', 
-  'Rejected',
-  'Completed'
+  'PENDING',
+  'IN_PROGRESS',
+  'COMPLETED'
 ];
 
-export const CURRENCIES = [
-  'USD',
-  'EUR',
-  'ILS',
-  'GBP'
+export const CURRENCIES: Currency[] = [
+  'SUPPORT_USD',
+  'AVAILABLE_USD',
+  'ILS'
 ];
 
 export const TABLE_PAGE_SIZES = [10, 25, 50, 100];
@@ -28,7 +27,7 @@ export const TABLE_PAGE_SIZES = [10, 25, 50, 100];
 export const DEFAULT_PAGE_SIZE = 25;
 
 // Import types
-import type { ServiceType, PurposeStatus } from '@/types';
+import type { ServiceType, PurposeStatus, Currency } from '@/types';
 
 export const SUPPLIERS = [
   'TechCorp Solutions',

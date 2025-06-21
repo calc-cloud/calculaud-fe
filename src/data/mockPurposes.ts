@@ -9,7 +9,7 @@ export const mockPurposes: Purpose[] = [
     supplier: 'TechCorp Solutions',
     hierarchy_id: 'H001',
     hierarchy_name: 'IT Department',
-    status: 'In Progress',
+    status: 'IN_PROGRESS',
     expected_delivery: '2024-07-15',
     comments: 'Project is progressing well, on schedule',
     service_type: 'Software',
@@ -29,7 +29,7 @@ export const mockPurposes: Purpose[] = [
             id: 'cost-1',
             emf_id: 'emf-1',
             amount: 25000,
-            currency: 'USD'
+            currency: 'SUPPORT_USD'
           }
         ]
       }
@@ -43,7 +43,7 @@ export const mockPurposes: Purpose[] = [
     supplier: 'Hardware Plus Inc',
     hierarchy_id: 'H002',
     hierarchy_name: 'Infrastructure',
-    status: 'Pending',
+    status: 'PENDING',
     expected_delivery: '2024-08-01',
     service_type: 'Hardware',
     creation_time: '2024-06-10T09:15:00Z',
@@ -58,7 +58,7 @@ export const mockPurposes: Purpose[] = [
     supplier: 'Strategic Advisors LLC',
     hierarchy_id: 'H003',
     hierarchy_name: 'Operations',
-    status: 'Completed',
+    status: 'COMPLETED',
     expected_delivery: '2024-05-30',
     service_type: 'Consulting',
     creation_time: '2024-04-15T11:00:00Z',
@@ -73,7 +73,7 @@ export const mockPurposes: Purpose[] = [
             id: 'cost-3',
             emf_id: 'emf-3',
             amount: 15000,
-            currency: 'USD'
+            currency: 'SUPPORT_USD'
           }
         ]
       }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -49,7 +48,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     supplier: '',
     hierarchy_id: '',
     hierarchy_name: '',
-    status: 'Pending',
+    status: 'PENDING',
     expected_delivery: '',
     comments: '',
     service_type: 'Other',
@@ -76,7 +75,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         supplier: '',
         hierarchy_id: '',
         hierarchy_name: '',
-        status: 'Pending',
+        status: 'PENDING',
         expected_delivery: '',
         comments: '',
         service_type: 'Other',
@@ -164,6 +163,19 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   const handleEdit = () => {
     if (purpose && onEdit) {
       onEdit(purpose);
+    }
+  };
+
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'PENDING':
+        return 'Pending';
+      case 'COMPLETED':
+        return 'Completed';
+      default:
+        return status;
     }
   };
 
@@ -349,8 +361,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                 <SelectContent>
                   {PURPOSE_STATUSES.map((status) => (
                     <SelectItem key={status} value={status}>
-                      <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
-                        {status}
+                      <Badge variant={status === 'COMPLETED' ? 'default' : 'secondary'}>
+                        {getStatusDisplay(status)}
                       </Badge>
                     </SelectItem>
                   ))}

@@ -49,6 +49,19 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     return parts.length > 0 ? parts[parts.length - 1] : hierarchyName;
   };
 
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'PENDING':
+        return 'Pending';
+      case 'COMPLETED':
+        return 'Completed';
+      default:
+        return status;
+    }
+  };
+
   const handleRowClick = (purpose: Purpose) => {
     onView(purpose);
   };
@@ -115,11 +128,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
               </TableCell>
               <TableCell>
                 <Badge 
-                  variant={purpose.status === 'Completed' ? 'default' : 
-                           purpose.status === 'In Progress' ? 'secondary' :
-                           purpose.status === 'Rejected' ? 'destructive' : 'outline'}
+                  variant={purpose.status === 'COMPLETED' ? 'default' : 
+                           purpose.status === 'IN_PROGRESS' ? 'secondary' :
+                           purpose.status === 'PENDING' ? 'outline' : 'outline'}
                 >
-                  {purpose.status}
+                  {getStatusDisplay(purpose.status)}
                 </Badge>
               </TableCell>
               <TableCell className="max-w-[150px] truncate">

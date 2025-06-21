@@ -35,7 +35,7 @@ export interface EMFCost {
   id: string;
   emf_id: string;
   amount: number;
-  currency: string;
+  currency: Currency;
 }
 
 export interface PurposeFile {
@@ -52,7 +52,9 @@ export interface Hierarchy {
   name: string;
 }
 
-export type PurposeStatus = 'Pending' | 'In Progress' | 'Rejected' | 'Completed';
+export type PurposeStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+
+export type Currency = 'SUPPORT_USD' | 'AVAILABLE_USD' | 'ILS';
 
 export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance' | 'Training' | 'Other';
 
