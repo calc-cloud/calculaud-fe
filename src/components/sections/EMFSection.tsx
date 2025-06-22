@@ -170,6 +170,38 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             </div>
           </CardHeader>
 
+          {/* Collapsed view - show IDs and dates in horizontal layout */}
+          {expandedEMF !== index && (
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                <div className="space-y-1">
+                  <div className="font-medium text-gray-900">{emf.id || 'No EMF ID'}</div>
+                  <div className="text-gray-500 text-xs">
+                    {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                  <div className="text-gray-500 text-xs">
+                    {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                  <div className="text-gray-500 text-xs">
+                    {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                  <div className="text-gray-500 text-xs">
+                    {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          )}
+
           {expandedEMF === index && (
             <CardContent className="space-y-6">
               {/* ID Fields - 4 columns horizontal layout */}
