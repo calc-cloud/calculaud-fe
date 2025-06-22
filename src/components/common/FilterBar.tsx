@@ -99,7 +99,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           placeholder="Search by description, content, or EMF ID..."
           value={filters.search_query || ''}
           onChange={(e) => updateFilter('search_query', e.target.value)}
-          className="pl-10 focus-visible:outline-none"
+          className="pl-10 border-none"
         />
       </div>
 
@@ -120,7 +120,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between focus-visible:outline-none" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between border-none" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getServiceTypeLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -147,7 +147,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[140px] justify-between focus-visible:outline-none">
+              <Button variant="outline" className="w-[140px] justify-between border-none">
                 {getStatusLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -176,7 +176,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between focus-visible:outline-none" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between border-none" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getSupplierLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -201,13 +201,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         <div className="flex items-center gap-2 ml-auto flex-shrink-0">
           {activeFiltersCount > 0 && (
-            <Button variant="outline" size="sm" onClick={clearFilters} className="focus-visible:outline-none">
+            <Button variant="outline" size="sm" onClick={clearFilters} className="border-none">
               <X className="h-4 w-4 mr-1" />
               Clear ({activeFiltersCount})
             </Button>
           )}
           
-          <Button variant="outline" onClick={onExport} className="focus-visible:outline-none">
+          <Button variant="outline" onClick={onExport} className="border-none">
             Export
           </Button>
         </div>
