@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface PurposeTableProps {
   purposes: Purpose[];
@@ -21,6 +21,31 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   onDelete,
   isLoading = false
 }) => {
+  const { hierarchies } = useAdminData();
+
+  const buildHierarchyPath = (hierarchyId: string): string => {
+    if (!hierarchyId || !hierarchies || hierarchies.length === 0) return '';
+    
+    const hierarchy = hierarchies.find(h => h.id === hierarchyId);
+    if (!hierarchy) return '';
+    
+    // Build path by traversing up the hierarchy tree
+    const buildPath = (currentHierarchy: any): string[] => {
+      const path = [currentHierarchy.name];
+      
+      if (currentHierarchy.parent_id) {
+        const parent = hierarchies.find(h => parseInt(h.id) === currentHierarchy.parent_id);
+        if (parent) {
+          return [...buildPath(parent), ...path];
+        }
+      }
+      
+      return path;
+    };
+    
+    return buildPath(hierarchy).join(' > ');
+  };
+
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
     
@@ -131,6 +156,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
           <TableBody>
             {purposes.map((purpose) => {
               const totalCost = getTotalCostWithCurrencies(purpose);
+              const hierarchyPath = buildHierarchyPath(purpose.hierarchy_id);
+              
               return (
                 <TableRow 
                   key={purpose.id} 
@@ -156,7 +183,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{purpose.hierarchy_name}</p>
+                        <p>{hierarchyPath || purpose.hierarchy_name}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
