@@ -4,7 +4,7 @@ import { PurposeFilters } from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
-  size?: number;
+  limit?: number; // Changed from size to limit
   hierarchy_id?: number | number[];
   supplier_id?: number | number[];
   service_type_id?: number | number[];
@@ -18,7 +18,7 @@ export interface PurposeApiResponse {
   items: Purpose[];
   total: number;
   page: number;
-  size: number;
+  limit: number; // Changed from size to limit
   pages: number;
 }
 
@@ -134,7 +134,7 @@ class PurposeService {
   ): PurposeApiParams {
     const params: PurposeApiParams = {
       page: currentPage,
-      size: itemsPerPage,
+      limit: itemsPerPage, // Changed from size to limit
       sort_by: this.mapSortField(sortConfig.field),
       sort_order: sortConfig.direction as 'asc' | 'desc'
     };
