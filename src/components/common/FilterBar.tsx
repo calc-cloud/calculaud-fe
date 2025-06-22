@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -141,7 +140,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-[160px] justify-between border" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getServiceTypeLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -168,7 +167,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-[140px] justify-between border">
+              <Button variant="outline" className="w-[140px] justify-between">
                 {getStatusLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -197,7 +196,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-[160px] justify-between border" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getSupplierLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -222,13 +221,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
         <div className="flex items-center gap-2 ml-auto flex-shrink-0">
           {activeFiltersCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="border">
+            <Button variant="outline" size="sm" onClick={clearFilters}>
               <X className="h-4 w-4 mr-1" />
               Clear ({activeFiltersCount})
             </Button>
           )}
           
-          <Button variant="ghost" onClick={onExport} className="border">
+          <Button variant="outline" onClick={onExport}>
             Export
           </Button>
         </div>
