@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -150,36 +149,36 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         </Badge>
                       )}
                     </div>
-                    {expandedEMF === index && (
+                    {emf.creation_date && (
                       <div className="text-gray-500 text-xs">
-                        {emf.creation_date ? `${formatDate(emf.creation_date)} (${calculateDaysSince(emf.creation_date)} days ago)` : 'No date'}
+                        {formatDate(emf.creation_date)} ({calculateDaysSince(emf.creation_date)} days ago)
                       </div>
                     )}
                   </div>
                   <div className="space-y-1">
                     <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
                     <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
-                    {expandedEMF === index && (
+                    {emf.bikushit_creation_date && (
                       <div className="text-gray-500 text-xs">
-                        {emf.bikushit_creation_date ? `${formatDate(emf.bikushit_creation_date)} (${calculateDaysSince(emf.bikushit_creation_date)} days ago)` : 'No date'}
+                        {formatDate(emf.bikushit_creation_date)} ({calculateDaysSince(emf.bikushit_creation_date)} days ago)
                       </div>
                     )}
                   </div>
                   <div className="space-y-1">
                     <div className="text-xs text-muted-foreground font-medium">Demand</div>
                     <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
-                    {expandedEMF === index && (
+                    {emf.demand_creation_date && (
                       <div className="text-gray-500 text-xs">
-                        {emf.demand_creation_date ? `${formatDate(emf.demand_creation_date)} (${calculateDaysSince(emf.demand_creation_date)} days ago)` : 'No date'}
+                        {formatDate(emf.demand_creation_date)} ({calculateDaysSince(emf.demand_creation_date)} days ago)
                       </div>
                     )}
                   </div>
                   <div className="space-y-1">
                     <div className="text-xs text-muted-foreground font-medium">Order</div>
                     <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
-                    {expandedEMF === index && (
+                    {emf.order_creation_date && (
                       <div className="text-gray-500 text-xs">
-                        {emf.order_creation_date ? `${formatDate(emf.order_creation_date)} (${calculateDaysSince(emf.order_creation_date)} days ago)` : 'No date'}
+                        {formatDate(emf.order_creation_date)} ({calculateDaysSince(emf.order_creation_date)} days ago)
                       </div>
                     )}
                   </div>
