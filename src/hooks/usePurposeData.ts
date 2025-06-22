@@ -89,7 +89,7 @@ export const usePurposeData = () => {
   // Use the first query params for the main query (we'll improve this later)
   const mainApiParams = apiQueries[0];
 
-  // Fetch purposes from API
+  // Fetch purposes from API with disabled caching
   const {
     data: apiResponse,
     isLoading,
@@ -101,7 +101,10 @@ export const usePurposeData = () => {
       console.log('Fetching purposes with main params:', mainApiParams);
       return purposeService.getPurposes(mainApiParams);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always consider data stale
+    cacheTime: 0, // Don't cache data
+    refetchOnMount: 'always', // Always refetch when component mounts
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 
   // Transform API response to match frontend structure
