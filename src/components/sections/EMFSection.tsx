@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -143,17 +142,29 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 flex-1">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div className="font-medium text-gray-900 flex items-center gap-2">
-                      {emf.id || 'New EMF'}
-                      {hasValidationErrors(emf) && (
-                        <Badge variant="destructive" className="text-xs">
-                          Incomplete
-                        </Badge>
-                      )}
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">EMF</div>
+                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                        {emf.id || 'New EMF'}
+                        {hasValidationErrors(emf) && (
+                          <Badge variant="destructive" className="text-xs">
+                            Incomplete
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
-                    <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
-                    <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
+                      <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Demand</div>
+                      <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Order</div>
+                      <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                    </div>
                   </div>
                 </div>
                 
@@ -176,6 +187,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 <div className="flex items-center gap-4 flex-1">
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
                     <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">EMF</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
                         {emf.id || 'New EMF'}
                         {hasValidationErrors(emf) && (
@@ -189,18 +201,21 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       </div>
                     </div>
                     <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
                       <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
                       <div className="text-gray-500 text-xs">
                         {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
                       </div>
                     </div>
                     <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Demand</div>
                       <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
                       <div className="text-gray-500 text-xs">
                         {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
                       </div>
                     </div>
                     <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground font-medium">Order</div>
                       <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
                       <div className="text-gray-500 text-xs">
                         {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
@@ -234,28 +249,32 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
           {expandedEMF === index && (
             <CardContent className="space-y-6">
-              {/* Show creation dates in viewing mode when expanded */}
+              {/* Show creation dates in viewing mode when expanded - only one set */}
               {isReadOnly && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">EMF</div>
                     <div className="font-medium text-gray-900">{emf.id || 'No EMF ID'}</div>
                     <div className="text-gray-500 text-xs">
                       {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
                     </div>
                   </div>
                   <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
                     <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
                     <div className="text-gray-500 text-xs">
                       {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
                     </div>
                   </div>
                   <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Demand</div>
                     <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
                     <div className="text-gray-500 text-xs">
                       {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
                     </div>
                   </div>
                   <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Order</div>
                     <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
                     <div className="text-gray-500 text-xs">
                       {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
