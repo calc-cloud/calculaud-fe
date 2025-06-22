@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -136,20 +137,108 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       {emfs.map((emf, index) => (
         <Card key={index} className={hasValidationErrors(emf) && !isReadOnly ? 'border-red-300' : ''}>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              {/* 4 ID blocks, Total cost, and buttons all on the same row */}
-              <div className="flex items-center gap-4 flex-1">
-                {/* The 4 ID blocks */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                  <div className="space-y-1">
+            {/* Different layouts for viewing vs editing modes */}
+            {isReadOnly ? (
+              // VIEWING MODE - 4 blocks on same row, no creation dates when collapsed
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
                     <div className="font-medium text-gray-900 flex items-center gap-2">
                       {emf.id || 'New EMF'}
-                      {hasValidationErrors(emf) && !isReadOnly && (
+                      {hasValidationErrors(emf) && (
                         <Badge variant="destructive" className="text-xs">
                           Incomplete
                         </Badge>
                       )}
                     </div>
+                    <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                    <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                    <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-sm text-muted-foreground">
+                    Total: {getTotalCostWithCurrencies(emf)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
+                  >
+                    {expandedEMF === index ? 'Collapse' : 'Expand'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              // EDITING/CREATING MODE - Original layout with all info
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                        {emf.id || 'New EMF'}
+                        {hasValidationErrors(emf) && (
+                          <Badge variant="destructive" className="text-xs">
+                            Incomplete
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                      <div className="text-gray-500 text-xs">
+                        {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                      <div className="text-gray-500 text-xs">
+                        {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                      <div className="text-gray-500 text-xs">
+                        {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2 ml-4">
+                  <span className="text-sm text-muted-foreground">
+                    Total: {getTotalCostWithCurrencies(emf)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
+                  >
+                    {expandedEMF === index ? 'Collapse' : 'Expand'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => deleteEMF(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardHeader>
+
+          {expandedEMF === index && (
+            <CardContent className="space-y-6">
+              {/* Show creation dates in viewing mode when expanded */}
+              {isReadOnly && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900">{emf.id || 'No EMF ID'}</div>
                     <div className="text-gray-500 text-xs">
                       {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
                     </div>
@@ -173,131 +262,58 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
-              
-              {/* Total cost and buttons */}
-              <div className="flex items-center gap-2 ml-4">
-                <span className="text-sm text-muted-foreground">
-                  Total: {getTotalCostWithCurrencies(emf)}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
-                >
-                  {expandedEMF === index ? 'Collapse' : 'Expand'}
-                </Button>
-                {!isReadOnly && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => deleteEMF(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardHeader>
+              )}
 
-          {/* Collapsed view - show IDs and dates in horizontal layout */}
-          {expandedEMF !== index && (
-            <CardContent className="pt-0">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-900">{emf.id || 'No EMF ID'}</div>
-                  <div className="text-gray-500 text-xs">
-                    {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
+              {/* ID Fields - only show in editing mode */}
+              {!isReadOnly && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>EMF ID <span className="text-red-500">*</span></Label>
+                    <Input
+                      value={emf.id}
+                      onChange={(e) => updateEMF(index, { id: e.target.value })}
+                      placeholder="Enter EMF ID"
+                      className={!emf.id?.trim() ? 'border-red-300' : ''}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bikushit ID</Label>
+                    <Input
+                      value={emf.bikushit_id || ''}
+                      onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
+                      placeholder="Enter bikushit ID"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Demand ID</Label>
+                    <Input
+                      value={emf.demand_id || ''}
+                      onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
+                      placeholder="Enter demand ID"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Order ID</Label>
+                    <Input
+                      value={emf.order_id || ''}
+                      onChange={(e) => updateEMF(index, { order_id: e.target.value })}
+                      placeholder="Enter order ID"
+                    />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
-                  <div className="text-gray-500 text-xs">
-                    {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
-                  <div className="text-gray-500 text-xs">
-                    {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
-                  <div className="text-gray-500 text-xs">
-                    {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          )}
+              )}
 
-          {expandedEMF === index && (
-            <CardContent className="space-y-6">
-              {/* ID Fields - 4 columns horizontal layout */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>EMF ID <span className="text-red-500">*</span></Label>
-                  <Input
-                    value={emf.id}
-                    onChange={(e) => updateEMF(index, { id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter EMF ID"
-                    className={!emf.id?.trim() && !isReadOnly ? 'border-red-300' : ''}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Bikushit ID</Label>
-                  <Input
-                    value={emf.bikushit_id || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter bikushit ID"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Demand ID</Label>
-                  <Input
-                    value={emf.demand_id || ''}
-                    onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter demand ID"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Order ID</Label>
-                  <Input
-                    value={emf.order_id || ''}
-                    onChange={(e) => updateEMF(index, { order_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter order ID"
-                  />
-                </div>
-              </div>
-
-              {/* Creation Date Fields - 4 columns horizontal layout */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label>Creation Date <span className="text-red-500">*</span></Label>
-                  {isReadOnly ? (
-                    <div>
-                      <Input
-                        value={formatDate(emf.creation_date)}
-                        disabled={true}
-                      />
-                      {emf.creation_date && (
-                        <span className="text-xs text-muted-foreground block mt-1">
-                          {calculateDaysSince(emf.creation_date)} days ago
-                        </span>
-                      )}
-                    </div>
-                  ) : (
+              {/* Creation Date Fields - only show in editing mode */}
+              {!isReadOnly && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="space-y-2">
+                    <Label>Creation Date <span className="text-red-500">*</span></Label>
                     <div>
                       <Input
                         type="date"
                         value={emf.creation_date}
                         onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
-                        className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
+                        className={!emf.creation_date ? 'border-red-300' : ''}
                       />
                       {emf.creation_date && (
                         <span className="text-xs text-muted-foreground">
@@ -305,23 +321,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         </span>
                       )}
                     </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Bikushit Creation Date</Label>
-                  {isReadOnly ? (
-                    <div>
-                      <Input
-                        value={emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : ''}
-                        disabled={true}
-                      />
-                      {emf.bikushit_creation_date && (
-                        <span className="text-xs text-muted-foreground block mt-1">
-                          {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
-                        </span>
-                      )}
-                    </div>
-                  ) : (
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bikushit Creation Date</Label>
                     <div>
                       <Input
                         type="date"
@@ -334,23 +336,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         </span>
                       )}
                     </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Demand Creation Date</Label>
-                  {isReadOnly ? (
-                    <div>
-                      <Input
-                        value={emf.demand_creation_date ? formatDate(emf.demand_creation_date) : ''}
-                        disabled={true}
-                      />
-                      {emf.demand_creation_date && (
-                        <span className="text-xs text-muted-foreground block mt-1">
-                          {calculateDaysSince(emf.demand_creation_date)} days since demand
-                        </span>
-                      )}
-                    </div>
-                  ) : (
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Demand Creation Date</Label>
                     <div>
                       <Input
                         type="date"
@@ -363,23 +351,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         </span>
                       )}
                     </div>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label>Order Creation Date</Label>
-                  {isReadOnly ? (
-                    <div>
-                      <Input
-                        value={emf.order_creation_date ? formatDate(emf.order_creation_date) : ''}
-                        disabled={true}
-                      />
-                      {emf.order_creation_date && (
-                        <span className="text-xs text-muted-foreground block mt-1">
-                          {calculateDaysSince(emf.order_creation_date)} days since order
-                        </span>
-                      )}
-                    </div>
-                  ) : (
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Order Creation Date</Label>
                     <div>
                       <Input
                         type="date"
@@ -392,9 +366,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         </span>
                       )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Costs Section */}
               <div className="space-y-3">
