@@ -121,7 +121,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">EMFs</h3>
         {!isReadOnly && (
           <Button onClick={addEMF} size="sm">
             <Plus className="h-4 w-4 mr-2" />
@@ -138,15 +137,46 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
         <Card key={index} className={hasValidationErrors(emf) && !isReadOnly ? 'border-red-300' : ''}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {emf.id || 'New EMF'}
-                {hasValidationErrors(emf) && !isReadOnly && (
-                  <Badge variant="destructive" className="text-xs">
-                    Incomplete
-                  </Badge>
-                )}
+              {/* 4 ID blocks, Total cost, and buttons all on the same row */}
+              <div className="flex items-center gap-4 flex-1">
+                {/* The 4 ID blocks */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900 flex items-center gap-2">
+                      {emf.id || 'New EMF'}
+                      {hasValidationErrors(emf) && !isReadOnly && (
+                        <Badge variant="destructive" className="text-xs">
+                          Incomplete
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-gray-500 text-xs">
+                      {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                    <div className="text-gray-500 text-xs">
+                      {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                    <div className="text-gray-500 text-xs">
+                      {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                    <div className="text-gray-500 text-xs">
+                      {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
+              
+              {/* Total cost and buttons */}
+              <div className="flex items-center gap-2 ml-4">
                 <span className="text-sm text-muted-foreground">
                   Total: {getTotalCostWithCurrencies(emf)}
                 </span>
