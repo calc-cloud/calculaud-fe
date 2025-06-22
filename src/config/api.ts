@@ -5,6 +5,7 @@ export const API_CONFIG = {
     SERVICE_TYPES: '/service-types/',
     SUPPLIERS: '/suppliers/',
     HIERARCHIES: '/hierarchies/',
+    SERVICES: '/services/',
   },
   PAGINATION: {
     DEFAULT_PAGE: 1,

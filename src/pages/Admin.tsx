@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import HierarchyManagement from '@/components/admin/HierarchyManagement';
 import SupplierManagement from '@/components/admin/SupplierManagement';
 import ServiceTypeManagement from '@/components/admin/ServiceTypeManagement';
+import ServiceManagement from '@/components/admin/ServiceManagement';
 
 const Admin = () => {
   return (
@@ -13,10 +14,11 @@ const Admin = () => {
       </div>
 
       <Tabs defaultValue="hierarchies" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
+        <TabsList className="grid w-full grid-cols-4 flex-shrink-0">
           <TabsTrigger value="hierarchies" className="text-sm">Hierarchies</TabsTrigger>
           <TabsTrigger value="suppliers" className="text-sm">Suppliers</TabsTrigger>
           <TabsTrigger value="service-types" className="text-sm">Service Types</TabsTrigger>
+          <TabsTrigger value="services" className="text-sm">Services</TabsTrigger>
         </TabsList>
         
         <TabsContent value="hierarchies" className="flex-1 mt-4 min-h-0">
@@ -29,6 +31,10 @@ const Admin = () => {
         
         <TabsContent value="service-types" className="flex-1 mt-4 min-h-0">
           <ServiceTypeManagement />
+        </TabsContent>
+        
+        <TabsContent value="services" className="flex-1 mt-4 min-h-0">
+          <ServiceManagement />
         </TabsContent>
       </Tabs>
     </div>
