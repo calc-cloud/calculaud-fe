@@ -46,7 +46,8 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  const toggleExpanded = (nodeId: string) => {
+  const toggleExpanded = (nodeId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click when clicking expand/collapse
     const newExpandedNodes = new Set(expandedNodes);
     if (newExpandedNodes.has(nodeId)) {
       newExpandedNodes.delete(nodeId);
@@ -110,11 +111,12 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         <div 
           className="flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer"
           style={{ paddingLeft: `${paddingLeft + 8}px` }}
+          onClick={() => handleSelect(node.id)}
         >
           {hasChildren ? (
             <div 
               className="flex items-center mr-2"
-              onClick={() => toggleExpanded(node.id)}
+              onClick={(e) => toggleExpanded(node.id, e)}
             >
               {isExpanded ? (
                 <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -128,7 +130,6 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           
           <Checkbox
             checked={selectedIds.includes(node.id)}
-            onCheckedChange={() => handleSelect(node.id)}
             className="mr-2"
           />
           
