@@ -102,7 +102,7 @@ export const usePurposeData = () => {
       return purposeService.getPurposes(mainApiParams);
     },
     staleTime: 0, // Always consider data stale
-    cacheTime: 0, // Don't cache data
+    gcTime: 0, // Don't cache data (renamed from cacheTime)
     refetchOnMount: 'always', // Always refetch when component mounts
     refetchOnWindowFocus: false, // Don't refetch on window focus
   });
