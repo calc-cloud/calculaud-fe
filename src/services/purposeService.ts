@@ -1,3 +1,4 @@
+
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -219,7 +220,7 @@ class PurposeService {
       mapped.comments = purposeData.comments.trim();
     }
 
-    // Map EMFs if provided - Fixed field mapping with proper creation_time
+    // Map EMFs if provided - Fixed field mapping
     if (purposeData.emfs && purposeData.emfs.length > 0) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
@@ -229,7 +230,6 @@ class PurposeService {
         demand_creation_date: emf.demand_creation_date || undefined,
         bikushit_id: emf.bikushit_id || undefined,
         bikushit_creation_date: emf.bikushit_creation_date || undefined,
-        creation_time: emf.creation_date ? new Date(emf.creation_date).toISOString() : new Date().toISOString(),
         costs: emf.costs.map((cost: any) => ({
           currency: cost.currency,
           amount: cost.amount
@@ -269,7 +269,7 @@ class PurposeService {
       mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
 
-    // Map EMFs - Fixed field mapping with proper creation_time
+    // Map EMFs - Fixed field mapping
     if (purposeData.emfs !== undefined) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
@@ -279,7 +279,6 @@ class PurposeService {
         demand_creation_date: emf.demand_creation_date || undefined,
         bikushit_id: emf.bikushit_id || undefined,
         bikushit_creation_date: emf.bikushit_creation_date || undefined,
-        creation_time: emf.creation_date ? new Date(emf.creation_date).toISOString() : new Date().toISOString(),
         costs: emf.costs.map((cost: any) => ({
           currency: cost.currency,
           amount: cost.amount

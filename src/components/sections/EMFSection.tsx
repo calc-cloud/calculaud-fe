@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -168,12 +169,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 )}
               </div>
             </div>
-            {/* Display EMF creation date in header */}
-            {(emf.creation_time || emf.creation_date) && (
-              <div className="text-sm text-muted-foreground">
-                Created: {formatDate(emf.creation_time || emf.creation_date)}
-              </div>
-            )}
           </CardHeader>
 
           {expandedEMF === index && (
@@ -199,9 +194,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     disabled={isReadOnly}
                     className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
                   />
-                  {(emf.creation_time || emf.creation_date) && (
+                  {emf.creation_date && (
                     <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.creation_time || emf.creation_date)} days ago
+                      {calculateDaysSince(emf.creation_date)} days ago
                     </span>
                   )}
                 </div>

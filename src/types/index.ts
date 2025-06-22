@@ -22,7 +22,6 @@ export interface EMF {
   id: string;
   purpose_id: string;
   creation_date: string;
-  creation_time?: string; // Add creation_time from API response
   demand_id?: string;
   demand_creation_date?: string;
   order_id?: string;
