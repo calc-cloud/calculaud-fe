@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -174,27 +175,27 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
             <CardContent className="space-y-4">
               {/* EMF ID and Creation Date */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>EMF ID <span className="text-red-500">*</span></Label>
                   <Input
                     value={emf.id}
                     onChange={(e) => updateEMF(index, { id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter EMF ID"
-                    className={`text-center ${!emf.id?.trim() && !isReadOnly ? 'border-red-300' : ''}`}
+                    className={!emf.id?.trim() && !isReadOnly ? 'border-red-300' : ''}
                   />
                 </div>
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Creation Date <span className="text-red-500">*</span></Label>
                   <Input
                     type="date"
                     value={emf.creation_date}
                     onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
                     disabled={isReadOnly}
-                    className={`text-center ${!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}`}
+                    className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
                   />
                   {emf.creation_date && (
-                    <span className="text-xs text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.creation_date)} days ago
                     </span>
                   )}
@@ -203,27 +204,25 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
               {/* Bikushit Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Bikushit ID</Label>
                   <Input
                     value={emf.bikushit_id || ''}
                     onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter bikushit ID"
-                    className="text-center"
                   />
                 </div>
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Bikushit Creation Date</Label>
                   <Input
                     type="date"
                     value={emf.bikushit_creation_date || ''}
                     onChange={(e) => updateEMF(index, { bikushit_creation_date: e.target.value })}
                     disabled={isReadOnly}
-                    className="text-center"
                   />
                   {emf.bikushit_creation_date && (
-                    <span className="text-xs text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
                     </span>
                   )}
@@ -232,27 +231,25 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
               {/* Demand Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Demand ID</Label>
                   <Input
                     value={emf.demand_id || ''}
                     onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter demand ID"
-                    className="text-center"
                   />
                 </div>
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Demand Creation Date</Label>
                   <Input
                     type="date"
                     value={emf.demand_creation_date || ''}
                     onChange={(e) => updateEMF(index, { demand_creation_date: e.target.value })}
                     disabled={isReadOnly}
-                    className="text-center"
                   />
                   {emf.demand_creation_date && (
-                    <span className="text-xs text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.demand_creation_date)} days since demand
                     </span>
                   )}
@@ -261,27 +258,25 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
               {/* Order Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Order ID</Label>
                   <Input
                     value={emf.order_id || ''}
                     onChange={(e) => updateEMF(index, { order_id: e.target.value })}
                     disabled={isReadOnly}
                     placeholder="Enter order ID"
-                    className="text-center"
                   />
                 </div>
-                <div className="space-y-2 text-center">
+                <div className="space-y-2">
                   <Label>Order Creation Date</Label>
                   <Input
                     type="date"
                     value={emf.order_creation_date || ''}
                     onChange={(e) => updateEMF(index, { order_creation_date: e.target.value })}
                     disabled={isReadOnly}
-                    className="text-center"
                   />
                   {emf.order_creation_date && (
-                    <span className="text-xs text-muted-foreground block">
+                    <span className="text-xs text-muted-foreground">
                       {calculateDaysSince(emf.order_creation_date)} days since order
                     </span>
                   )}
@@ -307,14 +302,14 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
 
                 <div className={emf.costs.length === 0 && !isReadOnly ? 'border border-red-300 rounded p-2' : ''}>
                   {emf.costs.map((cost) => (
-                    <div key={cost.id} className="flex items-center justify-center gap-2 p-2 border rounded mb-2 last:mb-0">
+                    <div key={cost.id} className="flex items-center gap-2 p-2 border rounded mb-2 last:mb-0">
                       <Input
                         type="number"
                         placeholder="Amount"
                         value={cost.amount}
                         onChange={(e) => updateCost(index, cost.id, { amount: Number(e.target.value) })}
                         disabled={isReadOnly}
-                        className="w-32 text-center"
+                        className="w-32"
                       />
                       <Select
                         value={cost.currency}
@@ -345,7 +340,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   ))}
 
                   {emf.costs.length === 0 && (
-                    <p className="text-muted-foreground text-xs p-2 text-center">
+                    <p className="text-muted-foreground text-xs p-2">
                       {isReadOnly ? 'No costs added yet.' : 'Please add at least one cost.'}
                     </p>
                   )}
