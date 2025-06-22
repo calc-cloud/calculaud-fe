@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -125,13 +126,47 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   };
 
   const getContentDisplay = (purpose: Purpose) => {
-    if (!purpose.contents || purpose.contents.length === 0) {
+    console.log('=== DEBUG: getContentDisplay ===');
+    console.log('Purpose ID:', purpose.id);
+    console.log('Purpose description:', purpose.description);
+    console.log('Purpose contents:', purpose.contents);
+    console.log('Contents type:', typeof purpose.contents);
+    console.log('Contents is array:', Array.isArray(purpose.contents));
+    
+    if (!purpose.contents) {
+      console.log('No contents property found');
       return 'No content';
     }
     
-    return purpose.contents.map(content => 
-      `${content.quantity} * ${content.service_name}`
-    ).join('\n');
+    if (!Array.isArray(purpose.contents)) {
+      console.log('Contents is not an array:', purpose.contents);
+      return 'No content';
+    }
+    
+    if (purpose.contents.length === 0) {
+      console.log('Contents array is empty');
+      return 'No content';
+    }
+    
+    const contentLines = purpose.contents.map(content => {
+      console.log('Processing content item:', content);
+      console.log('Content properties:', {
+        service_id: content.service_id,
+        quantity: content.quantity,
+        id: content.id,
+        service_name: content.service_name,
+        service_type: content.service_type
+      });
+      
+      return `${content.quantity} * ${content.service_name}`;
+    });
+    
+    console.log('Generated content lines:', contentLines);
+    const result = contentLines.join('\n');
+    console.log('Final result:', result);
+    console.log('=== END DEBUG ===');
+    
+    return result;
   };
 
   if (isLoading) {
