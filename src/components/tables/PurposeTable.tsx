@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
+import { CURRENCY_DISPLAY_NAMES } from '@/utils/constants';
 
 interface PurposeTableProps {
   purposes: Purpose[];
@@ -57,7 +58,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     );
 
     const costDetails = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${formatAmount(amount)} ${currency}`
+      ([currency, amount]) => `${formatAmount(amount)} ${CURRENCY_DISPLAY_NAMES[currency as keyof typeof CURRENCY_DISPLAY_NAMES] || currency}`
     );
 
     return {

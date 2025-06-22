@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, Trash2 } from 'lucide-react';
 import { EMF, EMFCost } from '@/types';
 import { formatDate, calculateDaysSince, getTodayString } from '@/utils/dateUtils';
-import { CURRENCIES } from '@/utils/constants';
+import { CURRENCIES, CURRENCY_DISPLAY_NAMES } from '@/utils/constants';
 
 interface EMFSectionProps {
   emfs: EMF[];
@@ -361,7 +361,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                         <SelectContent className="bg-white z-50">
                           {CURRENCIES.map((currency) => (
                             <SelectItem key={currency} value={currency}>
-                              {currency}
+                              {CURRENCY_DISPLAY_NAMES[currency]}
                             </SelectItem>
                           ))}
                         </SelectContent>
