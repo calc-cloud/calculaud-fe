@@ -172,7 +172,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 <TableRow 
                   key={purpose.id} 
                   onClick={() => handleRowClick(purpose)}
-                  className="cursor-pointer hover:bg-muted/50 h-16"
+                  className="cursor-pointer hover:bg-muted/50 h-20"
                 >
                   <TableCell className="font-medium w-32 align-top">
                     <div className="line-clamp-2 text-sm leading-tight">
@@ -214,7 +214,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       <TooltipTrigger asChild>
                         <div className="flex flex-col gap-0.5">
                           {emfIds.ids.length > 0 ? (
-                            emfIds.ids.slice(0, 3).map((id, index) => (
+                            emfIds.ids.slice(0, 2).map((id, index) => (
                               <div key={index} className="text-sm truncate">
                                 {id}
                               </div>
@@ -222,9 +222,9 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                           ) : (
                             <div className="text-sm text-muted-foreground">None</div>
                           )}
-                          {emfIds.ids.length > 3 && (
+                          {emfIds.ids.length > 2 && (
                             <div className="text-xs text-muted-foreground">
-                              +{emfIds.ids.length - 3} more
+                              +{emfIds.ids.length - 2} more
                             </div>
                           )}
                         </div>
