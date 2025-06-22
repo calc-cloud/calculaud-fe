@@ -330,6 +330,7 @@ class PurposeService {
       id: purpose.id.toString(),
       description: purpose.description,
       content: purpose.content,
+      contents: this.parseContentToContents(purpose.content), // Transform content string to contents array
       supplier: purpose.supplier,
       hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
       hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',
@@ -365,6 +366,40 @@ class PurposeService {
       page: apiData.page,
       pages: apiData.pages
     };
+  }
+
+  // Parse content string into contents array format
+  private parseContentToContents(content: string): any[] {
+    if (!content || typeof content !== 'string') {
+      return [];
+    }
+
+    // For now, create a simple mapping from the content string
+    // This is a temporary solution until the API provides proper contents array
+    const lines = content.split('\n').filter(line => line.trim());
+    
+    return lines.map((line, index) => {
+      // Try to parse patterns like "2 * Service Name" or just use the line as service name
+      const quantityMatch = line.match(/^(\d+)\s*\*\s*(.+)$/);
+      
+      if (quantityMatch) {
+        return {
+          service_id: index + 1,
+          quantity: parseInt(quantityMatch[1]),
+          id: index + 1,
+          service_name: quantityMatch[2].trim(),
+          service_type: 'General' // Default service type
+        };
+      } else {
+        return {
+          service_id: index + 1,
+          quantity: 1,
+          id: index + 1,
+          service_name: line.trim(),
+          service_type: 'General' // Default service type
+        };
+      }
+    });
   }
 
   private getHierarchyName(hierarchyId: number | null, hierarchies: any[]): string {
