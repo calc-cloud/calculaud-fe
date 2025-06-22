@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PurposeTable } from '@/components/tables/PurposeTable';
@@ -74,6 +75,9 @@ const Search: React.FC = () => {
     isLoading,
     error
   } = usePurposeData(getInitialFilters(), getInitialSortConfig(), getInitialPage());
+
+  // Get mutation functions
+  const { createPurpose, updatePurpose, deletePurpose } = usePurposeMutations();
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
