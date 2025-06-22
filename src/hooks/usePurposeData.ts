@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
@@ -18,15 +17,19 @@ export const usePurposeData = () => {
 
   // Build multiple API queries for multiple filter combinations when needed
   const apiQueries = useMemo(() => {
+    console.log(`=== usePurposeData.apiQueries useMemo ===`);
+    console.log(`Current filters:`, filters);
+    console.log(`Available data - hierarchies:`, hierarchies.length, `suppliers:`, suppliers.length, `serviceTypes:`, serviceTypes.length);
+    
     // If we have multiple service types, suppliers, or hierarchies, we need to make separate requests
-    const serviceTypes = filters.service_type || [];
-    const suppliers = filters.supplier || [];
+    const serviceTypes_filter = filters.service_type || [];
+    const suppliers_filter = filters.supplier || [];
     const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : []);
     
     // For now, let's handle one filter type at a time properly
     // If multiple service types are selected, make separate requests for each
-    if (serviceTypes.length > 1) {
-      return serviceTypes.map(serviceType => {
+    if (serviceTypes_filter.length > 1) {
+      return serviceTypes_filter.map(serviceType => {
         const singleTypeFilters = { ...filters, service_type: [serviceType] };
         return purposeService.mapFiltersToApiParams(
           singleTypeFilters,
@@ -41,8 +44,8 @@ export const usePurposeData = () => {
     }
     
     // If multiple suppliers are selected, make separate requests for each
-    if (suppliers.length > 1) {
-      return suppliers.map(supplier => {
+    if (suppliers_filter.length > 1) {
+      return suppliers_filter.map(supplier => {
         const singleSupplierFilters = { ...filters, supplier: [supplier] };
         return purposeService.mapFiltersToApiParams(
           singleSupplierFilters,
@@ -73,7 +76,7 @@ export const usePurposeData = () => {
     }
     
     // Default single request
-    return [purposeService.mapFiltersToApiParams(
+    const apiParams = purposeService.mapFiltersToApiParams(
       filters,
       sortConfig,
       currentPage,
@@ -81,7 +84,10 @@ export const usePurposeData = () => {
       hierarchies,
       suppliers,
       serviceTypes
-    )];
+    );
+    
+    console.log(`Generated API params:`, apiParams);
+    return [apiParams];
   }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes]);
 
   // Use the first query params for the main query (we'll improve this later)
@@ -96,6 +102,8 @@ export const usePurposeData = () => {
   } = useQuery({
     queryKey: ['purposes', mainApiParams],
     queryFn: () => {
+      console.log(`=== usePurposeData.queryFn ===`);
+      console.log(`Making API request with params:`, mainApiParams);
       return purposeService.getPurposes(mainApiParams);
     },
     staleTime: 0, // Always consider data stale
@@ -106,6 +114,9 @@ export const usePurposeData = () => {
 
   // Transform API response to match frontend structure
   const { purposes, filteredPurposes, totalPages, totalCount } = useMemo(() => {
+    console.log(`=== usePurposeData.transform useMemo ===`);
+    console.log(`API response:`, apiResponse);
+    
     if (!apiResponse) {
       return {
         purposes: [],
@@ -116,6 +127,12 @@ export const usePurposeData = () => {
     }
 
     const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+    
+    console.log(`Transformed data:`, {
+      purposesCount: transformed.purposes.length,
+      totalPages: transformed.pages,
+      totalCount: transformed.total
+    });
     
     return {
       purposes: transformed.purposes,
@@ -143,6 +160,10 @@ export const usePurposeData = () => {
 
   // Reset to first page when filters or sorting change
   const handleFiltersChange = (newFilters: PurposeFilters) => {
+    console.log(`=== usePurposeData.handleFiltersChange ===`);
+    console.log(`Previous filters:`, filters);
+    console.log(`New filters:`, newFilters);
+    
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page
   };
