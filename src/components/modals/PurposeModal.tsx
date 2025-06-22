@@ -463,7 +463,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               handleFieldChange('emfs', [...(formData.emfs || []), newEMF]);
             }} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
-                  Add EMF
+                  הוסף רכש
                 </Button>}
               <div className="text-right">
                 <h3 className="text-lg font-semibold">רכישות</h3>
