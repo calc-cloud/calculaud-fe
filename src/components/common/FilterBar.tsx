@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -101,94 +102,102 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </div>
 
       {/* Filter Controls */}
-      <div className="flex flex-wrap gap-3">
+      <div className="flex items-center gap-3 overflow-x-auto">
         {/* Hierarchy Selector */}
-        <HierarchySelector
-          hierarchies={hierarchies}
-          selectedIds={Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : [])}
-          onSelectionChange={(selectedIds) => 
-            updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds : undefined)
-          }
-        />
+        <div className="flex-shrink-0 min-w-[200px]">
+          <HierarchySelector
+            hierarchies={hierarchies}
+            selectedIds={Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : [])}
+            onSelectionChange={(selectedIds) => 
+              updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds : undefined)
+            }
+          />
+        </div>
 
         {/* Service Type Multi-Select */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-              {isLoading ? 'Loading...' : getServiceTypeLabel()}
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
-            {serviceTypes.map((type) => (
-              <DropdownMenuItem
-                key={type.id}
-                className="flex items-center space-x-2 cursor-pointer"
-                onSelect={(e) => e.preventDefault()}
-              >
-                <Checkbox
-                  checked={(filters.service_type || []).includes(type.name as any)}
-                  onCheckedChange={() => toggleServiceType(type.name)}
-                />
-                <span>{type.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+                {isLoading ? 'Loading...' : getServiceTypeLabel()}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
+              {serviceTypes.map((type) => (
+                <DropdownMenuItem
+                  key={type.id}
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Checkbox
+                    checked={(filters.service_type || []).includes(type.name as any)}
+                    onCheckedChange={() => toggleServiceType(type.name)}
+                  />
+                  <span>{type.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Status Multi-Select */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[140px] justify-between">
-              {getStatusLabel()}
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
-            {PURPOSE_STATUSES.map((status) => (
-              <DropdownMenuItem
-                key={status}
-                className="flex items-center space-x-2 cursor-pointer"
-                onSelect={(e) => e.preventDefault()}
-              >
-                <Checkbox
-                  checked={(filters.status || []).includes(status as any)}
-                  onCheckedChange={() => toggleStatus(status)}
-                />
-                <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
-                  {status}
-                </Badge>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[140px] justify-between">
+                {getStatusLabel()}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
+              {PURPOSE_STATUSES.map((status) => (
+                <DropdownMenuItem
+                  key={status}
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Checkbox
+                    checked={(filters.status || []).includes(status as any)}
+                    onCheckedChange={() => toggleStatus(status)}
+                  />
+                  <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
+                    {status}
+                  </Badge>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
         {/* Supplier Multi-Select Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-              {isLoading ? 'Loading...' : getSupplierLabel()}
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
-            {suppliers.map((supplier) => (
-              <DropdownMenuItem
-                key={supplier.id}
-                className="flex items-center space-x-2 cursor-pointer"
-                onSelect={(e) => e.preventDefault()}
-              >
-                <Checkbox
-                  checked={(filters.supplier || []).includes(supplier.name as any)}
-                  onCheckedChange={() => toggleSupplier(supplier.name)}
-                />
-                <span className="truncate">{supplier.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+                {isLoading ? 'Loading...' : getSupplierLabel()}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
+              {suppliers.map((supplier) => (
+                <DropdownMenuItem
+                  key={supplier.id}
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Checkbox
+                    checked={(filters.supplier || []).includes(supplier.name as any)}
+                    onCheckedChange={() => toggleSupplier(supplier.name)}
+                  />
+                  <span className="truncate">{supplier.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
 
-        <div className="flex items-center gap-2 ml-auto">
+        <div className="flex items-center gap-2 ml-auto flex-shrink-0">
           {activeFiltersCount > 0 && (
             <Button variant="outline" size="sm" onClick={clearFilters}>
               <X className="h-4 w-4 mr-1" />
