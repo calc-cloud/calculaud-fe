@@ -466,7 +466,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                   Add EMF
                 </Button>}
               <div className="text-right">
-                <h3 className="text-lg font-semibold">פרטי רכש</h3>
+                <h3 className="text-lg font-semibold">רכישות</h3>
               </div>
             </div>
             <EMFSection emfs={formData.emfs || []} onEMFsChange={emfs => handleFieldChange('emfs', emfs)} isReadOnly={isReadOnly} hideAddButton={true} />
