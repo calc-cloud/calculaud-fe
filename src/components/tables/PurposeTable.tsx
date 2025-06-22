@@ -59,13 +59,13 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 
     const costDetails = Object.entries(costsByCurrency).map(
       ([currency, amount]) => `${formatAmount(amount)} ${CURRENCY_DISPLAY_NAMES[currency as keyof typeof CURRENCY_DISPLAY_NAMES] || currency}`
-    ).join('\n');
+    );
 
     const allCosts = costStrings.join(', ') || '0';
 
     return {
       display: costStrings,
-      details: costDetails || '0',
+      details: costDetails,
       allCosts
     };
   };
@@ -257,7 +257,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{totalCost.details}</p>
+                        <div className="flex flex-col">
+                          {totalCost.details.map((detail, index) => (
+                            <div key={index}>{detail}</div>
+                          ))}
+                        </div>
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
