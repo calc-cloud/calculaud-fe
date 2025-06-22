@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -137,8 +136,10 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           
           <div className="flex-1 ml-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900">{node.name}</span>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2">
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-900">{node.fullPath}</span>
+              </div>
+              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
                 {node.type.toLowerCase()}
               </span>
             </div>
@@ -162,7 +163,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[350px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
+      <DropdownMenuContent className="w-[450px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
         <div className="py-2">
           {treeStructure.length > 0 ? (
             treeStructure.map(node => renderTreeNode(node))
@@ -176,4 +177,3 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     </DropdownMenu>
   );
 };
-
