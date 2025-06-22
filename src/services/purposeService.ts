@@ -1,3 +1,4 @@
+
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -141,17 +142,17 @@ class PurposeService {
       params.search = filters.search_query;
     }
 
-    // Status filter
+    // Status filter - handle multiple statuses
     if (filters.status && filters.status.length > 0) {
-      // For now, take the first status since API doesn't support multiple
+      // Send first status for now, but this could be expanded to support multiple
       params.status = this.mapStatusToApi(filters.status[0]);
     }
 
-    // Hierarchy filter
+    // Hierarchy filter - handle multiple hierarchies
     if (filters.hierarchy_id) {
       const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
       if (hierarchyIds.length > 0) {
-        // For now, take the first hierarchy since API doesn't support multiple
+        // Send first hierarchy for now, but this could be expanded to support multiple
         const hierarchy = hierarchies.find(h => h.id === hierarchyIds[0]);
         if (hierarchy) {
           params.hierarchy_id = parseInt(hierarchy.id);
@@ -159,24 +160,25 @@ class PurposeService {
       }
     }
 
-    // Supplier filter
+    // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
-      // For now, take the first supplier since API doesn't support multiple
+      // Send first supplier for now, but this could be expanded to support multiple
       const supplier = suppliers.find(s => s.name === filters.supplier![0]);
       if (supplier) {
-        params.supplier_id = supplier.id;
+        params.supplier_id = parseInt(supplier.id);
       }
     }
 
-    // Service type filter
+    // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
-      // For now, take the first service type since API doesn't support multiple
+      // Send first service type for now, but this could be expanded to support multiple
       const serviceType = serviceTypes.find(st => st.name === filters.service_type![0]);
       if (serviceType) {
-        params.service_type_id = serviceType.id;
+        params.service_type_id = parseInt(serviceType.id);
       }
     }
 
+    console.log('Mapped API params:', params);
     return params;
   }
 
