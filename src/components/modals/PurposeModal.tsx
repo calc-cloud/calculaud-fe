@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -445,6 +446,26 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
+            <Select
+              value={formData.selectedServiceType?.id.toString() || ''}
+              onValueChange={handleServiceTypeChange}
+              disabled={isReadOnly || serviceTypesLoading}
+            >
+              <SelectTrigger className={!formData.selectedServiceType && !isReadOnly ? 'border-red-300' : ''}>
+                <SelectValue placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"} />
+              </SelectTrigger>
+              <SelectContent>
+                {serviceTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id.toString()}>
+                    {type.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="content">Content <span className="text-red-500">*</span></Label>
             <Textarea
               id="content"
@@ -457,47 +478,27 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="hierarchy_name">Hierarchy</Label>
-            {isReadOnly ? (
-              <Input
-                id="hierarchy_name"
-                value={formData.hierarchy_name || ''}
-                disabled={true}
-              />
-            ) : (
-              <div className="space-y-1">
-                <HierarchySelector
-                  hierarchies={transformedHierarchies}
-                  selectedIds={selectedHierarchyIds}
-                  onSelectionChange={handleHierarchyChange}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Select only one organizational unit
-                </p>
-              </div>
-            )}
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
-              <Select
-                value={formData.selectedServiceType?.id.toString() || ''}
-                onValueChange={handleServiceTypeChange}
-                disabled={isReadOnly || serviceTypesLoading}
-              >
-                <SelectTrigger className={!formData.selectedServiceType && !isReadOnly ? 'border-red-300' : ''}>
-                  <SelectValue placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {serviceTypes.map((type) => (
-                    <SelectItem key={type.id} value={type.id.toString()}>
-                      {type.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="hierarchy_name">Hierarchy</Label>
+              {isReadOnly ? (
+                <Input
+                  id="hierarchy_name"
+                  value={formData.hierarchy_name || ''}
+                  disabled={true}
+                />
+              ) : (
+                <div className="space-y-1">
+                  <HierarchySelector
+                    hierarchies={transformedHierarchies}
+                    selectedIds={selectedHierarchyIds}
+                    onSelectionChange={handleHierarchyChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Select only one organizational unit
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -593,3 +594,4 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     </Dialog>
   );
 };
+
