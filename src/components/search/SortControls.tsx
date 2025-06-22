@@ -39,7 +39,7 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
         <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">Sort by:</span>
         <Select value={sortConfig.field} onValueChange={handleFieldChange}>
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48 border-0 shadow-none">
             <SelectValue placeholder="Select sort field" />
           </SelectTrigger>
           <SelectContent>
@@ -49,10 +49,10 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
           </SelectContent>
         </Select>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={handleDirectionToggle}
-          className="h-10 w-10 p-0"
+          className="h-10 w-10 p-0 border"
           title={sortConfig.direction === 'desc' ? 'Newest first' : 'Oldest first'}
         >
           {sortConfig.direction === 'desc' ? (
