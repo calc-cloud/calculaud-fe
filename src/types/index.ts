@@ -4,7 +4,6 @@ export interface Purpose {
   id: string;
   description: string;
   content: string;
-  contents: PurposeContent[];
   supplier: string;
   hierarchy_id: string;
   hierarchy_name: string;
@@ -16,14 +15,6 @@ export interface Purpose {
   last_modified: string;
   emfs: EMF[];
   files: PurposeFile[];
-}
-
-export interface PurposeContent {
-  service_id: number;
-  quantity: number;
-  id: number;
-  service_name: string;
-  service_type: string;
 }
 
 export interface EMF {
