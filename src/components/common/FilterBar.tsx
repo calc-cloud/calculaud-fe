@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -127,17 +126,17 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
               {serviceTypes.map((type) => (
-                <DropdownMenuItem
+                <div
                   key={type.id}
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleServiceType(type.name)}
                 >
                   <Checkbox
                     checked={(filters.service_type || []).includes(type.name as any)}
-                    onCheckedChange={() => toggleServiceType(type.name)}
+                    readOnly
                   />
                   <span>{type.name}</span>
-                </DropdownMenuItem>
+                </div>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -154,19 +153,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
               {PURPOSE_STATUSES.map((status) => (
-                <DropdownMenuItem
+                <div
                   key={status}
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleStatus(status)}
                 >
                   <Checkbox
                     checked={(filters.status || []).includes(status as any)}
-                    onCheckedChange={() => toggleStatus(status)}
+                    readOnly
                   />
                   <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
                     {status}
                   </Badge>
-                </DropdownMenuItem>
+                </div>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -183,22 +182,23 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
               {suppliers.map((supplier) => (
-                <DropdownMenuItem
+                <div
                   key={supplier.id}
-                  className="flex items-center space-x-2 cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleSupplier(supplier.name)}
                 >
                   <Checkbox
                     checked={(filters.supplier || []).includes(supplier.name as any)}
-                    onCheckedChange={() => toggleSupplier(supplier.name)}
+                    readOnly
                   />
                   <span className="truncate">{supplier.name}</span>
-                </DropdownMenuItem>
+                </div>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
+        
         <div className="flex items-center gap-2 ml-auto flex-shrink-0">
           {activeFiltersCount > 0 && (
             <Button variant="outline" size="sm" onClick={clearFilters} className="focus-visible:outline-none">
@@ -213,7 +213,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         </div>
       </div>
 
-      {/* Active Filters Display */}
+      
       {activeFiltersCount > 0 && (
         <div className="flex flex-wrap gap-2">
           {filters.service_type && filters.service_type.length > 0 && (
