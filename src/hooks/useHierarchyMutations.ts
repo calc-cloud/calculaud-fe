@@ -19,7 +19,6 @@ export const useCreateHierarchy = () => {
       });
     },
     onError: (error: Error) => {
-      console.error('Create hierarchy error:', error);
       toast({
         title: "Failed to create hierarchy",
         description: error.message || "An error occurred while creating the hierarchy.",
@@ -45,7 +44,6 @@ export const useUpdateHierarchy = () => {
       });
     },
     onError: (error: Error) => {
-      console.error('Update hierarchy error:', error);
       toast({
         title: "Failed to update hierarchy",
         description: error.message || "An error occurred while updating the hierarchy.",
@@ -70,7 +68,6 @@ export const useDeleteHierarchy = () => {
       });
     },
     onError: (error: Error) => {
-      console.error('Delete hierarchy error:', error);
       toast({
         title: "Failed to delete hierarchy",
         description: error.message || "An error occurred while deleting the hierarchy.",
