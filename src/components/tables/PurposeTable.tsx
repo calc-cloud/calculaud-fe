@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
+import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface PurposeTableProps {
   purposes: Purpose[];
@@ -21,6 +21,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   onDelete,
   isLoading = false
 }) => {
+  const { hierarchies } = useAdminData();
+
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
     
@@ -70,6 +72,31 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     // Split by common separators and return the last part
     const parts = hierarchyName.split(/[>/\\-]/).map(part => part.trim()).filter(part => part.length > 0);
     return parts.length > 0 ? parts[parts.length - 1] : hierarchyName;
+  };
+
+  const getHierarchyInfo = (purpose: Purpose) => {
+    // Find the hierarchy from the admin data using the hierarchy_id
+    const hierarchy = hierarchies.find(h => h.id === purpose.hierarchy_id?.toString());
+    
+    if (hierarchy) {
+      return {
+        displayName: getLastHierarchyLevel(hierarchy.fullPath),
+        fullPath: hierarchy.fullPath
+      };
+    }
+    
+    // Fallback to the hierarchy_name if available
+    if (purpose.hierarchy_name) {
+      return {
+        displayName: getLastHierarchyLevel(purpose.hierarchy_name),
+        fullPath: purpose.hierarchy_name
+      };
+    }
+
+    return {
+      displayName: 'N/A',
+      fullPath: 'No hierarchy assigned'
+    };
   };
 
   const getStatusDisplay = (status: string) => {
@@ -131,6 +158,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
           <TableBody>
             {purposes.map((purpose) => {
               const totalCost = getTotalCostWithCurrencies(purpose);
+              const hierarchyInfo = getHierarchyInfo(purpose);
               return (
                 <TableRow 
                   key={purpose.id} 
@@ -152,11 +180,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
-                          {getLastHierarchyLevel(purpose.hierarchy_name)}
+                          {hierarchyInfo.displayName}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{purpose.hierarchy_name}</p>
+                        <p>{hierarchyInfo.fullPath}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
