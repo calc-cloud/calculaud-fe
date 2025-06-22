@@ -158,12 +158,19 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="w-[280px] justify-between text-left">
+        <Button variant="outline" className="w-full justify-between text-left">
           <span className="truncate">{getLabel()}</span>
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[450px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
+      <DropdownMenuContent 
+        className="w-[420px] max-h-[300px] overflow-y-auto bg-white border shadow-lg z-50 p-0"
+        align="start" 
+        side="bottom"
+        sideOffset={4}
+        avoidCollisions={true}
+        collisionPadding={10}
+      >
         <div className="py-2">
           {treeStructure.length > 0 ? (
             treeStructure.map(node => renderTreeNode(node))
