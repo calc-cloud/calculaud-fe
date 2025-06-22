@@ -1,3 +1,4 @@
+
 import { Purpose } from '@/types';
 
 export const mockPurposes: Purpose[] = [
@@ -5,6 +6,22 @@ export const mockPurposes: Purpose[] = [
     id: '1',
     description: 'Software Development Services',
     content: 'Development of procurement management system with React and TypeScript',
+    contents: [
+      {
+        service_id: 1,
+        quantity: 1,
+        id: 1,
+        service_name: 'React Development',
+        service_type: 'Software'
+      },
+      {
+        service_id: 2,
+        quantity: 2,
+        id: 2,
+        service_name: 'TypeScript Integration',
+        service_type: 'Software'
+      }
+    ],
     supplier: 'TechCorp Solutions',
     hierarchy_id: 'H001',
     hierarchy_name: 'IT Department',
@@ -39,6 +56,22 @@ export const mockPurposes: Purpose[] = [
     id: '2',
     description: 'Hardware Procurement',
     content: 'Purchase of new servers and networking equipment for data center upgrade',
+    contents: [
+      {
+        service_id: 3,
+        quantity: 5,
+        id: 3,
+        service_name: 'Dell PowerEdge Servers',
+        service_type: 'Hardware'
+      },
+      {
+        service_id: 4,
+        quantity: 10,
+        id: 4,
+        service_name: 'Network Switches',
+        service_type: 'Hardware'
+      }
+    ],
     supplier: 'Hardware Plus Inc',
     hierarchy_id: 'H002',
     hierarchy_name: 'Infrastructure',
@@ -54,6 +87,22 @@ export const mockPurposes: Purpose[] = [
     id: '3',
     description: 'Consulting Services',
     content: 'Business process optimization and digital transformation consulting',
+    contents: [
+      {
+        service_id: 5,
+        quantity: 1,
+        id: 5,
+        service_name: 'Process Optimization',
+        service_type: 'Consulting'
+      },
+      {
+        service_id: 6,
+        quantity: 1,
+        id: 6,
+        service_name: 'Digital Transformation',
+        service_type: 'Consulting'
+      }
+    ],
     supplier: 'Strategic Advisors LLC',
     hierarchy_id: 'H003',
     hierarchy_name: 'Operations',
