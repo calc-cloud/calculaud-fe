@@ -21,8 +21,10 @@ import { useHierarchies } from '@/hooks/useHierarchies';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useServiceTypes } from '@/hooks/useServiceTypes';
 import { useToast } from '@/hooks/use-toast';
+import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { Supplier } from '@/types/suppliers';
 import { ServiceType } from '@/types/serviceTypes';
+import { Hierarchy } from '@/types/hierarchies';
 
 interface PurposeModalProps {
   isOpen: boolean;
@@ -71,6 +73,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     files: []
   });
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date>();
+  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<string[]>([]);
 
   const isReadOnly = mode === 'view';
   const isEditing = mode === 'edit';
@@ -80,6 +83,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   const hierarchies = hierarchiesData?.items || [];
   const suppliers = suppliersData?.items || [];
   const serviceTypes = serviceTypesData?.items || [];
+
+  // Transform hierarchies for HierarchySelector
+  const transformedHierarchies = hierarchies.map((hierarchy: Hierarchy) => ({
+    id: hierarchy.id.toString(),
+    type: hierarchy.type as 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team',
+    name: hierarchy.name,
+    parentId: hierarchy.parent_id?.toString(),
+    fullPath: hierarchy.path
+  }));
 
   // Initialize form data when purpose changes
   useEffect(() => {
@@ -93,6 +105,14 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         selectedSupplier,
         selectedServiceType
       });
+      
+      // Set selected hierarchy for tree selector
+      if (purpose.hierarchy_id) {
+        setSelectedHierarchyIds([purpose.hierarchy_id]);
+      } else {
+        setSelectedHierarchyIds([]);
+      }
+      
       if (purpose.expected_delivery) {
         setExpectedDeliveryDate(new Date(purpose.expected_delivery));
       }
@@ -110,6 +130,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         emfs: [],
         files: []
       });
+      setSelectedHierarchyIds([]);
       setExpectedDeliveryDate(undefined);
     }
   }, [purpose, isOpen, suppliers, serviceTypes]);
@@ -255,12 +276,24 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     }));
   };
 
-  const handleHierarchyChange = (hierarchyName: string) => {
-    handleFieldChange('hierarchy_name', hierarchyName);
-    // Also set hierarchy_id for API mapping
-    const hierarchy = hierarchies.find(h => h.name === hierarchyName);
-    if (hierarchy) {
-      handleFieldChange('hierarchy_id', hierarchy.id.toString());
+  const handleHierarchyChange = (selectedIds: string[]) => {
+    setSelectedHierarchyIds(selectedIds);
+    
+    if (selectedIds.length > 0) {
+      const selectedHierarchy = hierarchies.find(h => h.id.toString() === selectedIds[0]);
+      if (selectedHierarchy) {
+        setFormData(prev => ({
+          ...prev,
+          hierarchy_id: selectedHierarchy.id.toString(),
+          hierarchy_name: selectedHierarchy.path
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        hierarchy_id: '',
+        hierarchy_name: ''
+      }));
     }
   };
 
@@ -430,22 +463,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                 disabled={true}
               />
             ) : (
-              <Select
-                value={formData.hierarchy_name || ''}
-                onValueChange={handleHierarchyChange}
-                disabled={hierarchiesLoading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={hierarchiesLoading ? "Loading hierarchies..." : "Select hierarchy"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {hierarchies.map((hierarchy) => (
-                    <SelectItem key={hierarchy.id} value={hierarchy.name}>
-                      {hierarchy.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <HierarchySelector
+                hierarchies={transformedHierarchies}
+                selectedIds={selectedHierarchyIds}
+                onSelectionChange={handleHierarchyChange}
+              />
             )}
           </div>
 
