@@ -562,76 +562,12 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             />
           </div>
 
-          {/* EMF Section with creation date display */}
-          <div className="space-y-4">
-            <Label className="text-base font-semibold">EMFs</Label>
-            {formData.emfs && formData.emfs.length > 0 ? (
-              <div className="space-y-4">
-                {formData.emfs.map((emf, index) => (
-                  <div key={index} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium">EMF {index + 1}</h4>
-                      <div className="text-sm text-muted-foreground">
-                        Created: {formatDate(emf.creation_date)}
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label className="text-sm font-medium">EMF ID</Label>
-                        <p className="text-sm">{emf.id || '-'}</p>
-                      </div>
-                      
-                      {emf.order_id && (
-                        <div>
-                          <Label className="text-sm font-medium">Order ID</Label>
-                          <p className="text-sm">{emf.order_id}</p>
-                        </div>
-                      )}
-                      
-                      {emf.demand_id && (
-                        <div>
-                          <Label className="text-sm font-medium">Demand ID</Label>
-                          <p className="text-sm">{emf.demand_id}</p>
-                        </div>
-                      )}
-                      
-                      {emf.bikushit_id && (
-                        <div>
-                          <Label className="text-sm font-medium">Bikushit ID</Label>
-                          <p className="text-sm">{emf.bikushit_id}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    {emf.costs && emf.costs.length > 0 && (
-                      <div>
-                        <Label className="text-sm font-medium">Costs</Label>
-                        <div className="space-y-2 mt-2">
-                          {emf.costs.map((cost, costIndex) => (
-                            <div key={costIndex} className="flex justify-between items-center bg-muted/30 rounded p-2">
-                              <span className="text-sm">{cost.currency}</span>
-                              <span className="text-sm font-medium">{cost.amount}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">No EMFs added</p>
-            )}
-            
-            {!isReadOnly && (
-              <EMFSection
-                emfs={formData.emfs || []}
-                onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
-                isReadOnly={isReadOnly}
-              />
-            )}
-          </div>
+          {/* EMF Section */}
+          <EMFSection
+            emfs={formData.emfs || []}
+            onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
+            isReadOnly={isReadOnly}
+          />
 
           {/* File Upload Section */}
           <FileUpload
