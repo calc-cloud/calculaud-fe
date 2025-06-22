@@ -24,7 +24,13 @@ export interface PurposeApiResponse {
 
 export interface Purpose {
   id: number;
-  hierarchy_id: number;
+  hierarchy?: {
+    type: string;
+    name: string;
+    parent_id: number | null;
+    id: number;
+    path: string;
+  };
   expected_delivery: string;
   comments?: string;
   status: string;
@@ -314,8 +320,8 @@ class PurposeService {
       description: purpose.description,
       content: purpose.content,
       supplier: purpose.supplier,
-      hierarchy_id: purpose.hierarchy_id ? purpose.hierarchy_id.toString() : '',
-      hierarchy_name: this.getHierarchyName(purpose.hierarchy_id, hierarchies),
+      hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
+      hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',
       status: this.mapApiStatusToFrontend(purpose.status),
       expected_delivery: purpose.expected_delivery,
       comments: purpose.comments || '',
