@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PurposeTable } from '@/components/tables/PurposeTable';
@@ -6,7 +5,6 @@ import { PurposeModal } from '@/components/modals/PurposeModal';
 import { FilterBar } from '@/components/common/FilterBar';
 import { SortControls } from '@/components/search/SortControls';
 import { ResultsSummary } from '@/components/search/ResultsSummary';
-import { TablePagination } from '@/components/tables/TablePagination';
 import { Purpose, PurposeFilters } from '@/types';
 import { SortConfig } from '@/utils/sorting';
 import { usePurposeData } from '@/hooks/usePurposeData';
@@ -220,6 +218,9 @@ const Search: React.FC = () => {
         filteredCount={totalCount}
         filters={filters}
         sortConfig={sortConfig}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
       />
 
       <PurposeTable
@@ -228,12 +229,6 @@ const Search: React.FC = () => {
         onEdit={handleEditPurpose}
         onDelete={handleDeletePurpose}
         isLoading={isLoading}
-      />
-
-      <TablePagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
       />
 
       <PurposeModal

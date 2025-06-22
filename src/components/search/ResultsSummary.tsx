@@ -3,6 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { PurposeFilters } from '@/types';
 import { SortConfig, getSortDisplayName } from '@/utils/sorting';
+import { TablePagination } from '@/components/tables/TablePagination';
 
 interface ResultsSummaryProps {
   startIndex: number;
@@ -10,6 +11,9 @@ interface ResultsSummaryProps {
   filteredCount: number;
   filters: PurposeFilters;
   sortConfig: SortConfig;
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
 export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
@@ -17,7 +21,10 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
   endIndex,
   filteredCount,
   filters,
-  sortConfig
+  sortConfig,
+  currentPage,
+  totalPages,
+  onPageChange
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -33,6 +40,14 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
         <Badge variant="outline">
           Sorted by {getSortDisplayName(sortConfig.field)} ({sortConfig.direction === 'asc' ? 'Ascending' : 'Descending'})
         </Badge>
+      </div>
+      
+      <div className="flex-shrink-0">
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     </div>
   );
