@@ -77,7 +77,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     selectedServiceType: null,
     hierarchy_id: '',
     hierarchy_name: '',
-    status: 'PENDING',
+    status: 'IN_PROGRESS',
     expected_delivery: '',
     comments: '',
     emfs: [],
@@ -132,7 +132,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         selectedServiceType: null,
         hierarchy_id: '',
         hierarchy_name: '',
-        status: 'PENDING',
+        status: 'IN_PROGRESS',
         expected_delivery: '',
         comments: '',
         emfs: [],
@@ -217,10 +217,10 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       purposeData.hierarchy_name = formData.hierarchy_name.trim();
       purposeData.hierarchy_id = formData.hierarchy_id;
     }
-    if (formData.status && formData.status !== 'PENDING') {
+    if (formData.status && formData.status !== 'IN_PROGRESS') {
       purposeData.status = formData.status;
     } else if (!formData.status) {
-      purposeData.status = 'PENDING';
+      purposeData.status = 'IN_PROGRESS';
     }
     if (expectedDeliveryDate) {
       purposeData.expected_delivery = expectedDeliveryDate.toISOString().split('T')[0];
@@ -319,8 +319,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     switch (status) {
       case 'IN_PROGRESS':
         return 'In Progress';
-      case 'PENDING':
-        return 'Pending';
       case 'COMPLETED':
         return 'Completed';
       default:

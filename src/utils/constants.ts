@@ -1,4 +1,3 @@
-
 // Constants for the Procurement Management System
 
 export const SERVICE_TYPES: ServiceType[] = [
@@ -11,7 +10,6 @@ export const SERVICE_TYPES: ServiceType[] = [
 ];
 
 export const PURPOSE_STATUSES: PurposeStatus[] = [
-  'PENDING',
   'IN_PROGRESS',
   'COMPLETED'
 ];

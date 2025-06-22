@@ -1,4 +1,3 @@
-
 import { Purpose } from '@/types';
 
 export const mockPurposes: Purpose[] = [
@@ -43,7 +42,7 @@ export const mockPurposes: Purpose[] = [
     supplier: 'Hardware Plus Inc',
     hierarchy_id: 'H002',
     hierarchy_name: 'Infrastructure',
-    status: 'PENDING',
+    status: 'IN_PROGRESS',
     expected_delivery: '2024-08-01',
     service_type: 'Hardware',
     creation_time: '2024-06-10T09:15:00Z',

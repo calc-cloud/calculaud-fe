@@ -113,8 +113,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     switch (status) {
       case 'IN_PROGRESS':
         return 'In Progress';
-      case 'PENDING':
-        return 'Pending';
       case 'COMPLETED':
         return 'Completed';
       default:
@@ -205,8 +203,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <TableCell className="text-center">
                     <Badge 
                       variant={purpose.status === 'COMPLETED' ? 'default' : 
-                               purpose.status === 'IN_PROGRESS' ? 'secondary' :
-                               purpose.status === 'PENDING' ? 'outline' : 'outline'}
+                               purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
                     >
                       {getStatusDisplay(purpose.status)}
                     </Badge>

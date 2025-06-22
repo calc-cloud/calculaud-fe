@@ -73,7 +73,6 @@ export const usePurposeData = (
   // Calculate dashboard statistics from current purposes
   const stats = useMemo(() => {
     const total = totalCount;
-    const pending = purposes.filter(p => p.status === 'PENDING').length;
     const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
     const completed = purposes.filter(p => p.status === 'COMPLETED').length;
     const totalCost = purposes.reduce((sum, purpose) => {
@@ -83,7 +82,7 @@ export const usePurposeData = (
       return sum + purposeCost;
     }, 0);
 
-    return { total, pending, inProgress, completed, totalCost };
+    return { total, inProgress, completed, totalCost };
   }, [purposes, totalCount]);
 
   // Reset to first page when filters or sorting change

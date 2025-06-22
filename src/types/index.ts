@@ -1,4 +1,3 @@
-
 // Core entity types for the Procurement Management System
 
 export interface Purpose {
@@ -52,7 +51,7 @@ export interface Hierarchy {
   name: string;
 }
 
-export type PurposeStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED';
 
 export type Currency = 'SUPPORT_USD' | 'AVAILABLE_USD' | 'ILS';
 
