@@ -1,15 +1,24 @@
-
 // Date utility functions
 
 export const formatDate = (dateString: string | null | undefined): string => {
   if (!dateString) {
     return '-';
   }
-  return new Date(dateString).toLocaleDateString();
+  return new Date(dateString).toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit'
+  });
 };
 
 export const formatDateTime = (dateString: string): string => {
-  return new Date(dateString).toLocaleString();
+  return new Date(dateString).toLocaleString('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 };
 
 export const calculateDaysSince = (dateString: string): number => {
