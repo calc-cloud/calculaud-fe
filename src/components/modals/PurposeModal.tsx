@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -523,6 +524,26 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="comments">Comments</Label>
+            <Textarea
+              id="comments"
+              value={formData.comments || ''}
+              onChange={(e) => handleFieldChange('comments', e.target.value)}
+              disabled={isReadOnly}
+              rows={2}
+              placeholder="Add any additional comments..."
+            />
+          </div>
+
+          {/* EMF Section */}
+          <EMFSection
+            emfs={formData.emfs || []}
+            onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
+            isReadOnly={isReadOnly}
+          />
+
+          {/* Expected Delivery - moved to bottom above Attachments */}
+          <div className="space-y-2">
             <Label>Expected Delivery</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -549,25 +570,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
               </PopoverContent>
             </Popover>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="comments">Comments</Label>
-            <Textarea
-              id="comments"
-              value={formData.comments || ''}
-              onChange={(e) => handleFieldChange('comments', e.target.value)}
-              disabled={isReadOnly}
-              rows={2}
-              placeholder="Add any additional comments..."
-            />
-          </div>
-
-          {/* EMF Section */}
-          <EMFSection
-            emfs={formData.emfs || []}
-            onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
-            isReadOnly={isReadOnly}
-          />
 
           {/* File Upload Section */}
           <FileUpload
