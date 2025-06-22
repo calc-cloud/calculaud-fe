@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -11,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Edit, Trash2 } from 'lucide-react';
+import { CalendarIcon, Edit, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Purpose, ModalMode } from '@/types';
@@ -538,13 +536,30 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
           {/* EMF Section with Hebrew Title */}
           <div className="space-y-4">
-            <div className="text-right">
-              <h3 className="text-lg font-semibold">פרטי רכש</h3>
+            <div className="flex items-center justify-between">
+              <div className="text-right flex-1">
+                <h3 className="text-lg font-semibold">פרטי רכש</h3>
+              </div>
+              {!isReadOnly && (
+                <Button onClick={() => {
+                  const newEMF: any = {
+                    id: '',
+                    purpose_id: '',
+                    creation_date: new Date().toISOString().split('T')[0],
+                    costs: []
+                  };
+                  handleFieldChange('emfs', [...(formData.emfs || []), newEMF]);
+                }} size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add EMF
+                </Button>
+              )}
             </div>
             <EMFSection
               emfs={formData.emfs || []}
               onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
               isReadOnly={isReadOnly}
+              hideAddButton={true}
             />
           </div>
 

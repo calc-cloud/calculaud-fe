@@ -14,12 +14,14 @@ interface EMFSectionProps {
   emfs: EMF[];
   onEMFsChange: (emfs: EMF[]) => void;
   isReadOnly: boolean;
+  hideAddButton?: boolean;
 }
 
 export const EMFSection: React.FC<EMFSectionProps> = ({
   emfs,
   onEMFsChange,
-  isReadOnly
+  isReadOnly,
+  hideAddButton = false
 }) => {
   const [expandedEMF, setExpandedEMF] = useState<number | null>(null);
 
@@ -121,7 +123,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        {!isReadOnly && (
+        {!isReadOnly && !hideAddButton && (
           <Button onClick={addEMF} size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Add EMF
