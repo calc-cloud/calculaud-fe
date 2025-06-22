@@ -124,6 +124,16 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     onView(purpose);
   };
 
+  const getContentDisplay = (purpose: Purpose) => {
+    if (!purpose.contents || purpose.contents.length === 0) {
+      return 'No content';
+    }
+    
+    return purpose.contents.map(content => 
+      `${content.quantity} * ${content.service_name}`
+    ).join('\n');
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -180,8 +190,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </div>
                   </TableCell>
                   <TableCell className="w-32 text-center">
-                    <div className="line-clamp-2 text-sm leading-tight">
-                      {purpose.content}
+                    <div className="line-clamp-2 text-sm leading-tight whitespace-pre-line">
+                      {getContentDisplay(purpose)}
                     </div>
                   </TableCell>
                   <TableCell className="text-center">{purpose.supplier}</TableCell>
