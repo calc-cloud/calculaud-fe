@@ -536,12 +536,17 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             />
           </div>
 
-          {/* EMF Section */}
-          <EMFSection
-            emfs={formData.emfs || []}
-            onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
-            isReadOnly={isReadOnly}
-          />
+          {/* EMF Section with Hebrew Title */}
+          <div className="space-y-4">
+            <div className="text-right">
+              <h3 className="text-lg font-semibold">פרטי רכש</h3>
+            </div>
+            <EMFSection
+              emfs={formData.emfs || []}
+              onEMFsChange={(emfs) => handleFieldChange('emfs', emfs)}
+              isReadOnly={isReadOnly}
+            />
+          </div>
 
           {/* Expected Delivery - moved to bottom above Attachments */}
           <div className="space-y-2">
@@ -594,4 +599,3 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     </Dialog>
   );
 };
-
