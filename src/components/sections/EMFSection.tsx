@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -145,13 +146,8 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
                     <div className="space-y-1">
                       <div className="text-xs text-muted-foreground font-medium">EMF</div>
-                      <div className="font-medium text-gray-900 flex items-center gap-2">
+                      <div className="font-medium text-gray-900">
                         {emf.id || 'New EMF'}
-                        {hasValidationErrors(emf) && !isReadOnly && (
-                          <Badge variant="destructive" className="text-xs">
-                            Incomplete
-                          </Badge>
-                        )}
                       </div>
                       {((isReadOnly && expandedEMF === index) || (!isReadOnly && expandedEMF !== index)) && emf.creation_date && (
                         <div className="text-gray-500 text-xs">
@@ -191,6 +187,11 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
               </div>
               
               <div className="flex items-center gap-2 ml-4">
+                {hasValidationErrors(emf) && !isReadOnly && (
+                  <Badge variant="destructive" className="text-xs">
+                    Incomplete
+                  </Badge>
+                )}
                 <span className="text-sm text-muted-foreground">
                   Total: {getTotalCostWithCurrencies(emf)}
                 </span>
