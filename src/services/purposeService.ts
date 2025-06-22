@@ -1,4 +1,3 @@
-
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -47,7 +46,7 @@ export interface EMF {
   id: number;
   emf_id: string;
   purpose_id: number;
-  creation_time: string;
+  creation_date: string; // Changed from creation_time
   order_id?: string;
   order_creation_date?: string;
   demand_id?: string;
@@ -221,10 +220,11 @@ class PurposeService {
       mapped.comments = purposeData.comments.trim();
     }
 
-    // Map EMFs if provided - Fixed field mapping
+    // Map EMFs if provided - Fixed field mapping to use creation_date
     if (purposeData.emfs && purposeData.emfs.length > 0) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
+        creation_date: emf.creation_date || undefined, // Use creation_date field
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,
         demand_id: emf.demand_id || undefined,
@@ -270,10 +270,11 @@ class PurposeService {
       mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
 
-    // Map EMFs - Fixed field mapping
+    // Map EMFs - Fixed field mapping to use creation_date
     if (purposeData.emfs !== undefined) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
+        creation_date: emf.creation_date || undefined, // Use creation_date field
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,
         demand_id: emf.demand_id || undefined,
@@ -341,7 +342,7 @@ class PurposeService {
       emfs: purpose.emfs.map(emf => ({
         id: emf.emf_id,
         purpose_id: purpose.id.toString(),
-        creation_date: emf.creation_time,
+        creation_date: emf.creation_date, // Use creation_date from API
         demand_id: emf.demand_id || undefined,
         demand_creation_date: emf.demand_creation_date || undefined,
         order_id: emf.order_id || undefined,

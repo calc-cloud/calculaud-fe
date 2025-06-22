@@ -21,7 +21,7 @@ export interface Purpose {
 export interface EMF {
   id: string;
   purpose_id: string;
-  creation_date: string;
+  creation_date: string; // Changed from creation_time to creation_date
   demand_id?: string;
   demand_creation_date?: string;
   order_id?: string;

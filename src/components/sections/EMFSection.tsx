@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -187,17 +186,32 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label>Creation Date <span className="text-red-500">*</span></Label>
-                  <Input
-                    type="date"
-                    value={emf.creation_date}
-                    onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
-                    disabled={isReadOnly}
-                    className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
-                  />
-                  {emf.creation_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.creation_date)} days ago
-                    </span>
+                  {isReadOnly ? (
+                    <div>
+                      <Input
+                        value={formatDate(emf.creation_date)}
+                        disabled={true}
+                      />
+                      {emf.creation_date && (
+                        <span className="text-xs text-muted-foreground block mt-1">
+                          {calculateDaysSince(emf.creation_date)} days ago
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        type="date"
+                        value={emf.creation_date}
+                        onChange={(e) => updateEMF(index, { creation_date: e.target.value })}
+                        className={!emf.creation_date && !isReadOnly ? 'border-red-300' : ''}
+                      />
+                      {emf.creation_date && (
+                        <span className="text-xs text-muted-foreground">
+                          {calculateDaysSince(emf.creation_date)} days ago
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -215,16 +229,31 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label>Bikushit Creation Date</Label>
-                  <Input
-                    type="date"
-                    value={emf.bikushit_creation_date || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_creation_date: e.target.value })}
-                    disabled={isReadOnly}
-                  />
-                  {emf.bikushit_creation_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
-                    </span>
+                  {isReadOnly ? (
+                    <div>
+                      <Input
+                        value={emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : ''}
+                        disabled={true}
+                      />
+                      {emf.bikushit_creation_date && (
+                        <span className="text-xs text-muted-foreground block mt-1">
+                          {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        type="date"
+                        value={emf.bikushit_creation_date || ''}
+                        onChange={(e) => updateEMF(index, { bikushit_creation_date: e.target.value })}
+                      />
+                      {emf.bikushit_creation_date && (
+                        <span className="text-xs text-muted-foreground">
+                          {calculateDaysSince(emf.bikushit_creation_date)} days since bikushit
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -242,16 +271,31 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label>Demand Creation Date</Label>
-                  <Input
-                    type="date"
-                    value={emf.demand_creation_date || ''}
-                    onChange={(e) => updateEMF(index, { demand_creation_date: e.target.value })}
-                    disabled={isReadOnly}
-                  />
-                  {emf.demand_creation_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.demand_creation_date)} days since demand
-                    </span>
+                  {isReadOnly ? (
+                    <div>
+                      <Input
+                        value={emf.demand_creation_date ? formatDate(emf.demand_creation_date) : ''}
+                        disabled={true}
+                      />
+                      {emf.demand_creation_date && (
+                        <span className="text-xs text-muted-foreground block mt-1">
+                          {calculateDaysSince(emf.demand_creation_date)} days since demand
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        type="date"
+                        value={emf.demand_creation_date || ''}
+                        onChange={(e) => updateEMF(index, { demand_creation_date: e.target.value })}
+                      />
+                      {emf.demand_creation_date && (
+                        <span className="text-xs text-muted-foreground">
+                          {calculateDaysSince(emf.demand_creation_date)} days since demand
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -269,16 +313,31 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                 </div>
                 <div className="space-y-2">
                   <Label>Order Creation Date</Label>
-                  <Input
-                    type="date"
-                    value={emf.order_creation_date || ''}
-                    onChange={(e) => updateEMF(index, { order_creation_date: e.target.value })}
-                    disabled={isReadOnly}
-                  />
-                  {emf.order_creation_date && (
-                    <span className="text-xs text-muted-foreground">
-                      {calculateDaysSince(emf.order_creation_date)} days since order
-                    </span>
+                  {isReadOnly ? (
+                    <div>
+                      <Input
+                        value={emf.order_creation_date ? formatDate(emf.order_creation_date) : ''}
+                        disabled={true}
+                      />
+                      {emf.order_creation_date && (
+                        <span className="text-xs text-muted-foreground block mt-1">
+                          {calculateDaysSince(emf.order_creation_date)} days since order
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        type="date"
+                        value={emf.order_creation_date || ''}
+                        onChange={(e) => updateEMF(index, { order_creation_date: e.target.value })}
+                      />
+                      {emf.order_creation_date && (
+                        <span className="text-xs text-muted-foreground">
+                          {calculateDaysSince(emf.order_creation_date)} days since order
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
