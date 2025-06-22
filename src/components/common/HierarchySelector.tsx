@@ -3,8 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
+import { ChevronDown, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
 
 interface HierarchyItem {
   id: string;
@@ -26,8 +25,6 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   selectedIds,
   onSelectionChange
 }) => {
-  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set());
-
   // Debug logging
   React.useEffect(() => {
     console.log('HierarchySelector received hierarchies:', hierarchies);
@@ -54,16 +51,6 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  const toggleExpanded = (nodeId: string) => {
-    const newExpandedNodes = new Set(expandedNodes);
-    if (newExpandedNodes.has(nodeId)) {
-      newExpandedNodes.delete(nodeId);
-    } else {
-      newExpandedNodes.add(nodeId);
-    }
-    setExpandedNodes(newExpandedNodes);
-  };
-
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'Unit':
@@ -81,89 +68,13 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  // Build tree structure from flat hierarchy list
-  const buildTreeStructure = (items: HierarchyItem[]): HierarchyItem[] => {
-    const itemMap = new Map<string, HierarchyItem>();
-    const roots: HierarchyItem[] = [];
-
-    // First pass: create map of all items
-    items.forEach(item => {
-      itemMap.set(item.id, { ...item, children: [] });
-    });
-
-    // Second pass: build parent-child relationships
-    items.forEach(item => {
-      const itemWithChildren = itemMap.get(item.id)!;
-      if (item.parentId && itemMap.has(item.parentId)) {
-        const parent = itemMap.get(item.parentId)!;
-        parent.children = parent.children || [];
-        parent.children.push(itemWithChildren);
-      } else {
-        roots.push(itemWithChildren);
-      }
-    });
-
-    return roots;
+  // Calculate indentation level based on path depth
+  const getIndentationLevel = (fullPath: string) => {
+    return (fullPath.split(' / ').length - 1) * 16;
   };
 
-  const treeStructure = buildTreeStructure(hierarchies);
-
-  const renderTreeNode = (node: HierarchyItem, level: number = 0) => {
-    const hasChildren = node.children && node.children.length > 0;
-    const isExpanded = expandedNodes.has(node.id);
-    const paddingLeft = level * 16;
-
-    console.log(`Rendering node ${node.id}: fullPath="${node.fullPath}"`);
-
-    return (
-      <div key={node.id}>
-        <div 
-          className="flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer"
-          style={{ paddingLeft: `${paddingLeft + 8}px` }}
-        >
-          {hasChildren ? (
-            <div 
-              className="flex items-center mr-2"
-              onClick={() => toggleExpanded(node.id)}
-            >
-              {isExpanded ? (
-                <ChevronDown className="h-4 w-4 text-gray-400" />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-gray-400" />
-              )}
-            </div>
-          ) : (
-            <div className="w-6" />
-          )}
-          
-          <Checkbox
-            checked={selectedIds.includes(node.id)}
-            onCheckedChange={() => handleSelect(node.id)}
-            className="mr-2"
-          />
-          
-          {getTypeIcon(node.type)}
-          
-          <div className="flex-1 ml-2">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">{node.fullPath}</span>
-              </div>
-              <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
-                {node.type.toLowerCase()}
-              </span>
-            </div>
-          </div>
-        </div>
-        
-        {hasChildren && isExpanded && (
-          <div>
-            {node.children!.map(child => renderTreeNode(child, level + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
+  // Sort hierarchies by their full path to maintain proper order
+  const sortedHierarchies = [...hierarchies].sort((a, b) => a.fullPath.localeCompare(b.fullPath));
 
   return (
     <DropdownMenu>
@@ -175,8 +86,39 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[450px] max-h-[400px] overflow-y-auto bg-white border shadow-lg z-50 p-0">
         <div className="py-2">
-          {treeStructure.length > 0 ? (
-            treeStructure.map(node => renderTreeNode(node))
+          {sortedHierarchies.length > 0 ? (
+            sortedHierarchies.map(hierarchy => {
+              const indentLevel = getIndentationLevel(hierarchy.fullPath);
+              console.log(`Rendering hierarchy ${hierarchy.id}: fullPath="${hierarchy.fullPath}", indent=${indentLevel}`);
+              
+              return (
+                <div key={hierarchy.id}>
+                  <div 
+                    className="flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer"
+                    style={{ paddingLeft: `${indentLevel + 8}px` }}
+                  >
+                    <Checkbox
+                      checked={selectedIds.includes(hierarchy.id)}
+                      onCheckedChange={() => handleSelect(hierarchy.id)}
+                      className="mr-2"
+                    />
+                    
+                    {getTypeIcon(hierarchy.type)}
+                    
+                    <div className="flex-1 ml-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-900">{hierarchy.fullPath}</span>
+                        </div>
+                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
+                          {hierarchy.type.toLowerCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             <div className="px-4 py-8 text-sm text-gray-500 text-center">
               No organizational units available
