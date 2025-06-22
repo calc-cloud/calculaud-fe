@@ -131,12 +131,6 @@ class PurposeService {
     suppliers: any[],
     serviceTypes: any[]
   ): PurposeApiParams {
-    console.log(`=== purposeService.mapFiltersToApiParams ===`);
-    console.log(`Input filters:`, filters);
-    console.log(`Available serviceTypes for lookup:`, serviceTypes);
-    console.log(`Available suppliers for lookup:`, suppliers);
-    console.log(`Available hierarchies for lookup:`, hierarchies);
-    
     const params: PurposeApiParams = {
       page: currentPage,
       size: itemsPerPage,
@@ -147,14 +141,12 @@ class PurposeService {
     // Search query
     if (filters.search_query) {
       params.search = filters.search_query;
-      console.log(`Added search parameter:`, params.search);
     }
 
     // Status filter - handle multiple statuses
     if (filters.status && filters.status.length > 0) {
       // Send first status for now, but this could be expanded to support multiple
       params.status = this.mapStatusToApi(filters.status[0]);
-      console.log(`Added status parameter:`, params.status, `(mapped from: ${filters.status[0]})`);
     }
 
     // Hierarchy filter - handle multiple hierarchies
@@ -165,43 +157,28 @@ class PurposeService {
         const hierarchy = hierarchies.find(h => h.id === hierarchyIds[0]);
         if (hierarchy) {
           params.hierarchy_id = parseInt(hierarchy.id);
-          console.log(`Added hierarchy_id parameter:`, params.hierarchy_id, `(from hierarchy: ${hierarchy.name})`);
-        } else {
-          console.log(`⚠️ Hierarchy not found for ID: ${hierarchyIds[0]}`);
         }
       }
     }
 
     // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
-      console.log(`Processing supplier filter:`, filters.supplier[0]);
       // Send first supplier for now, but this could be expanded to support multiple
       const supplier = suppliers.find(s => s.name === filters.supplier![0]);
-      console.log(`Found supplier:`, supplier);
       if (supplier) {
         params.supplier_id = parseInt(supplier.id);
-        console.log(`Added supplier_id parameter:`, params.supplier_id, `(from supplier: ${supplier.name})`);
-      } else {
-        console.log(`⚠️ Supplier not found for name: ${filters.supplier![0]}`);
       }
     }
 
     // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
-      console.log(`Processing service type filter:`, filters.service_type[0]);
       // Send first service type for now, but this could be expanded to support multiple
       const serviceType = serviceTypes.find(st => st.name === filters.service_type![0]);
-      console.log(`Found service type:`, serviceType);
       if (serviceType) {
         params.service_type_id = parseInt(serviceType.id);
-        console.log(`✅ Added service_type_id parameter:`, params.service_type_id, `(from service type: ${serviceType.name})`);
-      } else {
-        console.log(`⚠️ Service type not found for name: ${filters.service_type![0]}`);
-        console.log(`Available service type names:`, serviceTypes.map(st => st.name));
       }
     }
 
-    console.log(`Final API parameters:`, params);
     return params;
   }
 
@@ -387,8 +364,6 @@ class PurposeService {
         return 'IN_PROGRESS';
       case 'COMPLETED':
         return 'COMPLETED';
-      case 'CANCELLED':
-        return 'PENDING'; // Map CANCELLED to PENDING for now
       default:
         return status;
     }
