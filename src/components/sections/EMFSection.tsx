@@ -144,7 +144,7 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
               Incomplete
             </Badge>
           )}
-          <CardHeader className="pb-3">
+          <CardHeader className={`pb-3 ${hasValidationErrors(emf) && !isReadOnly ? 'pr-20' : ''}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4 flex-1">
                 {/* Show blocks when in view mode OR when in edit mode and collapsed */}
