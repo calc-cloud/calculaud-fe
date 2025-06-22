@@ -25,6 +25,7 @@ import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { Supplier } from '@/types/suppliers';
 import { ServiceType } from '@/types/serviceTypes';
 import { Hierarchy } from '@/types/hierarchies';
+
 interface PurposeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,6 +34,7 @@ interface PurposeModalProps {
   onSave?: (purpose: Partial<Purpose>) => void;
   onEdit?: (purpose: Purpose) => void;
   onDelete?: (purposeId: string) => void;
+  onModeChange?: (newMode: ModalMode) => void; // Add prop for mode changes
 }
 
 // Extended form data interface to store full objects
@@ -50,7 +52,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   purpose,
   onSave,
   onEdit,
-  onDelete
+  onDelete,
+  onModeChange
 }) => {
   const {
     data: hierarchiesData,
@@ -303,6 +306,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       onEdit(purpose);
     }
   };
+  const handleCancel = () => {
+    if (mode === 'edit' && onModeChange) {
+      // When editing, switch back to view mode instead of closing
+      onModeChange('view');
+    } else {
+      // For create mode or when onModeChange is not provided, close the modal
+      onClose();
+    }
+  };
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'IN_PROGRESS':
@@ -483,12 +495,14 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={handleCancel}>
             {isReadOnly ? 'Close' : 'Cancel'}
           </Button>
-          {!isReadOnly && <Button onClick={handleSave}>
+          {!isReadOnly && (
+            <Button onClick={handleSave}>
               {isCreating ? 'Create Purpose' : 'Save Changes'}
-            </Button>}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>;
