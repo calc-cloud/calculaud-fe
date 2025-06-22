@@ -1,4 +1,3 @@
-
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -211,7 +210,7 @@ class PurposeService {
       mapped.comments = purposeData.comments.trim();
     }
 
-    // Map EMFs if provided
+    // Map EMFs if provided - Fixed field mapping
     if (purposeData.emfs && purposeData.emfs.length > 0) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
@@ -228,6 +227,7 @@ class PurposeService {
       }));
     }
 
+    console.log('Final create request EMFs:', mapped.emfs);
     return mapped;
   }
 
@@ -260,7 +260,7 @@ class PurposeService {
       mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
 
-    // Map EMFs
+    // Map EMFs - Fixed field mapping
     if (purposeData.emfs !== undefined) {
       mapped.emfs = purposeData.emfs.map((emf: any) => ({
         emf_id: emf.id,
@@ -277,6 +277,7 @@ class PurposeService {
       }));
     }
 
+    console.log('Final update request EMFs:', mapped.emfs);
     return mapped;
   }
 
