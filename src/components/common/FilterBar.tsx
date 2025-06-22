@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,24 +24,40 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
 
   const updateFilter = (key: keyof PurposeFilters, value: string | string[] | undefined) => {
+    console.log(`=== FilterBar.updateFilter ===`);
+    console.log(`Filter key: ${key}`);
+    console.log(`New value:`, value);
+    console.log(`Current filters before update:`, filters);
+    
     const newFilters = {
       ...filters,
       [key]: value || undefined
     };
     
+    console.log(`New filters after update:`, newFilters);
     onFiltersChange(newFilters);
   };
 
   const toggleServiceType = (serviceTypeName: string) => {
+    console.log(`=== FilterBar.toggleServiceType ===`);
+    console.log(`Service type clicked: ${serviceTypeName}`);
+    console.log(`Available service types:`, serviceTypes);
+    console.log(`Current service_type filter:`, filters.service_type);
+    
     const currentTypes = filters.service_type || [];
     const updatedTypes = currentTypes.includes(serviceTypeName as any)
       ? currentTypes.filter(type => type !== serviceTypeName)
       : [...currentTypes, serviceTypeName as any];
     
+    console.log(`Updated service types:`, updatedTypes);
     updateFilter('service_type', updatedTypes.length > 0 ? updatedTypes : undefined);
   };
 
   const toggleStatus = (status: any) => {
+    console.log(`=== FilterBar.toggleStatus ===`);
+    console.log(`Status clicked: ${status}`);
+    console.log(`Current status filter:`, filters.status);
+    
     const currentStatuses = filters.status || [];
     const updatedStatuses = currentStatuses.includes(status)
       ? currentStatuses.filter(s => s !== status)
@@ -50,6 +67,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   const toggleSupplier = (supplierName: string) => {
+    console.log(`=== FilterBar.toggleSupplier ===`);
+    console.log(`Supplier clicked: ${supplierName}`);
+    console.log(`Available suppliers:`, suppliers);
+    console.log(`Current supplier filter:`, filters.supplier);
+    
     const currentSuppliers = filters.supplier || [];
     const updatedSuppliers = currentSuppliers.includes(supplierName as any)
       ? currentSuppliers.filter(s => s !== supplierName)
