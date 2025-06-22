@@ -59,11 +59,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 
     const costDetails = Object.entries(costsByCurrency).map(
       ([currency, amount]) => `${formatAmount(amount)} ${CURRENCY_DISPLAY_NAMES[currency as keyof typeof CURRENCY_DISPLAY_NAMES] || currency}`
-    );
+    ).join(' | ');
 
     return {
       display: costStrings,
-      details: costDetails.join(', ') || '0',
+      details: costDetails || '0',
       allCosts: costStrings.join(', ') || '0'
     };
   };
