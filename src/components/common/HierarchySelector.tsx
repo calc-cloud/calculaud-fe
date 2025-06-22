@@ -28,11 +28,19 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set());
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('HierarchySelector received hierarchies:', hierarchies);
+    hierarchies.forEach(h => {
+      console.log(`Hierarchy ID ${h.id}: name="${h.name}", fullPath="${h.fullPath}"`);
+    });
+  }, [hierarchies]);
+
   const getLabel = () => {
     if (selectedIds.length === 0) return 'Hierarchy';
     if (selectedIds.length === 1) {
       const selected = hierarchies.find(h => h.id === selectedIds[0]);
-      return selected ? selected.name : 'Hierarchy';
+      return selected ? selected.fullPath : 'Hierarchy';
     }
     return `${selectedIds.length} selected`;
   };
@@ -104,6 +112,8 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     const hasChildren = node.children && node.children.length > 0;
     const isExpanded = expandedNodes.has(node.id);
     const paddingLeft = level * 16;
+
+    console.log(`Rendering node ${node.id}: fullPath="${node.fullPath}"`);
 
     return (
       <div key={node.id}>
