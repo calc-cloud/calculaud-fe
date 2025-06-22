@@ -20,7 +20,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onFiltersChange,
   onExport
 }) => {
-  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
 
   const updateFilter = (key: keyof PurposeFilters, value: string | string[] | undefined) => {
     onFiltersChange({
@@ -102,7 +102,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
       {/* Filter Controls */}
       <div className="flex flex-wrap gap-3">
-        {/* Hierarchy Selector - Updated to handle multiple selections */}
+        {/* Hierarchy Selector */}
         <HierarchySelector
           hierarchies={hierarchies}
           selectedIds={Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : [])}
@@ -114,8 +114,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {/* Service Type Multi-Select */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[160px] justify-between">
-              {getServiceTypeLabel()}
+            <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+              {isLoading ? 'Loading...' : getServiceTypeLabel()}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -166,8 +166,8 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {/* Supplier Multi-Select Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[160px] justify-between">
-              {getSupplierLabel()}
+            <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+              {isLoading ? 'Loading...' : getSupplierLabel()}
               <ChevronDown className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { ServiceType } from '@/types/serviceTypes';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import { useServiceTypes } from '@/hooks/useServiceTypes';
+import { useHierarchies } from '@/hooks/useHierarchies';
 
 interface HierarchyItem {
   id: string;
@@ -19,9 +22,9 @@ interface AdminDataContextType {
   setHierarchies: React.Dispatch<React.SetStateAction<HierarchyItem[]>>;
   suppliers: SupplierItem[];
   setSuppliers: React.Dispatch<React.SetStateAction<SupplierItem[]>>;
-  // Service types now managed via API, keeping for backward compatibility
   serviceTypes: { id: string; name: string }[];
   setServiceTypes: React.Dispatch<React.SetStateAction<{ id: string; name: string }[]>>;
+  isLoading: boolean;
 }
 
 const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
@@ -35,35 +38,52 @@ export const useAdminData = () => {
 };
 
 export const AdminDataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [hierarchies, setHierarchies] = useState<HierarchyItem[]>([
-    {
-      id: '1',
-      type: 'Unit',
-      name: 'North Unit',
-      fullPath: 'North Unit'
-    },
-    {
-      id: '2',
-      type: 'Center',
-      name: 'Tech Center',
-      parentId: '1',
-      fullPath: 'North Unit > Tech Center'
-    }
-  ]);
-
-  const [suppliers, setSuppliers] = useState<SupplierItem[]>([
-    { id: '1', name: 'TechCorp Solutions' },
-    { id: '2', name: 'Hardware Plus Inc' },
-    { id: '3', name: 'Strategic Advisors LLC' },
-    { id: '4', name: 'Global Tech Services' },
-    { id: '5', name: 'Innovation Partners' },
-    { id: '6', name: 'Digital Solutions Co' },
-    { id: '7', name: 'Enterprise Systems Ltd' },
-    { id: '8', name: 'CloudTech Inc' }
-  ]);
-
-  // Keep legacy service types for backward compatibility
+  const [hierarchies, setHierarchies] = useState<HierarchyItem[]>([]);
+  const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [serviceTypes, setServiceTypes] = useState<{ id: string; name: string }[]>([]);
+
+  // Fetch data from backend
+  const { data: suppliersData, isLoading: suppliersLoading } = useSuppliers();
+  const { data: serviceTypesData, isLoading: serviceTypesLoading } = useServiceTypes();
+  const { data: hierarchiesData, isLoading: hierarchiesLoading } = useHierarchies();
+
+  const isLoading = suppliersLoading || serviceTypesLoading || hierarchiesLoading;
+
+  // Update suppliers when backend data changes
+  useEffect(() => {
+    if (suppliersData?.items) {
+      const mappedSuppliers = suppliersData.items.map(supplier => ({
+        id: supplier.id.toString(),
+        name: supplier.name
+      }));
+      setSuppliers(mappedSuppliers);
+    }
+  }, [suppliersData]);
+
+  // Update service types when backend data changes
+  useEffect(() => {
+    if (serviceTypesData?.items) {
+      const mappedServiceTypes = serviceTypesData.items.map(serviceType => ({
+        id: serviceType.id.toString(),
+        name: serviceType.name
+      }));
+      setServiceTypes(mappedServiceTypes);
+    }
+  }, [serviceTypesData]);
+
+  // Update hierarchies when backend data changes
+  useEffect(() => {
+    if (hierarchiesData?.items) {
+      const mappedHierarchies = hierarchiesData.items.map(hierarchy => ({
+        id: hierarchy.id.toString(),
+        type: hierarchy.type as any,
+        name: hierarchy.name,
+        parentId: hierarchy.parent_id?.toString(),
+        fullPath: hierarchy.path
+      }));
+      setHierarchies(mappedHierarchies);
+    }
+  }, [hierarchiesData]);
 
   return (
     <AdminDataContext.Provider value={{
@@ -72,7 +92,8 @@ export const AdminDataProvider: React.FC<{ children: ReactNode }> = ({ children 
       suppliers,
       setSuppliers,
       serviceTypes,
-      setServiceTypes
+      setServiceTypes,
+      isLoading
     }}>
       {children}
     </AdminDataContext.Provider>
