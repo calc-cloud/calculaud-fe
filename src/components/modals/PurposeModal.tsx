@@ -537,9 +537,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           {/* EMF Section with Hebrew Title */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <div className="text-right flex-1">
-                <h3 className="text-lg font-semibold">פרטי רכש</h3>
-              </div>
               {!isReadOnly && (
                 <Button onClick={() => {
                   const newEMF: any = {
@@ -554,6 +551,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                   Add EMF
                 </Button>
               )}
+              <div className="text-right">
+                <h3 className="text-lg font-semibold">פרטי רכש</h3>
+              </div>
             </div>
             <EMFSection
               emfs={formData.emfs || []}
