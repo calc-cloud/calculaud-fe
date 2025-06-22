@@ -119,6 +119,12 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
     return !emf.id?.trim() || !emf.creation_date || emf.costs.length === 0;
   };
 
+  const getEMFCreationDate = (emf: EMF) => {
+    // Handle both creation_date and creation_time fields from API
+    const creationDate = emf.creation_date || (emf as any).creation_time;
+    return creationDate ? formatDate(creationDate) : '-';
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -146,6 +152,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     Incomplete
                   </Badge>
                 )}
+                <span className="text-sm text-muted-foreground font-normal">
+                  ({getEMFCreationDate(emf)})
+                </span>
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">

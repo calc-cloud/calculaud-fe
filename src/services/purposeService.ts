@@ -79,6 +79,7 @@ export interface CreatePurposeRequest {
 
 export interface CreateEMFRequest {
   emf_id: string;
+  creation_date: string; // Add creation_date field
   order_id?: string;
   order_creation_date?: string;
   demand_id?: string;
