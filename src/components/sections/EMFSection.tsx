@@ -138,14 +138,14 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
         <Card key={index} className={hasValidationErrors(emf) && !isReadOnly ? 'border-red-300' : ''}>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 {emf.id || 'New EMF'}
                 {hasValidationErrors(emf) && !isReadOnly && (
                   <Badge variant="destructive" className="text-xs">
                     Incomplete
                   </Badge>
                 )}
-              </CardTitle>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   Total: {getTotalCostWithCurrencies(emf)}
