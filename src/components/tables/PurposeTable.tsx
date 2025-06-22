@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -146,17 +145,17 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-32">Description</TableHead>
-              <TableHead className="w-32">Content</TableHead>
-              <TableHead>Supplier</TableHead>
-              <TableHead>Hierarchy</TableHead>
-              <TableHead>Service Type</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>EMF IDs</TableHead>
-              <TableHead>Total Cost</TableHead>
-              <TableHead>Expected Delivery</TableHead>
-              <TableHead>
-                <div className="flex flex-col">
+              <TableHead className="w-32 text-center">Description</TableHead>
+              <TableHead className="w-32 text-center">Content</TableHead>
+              <TableHead className="text-center">Supplier</TableHead>
+              <TableHead className="text-center">Hierarchy</TableHead>
+              <TableHead className="text-center">Service Type</TableHead>
+              <TableHead className="text-center">Status</TableHead>
+              <TableHead className="text-center">EMF IDs</TableHead>
+              <TableHead className="text-center">Total Cost</TableHead>
+              <TableHead className="text-center">Expected Delivery</TableHead>
+              <TableHead className="text-center">
+                <div className="flex flex-col items-center">
                   <div className="font-medium">Last Modified</div>
                   <div className="text-xs font-normal text-muted-foreground">Created</div>
                 </div>
@@ -174,18 +173,18 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   onClick={() => handleRowClick(purpose)}
                   className="cursor-pointer hover:bg-muted/50 h-20"
                 >
-                  <TableCell className="font-medium w-32 align-top">
+                  <TableCell className="font-medium w-32 text-center">
                     <div className="line-clamp-2 text-sm leading-tight">
                       {purpose.description}
                     </div>
                   </TableCell>
-                  <TableCell className="w-32 align-top">
+                  <TableCell className="w-32 text-center">
                     <div className="line-clamp-2 text-sm leading-tight">
                       {purpose.content}
                     </div>
                   </TableCell>
-                  <TableCell className="align-top">{purpose.supplier}</TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="text-center">{purpose.supplier}</TableCell>
+                  <TableCell className="text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
@@ -197,10 +196,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="text-center">
                     <Badge variant="outline">{purpose.service_type}</Badge>
                   </TableCell>
-                  <TableCell className="align-top">
+                  <TableCell className="text-center">
                     <Badge 
                       variant={purpose.status === 'COMPLETED' ? 'default' : 
                                purpose.status === 'IN_PROGRESS' ? 'secondary' :
@@ -209,10 +208,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       {getStatusDisplay(purpose.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-[150px] align-top">
+                  <TableCell className="max-w-[150px] text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex flex-col gap-0.5 items-center">
                           {emfIds.ids.length > 0 ? (
                             emfIds.ids.slice(0, 2).map((id, index) => (
                               <div key={index} className="text-sm truncate">
@@ -234,10 +233,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="max-w-[150px] align-top">
+                  <TableCell className="max-w-[150px] text-center">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex flex-col gap-0.5 items-center">
                           {totalCost.display.length > 0 ? (
                             totalCost.display.slice(0, 2).map((cost, index) => (
                               <div key={index} className="text-sm truncate">
@@ -259,9 +258,9 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="align-top">{formatDate(purpose.expected_delivery)}</TableCell>
-                  <TableCell className="align-top">
-                    <div className="flex flex-col">
+                  <TableCell className="text-center">{formatDate(purpose.expected_delivery)}</TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex flex-col items-center">
                       <div className="text-sm">{formatDate(purpose.last_modified)}</div>
                       <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
                     </div>
