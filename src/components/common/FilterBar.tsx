@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -99,7 +98,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           placeholder="Search by description, content, or EMF ID..."
           value={filters.search_query || ''}
           onChange={(e) => updateFilter('search_query', e.target.value)}
-          className="pl-10 focus:outline-none focus:ring-0"
+          className="pl-10 focus-visible:outline-none"
         />
       </div>
 
@@ -120,7 +119,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between focus:outline-none focus:ring-0" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between focus-visible:outline-none" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getServiceTypeLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -146,7 +145,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[140px] justify-between focus:outline-none focus:ring-0">
+              <Button variant="outline" className="w-[140px] justify-between focus-visible:outline-none">
                 {getStatusLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -174,7 +173,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between focus:outline-none focus:ring-0" disabled={isLoading}>
+              <Button variant="outline" className="w-[160px] justify-between focus-visible:outline-none" disabled={isLoading}>
                 {isLoading ? 'Loading...' : getSupplierLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -199,13 +198,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         
         <div className="flex items-center gap-2 ml-auto flex-shrink-0">
           {activeFiltersCount > 0 && (
-            <Button variant="outline" size="sm" onClick={clearFilters} className="focus:outline-none focus:ring-0">
+            <Button variant="outline" size="sm" onClick={clearFilters} className="focus-visible:outline-none">
               <X className="h-4 w-4 mr-1" />
               Clear ({activeFiltersCount})
             </Button>
           )}
           
-          <Button variant="outline" onClick={onExport} className="focus:outline-none focus:ring-0">
+          <Button variant="outline" onClick={onExport} className="focus-visible:outline-none">
             Export
           </Button>
         </div>
