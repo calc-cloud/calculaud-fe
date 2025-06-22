@@ -146,12 +146,12 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     <div className="space-y-1">
                       <div className="text-xs text-muted-foreground font-medium">EMF</div>
                       <div className="font-medium text-gray-900 flex items-center gap-2">
+                        {emf.id || 'New EMF'}
                         {hasValidationErrors(emf) && !isReadOnly && (
                           <Badge variant="destructive" className="text-xs">
                             Incomplete
                           </Badge>
                         )}
-                        {emf.id || 'New EMF'}
                       </div>
                       {((isReadOnly && expandedEMF === index) || (!isReadOnly && expandedEMF !== index)) && emf.creation_date && (
                         <div className="text-gray-500 text-xs">
