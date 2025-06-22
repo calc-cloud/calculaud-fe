@@ -454,7 +454,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
           {/* EMF Section with Hebrew Title */}
           <div className="space-y-1">
-            <div className="flex items-center justify-end ">
+            <div className={`flex items-center ${!isReadOnly ? 'justify-between' : 'justify-end'}`}>
               {!isReadOnly && <Button onClick={() => {
               const newEMF: any = {
                 id: '',
