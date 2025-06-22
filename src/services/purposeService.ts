@@ -1,4 +1,3 @@
-
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -107,22 +106,18 @@ export interface UpdatePurposeRequest {
 
 class PurposeService {
   async getPurposes(params: PurposeApiParams): Promise<PurposeApiResponse> {
-    console.log('Fetching purposes with params:', params);
     return apiService.get<PurposeApiResponse>('/purposes/', params);
   }
 
   async createPurpose(data: CreatePurposeRequest): Promise<Purpose> {
-    console.log('Creating purpose with data:', data);
     return apiService.post<Purpose>('/purposes/', data);
   }
 
   async updatePurpose(id: string, data: UpdatePurposeRequest): Promise<Purpose> {
-    console.log('Updating purpose with id:', id, 'data:', data);
     return apiService.patch<Purpose>(`/purposes/${id}`, data);
   }
 
   async deletePurpose(id: string): Promise<void> {
-    console.log('Deleting purpose with id:', id);
     return apiService.delete<void>(`/purposes/${id}`);
   }
 
@@ -184,7 +179,6 @@ class PurposeService {
       }
     }
 
-    console.log('Mapped API params:', params);
     return params;
   }
 
@@ -228,7 +222,6 @@ class PurposeService {
       }));
     }
 
-    console.log('Final create request EMFs:', mapped.emfs);
     return mapped;
   }
 
@@ -278,7 +271,6 @@ class PurposeService {
       }));
     }
 
-    console.log('Final update request EMFs:', mapped.emfs);
     return mapped;
   }
 

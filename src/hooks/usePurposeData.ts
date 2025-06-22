@@ -18,8 +18,6 @@ export const usePurposeData = () => {
 
   // Build multiple API queries for multiple filter combinations when needed
   const apiQueries = useMemo(() => {
-    console.log('Building API queries with filters:', filters);
-    
     // If we have multiple service types, suppliers, or hierarchies, we need to make separate requests
     const serviceTypes = filters.service_type || [];
     const suppliers = filters.supplier || [];
@@ -98,7 +96,6 @@ export const usePurposeData = () => {
   } = useQuery({
     queryKey: ['purposes', mainApiParams],
     queryFn: () => {
-      console.log('Fetching purposes with main params:', mainApiParams);
       return purposeService.getPurposes(mainApiParams);
     },
     staleTime: 0, // Always consider data stale
@@ -146,7 +143,6 @@ export const usePurposeData = () => {
 
   // Reset to first page when filters or sorting change
   const handleFiltersChange = (newFilters: PurposeFilters) => {
-    console.log('Filters changed:', newFilters);
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page
   };
