@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +23,20 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   isLoading = false
 }) => {
   const { hierarchies } = useAdminData();
+
+  // Add debugging for the entire purposes array
+  console.log('=== DEBUG: PurposeTable received purposes ===');
+  console.log('Number of purposes:', purposes.length);
+  purposes.forEach((purpose, index) => {
+    console.log(`Purpose ${index} (ID: ${purpose.id}):`, {
+      description: purpose.description,
+      contents: purpose.contents,
+      contentsType: typeof purpose.contents,
+      contentsIsArray: Array.isArray(purpose.contents),
+      rawPurpose: purpose
+    });
+  });
+  console.log('=== END DEBUG ===');
 
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
@@ -132,6 +145,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     console.log('Purpose contents:', purpose.contents);
     console.log('Contents type:', typeof purpose.contents);
     console.log('Contents is array:', Array.isArray(purpose.contents));
+    console.log('Full purpose object keys:', Object.keys(purpose));
+    console.log('Raw purpose object:', JSON.stringify(purpose, null, 2));
     
     if (!purpose.contents) {
       console.log('No contents property found');
