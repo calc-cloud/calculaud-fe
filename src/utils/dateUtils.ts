@@ -1,7 +1,10 @@
 
 // Date utility functions
 
-export const formatDate = (dateString: string): string => {
+export const formatDate = (dateString: string | null | undefined): string => {
+  if (!dateString) {
+    return '-';
+  }
   return new Date(dateString).toLocaleDateString();
 };
 
