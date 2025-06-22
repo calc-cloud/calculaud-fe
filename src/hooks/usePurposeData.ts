@@ -5,14 +5,18 @@ import { SortConfig } from '@/utils/sorting';
 import { purposeService } from '@/services/purposeService';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
-export const usePurposeData = () => {
+export const usePurposeData = (
+  initialFilters: PurposeFilters = {},
+  initialSortConfig: SortConfig = { field: 'creation_time', direction: 'desc' },
+  initialPage: number = 1
+) => {
   const { hierarchies, suppliers, serviceTypes } = useAdminData();
-  const [filters, setFilters] = useState<PurposeFilters>({});
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'creation_time', direction: 'desc' });
+  const [filters, setFilters] = useState<PurposeFilters>(initialFilters);
+  const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
 
   // Build API query parameters - simplified since we can handle multiple filters in one request
