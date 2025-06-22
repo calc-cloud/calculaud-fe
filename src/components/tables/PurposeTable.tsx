@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -56,16 +57,23 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       ([currency, amount]) => `${getCurrencySymbol(currency)}${formatAmount(amount)}`
     );
 
+    const costDetails = Object.entries(costsByCurrency).map(
+      ([currency, amount]) => `${formatAmount(amount)} ${currency}`
+    );
+
     return {
-      display: costStrings.length > 0 ? costStrings.join(', ') : '0',
-      details: Object.entries(costsByCurrency).map(
-        ([currency, amount]) => `${formatAmount(amount)} ${currency}`
-      ).join(', ') || '0'
+      display: costStrings,
+      details: costDetails.join(', ') || '0',
+      allCosts: costStrings.join(', ') || '0'
     };
   };
 
   const getEMFIds = (purpose: Purpose) => {
-    return purpose.emfs.map(emf => emf.id).join(', ');
+    const ids = purpose.emfs.map(emf => emf.id);
+    return {
+      ids: ids,
+      allIds: ids.join(', ') || 'None'
+    };
   };
 
   const getLastHierarchyLevel = (hierarchyName: string) => {
@@ -158,25 +166,26 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
           <TableBody>
             {purposes.map((purpose) => {
               const totalCost = getTotalCostWithCurrencies(purpose);
+              const emfIds = getEMFIds(purpose);
               const hierarchyInfo = getHierarchyInfo(purpose);
               return (
                 <TableRow 
                   key={purpose.id} 
                   onClick={() => handleRowClick(purpose)}
-                  className="cursor-pointer hover:bg-muted/50"
+                  className="cursor-pointer hover:bg-muted/50 h-16"
                 >
-                  <TableCell className="font-medium w-32">
+                  <TableCell className="font-medium w-32 align-top">
                     <div className="line-clamp-2 text-sm leading-tight">
                       {purpose.description}
                     </div>
                   </TableCell>
-                  <TableCell className="w-32">
+                  <TableCell className="w-32 align-top">
                     <div className="line-clamp-2 text-sm leading-tight">
                       {purpose.content}
                     </div>
                   </TableCell>
-                  <TableCell>{purpose.supplier}</TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">{purpose.supplier}</TableCell>
+                  <TableCell className="align-top">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div>
@@ -188,10 +197,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <Badge variant="outline">{purpose.service_type}</Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">
                     <Badge 
                       variant={purpose.status === 'COMPLETED' ? 'default' : 
                                purpose.status === 'IN_PROGRESS' ? 'secondary' :
@@ -200,14 +209,49 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       {getStatusDisplay(purpose.status)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-[150px] truncate">
-                    {getEMFIds(purpose) || 'None'}
-                  </TableCell>
-                  <TableCell className="max-w-[150px] truncate">
+                  <TableCell className="max-w-[150px] align-top">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div>
-                          {totalCost.display}
+                        <div className="flex flex-col gap-0.5">
+                          {emfIds.ids.length > 0 ? (
+                            emfIds.ids.slice(0, 3).map((id, index) => (
+                              <div key={index} className="text-sm truncate">
+                                {id}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-muted-foreground">None</div>
+                          )}
+                          {emfIds.ids.length > 3 && (
+                            <div className="text-xs text-muted-foreground">
+                              +{emfIds.ids.length - 3} more
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{emfIds.allIds}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell className="max-w-[150px] align-top">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col gap-0.5">
+                          {totalCost.display.length > 0 ? (
+                            totalCost.display.slice(0, 2).map((cost, index) => (
+                              <div key={index} className="text-sm truncate">
+                                {cost}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm">0</div>
+                          )}
+                          {totalCost.display.length > 2 && (
+                            <div className="text-xs text-muted-foreground">
+                              +{totalCost.display.length - 2} more
+                            </div>
+                          )}
                         </div>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -215,8 +259,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell>{formatDate(purpose.expected_delivery)}</TableCell>
-                  <TableCell>
+                  <TableCell className="align-top">{formatDate(purpose.expected_delivery)}</TableCell>
+                  <TableCell className="align-top">
                     <div className="flex flex-col">
                       <div className="text-sm">{formatDate(purpose.last_modified)}</div>
                       <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
