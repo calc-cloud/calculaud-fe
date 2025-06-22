@@ -171,9 +171,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
           </CardHeader>
 
           {expandedEMF === index && (
-            <CardContent className="space-y-4">
-              {/* EMF ID and Creation Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <CardContent className="space-y-6">
+              {/* ID Fields - 4 columns horizontal layout */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label>EMF ID <span className="text-red-500">*</span></Label>
                   <Input
@@ -184,6 +184,37 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     className={!emf.id?.trim() && !isReadOnly ? 'border-red-300' : ''}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label>Bikushit ID</Label>
+                  <Input
+                    value={emf.bikushit_id || ''}
+                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
+                    disabled={isReadOnly}
+                    placeholder="Enter bikushit ID"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Demand ID</Label>
+                  <Input
+                    value={emf.demand_id || ''}
+                    onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
+                    disabled={isReadOnly}
+                    placeholder="Enter demand ID"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Order ID</Label>
+                  <Input
+                    value={emf.order_id || ''}
+                    onChange={(e) => updateEMF(index, { order_id: e.target.value })}
+                    disabled={isReadOnly}
+                    placeholder="Enter order ID"
+                  />
+                </div>
+              </div>
+
+              {/* Creation Date Fields - 4 columns horizontal layout */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label>Creation Date <span className="text-red-500">*</span></Label>
                   {isReadOnly ? (
@@ -214,19 +245,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* Bikushit Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Bikushit ID</Label>
-                  <Input
-                    value={emf.bikushit_id || ''}
-                    onChange={(e) => updateEMF(index, { bikushit_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter bikushit ID"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label>Bikushit Creation Date</Label>
                   {isReadOnly ? (
@@ -256,19 +274,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* Demand Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Demand ID</Label>
-                  <Input
-                    value={emf.demand_id || ''}
-                    onChange={(e) => updateEMF(index, { demand_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter demand ID"
-                  />
-                </div>
                 <div className="space-y-2">
                   <Label>Demand Creation Date</Label>
                   {isReadOnly ? (
@@ -297,19 +302,6 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                       )}
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* Order Section */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Order ID</Label>
-                  <Input
-                    value={emf.order_id || ''}
-                    onChange={(e) => updateEMF(index, { order_id: e.target.value })}
-                    disabled={isReadOnly}
-                    placeholder="Enter order ID"
-                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Order Creation Date</Label>
