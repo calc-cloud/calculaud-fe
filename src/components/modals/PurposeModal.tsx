@@ -277,10 +277,12 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   };
 
   const handleHierarchyChange = (selectedIds: string[]) => {
-    setSelectedHierarchyIds(selectedIds);
+    // Only allow single selection - take the first selected item
+    const singleSelection = selectedIds.length > 0 ? [selectedIds[selectedIds.length - 1]] : [];
+    setSelectedHierarchyIds(singleSelection);
     
-    if (selectedIds.length > 0) {
-      const selectedHierarchy = hierarchies.find(h => h.id.toString() === selectedIds[0]);
+    if (singleSelection.length > 0) {
+      const selectedHierarchy = hierarchies.find(h => h.id.toString() === singleSelection[0]);
       if (selectedHierarchy) {
         setFormData(prev => ({
           ...prev,
@@ -463,11 +465,16 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
                 disabled={true}
               />
             ) : (
-              <HierarchySelector
-                hierarchies={transformedHierarchies}
-                selectedIds={selectedHierarchyIds}
-                onSelectionChange={handleHierarchyChange}
-              />
+              <div className="space-y-1">
+                <HierarchySelector
+                  hierarchies={transformedHierarchies}
+                  selectedIds={selectedHierarchyIds}
+                  onSelectionChange={handleHierarchyChange}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Select only one organizational unit
+                </p>
+              </div>
             )}
           </div>
 
