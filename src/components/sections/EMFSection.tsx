@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -136,125 +137,67 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
       {emfs.map((emf, index) => (
         <Card key={index} className={hasValidationErrors(emf) && !isReadOnly ? 'border-red-300' : ''}>
           <CardHeader className="pb-3">
-            {/* Different layouts for viewing vs editing modes */}
-            {isReadOnly ? (
-              // VIEWING MODE - 4 blocks on same row, show creation dates only when expanded
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">EMF</div>
-                      <div className="font-medium text-gray-900 flex items-center gap-2">
-                        {emf.id || 'New EMF'}
-                        {hasValidationErrors(emf) && (
-                          <Badge variant="destructive" className="text-xs">
-                            Incomplete
-                          </Badge>
-                        )}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">EMF</div>
+                    <div className="font-medium text-gray-900 flex items-center gap-2">
+                      {emf.id || 'New EMF'}
+                      {hasValidationErrors(emf) && !isReadOnly && (
+                        <Badge variant="destructive" className="text-xs">
+                          Incomplete
+                        </Badge>
+                      )}
+                    </div>
+                    {expandedEMF === index && (
+                      <div className="text-gray-500 text-xs">
+                        {emf.creation_date ? `${formatDate(emf.creation_date)} (${calculateDaysSince(emf.creation_date)} days ago)` : 'No date'}
                       </div>
-                      {expandedEMF === index && (
-                        <div className="text-gray-500 text-xs">
-                          {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
-                      <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
-                      {expandedEMF === index && (
-                        <div className="text-gray-500 text-xs">
-                          {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Demand</div>
-                      <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
-                      {expandedEMF === index && (
-                        <div className="text-gray-500 text-xs">
-                          {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Order</div>
-                      <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
-                      {expandedEMF === index && (
-                        <div className="text-gray-500 text-xs">
-                          {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-muted-foreground">
-                    Total: {getTotalCostWithCurrencies(emf)}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
-                  >
-                    {expandedEMF === index ? 'Collapse' : 'Expand'}
-                  </Button>
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
+                    <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
+                    {expandedEMF === index && (
+                      <div className="text-gray-500 text-xs">
+                        {emf.bikushit_creation_date ? `${formatDate(emf.bikushit_creation_date)} (${calculateDaysSince(emf.bikushit_creation_date)} days ago)` : 'No date'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Demand</div>
+                    <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
+                    {expandedEMF === index && (
+                      <div className="text-gray-500 text-xs">
+                        {emf.demand_creation_date ? `${formatDate(emf.demand_creation_date)} (${calculateDaysSince(emf.demand_creation_date)} days ago)` : 'No date'}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground font-medium">Order</div>
+                    <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
+                    {expandedEMF === index && (
+                      <div className="text-gray-500 text-xs">
+                        {emf.order_creation_date ? `${formatDate(emf.order_creation_date)} (${calculateDaysSince(emf.order_creation_date)} days ago)` : 'No date'}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            ) : (
-              // EDITING/CREATING MODE - Original layout with all info
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">EMF</div>
-                      <div className="font-medium text-gray-900 flex items-center gap-2">
-                        {emf.id || 'New EMF'}
-                        {hasValidationErrors(emf) && (
-                          <Badge variant="destructive" className="text-xs">
-                            Incomplete
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="text-gray-500 text-xs">
-                        {emf.creation_date ? formatDate(emf.creation_date) : 'No date'}
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Bikushit</div>
-                      <div className="font-medium text-gray-900">{emf.bikushit_id || 'No Bikushit ID'}</div>
-                      <div className="text-gray-500 text-xs">
-                        {emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : 'No date'}
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Demand</div>
-                      <div className="font-medium text-gray-900">{emf.demand_id || 'No Demand ID'}</div>
-                      <div className="text-gray-500 text-xs">
-                        {emf.demand_creation_date ? formatDate(emf.demand_creation_date) : 'No date'}
-                      </div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="text-xs text-muted-foreground font-medium">Order</div>
-                      <div className="font-medium text-gray-900">{emf.order_id || 'No Order ID'}</div>
-                      <div className="text-gray-500 text-xs">
-                        {emf.order_creation_date ? formatDate(emf.order_creation_date) : 'No date'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 ml-4">
-                  <span className="text-sm text-muted-foreground">
-                    Total: {getTotalCostWithCurrencies(emf)}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
-                  >
-                    {expandedEMF === index ? 'Collapse' : 'Expand'}
-                  </Button>
+              
+              <div className="flex items-center gap-2 ml-4">
+                <span className="text-sm text-muted-foreground">
+                  Total: {getTotalCostWithCurrencies(emf)}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setExpandedEMF(expandedEMF === index ? null : index)}
+                >
+                  {expandedEMF === index ? 'Collapse' : 'Expand'}
+                </Button>
+                {!isReadOnly && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -262,9 +205,9 @@ export const EMFSection: React.FC<EMFSectionProps> = ({
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                </div>
+                )}
               </div>
-            )}
+            </div>
           </CardHeader>
 
           {expandedEMF === index && (
