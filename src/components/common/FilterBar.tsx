@@ -88,7 +88,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     return `${selectedSuppliers.length} selected`;
   };
 
-  const PURPOSE_STATUSES = ['Pending', 'In Progress', 'Completed'];
+  const PURPOSE_STATUSES = ['In Progress', 'Completed'];
 
   return (
     <div className="space-y-4">
