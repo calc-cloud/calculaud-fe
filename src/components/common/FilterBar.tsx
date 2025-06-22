@@ -133,7 +133,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 >
                   <Checkbox
                     checked={(filters.service_type || []).includes(type.name as any)}
-                    readOnly
                   />
                   <span>{type.name}</span>
                 </div>
@@ -160,7 +159,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 >
                   <Checkbox
                     checked={(filters.status || []).includes(status as any)}
-                    readOnly
                   />
                   <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
                     {status}
@@ -189,7 +187,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                 >
                   <Checkbox
                     checked={(filters.supplier || []).includes(supplier.name as any)}
-                    readOnly
                   />
                   <span className="truncate">{supplier.name}</span>
                 </div>
