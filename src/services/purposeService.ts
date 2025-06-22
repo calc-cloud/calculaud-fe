@@ -1,3 +1,4 @@
+
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
@@ -334,6 +335,7 @@ class PurposeService {
         purpose_id: purpose.id.toString(),
         creation_date: emf.creation_time,
         demand_id: emf.demand_id || undefined,
+        demand_creation_date: emf.demand_creation_date || undefined,
         order_id: emf.order_id || undefined,
         order_creation_date: emf.order_creation_date || undefined,
         bikushit_id: emf.bikushit_id || undefined,
