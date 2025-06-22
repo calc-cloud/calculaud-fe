@@ -74,13 +74,18 @@ export const AdminDataProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Update hierarchies when backend data changes
   useEffect(() => {
     if (hierarchiesData?.items) {
-      const mappedHierarchies = hierarchiesData.items.map(hierarchy => ({
-        id: hierarchy.id.toString(),
-        type: hierarchy.type as any,
-        name: hierarchy.name,
-        parentId: hierarchy.parent_id?.toString(),
-        fullPath: hierarchy.path
-      }));
+      console.log('Raw hierarchies data from API:', hierarchiesData.items);
+      const mappedHierarchies = hierarchiesData.items.map(hierarchy => {
+        console.log('Mapping hierarchy:', hierarchy);
+        return {
+          id: hierarchy.id.toString(),
+          type: hierarchy.type as any,
+          name: hierarchy.name,
+          parentId: hierarchy.parent_id?.toString(),
+          fullPath: hierarchy.path || hierarchy.name // Use the path field from API, fallback to name
+        };
+      });
+      console.log('Mapped hierarchies:', mappedHierarchies);
       setHierarchies(mappedHierarchies);
     }
   }, [hierarchiesData]);
