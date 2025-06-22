@@ -39,7 +39,7 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
         <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium">Sort by:</span>
         <Select value={sortConfig.field} onValueChange={handleFieldChange}>
-          <SelectTrigger className="w-48 focus-visible:outline-none">
+          <SelectTrigger className="w-48 border border-gray-300 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 shadow-none">
             <SelectValue placeholder="Select sort field" />
           </SelectTrigger>
           <SelectContent>
@@ -52,7 +52,7 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
           variant="outline"
           size="sm"
           onClick={handleDirectionToggle}
-          className="h-10 w-10 p-0 focus-visible:outline-none"
+          className="h-10 w-10 p-0 border border-gray-300 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 shadow-none"
           title={sortConfig.direction === 'desc' ? 'Newest first' : 'Oldest first'}
         >
           {sortConfig.direction === 'desc' ? (
