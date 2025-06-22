@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Purpose, PurposeFilters, ModalMode } from '@/types';
@@ -16,64 +15,9 @@ export const usePurposeData = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Build multiple API queries for multiple filter combinations when needed
-  const apiQueries = useMemo(() => {
-    // If we have multiple service types, suppliers, or hierarchies, we need to make separate requests
-    const serviceTypes_filter = filters.service_type || [];
-    const suppliers_filter = filters.supplier || [];
-    const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : []);
-    
-    // For now, let's handle one filter type at a time properly
-    // If multiple service types are selected, make separate requests for each
-    if (serviceTypes_filter.length > 1) {
-      return serviceTypes_filter.map(serviceType => {
-        const singleTypeFilters = { ...filters, service_type: [serviceType] };
-        return purposeService.mapFiltersToApiParams(
-          singleTypeFilters,
-          sortConfig,
-          currentPage,
-          itemsPerPage,
-          hierarchies,
-          suppliers,
-          serviceTypes
-        );
-      });
-    }
-    
-    // If multiple suppliers are selected, make separate requests for each
-    if (suppliers_filter.length > 1) {
-      return suppliers_filter.map(supplier => {
-        const singleSupplierFilters = { ...filters, supplier: [supplier] };
-        return purposeService.mapFiltersToApiParams(
-          singleSupplierFilters,
-          sortConfig,
-          currentPage,
-          itemsPerPage,
-          hierarchies,
-          suppliers,
-          serviceTypes
-        );
-      });
-    }
-    
-    // If multiple hierarchies are selected, make separate requests for each
-    if (hierarchyIds.length > 1) {
-      return hierarchyIds.map(hierarchyId => {
-        const singleHierarchyFilters = { ...filters, hierarchy_id: hierarchyId };
-        return purposeService.mapFiltersToApiParams(
-          singleHierarchyFilters,
-          sortConfig,
-          currentPage,
-          itemsPerPage,
-          hierarchies,
-          suppliers,
-          serviceTypes
-        );
-      });
-    }
-    
-    // Default single request
-    const apiParams = purposeService.mapFiltersToApiParams(
+  // Build API query parameters - simplified since we can handle multiple filters in one request
+  const apiParams = useMemo(() => {
+    return purposeService.mapFiltersToApiParams(
       filters,
       sortConfig,
       currentPage,
@@ -82,12 +26,7 @@ export const usePurposeData = () => {
       suppliers,
       serviceTypes
     );
-    
-    return [apiParams];
   }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes]);
-
-  // Use the first query params for the main query (we'll improve this later)
-  const mainApiParams = apiQueries[0];
 
   // Fetch purposes from API with disabled caching
   const {
@@ -96,9 +35,9 @@ export const usePurposeData = () => {
     error,
     refetch
   } = useQuery({
-    queryKey: ['purposes', mainApiParams],
+    queryKey: ['purposes', apiParams],
     queryFn: () => {
-      return purposeService.getPurposes(mainApiParams);
+      return purposeService.getPurposes(apiParams);
     },
     staleTime: 0, // Always consider data stale
     gcTime: 0, // Don't cache data (renamed from cacheTime)

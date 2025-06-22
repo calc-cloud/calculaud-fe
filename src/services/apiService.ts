@@ -49,7 +49,16 @@ class ApiService {
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          searchParams.append(key, String(value));
+          // Handle array values by adding multiple parameters with the same name
+          if (Array.isArray(value)) {
+            value.forEach(item => {
+              if (item !== undefined && item !== null && item !== '') {
+                searchParams.append(key, String(item));
+              }
+            });
+          } else {
+            searchParams.append(key, String(value));
+          }
         }
       });
     }

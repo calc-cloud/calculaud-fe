@@ -1,13 +1,14 @@
+
 import { apiService } from '@/services/apiService';
 import { PurposeFilters } from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
   size?: number;
-  hierarchy_id?: number;
-  supplier_id?: number;
-  service_type_id?: number;
-  status?: string;
+  hierarchy_id?: number | number[];
+  supplier_id?: number | number[];
+  service_type_id?: number | number[];
+  status?: string | string[];
   search?: string;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
@@ -145,37 +146,51 @@ class PurposeService {
 
     // Status filter - handle multiple statuses
     if (filters.status && filters.status.length > 0) {
-      // Send first status for now, but this could be expanded to support multiple
-      params.status = this.mapStatusToApi(filters.status[0]);
+      params.status = filters.status.map(status => this.mapStatusToApi(status));
     }
 
     // Hierarchy filter - handle multiple hierarchies
     if (filters.hierarchy_id) {
       const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
       if (hierarchyIds.length > 0) {
-        // Send first hierarchy for now, but this could be expanded to support multiple
-        const hierarchy = hierarchies.find(h => h.id === hierarchyIds[0]);
-        if (hierarchy) {
-          params.hierarchy_id = parseInt(hierarchy.id);
+        const validHierarchyIds = hierarchyIds
+          .map(id => {
+            const hierarchy = hierarchies.find(h => h.id === id);
+            return hierarchy ? parseInt(hierarchy.id) : null;
+          })
+          .filter(id => id !== null) as number[];
+        
+        if (validHierarchyIds.length > 0) {
+          params.hierarchy_id = validHierarchyIds.length === 1 ? validHierarchyIds[0] : validHierarchyIds;
         }
       }
     }
 
     // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
-      // Send first supplier for now, but this could be expanded to support multiple
-      const supplier = suppliers.find(s => s.name === filters.supplier![0]);
-      if (supplier) {
-        params.supplier_id = parseInt(supplier.id);
+      const validSupplierIds = filters.supplier
+        .map(supplierName => {
+          const supplier = suppliers.find(s => s.name === supplierName);
+          return supplier ? parseInt(supplier.id) : null;
+        })
+        .filter(id => id !== null) as number[];
+      
+      if (validSupplierIds.length > 0) {
+        params.supplier_id = validSupplierIds.length === 1 ? validSupplierIds[0] : validSupplierIds;
       }
     }
 
     // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
-      // Send first service type for now, but this could be expanded to support multiple
-      const serviceType = serviceTypes.find(st => st.name === filters.service_type![0]);
-      if (serviceType) {
-        params.service_type_id = parseInt(serviceType.id);
+      const validServiceTypeIds = filters.service_type
+        .map(serviceTypeName => {
+          const serviceType = serviceTypes.find(st => st.name === serviceTypeName);
+          return serviceType ? parseInt(serviceType.id) : null;
+        })
+        .filter(id => id !== null) as number[];
+      
+      if (validServiceTypeIds.length > 0) {
+        params.service_type_id = validServiceTypeIds.length === 1 ? validServiceTypeIds[0] : validServiceTypeIds;
       }
     }
 
