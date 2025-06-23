@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -111,12 +110,14 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[140px] justify-start text-left font-normal",
+                  "w-[160px] justify-start text-left font-normal",
                   !filters.start_date && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.start_date ? format(new Date(filters.start_date), "PPP") : "Start date"}
+                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
+                  {filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : "Start date"}
+                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -138,12 +139,14 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[140px] justify-start text-left font-normal",
+                  "w-[160px] justify-start text-left font-normal",
                   !filters.end_date && "text-muted-foreground"
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {filters.end_date ? format(new Date(filters.end_date), "PPP") : "End date"}
+                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
+                  {filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : "End date"}
+                </span>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
