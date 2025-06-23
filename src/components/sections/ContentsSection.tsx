@@ -229,7 +229,6 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
       {contents.length === 0 && !isReadOnly && !showServiceTypeWarning && (
         <div className="text-center py-4 text-muted-foreground">
           <p>No contents added yet</p>
-          {renderAddContentButton()}
         </div>
       )}
     </div>
