@@ -7,18 +7,18 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
 
 interface HierarchyItem {
-  id: string;
+  id: number;
   type: 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
   name: string;
-  parentId?: string;
+  parentId?: number;
   fullPath: string;
   children?: HierarchyItem[];
 }
 
 interface HierarchySelectorProps {
   hierarchies: HierarchyItem[];
-  selectedIds: string[];
-  onSelectionChange: (selectedIds: string[]) => void;
+  selectedIds: number[];
+  onSelectionChange: (selectedIds: number[]) => void;
 }
 
 export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
@@ -26,7 +26,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   selectedIds,
   onSelectionChange
 }) => {
-  const [expandedNodes, setExpandedNodes] = React.useState<Set<string>>(new Set());
+  const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
 
   const getLabel = () => {
     if (selectedIds.length === 0) return 'Hierarchy';
@@ -37,7 +37,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     return `${selectedIds.length} selected`;
   };
 
-  const handleSelect = (hierarchyId: string) => {
+  const handleSelect = (hierarchyId: number) => {
     const isSelected = selectedIds.includes(hierarchyId);
     if (isSelected) {
       onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
@@ -46,7 +46,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     }
   };
 
-  const toggleExpanded = (nodeId: string, e: React.MouseEvent) => {
+  const toggleExpanded = (nodeId: number, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click when clicking expand/collapse
     const newExpandedNodes = new Set(expandedNodes);
     if (newExpandedNodes.has(nodeId)) {
@@ -76,7 +76,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
   // Build tree structure from flat hierarchy list
   const buildTreeStructure = (items: HierarchyItem[]): HierarchyItem[] => {
-    const itemMap = new Map<string, HierarchyItem>();
+    const itemMap = new Map<number, HierarchyItem>();
     const roots: HierarchyItem[] = [];
 
     // First pass: create map of all items

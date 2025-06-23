@@ -121,7 +121,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 
   const getHierarchyInfo = (purpose: Purpose) => {
     // Find the hierarchy from the admin data using the hierarchy_id
-    const hierarchy = hierarchies.find(h => h.id === purpose.hierarchy_id?.toString());
+    const hierarchy = hierarchies.find(h => h.id === parseInt(purpose.hierarchy_id?.toString() || '0'));
     
     if (hierarchy) {
       return {

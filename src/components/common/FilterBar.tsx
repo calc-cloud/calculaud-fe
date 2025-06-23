@@ -109,9 +109,11 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         <div className="flex-shrink-0 min-w-[200px]">
           <HierarchySelector
             hierarchies={hierarchies}
-            selectedIds={Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : [])}
+            selectedIds={Array.isArray(filters.hierarchy_id) ? 
+              filters.hierarchy_id.map(id => typeof id === 'string' ? parseInt(id) : id) : 
+              (filters.hierarchy_id ? [typeof filters.hierarchy_id === 'string' ? parseInt(filters.hierarchy_id) : filters.hierarchy_id] : [])}
             onSelectionChange={(selectedIds) => 
-              updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds : undefined)
+              updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds.map(id => id.toString()) : undefined)
             }
           />
         </div>
@@ -256,7 +258,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           {filters.hierarchy_id && (
             <div className="flex flex-wrap gap-1">
               {(Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id]).map((hierarchyId) => {
-                const hierarchy = hierarchies.find(h => h.id === hierarchyId);
+                const hierarchy = hierarchies.find(h => h.id === (typeof hierarchyId === 'string' ? parseInt(hierarchyId) : hierarchyId));
                 return (
                   <Badge key={hierarchyId} variant="secondary" className="flex items-center gap-1">
                     {hierarchy?.type}: {hierarchy?.name || hierarchyId}
