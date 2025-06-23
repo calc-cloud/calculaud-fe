@@ -86,6 +86,19 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     );
   };
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900">{`Service Type: ${data.name}`}</p>
+          <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -110,10 +123,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip 
-                formatter={(value: number) => [value, 'Purposes']}
-                labelFormatter={(label: string) => `Service Type: ${label}`}
-              />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
