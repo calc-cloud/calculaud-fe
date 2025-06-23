@@ -99,12 +99,14 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
 
     if (allServicesUsed && selectedServiceTypeId && !showServiceTypeWarning) {
       return (
-        <TooltipProvider>
+        <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              {button}
+              <div>
+                {button}
+              </div>
             </TooltipTrigger>
-            <TooltipContent>
+            <TooltipContent side="top" className="bg-popover text-popover-foreground border shadow-md">
               <p>All available services have been added</p>
             </TooltipContent>
           </Tooltip>
