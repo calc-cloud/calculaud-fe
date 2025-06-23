@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -114,7 +112,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
               className="bg-popover text-popover-foreground border shadow-md max-w-xs z-50"
               sideOffset={5}
             >
-              <p>All available services have been added</p>
+              <p>All available services have already been added</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -237,4 +235,3 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
     </div>
   );
 };
-
