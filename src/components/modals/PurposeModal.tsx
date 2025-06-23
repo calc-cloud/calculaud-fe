@@ -86,7 +86,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     files: []
   });
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date>();
-  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<string[]>([]);
+  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>([]);
   const isReadOnly = mode === 'view';
   const isEditing = mode === 'edit';
   const isCreating = mode === 'create';
@@ -98,10 +98,10 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
   // Transform hierarchies for HierarchySelector
   const transformedHierarchies = hierarchies.map((hierarchy: Hierarchy) => ({
-    id: hierarchy.id.toString(),
+    id: hierarchy.id,
     type: hierarchy.type as 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team',
     name: hierarchy.name,
-    parentId: hierarchy.parent_id?.toString(),
+    parentId: hierarchy.parent_id,
     fullPath: hierarchy.path
   }));
 
@@ -120,7 +120,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
       // Set selected hierarchy for tree selector
       if (purpose.hierarchy_id) {
-        setSelectedHierarchyIds([purpose.hierarchy_id]);
+        setSelectedHierarchyIds([parseInt(purpose.hierarchy_id)]);
       } else {
         setSelectedHierarchyIds([]);
       }
@@ -269,12 +269,12 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       supplier: selectedSupplier?.name || ''
     }));
   };
-  const handleHierarchyChange = (selectedIds: string[]) => {
+  const handleHierarchyChange = (selectedIds: number[]) => {
     // Only allow single selection - take the first selected item
     const singleSelection = selectedIds.length > 0 ? [selectedIds[selectedIds.length - 1]] : [];
     setSelectedHierarchyIds(singleSelection);
     if (singleSelection.length > 0) {
-      const selectedHierarchy = hierarchies.find(h => h.id.toString() === singleSelection[0]);
+      const selectedHierarchy = hierarchies.find(h => h.id === singleSelection[0]);
       if (selectedHierarchy) {
         setFormData(prev => ({
           ...prev,
