@@ -1,5 +1,5 @@
 import { apiService } from '@/services/apiService';
-import { PurposeFilters } from '@/types';
+import { PurposeFilters, PurposeContent } from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
@@ -34,12 +34,20 @@ export interface Purpose {
   comments?: string;
   status: string;
   supplier: string;
-  content: string;
+  contents: APIContent[]; // Changed from content to contents
   description: string;
   service_type: string;
   creation_time: string;
   last_modified: string;
   emfs: EMF[];
+}
+
+export interface APIContent {
+  id?: number;
+  service_id: number;
+  service_name?: string;
+  service_type?: string;
+  quantity: number;
 }
 
 export interface EMF {
@@ -70,10 +78,15 @@ export interface CreatePurposeRequest {
   comments?: string;
   status: string;
   supplier_id: number;
-  content: string;
+  contents: CreateContentRequest[]; // Changed from content to contents
   description: string;
   service_type_id: number;
   emfs?: CreateEMFRequest[];
+}
+
+export interface CreateContentRequest {
+  service_id: number;
+  quantity: number;
 }
 
 export interface CreateEMFRequest {
@@ -99,7 +112,7 @@ export interface UpdatePurposeRequest {
   comments?: string;
   status?: string;
   supplier_id?: number;
-  content?: string;
+  contents?: CreateContentRequest[]; // Changed from content to contents
   description?: string;
   service_type_id?: number;
   emfs?: CreateEMFRequest[];
@@ -201,7 +214,7 @@ class PurposeService {
   mapPurposeToCreateRequest(purposeData: any): CreatePurposeRequest {
     const mapped: CreatePurposeRequest = {
       description: purposeData.description,
-      content: purposeData.content,
+      contents: purposeData.contents || [], // Changed from content to contents
       supplier_id: purposeData.supplier_id,
       service_type_id: purposeData.service_type_id,
       status: purposeData.status || 'PENDING'
@@ -248,8 +261,8 @@ class PurposeService {
     if (purposeData.description !== undefined) {
       mapped.description = purposeData.description;
     }
-    if (purposeData.content !== undefined) {
-      mapped.content = purposeData.content;
+    if (purposeData.contents !== undefined) { // Changed from content to contents
+      mapped.contents = purposeData.contents;
     }
     if (purposeData.supplier_id !== undefined) {
       mapped.supplier_id = purposeData.supplier_id;
@@ -329,7 +342,7 @@ class PurposeService {
     const transformedPurposes = apiData.items.map(purpose => ({
       id: purpose.id.toString(),
       description: purpose.description,
-      content: purpose.content,
+      contents: purpose.contents || [], // Changed from content to contents
       supplier: purpose.supplier,
       hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
       hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',

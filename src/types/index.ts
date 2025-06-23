@@ -1,9 +1,10 @@
+
 // Core entity types for the Procurement Management System
 
 export interface Purpose {
   id: string;
   description: string;
-  content: string;
+  contents: PurposeContent[]; // Changed from content: string to contents: PurposeContent[]
   supplier: string;
   hierarchy_id: string;
   hierarchy_name: string;
@@ -15,6 +16,15 @@ export interface Purpose {
   last_modified: string;
   emfs: EMF[];
   files: PurposeFile[];
+}
+
+// New interface for purpose contents
+export interface PurposeContent {
+  id?: number; // Present in response, not in request
+  service_id: number;
+  service_name?: string; // Present in response, not in request
+  service_type?: string; // Present in response, not in request
+  quantity: number;
 }
 
 export interface EMF {

@@ -1,10 +1,24 @@
+
 import { Purpose } from '@/types';
 
 export const mockPurposes: Purpose[] = [
   {
     id: '1',
     description: 'Software Development Services',
-    content: 'Development of procurement management system with React and TypeScript',
+    contents: [
+      {
+        service_id: 1,
+        service_name: 'Cool Servers',
+        service_type: 'Compute',
+        quantity: 2
+      },
+      {
+        service_id: 2,
+        service_name: 'Database License',
+        service_type: 'Software',
+        quantity: 1
+      }
+    ],
     supplier: 'TechCorp Solutions',
     hierarchy_id: 'H001',
     hierarchy_name: 'IT Department',
@@ -38,7 +52,14 @@ export const mockPurposes: Purpose[] = [
   {
     id: '2',
     description: 'Hardware Procurement',
-    content: 'Purchase of new servers and networking equipment for data center upgrade',
+    contents: [
+      {
+        service_id: 3,
+        service_name: 'Enterprise Servers',
+        service_type: 'Hardware',
+        quantity: 5
+      }
+    ],
     supplier: 'Hardware Plus Inc',
     hierarchy_id: 'H002',
     hierarchy_name: 'Infrastructure',
@@ -53,7 +74,14 @@ export const mockPurposes: Purpose[] = [
   {
     id: '3',
     description: 'Consulting Services',
-    content: 'Business process optimization and digital transformation consulting',
+    contents: [
+      {
+        service_id: 4,
+        service_name: 'Business Consulting',
+        service_type: 'Consulting',
+        quantity: 1
+      }
+    ],
     supplier: 'Strategic Advisors LLC',
     hierarchy_id: 'H003',
     hierarchy_name: 'Operations',

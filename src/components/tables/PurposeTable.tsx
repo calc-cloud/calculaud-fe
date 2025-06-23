@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -78,6 +79,40 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
   };
 
+  const getContentsDisplay = (purpose: Purpose) => {
+    console.log('=== getContentsDisplay DEBUG ===');
+    console.log('Purpose ID:', purpose.id);
+    console.log('Contents:', purpose.contents);
+    console.log('Contents type:', typeof purpose.contents);
+    console.log('Contents is array:', Array.isArray(purpose.contents));
+    
+    if (!purpose.contents || !Array.isArray(purpose.contents) || purpose.contents.length === 0) {
+      console.log('No contents found');
+      return {
+        display: ['No contents'],
+        details: ['No contents specified'],
+        allContents: 'No contents'
+      };
+    }
+
+    const contentStrings = purpose.contents.map(content => 
+      `${content.quantity} × ${content.service_name || `Service ${content.service_id}`}`
+    );
+
+    const contentDetails = purpose.contents.map(content => 
+      `${content.quantity} × ${content.service_name || `Service ${content.service_id}`} (${content.service_type || 'Unknown type'})`
+    );
+
+    console.log('Content strings:', contentStrings);
+    console.log('Content details:', contentDetails);
+
+    return {
+      display: contentStrings,
+      details: contentDetails,
+      allContents: contentStrings.join(', ')
+    };
+  };
+
   const getLastHierarchyLevel = (hierarchyName: string) => {
     // Split by common separators and return the last part
     const parts = hierarchyName.split(/[>/\\-]/).map(part => part.trim()).filter(part => part.length > 0);
@@ -147,7 +182,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-32 text-center">Description</TableHead>
-              <TableHead className="w-32 text-center">Content</TableHead>
+              <TableHead className="w-32 text-center">Contents</TableHead>
               <TableHead className="text-center">Supplier</TableHead>
               <TableHead className="text-center">Hierarchy</TableHead>
               <TableHead className="text-center">Service Type</TableHead>
@@ -168,6 +203,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
               const totalCost = getTotalCostWithCurrencies(purpose);
               const emfIds = getEMFIds(purpose);
               const hierarchyInfo = getHierarchyInfo(purpose);
+              const contentsInfo = getContentsDisplay(purpose);
               return (
                 <TableRow 
                   key={purpose.id} 
@@ -180,9 +216,33 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </div>
                   </TableCell>
                   <TableCell className="w-32 text-center">
-                    <div className="line-clamp-2 text-sm leading-tight">
-                      {purpose.content}
-                    </div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col gap-0.5 items-center">
+                          {contentsInfo.display.length > 0 ? (
+                            contentsInfo.display.slice(0, 2).map((content, index) => (
+                              <div key={index} className="text-sm truncate">
+                                {content}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-sm text-muted-foreground">No contents</div>
+                          )}
+                          {contentsInfo.display.length > 2 && (
+                            <div className="text-xs text-muted-foreground">
+                              +{contentsInfo.display.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex flex-col">
+                          {contentsInfo.details.map((detail, index) => (
+                            <div key={index}>{detail}</div>
+                          ))}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
                   </TableCell>
                   <TableCell className="text-center">{purpose.supplier}</TableCell>
                   <TableCell className="text-center">

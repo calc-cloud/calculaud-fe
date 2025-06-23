@@ -12,9 +12,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, Edit, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Purpose, ModalMode } from '@/types';
+import { Purpose, ModalMode, PurposeContent } from '@/types';
 import { PURPOSE_STATUSES } from '@/utils/constants';
 import { EMFSection } from '../sections/EMFSection';
+import { ContentsSection } from '../sections/ContentsSection';
 import { FileUpload } from '../common/FileUpload';
 import { formatDate } from '@/utils/dateUtils';
 import { useHierarchies } from '@/hooks/useHierarchies';
@@ -38,9 +39,10 @@ interface PurposeModalProps {
 }
 
 // Extended form data interface to store full objects
-interface ExtendedFormData extends Omit<Partial<Purpose>, 'supplier' | 'service_type'> {
+interface ExtendedFormData extends Omit<Partial<Purpose>, 'supplier' | 'service_type' | 'contents'> {
   selectedSupplier?: Supplier | null;
   selectedServiceType?: ServiceType | null;
+  contents?: PurposeContent[];
   // Keep original fields for backward compatibility
   supplier?: string;
   service_type?: string;
@@ -72,7 +74,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   } = useToast();
   const [formData, setFormData] = useState<ExtendedFormData>({
     description: '',
-    content: '',
+    contents: [],
     selectedSupplier: null,
     selectedServiceType: null,
     hierarchy_id: '',
@@ -112,7 +114,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       setFormData({
         ...purpose,
         selectedSupplier,
-        selectedServiceType
+        selectedServiceType,
+        contents: purpose.contents || []
       });
 
       // Set selected hierarchy for tree selector
@@ -127,7 +130,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     } else {
       setFormData({
         description: '',
-        content: '',
+        contents: [],
         selectedSupplier: null,
         selectedServiceType: null,
         hierarchy_id: '',
@@ -150,8 +153,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     if (!formData.selectedSupplier) {
       errors.push('Supplier is required');
     }
-    if (!formData.content?.trim()) {
-      errors.push('Content is required');
+    if (!formData.contents || formData.contents.length === 0) {
+      errors.push('At least one content item is required');
     }
     if (!formData.selectedServiceType) {
       errors.push('Service type is required');
@@ -204,8 +207,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       purposeData.supplier_id = formData.selectedSupplier.id;
       purposeData.supplier = formData.selectedSupplier.name; // Keep for display
     }
-    if (formData.content?.trim()) {
-      purposeData.content = formData.content.trim();
+    if (formData.contents && formData.contents.length > 0) {
+      purposeData.contents = formData.contents;
     }
     if (formData.selectedServiceType) {
       purposeData.service_type_id = formData.selectedServiceType.id;
@@ -412,10 +415,12 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="content">Content <span className="text-red-500">*</span></Label>
-            <Textarea id="content" value={formData.content || ''} onChange={e => handleFieldChange('content', e.target.value)} disabled={isReadOnly} rows={3} placeholder="Describe the purpose content in detail..." className={!formData.content?.trim() && !isReadOnly ? 'border-red-300' : ''} />
-          </div>
+          {/* Contents Section - Replace the old content textarea */}
+          <ContentsSection
+            contents={formData.contents || []}
+            onContentsChange={(contents) => handleFieldChange('contents', contents)}
+            isReadOnly={isReadOnly}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
