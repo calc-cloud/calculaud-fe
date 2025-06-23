@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trash2, Plus } from 'lucide-react';
 import { PurposeContent } from '@/types';
 import { useServices } from '@/hooks/useServices';
@@ -32,6 +32,9 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   const selectedServiceIds = contents
     .map(content => content.service_id)
     .filter(id => id && id > 0);
+
+  // Check if all services are already selected
+  const allServicesUsed = services.length > 0 && selectedServiceIds.length >= services.length;
 
   const handleAddContent = () => {
     const newContent: PurposeContent = {
@@ -78,22 +81,45 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
     );
   }
 
+  const renderAddContentButton = () => {
+    const isDisabled = !selectedServiceTypeId || showServiceTypeWarning || allServicesUsed;
+    
+    const button = (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleAddContent}
+        disabled={isDisabled}
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Content
+      </Button>
+    );
+
+    if (allServicesUsed && selectedServiceTypeId && !showServiceTypeWarning) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {button}
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>All available services have been added</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    return button;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="text-base font-medium">Contents</Label>
-        {!isReadOnly && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddContent}
-            disabled={!selectedServiceTypeId || showServiceTypeWarning}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Content
-          </Button>
-        )}
+        {!isReadOnly && renderAddContentButton()}
       </div>
 
       {showServiceTypeWarning && !isReadOnly && (
@@ -196,17 +222,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
       {contents.length === 0 && !isReadOnly && !showServiceTypeWarning && (
         <div className="text-center py-4 text-muted-foreground">
           <p>No contents added yet</p>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAddContent}
-            className="mt-2"
-            disabled={!selectedServiceTypeId}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add First Content
-          </Button>
+          {renderAddContentButton()}
         </div>
       )}
     </div>
