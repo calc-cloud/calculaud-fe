@@ -68,7 +68,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
               />
               <YAxis />
               <Tooltip 
-                formatter={[(value: number) => [value, 'Quantity']]}
+                formatter={(value: number) => [value, 'Quantity']}
                 labelFormatter={(label: string) => `Service: ${label}`}
               />
               <Bar dataKey="quantity" fill="#3b82f6" radius={[4, 4, 0, 0]} />

@@ -164,8 +164,8 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         {/* Hierarchy Selector */}
         <div className="flex-shrink-0 min-w-[200px]">
           <HierarchySelector
-            hierarchies={hierarchies}
-            selectedIds={filters.hierarchy_ids || []}
+            hierarchies={hierarchies.map(h => ({ ...h, id: h.id.toString() }))}
+            selectedIds={(filters.hierarchy_ids || []).map(id => id.toString())}
             onSelectionChange={(selectedIds) => 
               updateFilter('hierarchy_ids', selectedIds.length > 0 ? selectedIds.map(id => parseInt(id)) : undefined)
             }
