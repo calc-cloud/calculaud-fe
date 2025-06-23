@@ -4,19 +4,54 @@ import { DashboardFilters, ServicesQuantityResponse } from '@/types/analytics';
 
 export class AnalyticsService {
   async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
+    console.log('=== AnalyticsService.getServicesQuantities ===');
+    console.log('Input filters:', filters);
+    
     const params: Record<string, any> = {};
     
     if (filters) {
-      if (filters.start_date) params.start_date = filters.start_date;
-      if (filters.end_date) params.end_date = filters.end_date;
-      if (filters.service_ids?.length) params.service_ids = filters.service_ids;
-      if (filters.service_type_ids?.length) params.service_type_ids = filters.service_type_ids;
-      if (filters.hierarchy_ids?.length) params.hierarchy_ids = filters.hierarchy_ids;
-      if (filters.status?.length) params.status = filters.status;
-      if (filters.supplier_ids?.length) params.supplier_ids = filters.supplier_ids;
+      if (filters.start_date) {
+        params.start_date = filters.start_date;
+        console.log('Added start_date:', filters.start_date);
+      }
+      if (filters.end_date) {
+        params.end_date = filters.end_date;
+        console.log('Added end_date:', filters.end_date);
+      }
+      if (filters.service_ids?.length) {
+        params.service_ids = filters.service_ids;
+        console.log('Added service_ids:', filters.service_ids);
+      }
+      if (filters.service_type_ids?.length) {
+        params.service_type_ids = filters.service_type_ids;
+        console.log('Added service_type_ids:', filters.service_type_ids);
+      }
+      if (filters.hierarchy_ids?.length) {
+        params.hierarchy_ids = filters.hierarchy_ids;
+        console.log('Added hierarchy_ids:', filters.hierarchy_ids);
+      }
+      if (filters.status?.length) {
+        params.status = filters.status;
+        console.log('Added status:', filters.status);
+      }
+      if (filters.supplier_ids?.length) {
+        params.supplier_ids = filters.supplier_ids;
+        console.log('Added supplier_ids:', filters.supplier_ids);
+      }
     }
     
-    return apiService.get<ServicesQuantityResponse>('/services/quantities', params);
+    console.log('Final params object:', params);
+    console.log('Making request to: /analytics/services/quantities');
+    
+    try {
+      const result = await apiService.get<ServicesQuantityResponse>('/analytics/services/quantities', params);
+      console.log('API Response:', result);
+      return result;
+    } catch (error) {
+      console.error('API Error:', error);
+      console.error('Error details:', error);
+      throw error;
+    }
   }
 }
 
