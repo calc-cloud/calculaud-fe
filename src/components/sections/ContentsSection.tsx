@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -106,7 +107,12 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
                 {button}
               </div>
             </TooltipTrigger>
-            <TooltipContent side="top" className="bg-popover text-popover-foreground border shadow-md">
+            <TooltipContent 
+              side="bottom" 
+              align="center"
+              className="bg-popover text-popover-foreground border shadow-md max-w-xs z-50"
+              sideOffset={5}
+            >
               <p>All available services have been added</p>
             </TooltipContent>
           </Tooltip>
