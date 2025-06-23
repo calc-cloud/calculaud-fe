@@ -15,6 +15,7 @@ export class ServiceService {
     page?: number;
     limit?: number;
     search?: string;
+    service_type_id?: number;
   }): Promise<ServicesResponse> {
     return apiService.get<ServicesResponse>(this.endpoint, params);
   }

@@ -12,14 +12,20 @@ interface ContentsSectionProps {
   contents: PurposeContent[];
   onContentsChange: (contents: PurposeContent[]) => void;
   isReadOnly?: boolean;
+  selectedServiceTypeId?: number;
+  showServiceTypeWarning?: boolean;
 }
 
 export const ContentsSection: React.FC<ContentsSectionProps> = ({
   contents,
   onContentsChange,
-  isReadOnly = false
+  isReadOnly = false,
+  selectedServiceTypeId,
+  showServiceTypeWarning = false
 }) => {
-  const { data: servicesData, isLoading: servicesLoading } = useServices();
+  const { data: servicesData, isLoading: servicesLoading } = useServices({
+    service_type_id: selectedServiceTypeId
+  });
   const services = servicesData?.items || [];
 
   const handleAddContent = () => {
@@ -63,12 +69,21 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
             variant="outline"
             size="sm"
             onClick={handleAddContent}
+            disabled={!selectedServiceTypeId || showServiceTypeWarning}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Content
           </Button>
         )}
       </div>
+
+      {showServiceTypeWarning && !isReadOnly && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <p className="text-sm text-yellow-800">
+            Please select a service type first to add contents
+          </p>
+        </div>
+      )}
 
       {contents.map((content, index) => (
         <div key={index} className="border rounded-lg p-4 space-y-3">
@@ -99,10 +114,16 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
                 <Select
                   value={content.service_id?.toString() || ''}
                   onValueChange={(value) => handleContentChange(index, 'service_id', parseInt(value))}
-                  disabled={servicesLoading}
+                  disabled={servicesLoading || !selectedServiceTypeId}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={servicesLoading ? "Loading services..." : "Select service"} />
+                    <SelectValue placeholder={
+                      !selectedServiceTypeId 
+                        ? "Select service type first" 
+                        : servicesLoading 
+                          ? "Loading services..." 
+                          : "Select service"
+                    } />
                   </SelectTrigger>
                   <SelectContent>
                     {services.map(service => (
@@ -135,7 +156,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
         </div>
       ))}
 
-      {contents.length === 0 && !isReadOnly && (
+      {contents.length === 0 && !isReadOnly && !showServiceTypeWarning && (
         <div className="text-center py-4 text-muted-foreground">
           <p>No contents added yet</p>
           <Button
@@ -144,6 +165,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
             size="sm"
             onClick={handleAddContent}
             className="mt-2"
+            disabled={!selectedServiceTypeId}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add First Content

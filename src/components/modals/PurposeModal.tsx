@@ -153,11 +153,11 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     if (!formData.selectedSupplier) {
       errors.push('Supplier is required');
     }
-    if (!formData.contents || formData.contents.length === 0) {
-      errors.push('At least one content item is required');
-    }
     if (!formData.selectedServiceType) {
       errors.push('Service type is required');
+    }
+    if (!formData.contents || formData.contents.length === 0) {
+      errors.push('At least one content item is required');
     }
     return errors;
   };
@@ -292,10 +292,15 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   };
   const handleServiceTypeChange = (serviceTypeId: string) => {
     const selectedServiceType = serviceTypes.find(st => st.id.toString() === serviceTypeId) || null;
+    
+    // Clear contents when service type changes to prevent invalid service selections
+    const shouldClearContents = formData.selectedServiceType?.id !== selectedServiceType?.id && formData.contents && formData.contents.length > 0;
+    
     setFormData(prev => ({
       ...prev,
       selectedServiceType,
-      service_type: selectedServiceType?.name || ''
+      service_type: selectedServiceType?.name || '',
+      contents: shouldClearContents ? [] : prev.contents
     }));
   };
   const handleDelete = () => {
@@ -415,11 +420,13 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             </Select>
           </div>
 
-          {/* Contents Section - Replace the old content textarea */}
+          {/* Contents Section - Now requires service type to be selected */}
           <ContentsSection
             contents={formData.contents || []}
             onContentsChange={(contents) => handleFieldChange('contents', contents)}
             isReadOnly={isReadOnly}
+            selectedServiceTypeId={formData.selectedServiceType?.id}
+            showServiceTypeWarning={!isReadOnly && !formData.selectedServiceType}
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
