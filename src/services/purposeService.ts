@@ -210,11 +210,25 @@ class PurposeService {
     return params;
   }
 
+  // Helper method to filter out invalid contents
+  private filterValidContents(contents: any[]): any[] {
+    if (!contents || !Array.isArray(contents)) {
+      return [];
+    }
+    
+    return contents.filter(content => 
+      content.service_id && 
+      content.service_id > 0 && 
+      content.quantity && 
+      content.quantity > 0
+    );
+  }
+
   // Simplified mapping - IDs are already provided from the modal
   mapPurposeToCreateRequest(purposeData: any): CreatePurposeRequest {
     const mapped: CreatePurposeRequest = {
       description: purposeData.description,
-      contents: purposeData.contents || [], // Changed from content to contents
+      contents: this.filterValidContents(purposeData.contents || []), // Filter out invalid contents
       supplier_id: purposeData.supplier_id,
       service_type_id: purposeData.service_type_id,
       status: purposeData.status || 'IN_PROGRESS' // Fixed: changed from 'PENDING' to 'IN_PROGRESS'
@@ -262,7 +276,7 @@ class PurposeService {
       mapped.description = purposeData.description;
     }
     if (purposeData.contents !== undefined) { // Changed from content to contents
-      mapped.contents = purposeData.contents;
+      mapped.contents = this.filterValidContents(purposeData.contents); // Filter out invalid contents
     }
     if (purposeData.supplier_id !== undefined) {
       mapped.supplier_id = purposeData.supplier_id;
