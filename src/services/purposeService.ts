@@ -217,7 +217,7 @@ class PurposeService {
       contents: purposeData.contents || [], // Changed from content to contents
       supplier_id: purposeData.supplier_id,
       service_type_id: purposeData.service_type_id,
-      status: purposeData.status || 'PENDING'
+      status: purposeData.status || 'IN_PROGRESS' // Fixed: changed from 'PENDING' to 'IN_PROGRESS'
     };
 
     // Optional fields
@@ -319,14 +319,10 @@ class PurposeService {
 
   private mapStatusToApi(status: string): string {
     switch (status) {
-      case 'Pending':
-        return 'PENDING';
       case 'In Progress':
         return 'IN_PROGRESS';
       case 'Completed':
         return 'COMPLETED';
-      case 'Rejected':
-        return 'CANCELLED';
       default:
         return status;
     }
@@ -388,8 +384,6 @@ class PurposeService {
 
   private mapApiStatusToFrontend(status: string): string {
     switch (status) {
-      case 'PENDING':
-        return 'PENDING';
       case 'IN_PROGRESS':
         return 'IN_PROGRESS';
       case 'COMPLETED':
