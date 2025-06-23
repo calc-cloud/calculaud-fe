@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,15 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     updateFilter('service_type_ids', updatedTypes.length > 0 ? updatedTypes : undefined);
   };
 
+  const toggleService = (serviceId: number) => {
+    const currentServices = filters.service_ids || [];
+    const updatedServices = currentServices.includes(serviceId)
+      ? currentServices.filter(id => id !== serviceId)
+      : [...currentServices, serviceId];
+    
+    updateFilter('service_ids', updatedServices.length > 0 ? updatedServices : undefined);
+  };
+
   const toggleStatus = (status: string) => {
     const currentStatuses = filters.status || [];
     const updatedStatuses = currentStatuses.includes(status)
@@ -76,6 +86,16 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
       return serviceType?.name || 'Service Types';
     }
     return `${selectedTypes.length} selected`;
+  };
+
+  const getServiceLabel = () => {
+    const selectedServices = filters.service_ids || [];
+    if (selectedServices.length === 0) return 'Services';
+    if (selectedServices.length === 1) {
+      const service = services.find(s => s.id === selectedServices[0]);
+      return service?.name || 'Services';
+    }
+    return `${selectedServices.length} selected`;
   };
 
   const getStatusLabel = () => {
@@ -195,6 +215,32 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                     checked={(filters.service_type_ids || []).includes(type.id)}
                   />
                   <span>{type.name}</span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Service Multi-Select */}
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+                {isLoading ? 'Loading...' : getServiceLabel()}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
+              {services.map((service) => (
+                <div
+                  key={service.id}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleService(service.id)}
+                >
+                  <Checkbox
+                    checked={(filters.service_ids || []).includes(service.id)}
+                  />
+                  <span className="truncate">{service.name}</span>
                 </div>
               ))}
             </DropdownMenuContent>
