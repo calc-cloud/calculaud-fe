@@ -13,3 +13,8 @@ export interface ServicesQuantityResponse {
   labels: string[];
   data: number[];
 }
+
+export interface ServiceTypesDistributionResponse {
+  labels: string[];
+  data: number[];
+}
