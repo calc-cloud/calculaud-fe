@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,7 +109,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
               </div>
             </TooltipTrigger>
             <TooltipContent 
-              side="bottom" 
+              side="left" 
               align="center"
               className="bg-popover text-popover-foreground border shadow-md max-w-xs z-50"
               sideOffset={5}
@@ -236,3 +237,4 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
     </div>
   );
 };
+
