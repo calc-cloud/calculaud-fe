@@ -5,7 +5,7 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
   const csvHeaders = [
     'ID',
     'Description',
-    'Content',
+    'Contents',
     'Supplier',
     'Hierarchy ID',
     'Hierarchy Name',
@@ -36,10 +36,15 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
       return `EMF ${emf.id}: Created ${emf.creation_date}${emf.demand_id ? `, Demand ${emf.demand_id} (${emf.demand_creation_date})` : ''}${emf.order_id ? `, Order ${emf.order_id} (${emf.order_creation_date})` : ''}${emf.bikushit_id ? `, Bikushit ${emf.bikushit_id} (${emf.bikushit_creation_date})` : ''}, Costs: ${emfCosts}`;
     }).join(' | ');
 
+    // Format contents array as string for CSV
+    const contentsString = purpose.contents.map(content => 
+      `${content.quantity} × ${content.service_name || `Service ${content.service_id}`}`
+    ).join('; ');
+
     return [
       purpose.id,
       `"${purpose.description.replace(/"/g, '""')}"`,
-      `"${purpose.content.replace(/"/g, '""')}"`,
+      `"${contentsString.replace(/"/g, '""')}"`,
       `"${purpose.supplier.replace(/"/g, '""')}"`,
       purpose.hierarchy_id,
       `"${purpose.hierarchy_name.replace(/"/g, '""')}"`,
