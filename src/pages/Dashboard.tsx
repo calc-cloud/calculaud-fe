@@ -5,6 +5,7 @@ import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
 import { ServicesQuantityChart } from '@/components/dashboard/ServicesQuantityChart';
 import { ServiceTypesDistributionChart } from '@/components/dashboard/ServiceTypesDistributionChart';
 import { HierarchyDistributionChart } from '@/components/dashboard/HierarchyDistributionChart';
+import { CostOverTimeChart } from '@/components/dashboard/CostOverTimeChart';
 import { analyticsService } from '@/services/analyticsService';
 import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
 import { format, subYears } from 'date-fns';
@@ -25,6 +26,7 @@ const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<DashboardFiltersType>(getDefaultFilters());
   const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null>(null);
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
+  const [expenditureGroupBy, setExpenditureGroupBy] = useState<'day' | 'week' | 'month' | 'year'>('month');
 
   const { data: servicesQuantityData, isLoading: isServicesQuantityLoading } = useQuery({
     queryKey: ['servicesQuantities', filters],
@@ -44,9 +46,19 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: expenditureTimelineData, isLoading: isExpenditureTimelineLoading } = useQuery({
+    queryKey: ['expenditureTimeline', filters, expenditureGroupBy],
+    queryFn: () => analyticsService.getExpenditureTimeline(filters, expenditureGroupBy),
+    refetchOnWindowFocus: false,
+  });
+
   const handleHierarchyFiltersChange = (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null, parent_id?: number | null) => {
     setHierarchyLevel(level ?? null);
     setHierarchyParentId(parent_id ?? null);
+  };
+
+  const handleExpenditureGroupByChange = (groupBy: 'day' | 'week' | 'month' | 'year') => {
+    setExpenditureGroupBy(groupBy);
   };
 
   return (
@@ -73,13 +85,19 @@ const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Third Chart - Full Width */}
+      {/* Second Row - Full Width Charts */}
       <div className="grid grid-cols-1 gap-6">
         <HierarchyDistributionChart 
           data={hierarchyDistributionData}
           isLoading={isHierarchyDistributionLoading}
           globalFilters={filters}
           onFiltersChange={handleHierarchyFiltersChange}
+        />
+        <CostOverTimeChart 
+          data={expenditureTimelineData}
+          isLoading={isExpenditureTimelineLoading}
+          globalFilters={filters}
+          onGroupByChange={handleExpenditureGroupByChange}
         />
       </div>
     </div>

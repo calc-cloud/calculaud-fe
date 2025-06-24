@@ -46,3 +46,22 @@ export interface HierarchyDistributionResponse {
   level: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
   parent_name: string | null;
 }
+
+export interface ExpenditureTimelineServiceType {
+  service_type_id: number;
+  name: string;
+  total_ils: number;
+  total_usd: number;
+}
+
+export interface ExpenditureTimelineItem {
+  time_period: string;
+  total_ils: number;
+  total_usd: number;
+  data: ExpenditureTimelineServiceType[];
+}
+
+export interface ExpenditureTimelineResponse {
+  items: ExpenditureTimelineItem[];
+  group_by: 'day' | 'week' | 'month' | 'year';
+}

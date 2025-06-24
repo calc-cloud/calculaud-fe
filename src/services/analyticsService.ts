@@ -1,5 +1,5 @@
 import { apiService } from './apiService';
-import { DashboardFilters, ServicesQuantityResponse, ServiceTypesDistributionResponse, HierarchyDistributionResponse } from '@/types/analytics';
+import { DashboardFilters, ServicesQuantityResponse, ServiceTypesDistributionResponse, HierarchyDistributionResponse, ExpenditureTimelineResponse } from '@/types/analytics';
 
 export class AnalyticsService {
   async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
@@ -115,6 +115,46 @@ export class AnalyticsService {
     
     try {
       const result = await apiService.get<HierarchyDistributionResponse>('/analytics/hierarchies/distribution', params);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getExpenditureTimeline(
+    filters?: DashboardFilters,
+    groupBy: 'day' | 'week' | 'month' | 'year' = 'month'
+  ): Promise<ExpenditureTimelineResponse> {
+    const params: Record<string, any> = {
+      group_by: groupBy
+    };
+    
+    if (filters) {
+      if (filters.start_date) {
+        params.start_date = filters.start_date;
+      }
+      if (filters.end_date) {
+        params.end_date = filters.end_date;
+      }
+      if (filters.service_ids?.length) {
+        params.service_ids = filters.service_ids;
+      }
+      if (filters.service_type_ids?.length) {
+        params.service_type_ids = filters.service_type_ids;
+      }
+      if (filters.hierarchy_ids?.length) {
+        params.hierarchy_ids = filters.hierarchy_ids;
+      }
+      if (filters.status?.length) {
+        params.status = filters.status;
+      }
+      if (filters.supplier_ids?.length) {
+        params.supplier_ids = filters.supplier_ids;
+      }
+    }
+    
+    try {
+      const result = await apiService.get<ExpenditureTimelineResponse>('/analytics/expenditure/timeline', params);
       return result;
     } catch (error) {
       throw error;
