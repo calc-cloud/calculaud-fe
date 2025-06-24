@@ -41,14 +41,18 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
-    if (!selectedHierarchy) return [];
+    if (!selectedHierarchy) {
+      // When no hierarchy is selected, show all UNITs, so available levels are ANAF, MADOR, TEAM
+      return ['ANAF', 'MADOR', 'TEAM'] as const;
+    }
     
     const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
     if (!hierarchy) return [];
     
     const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
-    // Return two levels down from current level
-    return HIERARCHY_LEVELS.slice(currentLevelIndex + 1, currentLevelIndex + 3);
+    // Return levels starting from two levels down from current level
+    const startIndex = currentLevelIndex + 2;
+    return HIERARCHY_LEVELS.slice(startIndex);
   };
 
   const availableLevels = getAvailableLevels();
