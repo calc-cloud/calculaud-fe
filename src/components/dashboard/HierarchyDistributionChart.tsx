@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { HierarchyDistributionResponse, DashboardFilters } from '@/types/analytics';
+import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
 interface HierarchyDistributionChartProps {
@@ -67,6 +67,13 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     }
   }, [selectedHierarchy]);
 
+  // Handle hierarchy selection change
+  const handleHierarchySelectionChange = (selectedIds: number[]) => {
+    // Only allow single selection for this chart
+    const newSelectedId = selectedIds.length > 0 ? selectedIds[0] : undefined;
+    setSelectedHierarchy(newSelectedId);
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -79,11 +86,13 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
-                <Select disabled>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Loading..." />
-                  </SelectTrigger>
-                </Select>
+                <div className="w-full opacity-50 pointer-events-none">
+                  <HierarchySelector
+                    hierarchies={[]}
+                    selectedIds={[]}
+                    onSelectionChange={() => {}}
+                  />
+                </div>
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
@@ -113,18 +122,11 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
-                <Select value={selectedHierarchy?.toString()} onValueChange={(value) => setSelectedHierarchy(Number(value))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select hierarchy" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hierarchies.map((hierarchy) => (
-                      <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
-                        {hierarchy.fullPath}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <HierarchySelector
+                  hierarchies={hierarchies}
+                  selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
+                  onSelectionChange={handleHierarchySelectionChange}
+                />
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
@@ -203,18 +205,11 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
-              <Select value={selectedHierarchy?.toString()} onValueChange={(value) => setSelectedHierarchy(Number(value))}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select hierarchy" />
-                </SelectTrigger>
-                <SelectContent>
-                  {hierarchies.map((hierarchy) => (
-                    <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
-                      {hierarchy.fullPath}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <HierarchySelector
+                hierarchies={hierarchies}
+                selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
+                onSelectionChange={handleHierarchySelectionChange}
+              />
             </div>
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
