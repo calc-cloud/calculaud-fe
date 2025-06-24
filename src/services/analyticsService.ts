@@ -107,7 +107,7 @@ export class AnalyticsService {
 
   async getHierarchyDistribution(
     filters?: DashboardFilters, 
-    level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM',
+    level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null,
     parent_id?: number | null
   ): Promise<HierarchyDistributionResponse> {
     console.log('=== AnalyticsService.getHierarchyDistribution ===');
@@ -117,15 +117,20 @@ export class AnalyticsService {
     
     const params: Record<string, any> = {};
     
-    if (level) {
+    // Only add level if it's not null or undefined
+    if (level !== null && level !== undefined) {
       params.level = level;
       console.log('Added level:', level);
+    } else {
+      console.log('Level is null/undefined, not adding to params');
     }
     
     // Only add parent_id if it's not null
     if (parent_id !== null && parent_id !== undefined) {
       params.parent_id = parent_id;
       console.log('Added parent_id:', parent_id);
+    } else {
+      console.log('Parent ID is null/undefined, not adding to params');
     }
     
     if (filters) {

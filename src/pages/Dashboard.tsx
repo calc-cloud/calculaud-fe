@@ -10,7 +10,7 @@ import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
 
 const Dashboard: React.FC = () => {
   const [filters, setFilters] = useState<DashboardFiltersType>({});
-  const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM'>('UNIT');
+  const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null>(null);
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
 
   console.log('=== Dashboard Filters ===', filters);
@@ -33,8 +33,12 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const handleHierarchyFiltersChange = (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM', parent_id?: number | null) => {
-    if (level) setHierarchyLevel(level);
+  const handleHierarchyFiltersChange = (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null, parent_id?: number | null) => {
+    console.log('=== Dashboard handleHierarchyFiltersChange ===');
+    console.log('Received level:', level);
+    console.log('Received parent_id:', parent_id);
+    
+    setHierarchyLevel(level ?? null);
     setHierarchyParentId(parent_id ?? null);
   };
 
