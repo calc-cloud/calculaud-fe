@@ -218,12 +218,25 @@ class PurposeService {
       return [];
     }
     
-    return contents.filter(content => 
-      content.service_id && 
-      content.service_id > 0 && 
-      content.quantity && 
-      content.quantity > 0
-    );
+    return contents.filter(content => {
+      // Check for both material_id (frontend) and service_id (backend) for compatibility
+      const serviceId = content.service_id || content.material_id;
+      return serviceId && 
+             serviceId > 0 && 
+             content.quantity && 
+             content.quantity > 0;
+    }).map(content => {
+      // Ensure the content has the correct field mapping for the API
+      // If material_id is different from service_id, use material_id as the new service_id
+      const finalServiceId = content.material_id && content.material_id !== content.service_id 
+        ? content.material_id 
+        : content.service_id || content.material_id;
+      
+      return {
+        service_id: finalServiceId,
+        quantity: content.quantity
+      };
+    });
   }
 
   // Simplified mapping - IDs are already provided from the modal
