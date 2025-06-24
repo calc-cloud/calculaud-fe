@@ -76,14 +76,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Create Purpose
               </Button>
               <div className="flex items-center space-x-2 ml-4 border-l pl-4">
-                <Link to="/">
-                  <Button variant={location.pathname === '/' ? 'default' : 'ghost'}>
-                    Search
-                  </Button>
-                </Link>
                 <Link to="/dashboard">
                   <Button variant={location.pathname === '/dashboard' ? 'default' : 'ghost'}>
                     Dashboard
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant={location.pathname === '/' ? 'default' : 'ghost'}>
+                    Search
                   </Button>
                 </Link>
                 <Link to="/admin">

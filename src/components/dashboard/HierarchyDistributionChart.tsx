@@ -103,6 +103,23 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     }
   };
 
+  // Handle pie segment click
+  const handlePieClick = (data: any) => {
+    // Find the hierarchy by name from the chart data
+    const clickedHierarchy = filteredHierarchies.find(h => h.name === data.name);
+    
+    if (clickedHierarchy) {
+      // Check if it's a TEAM type hierarchy - if so, don't make it clickable
+      if (clickedHierarchy.type === 'Team') {
+        return;
+      }
+      
+      // Set the selected hierarchy and reset drill-down level
+      setSelectedHierarchy(clickedHierarchy.id);
+      setSelectedLevel('DIRECT_CHILDREN');
+    }
+  };
+
   if (isLoading) {
     return (
       <Card>
@@ -215,10 +232,18 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
+      
+      // Check if this hierarchy is clickable (not a TEAM type)
+      const hierarchy = filteredHierarchies.find(h => h.name === data.payload.name);
+      const isClickable = hierarchy && hierarchy.type !== 'Team';
+      
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`${data.payload.fullPath}`}</p>
           <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
+          {isClickable && (
+            <p className="text-blue-600 text-sm mt-1 italic">Click to view this hierarchy</p>
+          )}
         </div>
       );
     }
@@ -271,10 +296,24 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                   outerRadius={120}
                   fill="#8884d8"
                   dataKey="value"
+                  onClick={handlePieClick}
                 >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                  {chartData.map((entry, index) => {
+                    // Find if this entry corresponds to a TEAM hierarchy
+                    const hierarchy = filteredHierarchies.find(h => h.name === entry.name);
+                    const isTeamType = hierarchy?.type === 'Team';
+                    
+                    return (
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={COLORS[index % COLORS.length]}
+                        style={{ 
+                          cursor: isTeamType ? 'default' : 'pointer',
+                          opacity: isTeamType ? 0.7 : 1
+                        }}
+                      />
+                    );
+                  })}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
