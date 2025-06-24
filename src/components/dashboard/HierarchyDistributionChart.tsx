@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,8 +39,17 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
-  // Filter out hierarchies of type "Team"
-  const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.type !== 'Team');
+  // Debug: Log all hierarchy types
+  console.log('=== All hierarchies ===', hierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
+
+  // Filter out hierarchies of type "Team" - check for both "Team" and "TEAM"
+  const filteredHierarchies = hierarchies.filter(hierarchy => {
+    const isTeamType = hierarchy.type === 'Team' || hierarchy.type === 'TEAM';
+    console.log(`Hierarchy ${hierarchy.name} (${hierarchy.type}): ${isTeamType ? 'FILTERED OUT' : 'INCLUDED'}`);
+    return !isTeamType;
+  });
+
+  console.log('=== Filtered hierarchies ===', filteredHierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
