@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,9 +73,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 
   // Handle hierarchy selection change
   const handleHierarchySelectionChange = (selectedIds: number[]) => {
-    // Only allow single selection for this chart
-    const newSelectedId = selectedIds.length > 0 ? selectedIds[0] : undefined;
-    setSelectedHierarchy(newSelectedId);
+    if (selectedIds.length === 0) {
+      // No selection - clear current selection
+      setSelectedHierarchy(undefined);
+    } else {
+      // New selection - always take the latest selected item
+      const newSelectedId = selectedIds[selectedIds.length - 1];
+      
+      // If it's the same as current selection, deselect it
+      if (newSelectedId === selectedHierarchy) {
+        setSelectedHierarchy(undefined);
+      } else {
+        // Otherwise, select the new hierarchy
+        setSelectedHierarchy(newSelectedId);
+      }
+    }
   };
 
   if (isLoading) {
