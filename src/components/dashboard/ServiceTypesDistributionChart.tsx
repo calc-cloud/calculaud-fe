@@ -43,7 +43,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     );
   }
 
-  if (!data || data.labels.length === 0) {
+  if (!data || !data.data || data.data.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -59,10 +59,10 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     );
   }
 
-  // Transform data for recharts
-  const chartData = data.labels.map((label, index) => ({
-    name: label,
-    value: data.data[index]
+  // Transform data for recharts - data is now an array of objects with count instead of value
+  const chartData = data.data.map((item) => ({
+    name: item.name,
+    value: item.count
   }));
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {

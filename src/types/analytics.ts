@@ -9,12 +9,24 @@ export interface DashboardFilters {
   supplier_ids?: number[];
 }
 
+export interface ServiceItem {
+  id: number;
+  name: string;
+  service_type_id: number;
+  service_type_name: string;
+  quantity: number;
+}
+
 export interface ServicesQuantityResponse {
-  labels: string[];
-  data: number[];
+  data: ServiceItem[];
+}
+
+export interface ServiceTypeItem {
+  id: number;
+  name: string;
+  count: number;
 }
 
 export interface ServiceTypesDistributionResponse {
-  labels: string[];
-  data: number[];
+  data: ServiceTypeItem[];
 }

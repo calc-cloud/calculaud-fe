@@ -26,7 +26,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     );
   }
 
-  if (!data || data.labels.length === 0) {
+  if (!data || !data.data || data.data.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -42,10 +42,11 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     );
   }
 
-  // Transform data for recharts
-  const chartData = data.labels.map((label, index) => ({
-    service: label,
-    quantity: data.data[index]
+  // Transform data for recharts - data is now an array of objects
+  const chartData = data.data.map((item) => ({
+    service: item.name,
+    quantity: item.quantity,
+    serviceType: item.service_type_name
   }));
 
   return (
