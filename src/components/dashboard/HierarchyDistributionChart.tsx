@@ -11,7 +11,7 @@ interface HierarchyDistributionChartProps {
   data: HierarchyDistributionResponse | undefined;
   isLoading: boolean;
   globalFilters: DashboardFilters;
-  onFiltersChange: (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM', parent_id?: number) => void;
+  onFiltersChange: (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM', parent_id?: number | null) => void;
 }
 
 // Colors for the pie chart segments
@@ -56,7 +56,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 
   // Update filters when hierarchy or level changes
   useEffect(() => {
-    onFiltersChange(selectedLevel, selectedHierarchy);
+    // Send null as parent_id when no hierarchy is selected
+    const parentId = selectedHierarchy || null;
+    onFiltersChange(selectedLevel, parentId);
   }, [selectedLevel, selectedHierarchy, onFiltersChange]);
 
   // Reset level when hierarchy changes
@@ -64,6 +66,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     const levels = getAvailableLevels();
     if (levels.length > 0 && !levels.includes(selectedLevel)) {
       setSelectedLevel(levels[0]);
+    } else if (levels.length === 0) {
+      // Reset to default level when no hierarchy is selected
+      setSelectedLevel('UNIT');
     }
   }, [selectedHierarchy]);
 
@@ -136,11 +141,17 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                   onValueChange={(value) => value && setSelectedLevel(value as any)}
                   disabled={availableLevels.length === 0}
                 >
-                  {availableLevels.map((level) => (
-                    <ToggleGroupItem key={level} value={level}>
-                      {level}
+                  {availableLevels.length === 0 ? (
+                    <ToggleGroupItem value="UNIT" disabled>
+                      No options available
                     </ToggleGroupItem>
-                  ))}
+                  ) : (
+                    availableLevels.map((level) => (
+                      <ToggleGroupItem key={level} value={level}>
+                        {level}
+                      </ToggleGroupItem>
+                    ))
+                  )}
                 </ToggleGroup>
               </div>
             </div>
