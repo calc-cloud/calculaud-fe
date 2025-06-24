@@ -75,9 +75,11 @@ const Dashboard: React.FC = () => {
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ServicesQuantityChart 
-          data={servicesQuantityData}
-          isLoading={isServicesQuantityLoading}
+        <HierarchyDistributionChart 
+          data={hierarchyDistributionData}
+          isLoading={isHierarchyDistributionLoading}
+          globalFilters={filters}
+          onFiltersChange={handleHierarchyFiltersChange}
         />
         <ServiceTypesDistributionChart 
           data={serviceTypesDistributionData}
@@ -87,11 +89,9 @@ const Dashboard: React.FC = () => {
 
       {/* Second Row - Full Width Charts */}
       <div className="grid grid-cols-1 gap-6">
-        <HierarchyDistributionChart 
-          data={hierarchyDistributionData}
-          isLoading={isHierarchyDistributionLoading}
-          globalFilters={filters}
-          onFiltersChange={handleHierarchyFiltersChange}
+        <ServicesQuantityChart 
+          data={servicesQuantityData}
+          isLoading={isServicesQuantityLoading}
         />
         <CostOverTimeChart 
           data={expenditureTimelineData}

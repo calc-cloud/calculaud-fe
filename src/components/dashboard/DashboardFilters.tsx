@@ -71,13 +71,87 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     updateFilter('supplier_ids', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
   };
 
-  const clearFilters = () => {
-    onFiltersChange({});
+  // Calculate date range based on relative time selection
+  const calculateDateRange = (relativeTime: string) => {
+    const today = new Date();
+    let startDate: Date;
+    let endDate: Date = today;
+
+    switch (relativeTime) {
+      case 'last_7_days':
+        startDate = subDays(today, 7);
+        break;
+      case 'last_30_days':
+        startDate = subDays(today, 30);
+        break;
+      case 'last_3_months':
+        startDate = subMonths(today, 3);
+        break;
+      case 'last_6_months':
+        startDate = subMonths(today, 6);
+        break;
+      case 'last_year':
+        startDate = subYears(today, 1);
+        break;
+      case 'this_week':
+        startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
+        break;
+      case 'this_month':
+        startDate = startOfMonth(today);
+        break;
+      case 'this_year':
+        startDate = startOfYear(today);
+        break;
+      default:
+        return; // Don't update dates for custom or unknown values
+    }
+
+    return {
+      start_date: format(startDate, 'yyyy-MM-dd'),
+      end_date: format(endDate, 'yyyy-MM-dd')
+    };
   };
 
-  const activeFiltersCount = Object.values(filters).filter(value => 
-    value !== undefined && value !== '' && (!Array.isArray(value) || value.length > 0)
-  ).length;
+  const clearFilters = () => {
+    // Reset to default state with "Last Year" relative time and corresponding date range
+    const defaultDateRange = calculateDateRange('last_year');
+    const defaultFilters = {
+      relative_time: 'last_year',
+      ...defaultDateRange
+    };
+    onFiltersChange(defaultFilters);
+  };
+
+  // Calculate active filters count, excluding default values
+  const getActiveFiltersCount = () => {
+    // Get default state for comparison
+    const defaultDateRange = calculateDateRange('last_year');
+    const isDefaultDateRange = filters.start_date === defaultDateRange?.start_date && 
+                              filters.end_date === defaultDateRange?.end_date;
+    const isDefaultRelativeTime = (filters.relative_time || 'last_year') === 'last_year';
+    
+    let count = 0;
+    
+    // Only count non-default filters
+    if (filters.service_ids?.length) count++;
+    if (filters.service_type_ids?.length) count++;
+    if (filters.hierarchy_ids?.length) count++;
+    if (filters.status?.length) count++;
+    if (filters.supplier_ids?.length) count++;
+    
+    // Only count date/time filters if they're not the default
+    if (!isDefaultDateRange || !isDefaultRelativeTime) {
+      if (filters.relative_time === 'custom') {
+        count++; // Custom date range
+      } else if (filters.relative_time && filters.relative_time !== 'last_year') {
+        count++; // Non-default relative time
+      }
+    }
+    
+    return count;
+  };
+  
+  const activeFiltersCount = getActiveFiltersCount();
 
   const getServiceTypeLabel = () => {
     const selectedTypes = filters.service_type_ids || [];
@@ -130,47 +204,6 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     { value: 'this_year', label: 'This Year' },
     { value: 'custom', label: 'Custom Range' }
   ];
-
-  // Calculate date range based on relative time selection
-  const calculateDateRange = (relativeTime: string) => {
-    const today = new Date();
-    let startDate: Date;
-    let endDate: Date = today;
-
-    switch (relativeTime) {
-      case 'last_7_days':
-        startDate = subDays(today, 7);
-        break;
-      case 'last_30_days':
-        startDate = subDays(today, 30);
-        break;
-      case 'last_3_months':
-        startDate = subMonths(today, 3);
-        break;
-      case 'last_6_months':
-        startDate = subMonths(today, 6);
-        break;
-      case 'last_year':
-        startDate = subYears(today, 1);
-        break;
-      case 'this_week':
-        startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
-        break;
-      case 'this_month':
-        startDate = startOfMonth(today);
-        break;
-      case 'this_year':
-        startDate = startOfYear(today);
-        break;
-      default:
-        return; // Don't update dates for custom or unknown values
-    }
-
-    return {
-      start_date: format(startDate, 'yyyy-MM-dd'),
-      end_date: format(endDate, 'yyyy-MM-dd')
-    };
-  };
 
   // Handle relative time change
   const handleRelativeTimeChange = (relativeTime: string) => {
