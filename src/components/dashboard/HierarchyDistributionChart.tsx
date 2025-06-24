@@ -39,6 +39,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
+  // Filter out hierarchies of type "TEAM"
+  const filteredHierarchies = hierarchies.filter(h => h.type !== 'TEAM');
+
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
     const levels = ['DIRECT_CHILDREN'];
@@ -47,7 +50,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
       // When no hierarchy is selected, show CENTER, ANAF, MADOR, TEAM
       levels.push('CENTER', 'ANAF', 'MADOR', 'TEAM');
     } else {
-      const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
+      const hierarchy = filteredHierarchies.find(h => h.id === selectedHierarchy);
       if (hierarchy) {
         const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
         // Return two levels down from current level
@@ -146,7 +149,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
                 <HierarchySelector
-                  hierarchies={hierarchies}
+                  hierarchies={filteredHierarchies}
                   selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                   onSelectionChange={handleHierarchySelectionChange}
                 />
@@ -231,7 +234,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
               <HierarchySelector
-                hierarchies={hierarchies}
+                hierarchies={filteredHierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                 onSelectionChange={handleHierarchySelectionChange}
               />
