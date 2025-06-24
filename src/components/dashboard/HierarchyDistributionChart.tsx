@@ -180,7 +180,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     name: item.name,
     value: item.count,
     fullPath: item.path
-  }));
+  })).sort((a, b) => b.value - a.value); // Sort by value in descending order
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
     // Only show labels for non-zero values
