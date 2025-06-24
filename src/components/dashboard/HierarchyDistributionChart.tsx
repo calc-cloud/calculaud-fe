@@ -44,8 +44,8 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     const levels = ['DIRECT_CHILDREN'];
     
     if (!selectedHierarchy) {
-      // When no hierarchy is selected, show ANAF, MADOR, TEAM (skipping CENTER as it's one level down)
-      levels.push('ANAF', 'MADOR', 'TEAM');
+      // When no hierarchy is selected, show CENTER, ANAF, MADOR, TEAM
+      levels.push('CENTER', 'ANAF', 'MADOR', 'TEAM');
     } else {
       const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
       if (hierarchy) {
