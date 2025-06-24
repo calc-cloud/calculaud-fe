@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X, ChevronDown, CalendarIcon } from 'lucide-react';
 import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, subDays, subWeeks, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 interface DashboardFiltersProps {
@@ -117,11 +118,89 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
 
   const PURPOSE_STATUSES = ['IN_PROGRESS', 'COMPLETED'];
 
+  // Relative time options
+  const RELATIVE_TIME_OPTIONS = [
+    { value: 'last_7_days', label: 'Last 7 Days' },
+    { value: 'last_30_days', label: 'Last 30 Days' },
+    { value: 'last_3_months', label: 'Last 3 Months' },
+    { value: 'last_6_months', label: 'Last 6 Months' },
+    { value: 'last_year', label: 'Last Year' },
+    { value: 'this_week', label: 'This Week' },
+    { value: 'this_month', label: 'This Month' },
+    { value: 'this_year', label: 'This Year' },
+    { value: 'custom', label: 'Custom Range' }
+  ];
+
+  // Calculate date range based on relative time selection
+  const calculateDateRange = (relativeTime: string) => {
+    const today = new Date();
+    let startDate: Date;
+    let endDate: Date = today;
+
+    switch (relativeTime) {
+      case 'last_7_days':
+        startDate = subDays(today, 7);
+        break;
+      case 'last_30_days':
+        startDate = subDays(today, 30);
+        break;
+      case 'last_3_months':
+        startDate = subMonths(today, 3);
+        break;
+      case 'last_6_months':
+        startDate = subMonths(today, 6);
+        break;
+      case 'last_year':
+        startDate = subYears(today, 1);
+        break;
+      case 'this_week':
+        startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
+        break;
+      case 'this_month':
+        startDate = startOfMonth(today);
+        break;
+      case 'this_year':
+        startDate = startOfYear(today);
+        break;
+      default:
+        return; // Don't update dates for custom or unknown values
+    }
+
+    return {
+      start_date: format(startDate, 'yyyy-MM-dd'),
+      end_date: format(endDate, 'yyyy-MM-dd')
+    };
+  };
+
+  // Handle relative time change
+  const handleRelativeTimeChange = (relativeTime: string) => {
+    const dateRange = calculateDateRange(relativeTime);
+    
+    const newFilters = {
+      ...filters,
+      relative_time: relativeTime,
+      ...(dateRange || {}) // Only update dates if dateRange is not undefined
+    };
+    
+    onFiltersChange(newFilters);
+  };
+
+  // Handle manual date changes (should set relative_time to 'custom')
+  const handleDateChange = (key: 'start_date' | 'end_date', value: string | undefined) => {
+    const newFilters = {
+      ...filters,
+      [key]: value,
+      relative_time: 'custom' // Set to custom when manually changing dates
+    };
+    
+    onFiltersChange(newFilters);
+  };
+
   return (
     <div className="space-y-4 bg-white p-6 rounded-lg shadow-sm border">
       <h3 className="text-lg font-semibold">Filters</h3>
       
-      {/* Date Range */}
+      {/* Date Range with Relative Time Filter */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <label className="text-sm font-medium">From:</label>
@@ -144,7 +223,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               <Calendar
                 mode="single"
                 selected={filters.start_date ? new Date(filters.start_date) : undefined}
-                onSelect={(date) => updateFilter('start_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
+                onSelect={(date) => handleDateChange('start_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
                 initialFocus
                 className="p-3 pointer-events-auto"
               />
@@ -173,12 +252,32 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
               <Calendar
                 mode="single"
                 selected={filters.end_date ? new Date(filters.end_date) : undefined}
-                onSelect={(date) => updateFilter('end_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
+                onSelect={(date) => handleDateChange('end_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
                 initialFocus
                 className="p-3 pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
+        </div>
+
+        {/* Relative Time Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Relative Time:</label>
+          <Select
+            value={filters.relative_time || 'last_year'}
+            onValueChange={handleRelativeTimeChange}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Select time range" />
+            </SelectTrigger>
+            <SelectContent>
+              {RELATIVE_TIME_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

@@ -447,8 +447,8 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="comments">Comments</Label>
-            <Textarea id="comments" value={formData.comments || ''} onChange={e => handleFieldChange('comments', e.target.value)} disabled={isReadOnly} rows={2} placeholder="Add any additional comments..." />
+            <Label htmlFor="comments">Status Message</Label>
+            <Textarea id="comments" value={formData.comments || ''} onChange={e => handleFieldChange('comments', e.target.value)} disabled={isReadOnly} rows={2} placeholder="Add status message..." />
           </div>
 
           {/* EMF Section with Hebrew Title */}

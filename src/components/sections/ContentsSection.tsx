@@ -125,7 +125,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">Contents</Label>
+        <Label className="text-base font-medium">Content</Label>
         {!isReadOnly && renderAddContentButton()}
       </div>
 

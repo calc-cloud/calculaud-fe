@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { HierarchyDistributionResponse, DashboardFilters } from '@/types/analytics';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -142,9 +142,14 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
-                <ToggleGroup type="single" disabled>
-                  <ToggleGroupItem value="loading">Loading...</ToggleGroupItem>
-                </ToggleGroup>
+                <Select disabled>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Loading..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="loading">Loading...</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -176,17 +181,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               </div>
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
-                <ToggleGroup 
-                  type="single" 
+                <Select 
                   value={selectedLevel} 
                   onValueChange={(value) => value && setSelectedLevel(value as any)}
                 >
-                  {availableLevels.map((level) => (
-                    <ToggleGroupItem key={level} value={level}>
-                      {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
-                    </ToggleGroupItem>
-                  ))}
-                </ToggleGroup>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select drill-down level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableLevels.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -269,17 +278,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             </div>
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
-              <ToggleGroup 
-                type="single" 
+              <Select 
                 value={selectedLevel} 
                 onValueChange={(value) => value && setSelectedLevel(value as any)}
               >
-                {availableLevels.map((level) => (
-                  <ToggleGroupItem key={level} value={level}>
-                    {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
-                  </ToggleGroupItem>
-                ))}
-              </ToggleGroup>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select drill-down level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableLevels.map((level) => (
+                    <SelectItem key={level} value={level}>
+                      {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

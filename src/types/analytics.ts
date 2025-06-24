@@ -2,6 +2,7 @@
 export interface DashboardFilters {
   start_date?: string;
   end_date?: string;
+  relative_time?: string;
   service_ids?: number[];
   service_type_ids?: number[];
   hierarchy_ids?: number[];

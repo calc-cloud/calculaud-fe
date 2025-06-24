@@ -7,9 +7,22 @@ import { ServiceTypesDistributionChart } from '@/components/dashboard/ServiceTyp
 import { HierarchyDistributionChart } from '@/components/dashboard/HierarchyDistributionChart';
 import { analyticsService } from '@/services/analyticsService';
 import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
+import { format, subYears } from 'date-fns';
 
 const Dashboard: React.FC = () => {
-  const [filters, setFilters] = useState<DashboardFiltersType>({});
+  // Set default filters with "Last Year" relative time
+  const getDefaultFilters = (): DashboardFiltersType => {
+    const today = new Date();
+    const lastYear = subYears(today, 1);
+    
+    return {
+      relative_time: 'last_year',
+      start_date: format(lastYear, 'yyyy-MM-dd'),
+      end_date: format(today, 'yyyy-MM-dd')
+    };
+  };
+
+  const [filters, setFilters] = useState<DashboardFiltersType>(getDefaultFilters());
   const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null>(null);
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
 
