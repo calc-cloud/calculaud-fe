@@ -39,8 +39,16 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
-  // Filter out hierarchies of type "Team"
-  const filteredHierarchies = hierarchies.filter(h => h.type !== 'Team');
+  // Filter out hierarchies of type "Team" - debug and filter correctly
+  console.log('All hierarchies:', hierarchies);
+  console.log('Hierarchy types:', hierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
+  
+  const filteredHierarchies = hierarchies.filter(h => {
+    console.log(`Hierarchy ${h.name} has type: "${h.type}" (${typeof h.type})`);
+    return h.type !== 'Team';
+  });
+  
+  console.log('Filtered hierarchies (no Teams):', filteredHierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
