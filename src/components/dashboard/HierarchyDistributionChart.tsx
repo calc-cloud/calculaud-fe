@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,9 +43,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   // Debug: Log all hierarchy types
   console.log('=== All hierarchies ===', hierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
 
-  // Filter out hierarchies of type "Team" - check for both "Team" and "TEAM"
+  // Filter out hierarchies of type "Team" - use correct TypeScript type
   const filteredHierarchies = hierarchies.filter(hierarchy => {
-    const isTeamType = hierarchy.type === 'Team' || hierarchy.type === 'TEAM';
+    const isTeamType = hierarchy.type === 'TEAM';
     console.log(`Hierarchy ${hierarchy.name} (${hierarchy.type}): ${isTeamType ? 'FILTERED OUT' : 'INCLUDED'}`);
     return !isTeamType;
   });
