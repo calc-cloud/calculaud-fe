@@ -37,7 +37,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 }) => {
   const { hierarchies } = useAdminData();
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
-  const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM'>('UNIT');
+  const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM'>('ANAF');
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
@@ -71,7 +71,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
       setSelectedLevel(levels[0]);
     } else if (levels.length === 0) {
       // Reset to default level when no hierarchy is selected
-      setSelectedLevel('UNIT');
+      setSelectedLevel('ANAF');
     }
   }, [selectedHierarchy]);
 
@@ -157,7 +157,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                   disabled={availableLevels.length === 0}
                 >
                   {availableLevels.length === 0 ? (
-                    <ToggleGroupItem value="UNIT" disabled>
+                    <ToggleGroupItem value="ANAF" disabled>
                       No options available
                     </ToggleGroupItem>
                   ) : (
@@ -268,7 +268,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                 disabled={availableLevels.length === 0}
               >
                 {availableLevels.length === 0 ? (
-                  <ToggleGroupItem value="UNIT" disabled>
+                  <ToggleGroupItem value="ANAF" disabled>
                     No options available
                   </ToggleGroupItem>
                 ) : (
