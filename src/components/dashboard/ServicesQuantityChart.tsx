@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServicesQuantityResponse } from '@/types/analytics';
 
@@ -140,11 +140,11 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
                 payload={legendData}
                 wrapperStyle={{ paddingTop: '20px' }}
               />
-              <Bar 
-                dataKey="quantity" 
-                radius={[4, 4, 0, 0]}
-                fill={(entry: any) => entry.color}
-              />
+              <Bar dataKey="quantity" radius={[4, 4, 0, 0]}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
