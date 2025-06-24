@@ -233,7 +233,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               <HierarchySelector
                 hierarchies={hierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
-                onSeltersChange={handleHierarchySelectionChange}
+                onSelectionChange={handleHierarchySelectionChange}
               />
             </div>
             <div className="flex-1">
