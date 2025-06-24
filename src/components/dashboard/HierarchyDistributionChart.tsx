@@ -10,7 +10,7 @@ interface HierarchyDistributionChartProps {
   data: HierarchyDistributionResponse | undefined;
   isLoading: boolean;
   globalFilters: DashboardFilters;
-  onFiltersChange: (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM', parent_id?: number | null) => void;
+  onFiltersChange: (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null, parent_id?: number | null) => void;
 }
 
 // Colors for the pie chart segments
@@ -37,18 +37,26 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 }) => {
   const { hierarchies } = useAdminData();
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
-  const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM'>('UNIT');
+  const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
-    if (!selectedHierarchy) return [];
+    const levels = ['DIRECT_CHILDREN'];
     
-    const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
-    if (!hierarchy) return [];
+    if (!selectedHierarchy) {
+      // When no hierarchy is selected, show ANAF, MADOR, TEAM (skipping CENTER as it's one level down)
+      levels.push('ANAF', 'MADOR', 'TEAM');
+    } else {
+      const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
+      if (hierarchy) {
+        const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
+        // Return two levels down from current level
+        const availableHierarchyLevels = HIERARCHY_LEVELS.slice(currentLevelIndex + 2, currentLevelIndex + 4);
+        levels.push(...availableHierarchyLevels);
+      }
+    }
     
-    const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
-    // Return two levels down from current level
-    return HIERARCHY_LEVELS.slice(currentLevelIndex + 1, currentLevelIndex + 3);
+    return levels;
   };
 
   const availableLevels = getAvailableLevels();
@@ -57,17 +65,16 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   useEffect(() => {
     // Send null as parent_id when no hierarchy is selected
     const parentId = selectedHierarchy || null;
-    onFiltersChange(selectedLevel, parentId);
+    // Send null as level when "Direct Children" is selected
+    const level = selectedLevel === 'DIRECT_CHILDREN' ? null : selectedLevel as 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+    onFiltersChange(level, parentId);
   }, [selectedLevel, selectedHierarchy, onFiltersChange]);
 
   // Reset level when hierarchy changes
   useEffect(() => {
     const levels = getAvailableLevels();
     if (levels.length > 0 && !levels.includes(selectedLevel)) {
-      setSelectedLevel(levels[0]);
-    } else if (levels.length === 0) {
-      // Reset to default level when no hierarchy is selected
-      setSelectedLevel('UNIT');
+      setSelectedLevel('DIRECT_CHILDREN');
     }
   }, [selectedHierarchy]);
 
@@ -150,19 +157,12 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                   type="single" 
                   value={selectedLevel} 
                   onValueChange={(value) => value && setSelectedLevel(value as any)}
-                  disabled={availableLevels.length === 0}
                 >
-                  {availableLevels.length === 0 ? (
-                    <ToggleGroupItem value="UNIT" disabled>
-                      No options available
+                  {availableLevels.map((level) => (
+                    <ToggleGroupItem key={level} value={level}>
+                      {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
                     </ToggleGroupItem>
-                  ) : (
-                    availableLevels.map((level) => (
-                      <ToggleGroupItem key={level} value={level}>
-                        {level}
-                      </ToggleGroupItem>
-                    ))
-                  )}
+                  ))}
                 </ToggleGroup>
               </div>
             </div>
@@ -219,25 +219,6 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     return null;
   };
 
-  const renderCustomLegend = (props: any) => {
-    const { payload } = props;
-    return (
-      <div className="flex flex-col space-y-2 ml-4">
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center space-x-2 text-sm">
-            <div 
-              className="w-3 h-3 rounded-sm" 
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-gray-700">
-              {entry.payload.name} ({entry.payload.value})
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -252,7 +233,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               <HierarchySelector
                 hierarchies={hierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
-                onSelectionChange={handleHierarchySelectionChange}
+                onSeltersChange={handleHierarchySelectionChange}
               />
             </div>
             <div className="flex-1">
@@ -261,19 +242,12 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                 type="single" 
                 value={selectedLevel} 
                 onValueChange={(value) => value && setSelectedLevel(value as any)}
-                disabled={availableLevels.length === 0}
               >
-                {availableLevels.length === 0 ? (
-                  <ToggleGroupItem value="UNIT" disabled>
-                    No options available
+                {availableLevels.map((level) => (
+                  <ToggleGroupItem key={level} value={level}>
+                    {level === 'DIRECT_CHILDREN' ? 'Direct Children' : level}
                   </ToggleGroupItem>
-                ) : (
-                  availableLevels.map((level) => (
-                    <ToggleGroupItem key={level} value={level}>
-                      {level}
-                    </ToggleGroupItem>
-                  ))
-                )}
+                ))}
               </ToggleGroup>
             </div>
           </div>
