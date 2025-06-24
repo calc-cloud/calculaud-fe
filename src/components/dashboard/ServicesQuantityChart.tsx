@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,8 +27,8 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Quantities by Service</CardTitle>
-          <CardDescription>Total quantities for each service grouped by service type</CardDescription>
+          <CardTitle>Quantities by Material</CardTitle>
+          <CardDescription>Total quantities for each material grouped by service type</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center">
@@ -44,8 +43,8 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Quantities by Service</CardTitle>
-          <CardDescription>Total quantities for each service grouped by service type</CardDescription>
+          <CardTitle>Quantities by Material</CardTitle>
+          <CardDescription>Total quantities for each material grouped by service type</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center">
@@ -99,7 +98,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{`Service: ${data.service}`}</p>
+          <p className="font-medium text-gray-900">{`Material: ${data.service}`}</p>
           <p className="text-gray-600">{`Service Type: ${data.serviceType}`}</p>
           <p className="text-gray-600">{`Quantity: ${data.quantity}`}</p>
         </div>
@@ -118,8 +117,8 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Quantities by Service</CardTitle>
-        <CardDescription>Total quantities for each service grouped by service type</CardDescription>
+        <CardTitle>Quantities by Material</CardTitle>
+        <CardDescription>Total quantities for each material grouped by service type</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="h-[400px]">

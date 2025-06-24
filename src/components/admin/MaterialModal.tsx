@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,23 +5,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Service } from '@/types/services';
+import { Material } from '@/types/materials';
 import { useServiceTypes } from '@/hooks/useServiceTypes';
 
-interface ServiceModalProps {
+interface MaterialModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editItem?: Service | null;
+  editItem?: Material | null;
   onSave: (name: string, serviceTypeId: number, editId?: number) => Promise<void>;
 }
 
-const ServiceModal: React.FC<ServiceModalProps> = ({
+const MaterialModal: React.FC<MaterialModalProps> = ({
   open,
   onOpenChange,
   editItem,
   onSave
 }) => {
-  const [serviceName, setServiceName] = useState('');
+  const [materialName, setMaterialName] = useState('');
   const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -30,17 +29,17 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
 
   useEffect(() => {
     if (editItem) {
-      setServiceName(editItem.name);
+      setMaterialName(editItem.name);
       setSelectedServiceTypeId(editItem.service_type_id.toString());
     } else {
-      setServiceName('');
+      setMaterialName('');
       setSelectedServiceTypeId('');
     }
   }, [editItem]);
 
   const handleSave = async () => {
-    if (!serviceName.trim()) {
-      toast({ title: "Please enter a service name", variant: "destructive" });
+    if (!materialName.trim()) {
+      toast({ title: "Please enter a material name", variant: "destructive" });
       return;
     }
 
@@ -49,14 +48,14 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
       return;
     }
 
-    if (serviceName.length > 200) {
-      toast({ title: "Service name must be 200 characters or less", variant: "destructive" });
+    if (materialName.length > 200) {
+      toast({ title: "Material name must be 200 characters or less", variant: "destructive" });
       return;
     }
 
     setIsLoading(true);
     try {
-      await onSave(serviceName.trim(), parseInt(selectedServiceTypeId), editItem?.id);
+      await onSave(materialName.trim(), parseInt(selectedServiceTypeId), editItem?.id);
       onOpenChange(false);
     } catch (error) {
 
@@ -76,25 +75,25 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editItem ? 'Edit Service' : 'Create New Service'}
+            {editItem ? 'Edit Material' : 'Create New Material'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="serviceName" className="text-sm mb-2 block">
-              Service Name
+            <Label htmlFor="materialName" className="text-sm mb-2 block">
+              Material Name
             </Label>
             <Input
-              id="serviceName"
-              value={serviceName}
-              onChange={(e) => setServiceName(e.target.value)}
-              placeholder="Enter service name"
+              id="materialName"
+              value={materialName}
+              onChange={(e) => setMaterialName(e.target.value)}
+              placeholder="Enter material name"
               className="h-8"
               disabled={isLoading}
               maxLength={200}
             />
             <p className="text-xs text-gray-500 mt-1">
-              {serviceName.length}/200 characters
+              {materialName.length}/200 characters
             </p>
           </div>
           
@@ -143,4 +142,4 @@ const ServiceModal: React.FC<ServiceModalProps> = ({
   );
 };
 
-export default ServiceModal;
+export default MaterialModal;

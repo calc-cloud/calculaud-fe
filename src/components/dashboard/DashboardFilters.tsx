@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -24,7 +23,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   filters,
   onFiltersChange
 }) => {
-  const { hierarchies, suppliers, serviceTypes, services, isLoading } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials, isLoading } = useAdminData();
 
   const updateFilter = (key: keyof DashboardFiltersType, value: string | number[] | string[] | undefined) => {
     const newFilters = {
@@ -44,13 +43,13 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     updateFilter('service_type_ids', updatedTypes.length > 0 ? updatedTypes : undefined);
   };
 
-  const toggleService = (serviceId: number) => {
-    const currentServices = filters.service_ids || [];
-    const updatedServices = currentServices.includes(serviceId)
-      ? currentServices.filter(id => id !== serviceId)
-      : [...currentServices, serviceId];
+  const toggleMaterial = (materialId: number) => {
+    const currentMaterials = filters.service_ids || []; // Keep using service_ids for backend compatibility
+    const updatedMaterials = currentMaterials.includes(materialId)
+      ? currentMaterials.filter(id => id !== materialId)
+      : [...currentMaterials, materialId];
     
-    updateFilter('service_ids', updatedServices.length > 0 ? updatedServices : undefined);
+    updateFilter('service_ids', updatedMaterials.length > 0 ? updatedMaterials : undefined);
   };
 
   const toggleStatus = (status: string) => {
@@ -163,14 +162,14 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     return `${selectedTypes.length} selected`;
   };
 
-  const getServiceLabel = () => {
-    const selectedServices = filters.service_ids || [];
-    if (selectedServices.length === 0) return 'Services';
-    if (selectedServices.length === 1) {
-      const service = services.find(s => s.id === selectedServices[0]);
-      return service?.name || 'Services';
+  const getMaterialLabel = () => {
+    const selectedMaterials = filters.service_ids || [];
+    if (selectedMaterials.length === 0) return 'Materials';
+    if (selectedMaterials.length === 1) {
+      const material = materials.find(m => m.id === selectedMaterials[0]);
+      return material?.name || 'Materials';
     }
-    return `${selectedServices.length} selected`;
+    return `${selectedMaterials.length} selected`;
   };
 
   const getStatusLabel = () => {
@@ -353,26 +352,26 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Service Multi-Select */}
+        {/* Material Multi-Select */}
         <div className="flex-shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-                {isLoading ? 'Loading...' : getServiceLabel()}
+                {isLoading ? 'Loading...' : getMaterialLabel()}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
-              {services.map((service) => (
+              {materials.map((material) => (
                 <div
-                  key={service.id}
+                  key={material.id}
                   className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                  onClick={() => toggleService(service.id)}
+                  onClick={() => toggleMaterial(material.id)}
                 >
                   <Checkbox
-                    checked={(filters.service_ids || []).includes(service.id)}
+                    checked={(filters.service_ids || []).includes(material.id)}
                   />
-                  <span className="truncate">{service.name}</span>
+                  <span className="truncate">{material.name}</span>
                 </div>
               ))}
             </DropdownMenuContent>

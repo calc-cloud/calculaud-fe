@@ -1,4 +1,3 @@
-
 // Core entity types for the Procurement Management System
 
 export interface Purpose {
@@ -21,9 +20,13 @@ export interface Purpose {
 // New interface for purpose contents
 export interface PurposeContent {
   id?: number; // Present in response, not in request
-  service_id: number;
-  service_name?: string; // Present in response, not in request
-  service_type?: string; // Present in response, not in request
+  material_id: number; // Frontend name, maps to backend service_id
+  material_name?: string; // Frontend name, maps to backend service_name
+  material_type?: string; // Frontend name, maps to backend service_type
+  // Backend API fields (for compatibility)
+  service_id?: number; // Backend field name
+  service_name?: string; // Backend field name
+  service_type?: string; // Backend field name
   quantity: number;
 }
 

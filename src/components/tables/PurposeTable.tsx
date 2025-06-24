@@ -88,11 +88,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     }
 
     const contentStrings = purpose.contents.map(content => 
-      `${content.quantity} × ${content.service_name || `Service ${content.service_id}`}`
+      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}`
     );
 
     const contentDetails = purpose.contents.map(content => 
-      `${content.quantity} × ${content.service_name || `Service ${content.service_id}`} (${content.service_type || 'Unknown type'})`
+      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`} (${content.service_type || content.material_type || 'Unknown type'})`
     );
 
     return {
@@ -102,7 +102,12 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
   };
 
-  const getLastHierarchyLevel = (hierarchyName: string) => {
+  const getLastHierarchyLevel = (hierarchyName: string | undefined | null) => {
+    // Handle undefined/null values
+    if (!hierarchyName) {
+      return 'N/A';
+    }
+    
     // Split by common separators and return the last part
     const parts = hierarchyName.split(/[>/\\-]/).map(part => part.trim()).filter(part => part.length > 0);
     return parts.length > 0 ? parts[parts.length - 1] : hierarchyName;
@@ -114,8 +119,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     
     if (hierarchy) {
       return {
-        displayName: getLastHierarchyLevel(hierarchy.fullPath),
-        fullPath: hierarchy.fullPath
+        displayName: getLastHierarchyLevel(hierarchy.path),
+        fullPath: hierarchy.path
       };
     }
     

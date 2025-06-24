@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,25 +7,25 @@ import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TablePagination } from '@/components/tables/TablePagination';
-import { serviceService } from '@/services/serviceService';
-import { Service } from '@/types/services';
+import { materialService } from '@/services/materialService';
+import { Material } from '@/types/materials';
 import { API_CONFIG } from '@/config/api';
 import { useServiceTypes } from '@/hooks/useServiceTypes';
-import ServiceModal from './ServiceModal';
+import MaterialModal from './MaterialModal';
 
-const ServiceManagement = () => {
-  const [services, setServices] = useState<Service[]>([]);
+const MaterialManagement = () => {
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingMaterial, setEditingMaterial] = useState<Material | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [materialToDelete, setMaterialToDelete] = useState<Material | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
@@ -47,17 +46,17 @@ const ServiceManagement = () => {
     setCurrentPage(1);
   }, [debouncedSearch]);
 
-  // Fetch services
-  const fetchServices = useCallback(async () => {
+  // Fetch materials
+  const fetchMaterials = useCallback(async () => {
     setIsLoading(true);
     setApiError(null);
     try {
-      const response = await serviceService.getServices({
+      const response = await materialService.getMaterials({
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch || undefined,
       });
-      setServices(response.items || []);
+      setMaterials(response.items || []);
       setTotalPages(response.pages || 1);
       setTotalCount(response.total || 0);
     } catch (error) {
@@ -73,49 +72,49 @@ const ServiceManagement = () => {
   }, [currentPage, debouncedSearch, itemsPerPage, toast]);
 
   useEffect(() => {
-    fetchServices();
-  }, [fetchServices]);
+    fetchMaterials();
+  }, [fetchMaterials]);
 
   const handleCreate = () => {
     if (apiError) {
       toast({
         title: "API Connection Required",
-        description: "Cannot create services without API connection.",
+        description: "Cannot create materials without API connection.",
         variant: "destructive"
       });
       return;
     }
-    setEditingService(null);
+    setEditingMaterial(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (service: Service) => {
+  const handleEdit = (material: Material) => {
     if (apiError) {
       toast({
         title: "API Connection Required",
-        description: "Cannot edit services without API connection.",
+        description: "Cannot edit materials without API connection.",
         variant: "destructive"
       });
       return;
     }
-    setEditingService(service);
+    setEditingMaterial(material);
     setIsModalOpen(true);
   };
 
   const handleSave = async (name: string, serviceTypeId: number, editId?: number) => {
     try {
       if (editId) {
-        await serviceService.updateService(editId, { name, service_type_id: serviceTypeId });
-        toast({ title: "Service updated successfully" });
+        await materialService.updateMaterial(editId, { name, service_type_id: serviceTypeId });
+        toast({ title: "Material updated successfully" });
       } else {
-        await serviceService.createService({ name, service_type_id: serviceTypeId });
-        toast({ title: "Service created successfully" });
+        await materialService.createMaterial({ name, service_type_id: serviceTypeId });
+        toast({ title: "Material created successfully" });
       }
       
-      await fetchServices();
+      await fetchMaterials();
     } catch (error) {
       toast({
-        title: "Error saving service",
+        title: "Error saving material",
         description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive"
       });
@@ -123,32 +122,32 @@ const ServiceManagement = () => {
     }
   };
 
-  const handleDeleteClick = (service: Service) => {
+  const handleDeleteClick = (material: Material) => {
     if (apiError) {
       toast({
         title: "API Connection Required",
-        description: "Cannot delete services without API connection.",
+        description: "Cannot delete materials without API connection.",
         variant: "destructive"
       });
       return;
     }
-    setServiceToDelete(service);
+    setMaterialToDelete(material);
     setDeleteDialogOpen(true);
   };
 
   const handleDelete = async () => {
-    if (!serviceToDelete) return;
+    if (!materialToDelete) return;
     
     setIsDeleting(true);
     try {
-      await serviceService.deleteService(serviceToDelete.id);
-      toast({ title: "Service deleted successfully" });
+      await materialService.deleteMaterial(materialToDelete.id);
+      toast({ title: "Material deleted successfully" });
       setDeleteDialogOpen(false);
-      setServiceToDelete(null);
-      await fetchServices();
+      setMaterialToDelete(null);
+      await fetchMaterials();
     } catch (error) {
       toast({
-        title: "Error deleting service",
+        title: "Error deleting material",
         description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive"
       });
@@ -158,7 +157,7 @@ const ServiceManagement = () => {
   };
 
   const handleRetryConnection = () => {
-    fetchServices();
+    fetchMaterials();
   };
 
   const getServiceTypeName = (serviceTypeId: number) => {
@@ -169,7 +168,7 @@ const ServiceManagement = () => {
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
-        <CardTitle className="text-lg">Service Management</CardTitle>
+        <CardTitle className="text-lg">Material Management</CardTitle>
         <div className="flex items-center gap-2">
           {apiError && (
             <Button onClick={handleRetryConnection} variant="outline" size="sm">
@@ -178,7 +177,7 @@ const ServiceManagement = () => {
           )}
           <Button onClick={handleCreate} size="sm" disabled={isLoading || !!apiError}>
             <Plus className="h-4 w-4 mr-1" />
-            Add Service
+            Add Material
           </Button>
         </div>
       </CardHeader>
@@ -197,7 +196,7 @@ const ServiceManagement = () => {
           <div className="relative flex-shrink-0 mb-4 mt-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Search services..."
+              placeholder="Search materials..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-9 focus-visible:ring-1"
@@ -210,27 +209,27 @@ const ServiceManagement = () => {
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center my-4">
                   <Loader className="h-8 w-8 text-gray-400 mx-auto mb-4 animate-spin" />
-                  <p className="text-gray-500 text-lg font-medium">Loading services...</p>
+                  <p className="text-gray-500 text-lg font-medium">Loading materials...</p>
                 </div>
               </div>
             ) : apiError ? (
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center my-4">
                   <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-                  <p className="text-red-500 text-lg font-medium">Unable to load services</p>
+                  <p className="text-red-500 text-lg font-medium">Unable to load materials</p>
                   <p className="text-red-400 text-sm mt-1">Check console for detailed error information</p>
                   <Button onClick={handleRetryConnection} variant="outline" size="sm" className="mt-3">
                     Try Again
                   </Button>
                 </div>
               </div>
-            ) : services.length > 0 ? (
+            ) : materials.length > 0 ? (
               <div className="grid grid-cols-3 gap-6">
-                {services.map((service) => (
-                  <div key={service.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
+                {materials.map((material) => (
+                  <div key={material.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium truncate flex-1 mr-3" title={service.name}>
-                        {service.name}
+                      <p className="font-medium truncate flex-1 mr-3" title={material.name}>
+                        {material.name}
                       </p>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -239,11 +238,11 @@ const ServiceManagement = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEdit(service)}>
+                          <DropdownMenuItem onClick={() => handleEdit(material)}>
                             <Edit className="h-3 w-3 mr-2" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteClick(service)} className="text-red-600">
+                          <DropdownMenuItem onClick={() => handleDeleteClick(material)} className="text-red-600">
                             <Trash2 className="h-3 w-3 mr-2" />
                             Delete
                           </DropdownMenuItem>
@@ -251,7 +250,7 @@ const ServiceManagement = () => {
                       </DropdownMenu>
                     </div>
                     <p className="text-xs text-gray-500">
-                      Type: {getServiceTypeName(service.service_type_id)}
+                      Type: {getServiceTypeName(material.service_type_id)}
                     </p>
                   </div>
                 ))}
@@ -260,9 +259,9 @@ const ServiceManagement = () => {
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center my-4">
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg font-medium">No services found</p>
+                  <p className="text-gray-500 text-lg font-medium">No materials found</p>
                   <p className="text-gray-400 text-sm mt-1">
-                    {debouncedSearch ? `No services match "${debouncedSearch}"` : 'No services available'}
+                    {debouncedSearch ? `No materials match "${debouncedSearch}"` : 'No materials available'}
                   </p>
                 </div>
               </div>
@@ -281,19 +280,19 @@ const ServiceManagement = () => {
         </div>
       </CardContent>
 
-      <ServiceModal
+      <MaterialModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        editItem={editingService}
+        editItem={editingMaterial}
         onSave={handleSave}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Service</AlertDialogTitle>
+            <AlertDialogTitle>Delete Material</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this service? This action cannot be undone.
+              Are you sure you want to delete this material? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -308,4 +307,4 @@ const ServiceManagement = () => {
   );
 };
 
-export default ServiceManagement;
+export default MaterialManagement;

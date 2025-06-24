@@ -1,10 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
+import { Hierarchy } from '@/types/hierarchies';
 
 interface HierarchyItem {
   id: number;
@@ -16,7 +16,7 @@ interface HierarchyItem {
 }
 
 interface HierarchySelectorProps {
-  hierarchies: HierarchyItem[];
+  hierarchies: Hierarchy[];
   selectedIds: number[];
   onSelectionChange: (selectedIds: number[]) => void;
 }
@@ -28,10 +28,19 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
 
+  // Transform backend hierarchy data to the format expected by the component
+  const transformedHierarchies: HierarchyItem[] = hierarchies.map((hierarchy: Hierarchy) => ({
+    id: hierarchy.id,
+    type: hierarchy.type as 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team',
+    name: hierarchy.name,
+    parentId: hierarchy.parent_id || undefined,
+    fullPath: hierarchy.path
+  }));
+
   const getLabel = () => {
     if (selectedIds.length === 0) return 'Hierarchy';
     if (selectedIds.length === 1) {
-      const selected = hierarchies.find(h => h.id === selectedIds[0]);
+      const selected = transformedHierarchies.find(h => h.id === selectedIds[0]);
       return selected ? selected.name : 'Hierarchy';
     }
     return `${selectedIds.length} selected`;
@@ -99,7 +108,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     return roots;
   };
 
-  const treeStructure = buildTreeStructure(hierarchies);
+  const treeStructure = buildTreeStructure(transformedHierarchies);
 
   const renderTreeNode = (node: HierarchyItem, level: number = 0) => {
     const hasChildren = node.children && node.children.length > 0;
