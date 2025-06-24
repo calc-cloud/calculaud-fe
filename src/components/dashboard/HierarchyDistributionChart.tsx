@@ -279,12 +279,12 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
           </div>
         </div>
         <div className="h-[400px] flex">
-          <div className="flex-1">
+          <div className="flex-[2]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={chartData}
-                  cx="40%"
+                  cx="50%"
                   cy="50%"
                   labelLine={false}
                   label={renderCustomLabel}
@@ -297,9 +297,23 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                <Legend content={renderCustomLegend} />
               </PieChart>
             </ResponsiveContainer>
+          </div>
+          <div className="flex-1 flex items-center">
+            <div className="flex flex-col space-y-2 pl-4">
+              {chartData.map((entry, index) => (
+                <div key={index} className="flex items-center space-x-2 text-sm">
+                  <div 
+                    className="w-3 h-3 rounded-sm" 
+                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                  />
+                  <span className="text-gray-700">
+                    {entry.name} ({entry.value})
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </CardContent>
