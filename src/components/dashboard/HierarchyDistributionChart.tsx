@@ -183,6 +183,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   }));
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
+    // Only show labels for non-zero values
+    if (value === 0) return null;
+    
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -216,6 +219,25 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     return null;
   };
 
+  const renderCustomLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <div className="flex flex-col space-y-2 ml-4">
+        {payload.map((entry: any, index: number) => (
+          <div key={index} className="flex items-center space-x-2 text-sm">
+            <div 
+              className="w-3 h-3 rounded-sm" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-gray-700">
+              {entry.payload.name} ({entry.payload.value})
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -241,36 +263,44 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
                 onValueChange={(value) => value && setSelectedLevel(value as any)}
                 disabled={availableLevels.length === 0}
               >
-                {availableLevels.map((level) => (
-                  <ToggleGroupItem key={level} value={level}>
-                    {level}
+                {availableLevels.length === 0 ? (
+                  <ToggleGroupItem value="UNIT" disabled>
+                    No options available
                   </ToggleGroupItem>
-                ))}
+                ) : (
+                  availableLevels.map((level) => (
+                    <ToggleGroupItem key={level} value={level}>
+                      {level}
+                    </ToggleGroupItem>
+                  ))
+                )}
               </ToggleGroup>
             </div>
           </div>
         </div>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomLabel}
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="h-[400px] flex">
+          <div className="flex-1">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="40%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomLabel}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend content={renderCustomLegend} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </CardContent>
     </Card>
