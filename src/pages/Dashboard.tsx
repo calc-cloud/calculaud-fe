@@ -13,8 +13,6 @@ const Dashboard: React.FC = () => {
   const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null>(null);
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
 
-  console.log('=== Dashboard Filters ===', filters);
-
   const { data: servicesQuantityData, isLoading: isServicesQuantityLoading } = useQuery({
     queryKey: ['servicesQuantities', filters],
     queryFn: () => analyticsService.getServicesQuantities(filters),
@@ -34,10 +32,6 @@ const Dashboard: React.FC = () => {
   });
 
   const handleHierarchyFiltersChange = (level?: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null, parent_id?: number | null) => {
-    console.log('=== Dashboard handleHierarchyFiltersChange ===');
-    console.log('Received level:', level);
-    console.log('Received parent_id:', parent_id);
-    
     setHierarchyLevel(level ?? null);
     setHierarchyParentId(parent_id ?? null);
   };

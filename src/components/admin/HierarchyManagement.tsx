@@ -79,7 +79,7 @@ const HierarchyManagement = () => {
         setHierarchyToDelete(null);
       } catch (error) {
         // Error handling is done in the mutation hook
-        console.error('Delete hierarchy error:', error);
+
       }
     }
   };

@@ -53,24 +53,15 @@ const SupplierManagement = () => {
     setIsLoading(true);
     setApiError(null);
     try {
-      console.log('Fetching suppliers with params:', {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearch || undefined,
-      });
-      
       const response = await supplierService.getSuppliers({
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch || undefined,
       });
-      
-      console.log('Suppliers fetch successful:', response);
       setSuppliers(response.items || []);
       setTotalPages(response.pages || 1);
       setTotalCount(response.total || 0);
     } catch (error) {
-      console.error('Error fetching suppliers:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to connect to API');
       toast({
         title: "API Connection Error",
@@ -135,7 +126,6 @@ const SupplierManagement = () => {
       setEditingSupplier(null);
       await fetchSuppliers();
     } catch (error) {
-      console.error('Error saving supplier:', error);
       toast({
         title: "Error saving supplier",
         description: error instanceof Error ? error.message : "Please try again later.",
@@ -170,7 +160,6 @@ const SupplierManagement = () => {
       setSupplierToDelete(null);
       await fetchSuppliers();
     } catch (error) {
-      console.error('Error deleting supplier:', error);
       toast({
         title: "Error deleting supplier",
         description: error instanceof Error ? error.message : "Please try again later.",

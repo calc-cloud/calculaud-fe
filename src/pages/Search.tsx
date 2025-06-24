@@ -140,40 +140,24 @@ const Search: React.FC = () => {
   };
 
   const handleDeletePurpose = (purposeId: string) => {
-    console.log('=== Search.handleDeletePurpose ===', purposeId);
     deletePurpose.mutate(purposeId);
   };
 
   const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    console.log('=== Search.handleSavePurpose START ===');
-    console.log('Modal mode:', modalMode);
-    console.log('Purpose data received:', purposeData);
-    console.log('createPurpose mutation:', !!createPurpose, typeof createPurpose.mutate);
-    console.log('updatePurpose mutation:', !!updatePurpose, typeof updatePurpose.mutate);
-
     if (modalMode === 'create') {
-      console.log('Creating new purpose...');
-      console.log('About to call createPurpose.mutate with:', purposeData);
-      
       try {
         createPurpose.mutate(purposeData);
-        console.log('createPurpose.mutate called successfully');
       } catch (error) {
-        console.error('Error calling createPurpose.mutate:', error);
+        // Error handling will be done by the mutation
       }
     } else if (modalMode === 'edit' && selectedPurpose) {
-      console.log('Updating existing purpose...');
       updatePurpose.mutate({ 
         id: selectedPurpose.id, 
         data: purposeData 
       });
-    } else {
-      console.error('Invalid state for saving purpose:', { modalMode, hasSelectedPurpose: !!selectedPurpose });
     }
 
-    console.log('Closing modal...');
     setIsModalOpen(false);
-    console.log('=== Search.handleSavePurpose END ===');
   };
 
   const handleExport = () => {

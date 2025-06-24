@@ -145,7 +145,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       handleCancel();
     } catch (error) {
       // Error handling is done in the mutation hooks
-      console.error('Save hierarchy error:', error);
+
     }
   };
 

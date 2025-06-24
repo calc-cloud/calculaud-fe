@@ -21,21 +21,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    console.log('=== Layout.handleSavePurpose START ===');
-    console.log('Purpose data received:', purposeData);
-    
     createPurpose.mutate(purposeData, {
       onSuccess: () => {
-        console.log('Purpose created successfully, closing modal');
         setIsModalOpen(false);
       },
       onError: (error) => {
-        console.error('Failed to create purpose:', error);
         // Modal stays open on error so user can retry
       }
     });
-    
-    console.log('=== Layout.handleSavePurpose END ===');
   };
 
   return (

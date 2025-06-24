@@ -95,9 +95,20 @@ export const AdminDataProvider: React.FC<{ children: ReactNode }> = ({ children 
   // Update hierarchies when backend data changes
   useEffect(() => {
     if (hierarchiesData?.items) {
+      const mapHierarchyType = (type: string): 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team' => {
+        switch (type) {
+          case 'UNIT': return 'Unit';
+          case 'CENTER': return 'Center';
+          case 'ANAF': return 'Anaf';
+          case 'MADOR': return 'Mador';
+          case 'TEAM': return 'Team';
+          default: return type as any;
+        }
+      };
+
       const mappedHierarchies = hierarchiesData.items.map(hierarchy => ({
         id: hierarchy.id,
-        type: hierarchy.type as any,
+        type: mapHierarchyType(hierarchy.type),
         name: hierarchy.name,
         parentId: hierarchy.parent_id,
         fullPath: hierarchy.path

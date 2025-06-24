@@ -39,20 +39,29 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
+  // Filter out TEAM type hierarchies for the selector
+  const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.type !== 'Team');
+
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
     const levels = ['DIRECT_CHILDREN'];
     
     if (!selectedHierarchy) {
-      // When no hierarchy is selected, show CENTER, ANAF, MADOR, TEAM
+      // When no hierarchy is selected, pie chart shows all UNIT hierarchies
+      // So drill-down options should be CENTER, ANAF, MADOR, TEAM
       levels.push('CENTER', 'ANAF', 'MADOR', 'TEAM');
     } else {
-      const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
+      const hierarchy = filteredHierarchies.find(h => h.id === selectedHierarchy);
       if (hierarchy) {
         const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
-        // Return two levels down from current level
-        const availableHierarchyLevels = HIERARCHY_LEVELS.slice(currentLevelIndex + 2, currentLevelIndex + 4);
-        levels.push(...availableHierarchyLevels);
+        // Show hierarchy types that are two levels under the selected hierarchy type
+        // For example: CENTER (index 1) -> MADOR (index 3), TEAM (index 4)
+        const startIndex = currentLevelIndex + 2;
+        if (startIndex < HIERARCHY_LEVELS.length) {
+          // Add all levels from two levels down to the end
+          const availableHierarchyLevels = HIERARCHY_LEVELS.slice(startIndex);
+          levels.push(...availableHierarchyLevels);
+        }
       }
     }
     
@@ -70,12 +79,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     onFiltersChange(level, parentId);
   }, [selectedLevel, selectedHierarchy, onFiltersChange]);
 
-  // Reset level when hierarchy changes
+  // Reset level to Direct Children when hierarchy changes
   useEffect(() => {
-    const levels = getAvailableLevels();
-    if (levels.length > 0 && !levels.includes(selectedLevel)) {
-      setSelectedLevel('DIRECT_CHILDREN');
-    }
+    setSelectedLevel('DIRECT_CHILDREN');
   }, [selectedHierarchy]);
 
   // Handle hierarchy selection change
@@ -146,7 +152,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
                 <HierarchySelector
-                  hierarchies={hierarchies}
+                  hierarchies={filteredHierarchies}
                   selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                   onSelectionChange={handleHierarchySelectionChange}
                 />
@@ -231,7 +237,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
               <HierarchySelector
-                hierarchies={hierarchies}
+                hierarchies={filteredHierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                 onSelectionChange={handleHierarchySelectionChange}
               />

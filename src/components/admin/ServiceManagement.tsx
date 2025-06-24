@@ -52,24 +52,15 @@ const ServiceManagement = () => {
     setIsLoading(true);
     setApiError(null);
     try {
-      console.log('Fetching services with params:', {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearch || undefined,
-      });
-      
       const response = await serviceService.getServices({
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch || undefined,
       });
-      
-      console.log('Services fetch successful:', response);
       setServices(response.items || []);
       setTotalPages(response.pages || 1);
       setTotalCount(response.total || 0);
     } catch (error) {
-      console.error('Error fetching services:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to connect to API');
       toast({
         title: "API Connection Error",
@@ -123,7 +114,6 @@ const ServiceManagement = () => {
       
       await fetchServices();
     } catch (error) {
-      console.error('Error saving service:', error);
       toast({
         title: "Error saving service",
         description: error instanceof Error ? error.message : "Please try again later.",
@@ -157,7 +147,6 @@ const ServiceManagement = () => {
       setServiceToDelete(null);
       await fetchServices();
     } catch (error) {
-      console.error('Error deleting service:', error);
       toast({
         title: "Error deleting service",
         description: error instanceof Error ? error.message : "Please try again later.",

@@ -179,14 +179,10 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     return errors;
   };
   const handleSave = () => {
-    console.log('=== PurposeModal.handleSave START ===');
-    console.log('Mode:', mode);
-    console.log('FormData:', formData);
     const purposeErrors = validatePurpose();
     const emfErrors = validateEMFs();
     const allErrors = [...purposeErrors, ...emfErrors];
     if (allErrors.length > 0) {
-      console.log('Validation errors:', allErrors);
       toast({
         title: "Validation Error",
         description: allErrors.join('. '),
@@ -194,7 +190,6 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       });
       return;
     }
-    console.log('Validation passed, preparing purpose data...');
 
     // Prepare purpose data with IDs directly from selected objects
     const purposeData: any = {};
@@ -237,13 +232,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
     if (formData.files && formData.files.length > 0) {
       purposeData.files = formData.files;
     }
-    console.log('Final purposeData to be sent:', purposeData);
     if (onSave) {
-      console.log('Calling onSave with purposeData...');
       onSave(purposeData);
-      console.log('onSave called successfully');
     } else {
-      console.error('ERROR: onSave function is not provided!');
       toast({
         title: "Configuration Error",
         description: "Save function is not properly configured",
@@ -251,9 +242,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       });
       return;
     }
-    console.log('Closing modal...');
     onClose();
-    console.log('=== PurposeModal.handleSave END ===');
   };
   const handleFieldChange = (field: keyof ExtendedFormData, value: any) => {
     setFormData(prev => ({

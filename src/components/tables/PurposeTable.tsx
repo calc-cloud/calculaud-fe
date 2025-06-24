@@ -80,14 +80,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   };
 
   const getContentsDisplay = (purpose: Purpose) => {
-    console.log('=== getContentsDisplay DEBUG ===');
-    console.log('Purpose ID:', purpose.id);
-    console.log('Contents:', purpose.contents);
-    console.log('Contents type:', typeof purpose.contents);
-    console.log('Contents is array:', Array.isArray(purpose.contents));
-    
     if (!purpose.contents || !Array.isArray(purpose.contents) || purpose.contents.length === 0) {
-      console.log('No contents found');
       return {
         display: ['No contents'],
         details: ['No contents specified'],
@@ -102,9 +95,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     const contentDetails = purpose.contents.map(content => 
       `${content.quantity} × ${content.service_name || `Service ${content.service_id}`} (${content.service_type || 'Unknown type'})`
     );
-
-    console.log('Content strings:', contentStrings);
-    console.log('Content details:', contentDetails);
 
     return {
       display: contentStrings,

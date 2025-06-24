@@ -50,25 +50,16 @@ const ServiceTypeManagement = () => {
     setIsLoading(true);
     setApiError(null);
     try {
-      console.log('Fetching service types with params:', {
-        page: currentPage,
-        limit: itemsPerPage,
-        search: debouncedSearch || undefined,
-      });
-      
       const response = await serviceTypeService.getServiceTypes({
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch || undefined,
       });
-      
-      console.log('Service types fetch successful:', response);
       // Fix: API returns 'items' not 'data', and 'pages' not 'total_pages'
       setServiceTypes(response.items || []);
       setTotalPages(response.pages || 1);
       setTotalCount(response.total || 0);
     } catch (error) {
-      console.error('Error fetching service types:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to connect to API');
       toast({
         title: "API Connection Error",
@@ -122,7 +113,6 @@ const ServiceTypeManagement = () => {
       
       await fetchServiceTypes();
     } catch (error) {
-      console.error('Error saving service type:', error);
       toast({
         title: "Error saving service type",
         description: error instanceof Error ? error.message : "Please try again later.",
@@ -156,7 +146,6 @@ const ServiceTypeManagement = () => {
       setServiceTypeToDelete(null);
       await fetchServiceTypes();
     } catch (error) {
-      console.error('Error deleting service type:', error);
       toast({
         title: "Error deleting service type",
         description: error instanceof Error ? error.message : "Please try again later.",

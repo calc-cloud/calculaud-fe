@@ -168,8 +168,10 @@ class PurposeService {
       if (hierarchyIds.length > 0) {
         const validHierarchyIds = hierarchyIds
           .map(id => {
-            const hierarchy = hierarchies.find(h => h.id === id);
-            return hierarchy ? parseInt(hierarchy.id) : null;
+            // Convert string id to number for comparison
+            const numericId = typeof id === 'string' ? parseInt(id) : id;
+            const hierarchy = hierarchies.find(h => h.id === numericId);
+            return hierarchy ? numericId : null;
           })
           .filter(id => id !== null) as number[];
         
