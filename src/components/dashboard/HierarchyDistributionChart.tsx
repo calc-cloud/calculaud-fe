@@ -44,9 +44,9 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   // Debug: Log all hierarchy types
   console.log('=== All hierarchies ===', hierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
 
-  // Filter out hierarchies of type "Team" - use correct TypeScript type
+  // Filter out hierarchies of type "TEAM" - use correct uppercase type
   const filteredHierarchies = hierarchies.filter(hierarchy => {
-    const isTeamType = hierarchy.type === 'Team';
+    const isTeamType = hierarchy.type === 'TEAM';
     console.log(`Hierarchy ${hierarchy.name} (${hierarchy.type}): ${isTeamType ? 'FILTERED OUT' : 'INCLUDED'}`);
     return !isTeamType;
   });
