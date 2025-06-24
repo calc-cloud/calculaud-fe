@@ -144,7 +144,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       setSelectedHierarchyIds([]);
       setExpectedDeliveryDate(undefined);
     }
-  }, [purpose, isOpen, suppliers, serviceTypes]);
+  }, [purpose, isOpen]);
   const validatePurpose = () => {
     const errors: string[] = [];
     if (!formData.description?.trim()) {
