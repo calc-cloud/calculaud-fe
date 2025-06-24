@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,18 +39,6 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
-  // Debug: Log all hierarchy types
-  console.log('=== All hierarchies ===', hierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
-
-  // Filter out hierarchies of type "TEAM" - use correct uppercase type
-  const filteredHierarchies = hierarchies.filter(hierarchy => {
-    const isTeamType = hierarchy.type === 'TEAM';
-    console.log(`Hierarchy ${hierarchy.name} (${hierarchy.type}): ${isTeamType ? 'FILTERED OUT' : 'INCLUDED'}`);
-    return !isTeamType;
-  });
-
-  console.log('=== Filtered hierarchies ===', filteredHierarchies.map(h => ({ id: h.id, name: h.name, type: h.type })));
-
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
     const levels = ['DIRECT_CHILDREN'];
@@ -61,7 +47,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
       // When no hierarchy is selected, show CENTER, ANAF, MADOR, TEAM
       levels.push('CENTER', 'ANAF', 'MADOR', 'TEAM');
     } else {
-      const hierarchy = filteredHierarchies.find(h => h.id === selectedHierarchy);
+      const hierarchy = hierarchies.find(h => h.id === selectedHierarchy);
       if (hierarchy) {
         const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
         // Return two levels down from current level
@@ -160,7 +146,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
                 <HierarchySelector
-                  hierarchies={filteredHierarchies}
+                  hierarchies={hierarchies}
                   selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                   onSelectionChange={handleHierarchySelectionChange}
                 />
@@ -245,7 +231,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
               <HierarchySelector
-                hierarchies={filteredHierarchies}
+                hierarchies={hierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
                 onSelectionChange={handleHierarchySelectionChange}
               />

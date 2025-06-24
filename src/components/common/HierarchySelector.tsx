@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserChe
 
 interface HierarchyItem {
   id: number;
-  type: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+  type: 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
   name: string;
   parentId?: number;
   fullPath: string;
@@ -59,15 +59,15 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'UNIT':
+      case 'Unit':
         return <Building2 className="h-4 w-4" />;
-      case 'CENTER':
+      case 'Center':
         return <Users className="h-4 w-4" />;
-      case 'ANAF':
+      case 'Anaf':
         return <Target className="h-4 w-4" />;
-      case 'MADOR':
+      case 'Mador':
         return <Briefcase className="h-4 w-4" />;
-      case 'TEAM':
+      case 'Team':
         return <UserCheck className="h-4 w-4" />;
       default:
         return <Building2 className="h-4 w-4" />;
