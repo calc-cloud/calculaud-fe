@@ -39,8 +39,8 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
-  // Filter out hierarchies of type "TEAM"
-  const filteredHierarchies = hierarchies.filter(h => h.type !== 'TEAM');
+  // Filter out hierarchies of type "Team"
+  const filteredHierarchies = hierarchies.filter(h => h.type !== 'Team');
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
