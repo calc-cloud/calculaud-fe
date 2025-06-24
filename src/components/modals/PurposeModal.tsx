@@ -18,9 +18,7 @@ import { EMFSection } from '../sections/EMFSection';
 import { ContentsSection } from '../sections/ContentsSection';
 import { FileUpload } from '../common/FileUpload';
 import { formatDate } from '@/utils/dateUtils';
-import { useHierarchies } from '@/hooks/useHierarchies';
-import { useSuppliers } from '@/hooks/useSuppliers';
-import { useServiceTypes } from '@/hooks/useServiceTypes';
+import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { Supplier } from '@/types/suppliers';
@@ -57,21 +55,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   onDelete,
   onModeChange
 }) => {
-  const {
-    data: hierarchiesData,
-    isLoading: hierarchiesLoading
-  } = useHierarchies();
-  const {
-    data: suppliersData,
-    isLoading: suppliersLoading
-  } = useSuppliers();
-  const {
-    data: serviceTypesData,
-    isLoading: serviceTypesLoading
-  } = useServiceTypes();
-  const {
-    toast
-  } = useToast();
+  const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
+  const { toast } = useToast();
+  
   const [formData, setFormData] = useState<ExtendedFormData>({
     description: '',
     contents: [],
@@ -91,31 +77,25 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
   const isEditing = mode === 'edit';
   const isCreating = mode === 'create';
 
-  // Get backend data arrays
-  const hierarchies = hierarchiesData?.items || [];
-  const suppliers = suppliersData?.items || [];
-  const serviceTypes = serviceTypesData?.items || [];
-
-  // Transform hierarchies for HierarchySelector
-  const transformedHierarchies = hierarchies.map((hierarchy: Hierarchy) => ({
-    id: hierarchy.id,
-    type: hierarchy.type as 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team',
-    name: hierarchy.name,
-    parentId: hierarchy.parent_id,
-    fullPath: hierarchy.path
-  }));
-
   // Initialize form data when purpose changes
   useEffect(() => {
     if (purpose) {
       // Find full objects based on purpose data
       const selectedSupplier = suppliers.find(s => s.name === purpose.supplier) || null;
       const selectedServiceType = serviceTypes.find(st => st.name === purpose.service_type) || null;
+      
+      // Map contents to ensure material_id is set from service_id for compatibility
+      const mappedContents = (purpose.contents || []).map(content => ({
+        ...content,
+        material_id: content.material_id || content.service_id, // Ensure material_id is set
+        material_name: content.material_name || content.service_name // Ensure material_name is set
+      }));
+      
       setFormData({
         ...purpose,
         selectedSupplier,
         selectedServiceType,
-        contents: purpose.contents || []
+        contents: mappedContents
       });
 
       // Set selected hierarchy for tree selector
@@ -144,7 +124,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
       setSelectedHierarchyIds([]);
       setExpectedDeliveryDate(undefined);
     }
-  }, [purpose, isOpen]);
+  }, [purpose, isOpen, suppliers, serviceTypes]);
   const validatePurpose = () => {
     const errors: string[] = [];
     if (!formData.description?.trim()) {
@@ -382,9 +362,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier <span className="text-red-500">*</span></Label>
-              {isReadOnly ? <Input id="supplier" value={formData.selectedSupplier?.name || formData.supplier || ''} disabled={true} /> : <Select value={formData.selectedSupplier?.id.toString() || ''} onValueChange={handleSupplierChange} disabled={suppliersLoading}>
+              {isReadOnly ? <Input id="supplier" value={formData.selectedSupplier?.name || formData.supplier || ''} disabled={true} /> : <Select value={formData.selectedSupplier?.id.toString() || ''} onValueChange={handleSupplierChange} disabled={isLoading}>
                   <SelectTrigger className={!formData.selectedSupplier && !isReadOnly ? 'border-red-300' : ''}>
-                    <SelectValue placeholder={suppliersLoading ? "Loading suppliers..." : "Select supplier"} />
+                    <SelectValue placeholder={isLoading ? "Loading suppliers..." : "Select supplier"} />
                   </SelectTrigger>
                   <SelectContent>
                     {suppliers.map(supplier => <SelectItem key={supplier.id} value={supplier.id.toString()}>
@@ -397,9 +377,9 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="service_type">Service Type <span className="text-red-500">*</span></Label>
-            <Select value={formData.selectedServiceType?.id.toString() || ''} onValueChange={handleServiceTypeChange} disabled={isReadOnly || serviceTypesLoading}>
+            <Select value={formData.selectedServiceType?.id.toString() || ''} onValueChange={handleServiceTypeChange} disabled={isReadOnly || isLoading}>
               <SelectTrigger className={!formData.selectedServiceType && !isReadOnly ? 'border-red-300' : ''}>
-                <SelectValue placeholder={serviceTypesLoading ? "Loading service types..." : "Select service type"} />
+                <SelectValue placeholder={isLoading ? "Loading service types..." : "Select service type"} />
               </SelectTrigger>
               <SelectContent>
                 {serviceTypes.map(type => <SelectItem key={type.id} value={type.id.toString()}>
@@ -422,7 +402,7 @@ export const PurposeModal: React.FC<PurposeModalProps> = ({
             <div className="space-y-2">
               <Label htmlFor="hierarchy_name">Hierarchy</Label>
               {isReadOnly ? <Input id="hierarchy_name" value={formData.hierarchy_name || ''} disabled={true} /> : <div className="space-y-1">
-                  <HierarchySelector hierarchies={transformedHierarchies} selectedIds={selectedHierarchyIds} onSelectionChange={handleHierarchyChange} />
+                  <HierarchySelector hierarchies={hierarchies} selectedIds={selectedHierarchyIds} onSelectionChange={handleHierarchyChange} />
                   <p className="text-xs text-muted-foreground">
                     Select only one organizational unit
                   </p>

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trash2, Plus } from 'lucide-react';
 import { PurposeContent } from '@/types';
-import { useServices } from '@/hooks/useServices';
+import { useMaterials } from '@/hooks/useMaterials';
 
 interface ContentsSectionProps {
   contents: PurposeContent[];
@@ -23,22 +23,22 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   selectedServiceTypeId,
   showServiceTypeWarning = false
 }) => {
-  const { data: servicesData, isLoading: servicesLoading } = useServices({
+  const { data: materialsData, isLoading: materialsLoading } = useMaterials({
     service_type_id: selectedServiceTypeId
   });
-  const services = servicesData?.items || [];
+  const materials = materialsData?.items || [];
 
-  // Get list of already selected service IDs
-  const selectedServiceIds = contents
-    .map(content => content.service_id)
+  // Get list of already selected material IDs
+  const selectedMaterialIds = contents
+    .map(content => content.material_id)
     .filter(id => id && id > 0);
 
-  // Check if all services are already selected
-  const allServicesUsed = services.length > 0 && selectedServiceIds.length >= services.length;
+  // Check if all materials are already selected
+  const allMaterialsUsed = materials.length > 0 && selectedMaterialIds.length >= materials.length;
 
   const handleAddContent = () => {
     const newContent: PurposeContent = {
-      service_id: 0,
+      material_id: 0,
       quantity: 1
     };
     onContentsChange([...contents, newContent]);
@@ -59,17 +59,17 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
     onContentsChange(updatedContents);
   };
 
-  // Check if a service is available for selection (not already selected by other contents)
-  const isServiceAvailable = (serviceId: number, currentIndex: number) => {
-    return !selectedServiceIds.some((selectedId, index) => 
-      selectedId === serviceId && index !== currentIndex
+  // Check if a material is available for selection (not already selected by other contents)
+  const isMaterialAvailable = (materialId: number, currentIndex: number) => {
+    return !selectedMaterialIds.some((selectedId, index) => 
+      selectedId === materialId && index !== currentIndex
     );
   };
 
-  // Get available services for a specific content index
-  const getAvailableServices = (currentIndex: number) => {
-    return services.filter(service => 
-      isServiceAvailable(service.id, currentIndex)
+  // Get available materials for a specific content index
+  const getAvailableMaterials = (currentIndex: number) => {
+    return materials.filter(material => 
+      isMaterialAvailable(material.id, currentIndex)
     );
   };
 
@@ -82,7 +82,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   }
 
   const renderAddContentButton = () => {
-    const isDisabled = !selectedServiceTypeId || showServiceTypeWarning || allServicesUsed;
+    const isDisabled = !selectedServiceTypeId || showServiceTypeWarning || allMaterialsUsed;
     
     const button = (
       <Button
@@ -97,7 +97,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
       </Button>
     );
 
-    if (allServicesUsed && selectedServiceTypeId && !showServiceTypeWarning) {
+    if (allMaterialsUsed && selectedServiceTypeId && !showServiceTypeWarning) {
       return (
         <TooltipProvider delayDuration={300}>
           <Tooltip>
@@ -112,7 +112,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
               className="bg-popover text-popover-foreground border shadow-md max-w-xs z-50"
               sideOffset={5}
             >
-              <p>All available services have already been added</p>
+              <p>All available materials have already been added</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -138,8 +138,8 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
       )}
 
       {contents.map((content, index) => {
-        const availableServices = getAvailableServices(index);
-        const currentService = services.find(s => s.id === content.service_id);
+        const availableMaterials = getAvailableMaterials(index);
+        const currentMaterial = materials.find(m => m.id === content.material_id);
         
         return (
           <div key={index} className="border rounded-lg p-4 space-y-3">
@@ -160,45 +160,45 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Service</Label>
+                <Label>Material</Label>
                 {isReadOnly ? (
                   <Input
-                    value={content.service_name || `Service ${content.service_id}`}
+                    value={content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}
                     disabled={true}
                   />
                 ) : (
                   <>
                     <Select
-                      value={content.service_id?.toString() || ''}
-                      onValueChange={(value) => handleContentChange(index, 'service_id', parseInt(value))}
-                      disabled={servicesLoading || !selectedServiceTypeId}
+                      value={content.material_id?.toString() || ''}
+                      onValueChange={(value) => handleContentChange(index, 'material_id', parseInt(value))}
+                      disabled={materialsLoading || !selectedServiceTypeId}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder={
                           !selectedServiceTypeId 
                             ? "Select service type first" 
-                            : servicesLoading 
-                              ? "Loading services..." 
-                              : "Select service"
+                            : materialsLoading 
+                              ? "Loading materials..." 
+                              : "Select material"
                         } />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Show currently selected service even if it would normally be disabled */}
-                        {currentService && !availableServices.find(s => s.id === currentService.id) && (
-                          <SelectItem key={currentService.id} value={currentService.id.toString()}>
-                            {currentService.name} (current)
+                        {/* Show currently selected material even if it would normally be disabled */}
+                        {currentMaterial && !availableMaterials.find(m => m.id === currentMaterial.id) && (
+                          <SelectItem key={currentMaterial.id} value={currentMaterial.id.toString()}>
+                            {currentMaterial.name} (current)
                           </SelectItem>
                         )}
-                        {availableServices.map(service => (
-                          <SelectItem key={service.id} value={service.id.toString()}>
-                            {service.name}
+                        {availableMaterials.map(material => (
+                          <SelectItem key={material.id} value={material.id.toString()}>
+                            {material.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {selectedServiceTypeId && availableServices.length === 0 && !currentService && (
+                    {selectedServiceTypeId && availableMaterials.length === 0 && !currentMaterial && (
                       <p className="text-xs text-orange-600">
-                        All available services have been selected
+                        No materials available for this service type
                       </p>
                     )}
                   </>
@@ -217,9 +217,9 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
               </div>
             </div>
 
-            {isReadOnly && content.service_type && (
+            {isReadOnly && content.material_type && (
               <div className="text-sm text-muted-foreground">
-                Service Type: {content.service_type}
+                Material Type: {content.material_type}
               </div>
             )}
           </div>

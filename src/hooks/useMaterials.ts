@@ -1,18 +1,17 @@
-
 import { useQuery } from '@tanstack/react-query';
-import { serviceService } from '@/services/serviceService';
+import { materialService } from '@/services/materialService';
 
-export const useServices = (params?: {
+export const useMaterials = (params?: {
   page?: number;
   limit?: number;
   search?: string;
   service_type_id?: number;
 }) => {
   return useQuery({
-    queryKey: ['services', params],
+    queryKey: ['materials', params],
     queryFn: async () => {
       try {
-        const data = await serviceService.getServices(params);
+        const data = await materialService.getMaterials(params);
         return data;
       } catch (error) {
         throw error;
