@@ -30,3 +30,18 @@ export interface ServiceTypeItem {
 export interface ServiceTypesDistributionResponse {
   data: ServiceTypeItem[];
 }
+
+export interface HierarchyDistributionItem {
+  id: number;
+  name: string;
+  path: string;
+  type: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+  count: number;
+  parent_id: number | null;
+}
+
+export interface HierarchyDistributionResponse {
+  items: HierarchyDistributionItem[];
+  level: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+  parent_name: string | null;
+}
