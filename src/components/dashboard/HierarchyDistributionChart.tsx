@@ -40,7 +40,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
   // Filter out TEAM type hierarchies for the selector
-  const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.type !== 'Team');
+  const filteredHierarchies = hierarchies.filter(hierarchy => hierarchy.type !== 'TEAM');
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
@@ -105,15 +105,15 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
 
   // Handle pie segment click
   const handlePieClick = (data: any) => {
-    // Find the hierarchy by name from the chart data
+    // Check if the clicked item is a TEAM type - if so, don't make it clickable
+    if (data.type === 'TEAM') {
+      return;
+    }
+    
+    // Find the hierarchy by name from the admin context
     const clickedHierarchy = filteredHierarchies.find(h => h.name === data.name);
     
     if (clickedHierarchy) {
-      // Check if it's a TEAM type hierarchy - if so, don't make it clickable
-      if (clickedHierarchy.type === 'Team') {
-        return;
-      }
-      
       // Set the selected hierarchy and reset drill-down level
       setSelectedHierarchy(clickedHierarchy.id);
       setSelectedLevel('DIRECT_CHILDREN');
@@ -207,12 +207,17 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     );
   }
 
-  // Transform data for recharts
+  // Transform data for recharts - show all hierarchies but make TEAM types non-clickable
   const chartData = data.items.map((item) => ({
     name: item.name,
     value: item.count,
-    fullPath: item.path
+    fullPath: item.path,
+    type: item.type,
+    id: item.id
   })).sort((a, b) => b.value - a.value); // Sort by value in descending order
+
+  // Check if all values are zero
+  const hasData = chartData.some(item => item.value > 0);
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
     // Only show labels for non-zero values
@@ -243,8 +248,7 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
       const data = payload[0];
       
       // Check if this hierarchy is clickable (not a TEAM type)
-      const hierarchy = filteredHierarchies.find(h => h.name === data.payload.name);
-      const isClickable = hierarchy && hierarchy.type !== 'Team';
+      const isClickable = data.payload.type !== 'TEAM';
       
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
@@ -298,39 +302,46 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
         </div>
         <div className="h-[400px] flex">
           <div className="flex-[2]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={renderCustomLabel}
-                  outerRadius={120}
-                  fill="#8884d8"
-                  dataKey="value"
-                  onClick={handlePieClick}
-                >
-                  {chartData.map((entry, index) => {
-                    // Find if this entry corresponds to a TEAM hierarchy
-                    const hierarchy = filteredHierarchies.find(h => h.name === entry.name);
-                    const isTeamType = hierarchy?.type === 'Team';
-                    
-                    return (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={COLORS[index % COLORS.length]}
-                        style={{ 
-                          cursor: isTeamType ? 'default' : 'pointer',
-                          opacity: isTeamType ? 0.7 : 1
-                        }}
-                      />
-                    );
-                  })}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+            {hasData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={renderCustomLabel}
+                    outerRadius={120}
+                    fill="#8884d8"
+                    dataKey="value"
+                    onClick={handlePieClick}
+                  >
+                    {chartData.map((entry, index) => {
+                      // Check if this entry is a TEAM type to determine cursor style
+                      const isTeamType = entry.type === 'TEAM';
+                      
+                      return (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={COLORS[index % COLORS.length]}
+                          style={{ 
+                            cursor: isTeamType ? 'default' : 'pointer'
+                          }}
+                        />
+                      );
+                    })}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center text-muted-foreground">
+                  <div className="text-lg font-medium mb-2">No purposes found</div>
+                  <div className="text-sm">No data available for the selected filters and hierarchy level</div>
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex-1 flex items-center">
             <div className="flex flex-col space-y-2 pl-4">
