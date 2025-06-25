@@ -80,6 +80,9 @@ export interface PurposeFilters {
   status?: PurposeStatus[];
   search_query?: string;
   material?: string[]; // Material filter (maps to service_id in API)
+  start_date?: string;
+  end_date?: string;
+  relative_time?: string;
 }
 
 export interface PurposeSorting {
