@@ -10,7 +10,7 @@ export const usePurposeData = (
   initialSortConfig: SortConfig = { field: 'creation_time', direction: 'desc' },
   initialPage: number = 1
 ) => {
-  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
   const [filters, setFilters] = useState<PurposeFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,9 +28,10 @@ export const usePurposeData = (
       itemsPerPage,
       hierarchies,
       suppliers,
-      serviceTypes
+      serviceTypes,
+      materials
     );
-  }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes]);
+  }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes, materials]);
 
   // Fetch purposes from API with disabled caching
   const {

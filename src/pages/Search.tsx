@@ -34,6 +34,9 @@ const Search: React.FC = () => {
       const hierarchyIds = searchParams.get('hierarchy_id')?.split(',');
       filters.hierarchy_id = hierarchyIds && hierarchyIds.length > 1 ? hierarchyIds : hierarchyIds?.[0];
     }
+    if (searchParams.get('material')) {
+      filters.material = searchParams.get('material')?.split(',') as any;
+    }
 
     return filters;
   };
@@ -105,6 +108,11 @@ const Search: React.FC = () => {
     if (filters.hierarchy_id) {
       const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
       params.set('hierarchy_id', hierarchyIds.join(','));
+    }
+
+    // Add materials
+    if (filters.material && filters.material.length > 0) {
+      params.set('material', filters.material.join(','));
     }
 
     // Add sorting

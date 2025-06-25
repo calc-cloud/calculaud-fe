@@ -7,6 +7,7 @@ export interface PurposeApiParams {
   hierarchy_id?: number | number[];
   supplier_id?: number | number[];
   service_type_id?: number | number[];
+  service_id?: number | number[]; // Material filter (maps to service_id in API)
   status?: string | string[];
   search?: string;
   sort_by?: string;
@@ -143,7 +144,8 @@ class PurposeService {
     itemsPerPage: number,
     hierarchies: any[],
     suppliers: any[],
-    serviceTypes: any[]
+    serviceTypes: any[],
+    materials: any[]
   ): PurposeApiParams {
     const params: PurposeApiParams = {
       page: currentPage,
@@ -206,6 +208,20 @@ class PurposeService {
       
       if (validServiceTypeIds.length > 0) {
         params.service_type_id = validServiceTypeIds.length === 1 ? validServiceTypeIds[0] : validServiceTypeIds;
+      }
+    }
+
+    // Material filter - handle multiple materials (maps to service_id in API)
+    if (filters.material && filters.material.length > 0) {
+      const validMaterialIds = filters.material
+        .map(materialName => {
+          const material = materials.find(m => m.name === materialName);
+          return material ? parseInt(material.id) : null;
+        })
+        .filter(id => id !== null) as number[];
+      
+      if (validMaterialIds.length > 0) {
+        params.service_id = validMaterialIds.length === 1 ? validMaterialIds[0] : validMaterialIds;
       }
     }
 

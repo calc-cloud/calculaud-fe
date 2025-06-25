@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Search, X, ChevronDown } from 'lucide-react';
 import { PurposeFilters } from '@/types';
 import { HierarchySelector } from './HierarchySelector';
@@ -21,7 +22,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   onFiltersChange,
   onExport
 }) => {
-  const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials, isLoading } = useAdminData();
 
   const updateFilter = (key: keyof PurposeFilters, value: string | string[] | undefined) => {
     const newFilters = {
@@ -59,6 +60,15 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     updateFilter('supplier', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
   };
 
+  const toggleMaterial = (materialName: string) => {
+    const currentMaterials = filters.material || [];
+    const updatedMaterials = currentMaterials.includes(materialName)
+      ? currentMaterials.filter(m => m !== materialName)
+      : [...currentMaterials, materialName];
+    
+    updateFilter('material', updatedMaterials.length > 0 ? updatedMaterials : undefined);
+  };
+
   const clearFilters = () => {
     onFiltersChange({});
   };
@@ -88,6 +98,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     return `${selectedSuppliers.length} selected`;
   };
 
+  const getMaterialLabel = () => {
+    const selectedMaterials = filters.material || [];
+    if (selectedMaterials.length === 0) return 'Materials';
+    if (selectedMaterials.length === 1) return selectedMaterials[0];
+    return `${selectedMaterials.length} selected`;
+  };
+
   const PURPOSE_STATUSES = ['In Progress', 'Completed'];
 
   return (
@@ -104,29 +121,57 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       </div>
 
       {/* Filter Controls */}
-      <div className="flex items-center gap-3 overflow-x-auto p-1">
+      <TooltipProvider>
+        <div className="flex items-center gap-3 overflow-x-auto p-1">
         {/* Hierarchy Selector */}
         <div className="flex-shrink-0 min-w-[200px]">
-          <HierarchySelector
-            hierarchies={hierarchies}
-            selectedIds={Array.isArray(filters.hierarchy_id) ? 
-              filters.hierarchy_id.map(id => typeof id === 'string' ? parseInt(id) : id) : 
-              (filters.hierarchy_id ? [typeof filters.hierarchy_id === 'string' ? parseInt(filters.hierarchy_id) : filters.hierarchy_id] : [])}
-            onSelectionChange={(selectedIds) => 
-              updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds.map(id => id.toString()) : undefined)
-            }
-          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <HierarchySelector
+                  hierarchies={hierarchies}
+                  selectedIds={Array.isArray(filters.hierarchy_id) ? 
+                    filters.hierarchy_id.map(id => typeof id === 'string' ? parseInt(id) : id) : 
+                    (filters.hierarchy_id ? [typeof filters.hierarchy_id === 'string' ? parseInt(filters.hierarchy_id) : filters.hierarchy_id] : [])}
+                  onSelectionChange={(selectedIds) => 
+                    updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds.map(id => id.toString()) : undefined)
+                  }
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{(() => {
+                const selectedIds = Array.isArray(filters.hierarchy_id) ? 
+                  filters.hierarchy_id.map(id => typeof id === 'string' ? parseInt(id) : id) : 
+                  (filters.hierarchy_id ? [typeof filters.hierarchy_id === 'string' ? parseInt(filters.hierarchy_id) : filters.hierarchy_id] : []);
+                
+                if (selectedIds.length === 0) return 'Hierarchy';
+                if (selectedIds.length === 1) {
+                  const hierarchy = hierarchies.find(h => h.id === selectedIds[0]);
+                  return hierarchy ? hierarchy.path : 'Hierarchy';
+                }
+                return `${selectedIds.length} hierarchies selected`;
+              })()}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Service Type Multi-Select */}
         <div className="flex-shrink-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-                {isLoading ? 'Loading...' : getServiceTypeLabel()}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
+                    <span className="truncate">{isLoading ? 'Loading...' : getServiceTypeLabel()}</span>
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isLoading ? 'Loading...' : getServiceTypeLabel()}</p>
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent className="w-[200px] p-2 bg-white border shadow-md z-50">
               {serviceTypes.map((type) => (
                 <div
@@ -147,12 +192,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {/* Status Multi-Select */}
         <div className="flex-shrink-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[140px] justify-between">
-                {getStatusLabel()}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-[160px] justify-between gap-2">
+                    <span className="truncate">{getStatusLabel()}</span>
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{getStatusLabel()}</p>
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
               {PURPOSE_STATUSES.map((status) => (
                 <div
@@ -175,12 +227,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
         {/* Supplier Multi-Select Dropdown */}
         <div className="flex-shrink-0">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-                {isLoading ? 'Loading...' : getSupplierLabel()}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
+                    <span className="truncate">{isLoading ? 'Loading...' : getSupplierLabel()}</span>
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isLoading ? 'Loading...' : getSupplierLabel()}</p>
+              </TooltipContent>
+            </Tooltip>
             <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
               {suppliers.map((supplier) => (
                 <div
@@ -192,6 +251,39 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                     checked={(filters.supplier || []).includes(supplier.name as any)}
                   />
                   <span className="truncate">{supplier.name}</span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Material Multi-Select Dropdown */}
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
+                    <span className="truncate">{isLoading ? 'Loading...' : getMaterialLabel()}</span>
+                    <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  </Button>
+                </DropdownMenuTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isLoading ? 'Loading...' : getMaterialLabel()}</p>
+              </TooltipContent>
+            </Tooltip>
+            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
+              {materials.map((material) => (
+                <div
+                  key={material.id}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleMaterial(material.name)}
+                >
+                  <Checkbox
+                    checked={(filters.material || []).includes(material.name)}
+                  />
+                  <span className="truncate">{material.name}</span>
                 </div>
               ))}
             </DropdownMenuContent>
@@ -212,6 +304,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </Button>
         </div>
       </div>
+      </TooltipProvider>
 
       
       {activeFiltersCount > 0 && (
@@ -250,6 +343,19 @@ export const FilterBar: React.FC<FilterBarProps> = ({
                   <X 
                     className="h-3 w-3 cursor-pointer" 
                     onClick={() => toggleSupplier(supplier)}
+                  />
+                </Badge>
+              ))}
+            </div>
+          )}
+          {filters.material && filters.material.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {filters.material.map((material) => (
+                <Badge key={material} variant="secondary" className="flex items-center gap-1">
+                  Material: {material}
+                  <X 
+                    className="h-3 w-3 cursor-pointer" 
+                    onClick={() => toggleMaterial(material)}
                   />
                 </Badge>
               ))}

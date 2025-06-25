@@ -79,6 +79,7 @@ export interface PurposeFilters {
   supplier?: Supplier[];
   status?: PurposeStatus[];
   search_query?: string;
+  material?: string[]; // Material filter (maps to service_id in API)
 }
 
 export interface PurposeSorting {
