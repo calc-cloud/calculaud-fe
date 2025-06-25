@@ -1,17 +1,25 @@
-
 import React from 'react';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination';
 
 interface TablePaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
 export const TablePagination: React.FC<TablePaginationProps> = ({
   currentPage,
   totalPages,
-  onPageChange
+                                                                  onPageChange,
+                                                                  isLoading = false
 }) => {
   const renderPaginationItems = () => {
     const items = [];
@@ -41,14 +49,23 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     return items;
   };
 
+  // Don't render pagination if there are no pages or only one page (unless loading)
+  if (totalPages <= 1 && !isLoading) {
+    return null;
+  }
+
   return (
     <div className="flex justify-center">
       <Pagination>
-        <PaginationContent>
+        <PaginationContent className={isLoading ? "opacity-75" : ""}>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => onPageChange(Math.max(1, currentPage - 1))}
-              className={currentPage === 1 ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                onClick={() => !isLoading && onPageChange(Math.max(1, currentPage - 1))}
+                className={
+                  currentPage === 1 || isLoading
+                      ? "pointer-events-none opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                }
             />
           </PaginationItem>
           
@@ -56,8 +73,12 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
           
           <PaginationItem>
             <PaginationNext
-              onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
-              className={currentPage === totalPages ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                onClick={() => !isLoading && onPageChange(Math.min(totalPages, currentPage + 1))}
+                className={
+                  currentPage === totalPages || isLoading
+                      ? "pointer-events-none opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                }
             />
           </PaginationItem>
         </PaginationContent>

@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Purpose, PurposeFilters, ModalMode } from '@/types';
-import { SortConfig } from '@/utils/sorting';
-import { purposeService } from '@/services/purposeService';
-import { useAdminData } from '@/contexts/AdminDataContext';
+import {useMemo, useRef, useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {ModalMode, Purpose, PurposeFilters} from '@/types';
+import {SortConfig} from '@/utils/sorting';
+import {purposeService} from '@/services/purposeService';
+import {useAdminData} from '@/contexts/AdminDataContext';
 
 export const usePurposeData = (
   initialFilters: PurposeFilters = {},
@@ -18,6 +18,9 @@ export const usePurposeData = (
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
+
+  // Store previous pagination values to prevent jumping during loading
+  const previousPaginationRef = useRef({totalPages: 0, totalCount: 0});
 
   // Build API query parameters - simplified since we can handle multiple filters in one request
   const apiParams = useMemo(() => {
@@ -53,15 +56,22 @@ export const usePurposeData = (
   // Transform API response to match frontend structure
   const { purposes, filteredPurposes, totalPages, totalCount } = useMemo(() => {
     if (!apiResponse) {
+      // During loading, preserve previous pagination values to prevent UI jumping
       return {
         purposes: [],
         filteredPurposes: [],
-        totalPages: 0,
-        totalCount: 0
+        totalPages: isLoading ? previousPaginationRef.current.totalPages : 0,
+        totalCount: isLoading ? previousPaginationRef.current.totalCount : 0
       };
     }
 
     const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+
+    // Update the previous pagination values when we have fresh data
+    previousPaginationRef.current = {
+      totalPages: transformed.pages,
+      totalCount: transformed.total
+    };
     
     return {
       purposes: transformed.purposes,
@@ -69,7 +79,7 @@ export const usePurposeData = (
       totalPages: transformed.pages,
       totalCount: transformed.total
     };
-  }, [apiResponse, hierarchies]);
+  }, [apiResponse, hierarchies, isLoading]);
 
   // Calculate dashboard statistics from current purposes
   const stats = useMemo(() => {

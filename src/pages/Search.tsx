@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { PurposeTable } from '@/components/tables/PurposeTable';
-import { PurposeModal } from '@/components/modals/PurposeModal';
-import { SearchFilterBar } from '@/components/common/SearchFilterBar';
-import { SortControls } from '@/components/search/SortControls';
-import { ResultsSummary } from '@/components/search/ResultsSummary';
-import { Purpose, PurposeFilters } from '@/types';
-import { SortConfig } from '@/utils/sorting';
-import { usePurposeData } from '@/hooks/usePurposeData';
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
-import { exportPurposesToCSV } from '@/utils/csvExport';
+import React, {useEffect} from 'react';
+import {useSearchParams} from 'react-router-dom';
+import {PurposeTable} from '@/components/tables/PurposeTable';
+import {PurposeModal} from '@/components/modals/PurposeModal';
+import {SearchFilterBar} from '@/components/common/SearchFilterBar';
+import {SortControls} from '@/components/search/SortControls';
+import {ResultsSummary} from '@/components/search/ResultsSummary';
+import {Purpose, PurposeFilters} from '@/types';
+import {SortConfig} from '@/utils/sorting';
+import {usePurposeData} from '@/hooks/usePurposeData';
+import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {exportPurposesToCSV} from '@/utils/csvExport';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -272,6 +272,7 @@ const Search: React.FC = () => {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
+        isLoading={isLoading}
       />
 
       <PurposeTable

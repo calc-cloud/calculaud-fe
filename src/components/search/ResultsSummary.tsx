@@ -1,9 +1,8 @@
-
 import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { PurposeFilters } from '@/types';
-import { SortConfig, getSortDisplayName } from '@/utils/sorting';
-import { TablePagination } from '@/components/tables/TablePagination';
+import {Badge} from '@/components/ui/badge';
+import {PurposeFilters} from '@/types';
+import {getSortDisplayName, SortConfig} from '@/utils/sorting';
+import {TablePagination} from '@/components/tables/TablePagination';
 
 interface ResultsSummaryProps {
   startIndex: number;
@@ -14,6 +13,7 @@ interface ResultsSummaryProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
 export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
@@ -24,7 +24,8 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
   sortConfig,
   currentPage,
   totalPages,
-  onPageChange
+                                                                onPageChange,
+                                                                isLoading = false
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -47,6 +48,7 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={onPageChange}
+          isLoading={isLoading}
         />
       </div>
     </div>
