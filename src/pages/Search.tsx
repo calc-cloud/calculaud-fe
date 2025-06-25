@@ -33,22 +33,40 @@ const Search: React.FC = () => {
     if (searchParams.get('search_query')) {
       filters.search_query = searchParams.get('search_query') || undefined;
     }
-    if (searchParams.get('service_type')) {
-      filters.service_type = searchParams.get('service_type')?.split(',') as any;
+    
+    // Parse service type IDs
+    if (searchParams.get('service_type_id')) {
+      const serviceTypeIds = searchParams.get('service_type_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (serviceTypeIds && serviceTypeIds.length > 0) {
+        filters.service_type = serviceTypeIds as any;
+      }
     }
+    
     if (searchParams.get('status')) {
       filters.status = searchParams.get('status')?.split(',') as any;
     }
-    if (searchParams.get('supplier')) {
-      filters.supplier = searchParams.get('supplier')?.split(',') as any;
+    
+    // Parse supplier IDs
+    if (searchParams.get('supplier_id')) {
+      const supplierIds = searchParams.get('supplier_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (supplierIds && supplierIds.length > 0) {
+        filters.supplier = supplierIds as any;
+      }
     }
+    
     if (searchParams.get('hierarchy_id')) {
       const hierarchyIds = searchParams.get('hierarchy_id')?.split(',');
       filters.hierarchy_id = hierarchyIds && hierarchyIds.length > 1 ? hierarchyIds : hierarchyIds?.[0];
     }
-    if (searchParams.get('material')) {
-      filters.material = searchParams.get('material')?.split(',') as any;
+    
+    // Parse material IDs (service IDs)
+    if (searchParams.get('material_id')) {
+      const materialIds = searchParams.get('material_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (materialIds && materialIds.length > 0) {
+        filters.material = materialIds as any;
+      }
     }
+    
     if (searchParams.get('start_date')) {
       filters.start_date = searchParams.get('start_date') || undefined;
     }
@@ -119,9 +137,9 @@ const Search: React.FC = () => {
       params.set('search_query', filters.search_query);
     }
 
-    // Add service types
+    // Add service type IDs
     if (filters.service_type && filters.service_type.length > 0) {
-      params.set('service_type', filters.service_type.join(','));
+      params.set('service_type_id', filters.service_type.join(','));
     }
 
     // Add statuses
@@ -129,9 +147,9 @@ const Search: React.FC = () => {
       params.set('status', filters.status.join(','));
     }
 
-    // Add suppliers
+    // Add supplier IDs
     if (filters.supplier && filters.supplier.length > 0) {
-      params.set('supplier', filters.supplier.join(','));
+      params.set('supplier_id', filters.supplier.join(','));
     }
 
     // Add hierarchy IDs
@@ -140,9 +158,9 @@ const Search: React.FC = () => {
       params.set('hierarchy_id', hierarchyIds.join(','));
     }
 
-    // Add materials
+    // Add material IDs
     if (filters.material && filters.material.length > 0) {
-      params.set('material', filters.material.join(','));
+      params.set('material_id', filters.material.join(','));
     }
 
     // Add date/time filters (always include these if they have values, including defaults)

@@ -212,15 +212,11 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <HierarchySelector
                     hierarchies={hierarchies}
                     selectedIds={(() => {
-                      if (config.mode === 'dashboard') {
-                        return (filters.hierarchy_id as number[]) || [];
-                      } else {
-                        const ids = filters.hierarchy_id;
-                        if (Array.isArray(ids)) {
-                          return ids.map(id => typeof id === 'string' ? parseInt(id) : id);
-                        }
-                        return ids ? [typeof ids === 'string' ? parseInt(ids) : ids] : [];
+                      const ids = filters.hierarchy_id;
+                      if (Array.isArray(ids)) {
+                        return ids.map(id => typeof id === 'string' ? parseInt(id) : id);
                       }
+                      return ids ? [typeof ids === 'string' ? parseInt(ids) : ids] : [];
                     })()}
                     onSelectionChange={(selectedIds) => {
                       if (config.mode === 'dashboard') {
@@ -246,9 +242,7 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
                       <span className="truncate">{isLoading ? 'Loading...' : getFilterLabel(
-                        config.mode === 'dashboard' 
-                          ? (filters.service_type as number[])?.map(id => serviceTypes.find(st => st.id === id)?.name).filter(Boolean)
-                          : filters.service_type as string[],
+                        (filters.service_type as number[])?.map(id => serviceTypes.find(st => st.id === id)?.name).filter(Boolean),
                         'Service Types'
                       )}</span>
                       <ChevronDown className="h-4 w-4 flex-shrink-0" />
@@ -264,13 +258,10 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <div
                     key={type.id}
                     className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                    onClick={() => toggleServiceType(config.mode === 'dashboard' ? type.id : type.name)}
+                    onClick={() => toggleServiceType(type.id)}
                   >
                     <Checkbox
-                      checked={config.mode === 'dashboard' 
-                        ? ((filters.service_type as number[]) || []).includes(type.id)
-                        : ((filters.service_type as string[]) || []).includes(type.name)
-                      }
+                      checked={((filters.service_type as number[]) || []).includes(type.id)}
                     />
                     <span>{type.name}</span>
                   </div>
@@ -287,9 +278,7 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
                       <span className="truncate">{isLoading ? 'Loading...' : getFilterLabel(
-                        config.mode === 'dashboard' 
-                          ? (filters.material as number[])?.map(id => materials.find(m => m.id === id)?.name).filter(Boolean)
-                          : filters.material as string[],
+                        (filters.material as number[])?.map(id => materials.find(m => m.id === id)?.name).filter(Boolean),
                         'Materials'
                       )}</span>
                       <ChevronDown className="h-4 w-4 flex-shrink-0" />
@@ -305,13 +294,10 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <div
                     key={material.id}
                     className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                    onClick={() => toggleMaterial(config.mode === 'dashboard' ? material.id : material.name)}
+                    onClick={() => toggleMaterial(material.id)}
                   >
                     <Checkbox
-                      checked={config.mode === 'dashboard'
-                        ? ((filters.material as number[]) || []).includes(material.id)
-                        : ((filters.material as string[]) || []).includes(material.name)
-                      }
+                      checked={((filters.material as number[]) || []).includes(material.id)}
                     />
                     <span className="truncate">{material.name}</span>
                   </div>
@@ -328,9 +314,7 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
                       <span className="truncate">{isLoading ? 'Loading...' : getFilterLabel(
-                        config.mode === 'dashboard' 
-                          ? (filters.supplier as number[])?.map(id => suppliers.find(s => s.id === id)?.name).filter(Boolean)
-                          : filters.supplier as string[],
+                        (filters.supplier as number[])?.map(id => suppliers.find(s => s.id === id)?.name).filter(Boolean),
                         'Suppliers'
                       )}</span>
                       <ChevronDown className="h-4 w-4 flex-shrink-0" />
@@ -346,13 +330,10 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
                   <div
                     key={supplier.id}
                     className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                    onClick={() => toggleSupplier(config.mode === 'dashboard' ? supplier.id : supplier.name)}
+                    onClick={() => toggleSupplier(supplier.id)}
                   >
                     <Checkbox
-                      checked={config.mode === 'dashboard'
-                        ? ((filters.supplier as number[]) || []).includes(supplier.id)
-                        : ((filters.supplier as string[]) || []).includes(supplier.name)
-                      }
+                      checked={((filters.supplier as number[]) || []).includes(supplier.id)}
                     />
                     <span className="truncate">{supplier.name}</span>
                   </div>
@@ -416,17 +397,20 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
       {/* Active Filters Display for Search Mode */}
       {config.mode === 'search' && activeFiltersCount > 0 && (
         <div className="flex flex-wrap gap-2">
-          {filters.service_type && (filters.service_type as string[]).length > 0 && (
+          {filters.service_type && (filters.service_type as number[]).length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {(filters.service_type as string[]).map((type) => (
-                <Badge key={type} variant="secondary" className="flex items-center gap-1">
-                  Service: {type}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => toggleServiceType(type)}
-                  />
-                </Badge>
-              ))}
+              {(filters.service_type as number[]).map((typeId) => {
+                const type = serviceTypes.find(st => st.id === typeId);
+                return type ? (
+                  <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
+                    Service: {type.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => toggleServiceType(typeId)}
+                    />
+                  </Badge>
+                ) : null;
+              })}
             </div>
           )}
           {filters.status && filters.status.length > 0 && (
@@ -442,30 +426,36 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
               ))}
             </div>
           )}
-          {filters.supplier && (filters.supplier as string[]).length > 0 && (
+          {filters.supplier && (filters.supplier as number[]).length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {(filters.supplier as string[]).map((supplier) => (
-                <Badge key={supplier} variant="secondary" className="flex items-center gap-1">
-                  Supplier: {supplier}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => toggleSupplier(supplier)}
-                  />
-                </Badge>
-              ))}
+              {(filters.supplier as number[]).map((supplierId) => {
+                const supplier = suppliers.find(s => s.id === supplierId);
+                return supplier ? (
+                  <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
+                    Supplier: {supplier.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => toggleSupplier(supplierId)}
+                    />
+                  </Badge>
+                ) : null;
+              })}
             </div>
           )}
-          {filters.material && (filters.material as string[]).length > 0 && (
+          {filters.material && (filters.material as number[]).length > 0 && (
             <div className="flex flex-wrap gap-1">
-              {(filters.material as string[]).map((material) => (
-                <Badge key={material} variant="secondary" className="flex items-center gap-1">
-                  Material: {material}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => toggleMaterial(material)}
-                  />
-                </Badge>
-              ))}
+              {(filters.material as number[]).map((materialId) => {
+                const material = materials.find(m => m.id === materialId);
+                return material ? (
+                  <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
+                    Material: {material.name}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => toggleMaterial(materialId)}
+                    />
+                  </Badge>
+                ) : null;
+              })}
             </div>
           )}
         </div>

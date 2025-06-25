@@ -81,8 +81,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     Dashboard
                   </Button>
                 </Link>
-                <Link to="/">
-                  <Button variant={location.pathname === '/' ? 'default' : 'ghost'}>
+                <Link to="/search">
+                  <Button variant={location.pathname === '/search' ? 'default' : 'ghost'}>
                     Search
                   </Button>
                 </Link>
