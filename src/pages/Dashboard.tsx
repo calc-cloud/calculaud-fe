@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { UnifiedDashboardFilters } from '@/components/dashboard/UnifiedDashboardFilters';
 import { ServicesQuantityChart } from '@/components/dashboard/ServicesQuantityChart';
 import { ServiceTypesDistributionChart } from '@/components/dashboard/ServiceTypesDistributionChart';
 import { HierarchyDistributionChart } from '@/components/dashboard/HierarchyDistributionChart';
@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Global Filters */}
-      <DashboardFilters
+              <UnifiedDashboardFilters
         filters={filters}
         onFiltersChange={setFilters}
       />
