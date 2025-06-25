@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';
-import { FilterBar } from '@/components/common/FilterBar';
+import { SearchFilterBar } from '@/components/common/SearchFilterBar';
 import { SortControls } from '@/components/search/SortControls';
 import { ResultsSummary } from '@/components/search/ResultsSummary';
 import { Purpose, PurposeFilters } from '@/types';
@@ -234,7 +234,7 @@ const Search: React.FC = () => {
         <h1 className="text-2xl font-bold">Search Purposes</h1>
       </div>
 
-      <FilterBar
+              <SearchFilterBar
         filters={filters}
         onFiltersChange={setFilters}
         onExport={handleExport}
