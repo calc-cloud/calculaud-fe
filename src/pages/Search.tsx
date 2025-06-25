@@ -14,6 +14,18 @@ import { exportPurposesToCSV } from '@/utils/csvExport';
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // Helper function to calculate default "Last Year" date range
+  const getDefaultDateRange = () => {
+    const today = new Date();
+    const lastYear = new Date();
+    lastYear.setFullYear(today.getFullYear() - 1);
+    
+    return {
+      start_date: lastYear.toISOString().split('T')[0], // Format as YYYY-MM-DD
+      end_date: today.toISOString().split('T')[0]
+    };
+  };
+
   // Parse URL params to initial state
   const getInitialFilters = (): PurposeFilters => {
     const filters: PurposeFilters = {};
@@ -36,6 +48,24 @@ const Search: React.FC = () => {
     }
     if (searchParams.get('material')) {
       filters.material = searchParams.get('material')?.split(',') as any;
+    }
+    if (searchParams.get('start_date')) {
+      filters.start_date = searchParams.get('start_date') || undefined;
+    }
+    if (searchParams.get('end_date')) {
+      filters.end_date = searchParams.get('end_date') || undefined;
+    }
+    if (searchParams.get('relative_time')) {
+      filters.relative_time = searchParams.get('relative_time') || undefined;
+    }
+
+    // If no date/time filters are provided in URL, set default "Last Year" values
+    const hasDateTimeParams = searchParams.get('start_date') || searchParams.get('end_date') || searchParams.get('relative_time');
+    if (!hasDateTimeParams) {
+      const defaultRange = getDefaultDateRange();
+      filters.start_date = defaultRange.start_date;
+      filters.end_date = defaultRange.end_date;
+      filters.relative_time = 'last_year';
     }
 
     return filters;
@@ -113,6 +143,17 @@ const Search: React.FC = () => {
     // Add materials
     if (filters.material && filters.material.length > 0) {
       params.set('material', filters.material.join(','));
+    }
+
+    // Add date/time filters (always include these if they have values, including defaults)
+    if (filters.start_date) {
+      params.set('start_date', filters.start_date);
+    }
+    if (filters.end_date) {
+      params.set('end_date', filters.end_date);
+    }
+    if (filters.relative_time) {
+      params.set('relative_time', filters.relative_time);
     }
 
     // Add sorting

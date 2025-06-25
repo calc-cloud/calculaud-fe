@@ -5,8 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Search, X, ChevronDown } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Search, X, ChevronDown, CalendarIcon } from 'lucide-react';
+import { format, subDays, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { PurposeFilters } from '@/types';
 import { HierarchySelector } from './HierarchySelector';
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -69,13 +74,134 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     updateFilter('material', updatedMaterials.length > 0 ? updatedMaterials : undefined);
   };
 
-  const clearFilters = () => {
-    onFiltersChange({});
+  // Calculate date range based on relative time selection
+  const calculateDateRange = (relativeTime: string) => {
+    const today = new Date();
+    let startDate: Date;
+    let endDate: Date = today;
+
+    switch (relativeTime) {
+      case 'last_7_days':
+        startDate = subDays(today, 7);
+        break;
+      case 'last_30_days':
+        startDate = subDays(today, 30);
+        break;
+      case 'last_3_months':
+        startDate = subMonths(today, 3);
+        break;
+      case 'last_6_months':
+        startDate = subMonths(today, 6);
+        break;
+      case 'last_year':
+        startDate = subYears(today, 1);
+        break;
+      case 'this_week':
+        startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
+        break;
+      case 'this_month':
+        startDate = startOfMonth(today);
+        break;
+      case 'this_year':
+        startDate = startOfYear(today);
+        break;
+      case 'all_time':
+        // For "All Time", clear the date filters by returning undefined
+        return undefined;
+      default:
+        return; // Don't update dates for custom or unknown values
+    }
+
+    return {
+      start_date: format(startDate, 'yyyy-MM-dd'),
+      end_date: format(endDate, 'yyyy-MM-dd')
+    };
   };
 
-  const activeFiltersCount = Object.values(filters).filter(value => 
-    value !== undefined && value !== '' && (!Array.isArray(value) || value.length > 0)
-  ).length;
+  // Handle relative time change
+  const handleRelativeTimeChange = (relativeTime: string) => {
+    const dateRange = calculateDateRange(relativeTime);
+    
+    let newFilters = {
+      ...filters,
+      relative_time: relativeTime
+    };
+
+    if (relativeTime === 'all_time') {
+      // For "All Time", remove date constraints
+      newFilters = {
+        ...filters,
+        relative_time: relativeTime,
+        start_date: undefined,
+        end_date: undefined
+      };
+    } else if (dateRange) {
+      // For other relative times, update with calculated dates
+      newFilters = {
+        ...filters,
+        relative_time: relativeTime,
+        ...dateRange
+      };
+    }
+    
+    onFiltersChange(newFilters);
+  };
+
+  // Handle manual date changes (should set relative_time to 'custom')
+  const handleDateChange = (key: 'start_date' | 'end_date', value: string | undefined) => {
+    const newFilters = {
+      ...filters,
+      [key]: value,
+      relative_time: 'custom' // Set to custom when manually changing dates
+    };
+    
+    onFiltersChange(newFilters);
+  };
+
+  const clearFilters = () => {
+    // Reset to default state with "Last Year" relative time and corresponding date range
+    const defaultDateRange = calculateDateRange('last_year');
+    const defaultFilters = {
+      relative_time: 'last_year',
+      ...defaultDateRange
+    };
+    onFiltersChange(defaultFilters);
+  };
+
+  // Calculate active filters count, excluding default values (same logic as dashboard)
+  const getActiveFiltersCount = () => {
+    // Get default state for comparison
+    const defaultDateRange = calculateDateRange('last_year');
+    const isDefaultDateRange = filters.start_date === defaultDateRange?.start_date && 
+                              filters.end_date === defaultDateRange?.end_date;
+    const isDefaultRelativeTime = (filters.relative_time || 'last_year') === 'last_year';
+    
+    let count = 0;
+    
+    // Only count non-default filters
+    if (filters.search_query?.trim()) count++;
+    if (filters.service_type?.length) count++;
+    if (filters.status?.length) count++;
+    if (filters.supplier?.length) count++;
+    if (filters.material?.length) count++;
+    if (filters.hierarchy_id) {
+      const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
+      if (hierarchyIds.length > 0) count++;
+    }
+    
+    // Only count date/time filters if they're not the default
+    if (!isDefaultDateRange || !isDefaultRelativeTime) {
+      if (filters.relative_time === 'custom') {
+        count++; // Custom date range
+      } else if (filters.relative_time && filters.relative_time !== 'last_year') {
+        count++; // Non-default relative time
+      }
+    }
+    
+    return count;
+  };
+
+  const activeFiltersCount = getActiveFiltersCount();
 
   const getServiceTypeLabel = () => {
     const selectedTypes = filters.service_type || [];
@@ -107,6 +233,20 @@ export const FilterBar: React.FC<FilterBarProps> = ({
 
   const PURPOSE_STATUSES = ['In Progress', 'Completed'];
 
+  // Relative time options
+  const RELATIVE_TIME_OPTIONS = [
+    { value: 'last_7_days', label: 'Last 7 Days' },
+    { value: 'last_30_days', label: 'Last 30 Days' },
+    { value: 'last_3_months', label: 'Last 3 Months' },
+    { value: 'last_6_months', label: 'Last 6 Months' },
+    { value: 'last_year', label: 'Last Year' },
+    { value: 'this_week', label: 'This Week' },
+    { value: 'this_month', label: 'This Month' },
+    { value: 'this_year', label: 'This Year' },
+    { value: 'all_time', label: 'All Time' },
+    { value: 'custom', label: 'Custom Range' }
+  ];
+
   return (
     <div className="space-y-4">
       {/* Search Bar */}
@@ -118,6 +258,87 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           onChange={(e) => updateFilter('search_query', e.target.value)}
           className="pl-10 focus-visible:outline-none"
         />
+      </div>
+
+      {/* Date Range with Relative Time Filter */}
+      <div className="flex items-center gap-3 overflow-x-auto py-1">
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">From:</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[160px] justify-start text-left font-normal",
+                  !filters.start_date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
+                  {filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : "Start date"}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filters.start_date ? new Date(filters.start_date) : undefined}
+                onSelect={(date) => handleDateChange('start_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">To:</label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[160px] justify-start text-left font-normal",
+                  !filters.end_date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                <span className="truncate">
+                  {filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : "End date"}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filters.end_date ? new Date(filters.end_date) : undefined}
+                onSelect={(date) => handleDateChange('end_date', date ? format(date, 'yyyy-MM-dd') : undefined)}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {/* Relative Time Filter */}
+        <div className="flex items-center gap-2">
+          <label className="text-sm font-medium">Relative Time:</label>
+          <Select
+            value={filters.relative_time || 'last_year'}
+            onValueChange={handleRelativeTimeChange}
+          >
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Select time range" />
+            </SelectTrigger>
+            <SelectContent>
+              {RELATIVE_TIME_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Filter Controls */}
@@ -189,35 +410,33 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Status Multi-Select */}
+        {/* Material Multi-Select Dropdown */}
         <div className="flex-shrink-0">
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-[160px] justify-between gap-2">
-                    <span className="truncate">{getStatusLabel()}</span>
+                  <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
+                    <span className="truncate">{isLoading ? 'Loading...' : getMaterialLabel()}</span>
                     <ChevronDown className="h-4 w-4 flex-shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{getStatusLabel()}</p>
+                <p>{isLoading ? 'Loading...' : getMaterialLabel()}</p>
               </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
-              {PURPOSE_STATUSES.map((status) => (
+            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
+              {materials.map((material) => (
                 <div
-                  key={status}
+                  key={material.id}
                   className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                  onClick={() => toggleStatus(status)}
+                  onClick={() => toggleMaterial(material.name)}
                 >
                   <Checkbox
-                    checked={(filters.status || []).includes(status as any)}
+                    checked={(filters.material || []).includes(material.name)}
                   />
-                  <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
-                    {status}
-                  </Badge>
+                  <span className="truncate">{material.name}</span>
                 </div>
               ))}
             </DropdownMenuContent>
@@ -257,33 +476,35 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* Material Multi-Select Dropdown */}
+        {/* Status Multi-Select */}
         <div className="flex-shrink-0">
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-[180px] justify-between gap-2" disabled={isLoading}>
-                    <span className="truncate">{isLoading ? 'Loading...' : getMaterialLabel()}</span>
+                  <Button variant="outline" className="w-[160px] justify-between gap-2">
+                    <span className="truncate">{getStatusLabel()}</span>
                     <ChevronDown className="h-4 w-4 flex-shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{isLoading ? 'Loading...' : getMaterialLabel()}</p>
+                <p>{getStatusLabel()}</p>
               </TooltipContent>
             </Tooltip>
-            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
-              {materials.map((material) => (
+            <DropdownMenuContent className="w-[180px] p-2 bg-white border shadow-md z-50">
+              {PURPOSE_STATUSES.map((status) => (
                 <div
-                  key={material.id}
+                  key={status}
                   className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                  onClick={() => toggleMaterial(material.name)}
+                  onClick={() => toggleStatus(status)}
                 >
                   <Checkbox
-                    checked={(filters.material || []).includes(material.name)}
+                    checked={(filters.status || []).includes(status as any)}
                   />
-                  <span className="truncate">{material.name}</span>
+                  <Badge variant={status === 'Completed' ? 'default' : 'secondary'}>
+                    {status}
+                  </Badge>
                 </div>
               ))}
             </DropdownMenuContent>

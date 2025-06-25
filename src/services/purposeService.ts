@@ -12,6 +12,8 @@ export interface PurposeApiParams {
   search?: string;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
+  start_date?: string;
+  end_date?: string;
 }
 
 export interface PurposeApiResponse {
@@ -223,6 +225,14 @@ class PurposeService {
       if (validMaterialIds.length > 0) {
         params.service_id = validMaterialIds.length === 1 ? validMaterialIds[0] : validMaterialIds;
       }
+    }
+
+    // Date filters
+    if (filters.start_date) {
+      params.start_date = filters.start_date;
+    }
+    if (filters.end_date) {
+      params.end_date = filters.end_date;
     }
 
     return params;

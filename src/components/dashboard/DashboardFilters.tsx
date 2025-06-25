@@ -101,6 +101,9 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
       case 'this_year':
         startDate = startOfYear(today);
         break;
+      case 'all_time':
+        // For "All Time", clear the date filters by returning undefined
+        return undefined;
       default:
         return; // Don't update dates for custom or unknown values
     }
@@ -201,6 +204,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     { value: 'this_week', label: 'This Week' },
     { value: 'this_month', label: 'This Month' },
     { value: 'this_year', label: 'This Year' },
+    { value: 'all_time', label: 'All Time' },
     { value: 'custom', label: 'Custom Range' }
   ];
 
@@ -208,11 +212,27 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   const handleRelativeTimeChange = (relativeTime: string) => {
     const dateRange = calculateDateRange(relativeTime);
     
-    const newFilters = {
+    let newFilters = {
       ...filters,
-      relative_time: relativeTime,
-      ...(dateRange || {}) // Only update dates if dateRange is not undefined
+      relative_time: relativeTime
     };
+
+    if (relativeTime === 'all_time') {
+      // For "All Time", remove date constraints
+      newFilters = {
+        ...filters,
+        relative_time: relativeTime,
+        start_date: undefined,
+        end_date: undefined
+      };
+    } else if (dateRange) {
+      // For other relative times, update with calculated dates
+      newFilters = {
+        ...filters,
+        relative_time: relativeTime,
+        ...dateRange
+      };
+    }
     
     onFiltersChange(newFilters);
   };
@@ -378,6 +398,32 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
           </DropdownMenu>
         </div>
 
+        {/* Supplier Multi-Select Dropdown */}
+        <div className="flex-shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
+                {isLoading ? 'Loading...' : getSupplierLabel()}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
+              {suppliers.map((supplier) => (
+                <div
+                  key={supplier.id}
+                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
+                  onClick={() => toggleSupplier(supplier.id)}
+                >
+                  <Checkbox
+                    checked={(filters.supplier_id || []).includes(supplier.id)}
+                  />
+                  <span className="truncate">{supplier.name}</span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {/* Status Multi-Select */}
         <div className="flex-shrink-0">
           <DropdownMenu>
@@ -400,32 +446,6 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   <Badge variant={status === 'COMPLETED' ? 'default' : 'secondary'}>
                     {status}
                   </Badge>
-                </div>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Supplier Multi-Select Dropdown */}
-        <div className="flex-shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-[160px] justify-between" disabled={isLoading}>
-                {isLoading ? 'Loading...' : getSupplierLabel()}
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[220px] p-2 bg-white border shadow-md z-50">
-              {suppliers.map((supplier) => (
-                <div
-                  key={supplier.id}
-                  className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-100 rounded-sm"
-                  onClick={() => toggleSupplier(supplier.id)}
-                >
-                  <Checkbox
-                    checked={(filters.supplier_id || []).includes(supplier.id)}
-                  />
-                  <span className="truncate">{supplier.name}</span>
                 </div>
               ))}
             </DropdownMenuContent>
