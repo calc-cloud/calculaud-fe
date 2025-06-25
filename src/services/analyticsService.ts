@@ -12,8 +12,8 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if ((filters as any).service_ids?.length) {
+        params.service_ids = (filters as any).service_ids;
       }
       if (filters.service_type_ids?.length) {
         params.service_type_ids = filters.service_type_ids;
@@ -47,8 +47,8 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if ((filters as any).service_ids?.length) {
+        params.service_ids = (filters as any).service_ids;
       }
       if (filters.service_type_ids?.length) {
         params.service_type_ids = filters.service_type_ids;
@@ -96,8 +96,8 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if ((filters as any).service_ids?.length) {
+        params.service_ids = (filters as any).service_ids;
       }
       if (filters.service_type_ids?.length) {
         params.service_type_ids = filters.service_type_ids;
@@ -136,8 +136,8 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if ((filters as any).service_ids?.length) {
+        params.service_ids = (filters as any).service_ids;
       }
       if (filters.service_type_ids?.length) {
         params.service_type_ids = filters.service_type_ids;

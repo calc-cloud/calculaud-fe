@@ -2,10 +2,11 @@ import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { PurposeTable } from '@/components/tables/PurposeTable';
 import { PurposeModal } from '@/components/modals/PurposeModal';
-import { FilterBar } from '@/components/common/FilterBar';
+import { UnifiedFilters } from '@/components/common/UnifiedFilters';
 import { SortControls } from '@/components/search/SortControls';
 import { ResultsSummary } from '@/components/search/ResultsSummary';
-import { Purpose, PurposeFilters } from '@/types';
+import { Purpose } from '@/types';
+import { SearchFilters } from '@/types/commonFilters';
 import { SortConfig } from '@/utils/sorting';
 import { usePurposeData } from '@/hooks/usePurposeData';
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
@@ -15,24 +16,35 @@ const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Parse URL params to initial state
-  const getInitialFilters = (): PurposeFilters => {
-    const filters: PurposeFilters = {};
+  const getInitialFilters = (): SearchFilters => {
+    const filters: SearchFilters = {};
     
     if (searchParams.get('search_query')) {
       filters.search_query = searchParams.get('search_query') || undefined;
     }
-    if (searchParams.get('service_type')) {
-      filters.service_type = searchParams.get('service_type')?.split(',') as any;
+    if (searchParams.get('service_type_ids')) {
+      filters.service_type_ids = searchParams.get('service_type_ids')?.split(',').map(id => parseInt(id));
     }
     if (searchParams.get('status')) {
-      filters.status = searchParams.get('status')?.split(',') as any;
+      filters.status = searchParams.get('status')?.split(',');
     }
-    if (searchParams.get('supplier')) {
-      filters.supplier = searchParams.get('supplier')?.split(',') as any;
+    if (searchParams.get('supplier_ids')) {
+      filters.supplier_ids = searchParams.get('supplier_ids')?.split(',').map(id => parseInt(id));
     }
-    if (searchParams.get('hierarchy_id')) {
-      const hierarchyIds = searchParams.get('hierarchy_id')?.split(',');
-      filters.hierarchy_id = hierarchyIds && hierarchyIds.length > 1 ? hierarchyIds : hierarchyIds?.[0];
+    if (searchParams.get('hierarchy_ids')) {
+      filters.hierarchy_ids = searchParams.get('hierarchy_ids')?.split(',').map(id => parseInt(id));
+    }
+    if (searchParams.get('service_ids')) {
+      filters.service_ids = searchParams.get('service_ids')?.split(',').map(id => parseInt(id));
+    }
+    if (searchParams.get('start_date')) {
+      filters.start_date = searchParams.get('start_date') || undefined;
+    }
+    if (searchParams.get('end_date')) {
+      filters.end_date = searchParams.get('end_date') || undefined;
+    }
+    if (searchParams.get('relative_time')) {
+      filters.relative_time = searchParams.get('relative_time') || undefined;
     }
 
     return filters;
@@ -86,9 +98,9 @@ const Search: React.FC = () => {
       params.set('search_query', filters.search_query);
     }
 
-    // Add service types
-    if (filters.service_type && filters.service_type.length > 0) {
-      params.set('service_type', filters.service_type.join(','));
+    // Add service type IDs
+    if (filters.service_type_ids && filters.service_type_ids.length > 0) {
+      params.set('service_type_ids', filters.service_type_ids.join(','));
     }
 
     // Add statuses
@@ -96,15 +108,30 @@ const Search: React.FC = () => {
       params.set('status', filters.status.join(','));
     }
 
-    // Add suppliers
-    if (filters.supplier && filters.supplier.length > 0) {
-      params.set('supplier', filters.supplier.join(','));
+    // Add supplier IDs
+    if (filters.supplier_ids && filters.supplier_ids.length > 0) {
+      params.set('supplier_ids', filters.supplier_ids.join(','));
     }
 
     // Add hierarchy IDs
-    if (filters.hierarchy_id) {
-      const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
-      params.set('hierarchy_id', hierarchyIds.join(','));
+    if (filters.hierarchy_ids && filters.hierarchy_ids.length > 0) {
+      params.set('hierarchy_ids', filters.hierarchy_ids.join(','));
+    }
+
+    // Add service IDs (materials)
+    if (filters.service_ids && filters.service_ids.length > 0) {
+      params.set('service_ids', filters.service_ids.join(','));
+    }
+
+    // Add date filters
+    if (filters.start_date) {
+      params.set('start_date', filters.start_date);
+    }
+    if (filters.end_date) {
+      params.set('end_date', filters.end_date);
+    }
+    if (filters.relative_time) {
+      params.set('relative_time', filters.relative_time);
     }
 
     // Add sorting
@@ -185,9 +212,10 @@ const Search: React.FC = () => {
         <h1 className="text-2xl font-bold">Search Purposes</h1>
       </div>
 
-      <FilterBar
+      <UnifiedFilters
         filters={filters}
         onFiltersChange={setFilters}
+        showSearch={true}
         onExport={handleExport}
       />
 

@@ -79,6 +79,9 @@ export interface PurposeFilters {
   supplier?: Supplier[];
   status?: PurposeStatus[];
   search_query?: string;
+  start_date?: string;
+  end_date?: string;
+  relative_time?: string;
 }
 
 export interface PurposeSorting {

@@ -1,29 +1,25 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { DashboardFilters } from '@/components/dashboard/DashboardFilters';
+import { UnifiedFilters } from '@/components/common/UnifiedFilters';
 import { ServicesQuantityChart } from '@/components/dashboard/ServicesQuantityChart';
 import { ServiceTypesDistributionChart } from '@/components/dashboard/ServiceTypesDistributionChart';
 import { HierarchyDistributionChart } from '@/components/dashboard/HierarchyDistributionChart';
 import { CostOverTimeChart } from '@/components/dashboard/CostOverTimeChart';
 import { analyticsService } from '@/services/analyticsService';
-import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
+import { DashboardFilters } from '@/types/commonFilters';
 import { format, subYears } from 'date-fns';
 
 const Dashboard: React.FC = () => {
-  // Set default filters with "Last Year" relative time
-  const getDefaultFilters = (): DashboardFiltersType => {
-    const today = new Date();
-    const lastYear = subYears(today, 1);
-    
+  // Set default filters with "All Time" relative time
+  const getDefaultFilters = (): DashboardFilters => {
     return {
-      relative_time: 'last_year',
-      start_date: format(lastYear, 'yyyy-MM-dd'),
-      end_date: format(today, 'yyyy-MM-dd')
+      relative_time: 'all_time'
+      // No date range for "All Time"
     };
   };
 
-  const [filters, setFilters] = useState<DashboardFiltersType>(getDefaultFilters());
+  const [filters, setFilters] = useState<DashboardFilters>(getDefaultFilters());
   const [hierarchyLevel, setHierarchyLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | null>(null);
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
   const [expenditureGroupBy, setExpenditureGroupBy] = useState<'day' | 'week' | 'month' | 'year'>('month');
@@ -68,9 +64,10 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Global Filters */}
-      <DashboardFilters
+      <UnifiedFilters
         filters={filters}
         onFiltersChange={setFilters}
+        showBackground={true}
       />
 
       {/* Charts Section */}

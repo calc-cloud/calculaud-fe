@@ -1,14 +1,6 @@
 
-export interface DashboardFilters {
-  start_date?: string;
-  end_date?: string;
-  relative_time?: string;
-  service_ids?: number[];
-  service_type_ids?: number[];
-  hierarchy_ids?: number[];
-  status?: string[];
-  supplier_ids?: number[];
-}
+// Re-export DashboardFilters from common filters for backward compatibility
+export { DashboardFilters } from '@/types/commonFilters';
 
 export interface ServiceItem {
   id: number;

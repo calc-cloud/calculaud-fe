@@ -1,17 +1,9 @@
 import { apiService } from '@/services/apiService';
-import { PurposeFilters, PurposeContent } from '@/types';
+import { PurposeContent } from '@/types';
+import { SearchFilters, SearchApiParams } from '@/types/commonFilters';
 
-export interface PurposeApiParams {
-  page?: number;
-  limit?: number; // Changed from size to limit
-  hierarchy_id?: number | number[];
-  supplier_id?: number | number[];
-  service_type_id?: number | number[];
-  status?: string | string[];
-  search?: string;
-  sort_by?: string;
-  sort_order?: 'asc' | 'desc';
-}
+// Use the common SearchApiParams from commonFilters
+export type PurposeApiParams = SearchApiParams;
 
 export interface PurposeApiResponse {
   items: Purpose[];
@@ -119,7 +111,7 @@ export interface UpdatePurposeRequest {
 }
 
 class PurposeService {
-  async getPurposes(params: PurposeApiParams): Promise<PurposeApiResponse> {
+  async getPurposes(params: SearchApiParams): Promise<PurposeApiResponse> {
     return apiService.get<PurposeApiResponse>('/purposes/', params);
   }
 
@@ -137,17 +129,17 @@ class PurposeService {
 
   // Map frontend filters to API parameters
   mapFiltersToApiParams(
-    filters: PurposeFilters, 
+    filters: SearchFilters, 
     sortConfig: { field: string; direction: string },
     currentPage: number,
     itemsPerPage: number,
     hierarchies: any[],
     suppliers: any[],
     serviceTypes: any[]
-  ): PurposeApiParams {
-    const params: PurposeApiParams = {
+  ): SearchApiParams {
+    const params: SearchApiParams = {
       page: currentPage,
-      limit: itemsPerPage, // Changed from size to limit
+      limit: itemsPerPage,
       sort_by: this.mapSortField(sortConfig.field),
       sort_order: sortConfig.direction as 'asc' | 'desc'
     };
@@ -157,56 +149,37 @@ class PurposeService {
       params.search = filters.search_query;
     }
 
-    // Status filter - handle multiple statuses
+    // Status filter - use the status values directly (already in correct format)
     if (filters.status && filters.status.length > 0) {
-      params.status = filters.status.map(status => this.mapStatusToApi(status));
+      params.status = filters.status;
     }
 
-    // Hierarchy filter - handle multiple hierarchies
-    if (filters.hierarchy_id) {
-      const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
-      if (hierarchyIds.length > 0) {
-        const validHierarchyIds = hierarchyIds
-          .map(id => {
-            // Convert string id to number for comparison
-            const numericId = typeof id === 'string' ? parseInt(id) : id;
-            const hierarchy = hierarchies.find(h => h.id === numericId);
-            return hierarchy ? numericId : null;
-          })
-          .filter(id => id !== null) as number[];
-        
-        if (validHierarchyIds.length > 0) {
-          params.hierarchy_id = validHierarchyIds.length === 1 ? validHierarchyIds[0] : validHierarchyIds;
-        }
-      }
+    // Hierarchy filter - use the numeric IDs directly
+    if (filters.hierarchy_ids && filters.hierarchy_ids.length > 0) {
+      params.hierarchy_ids = filters.hierarchy_ids;
     }
 
-    // Supplier filter - handle multiple suppliers
-    if (filters.supplier && filters.supplier.length > 0) {
-      const validSupplierIds = filters.supplier
-        .map(supplierName => {
-          const supplier = suppliers.find(s => s.name === supplierName);
-          return supplier ? parseInt(supplier.id) : null;
-        })
-        .filter(id => id !== null) as number[];
-      
-      if (validSupplierIds.length > 0) {
-        params.supplier_id = validSupplierIds.length === 1 ? validSupplierIds[0] : validSupplierIds;
-      }
+    // Supplier filter - use the numeric IDs directly
+    if (filters.supplier_ids && filters.supplier_ids.length > 0) {
+      params.supplier_ids = filters.supplier_ids;
     }
 
-    // Service type filter - handle multiple service types
-    if (filters.service_type && filters.service_type.length > 0) {
-      const validServiceTypeIds = filters.service_type
-        .map(serviceTypeName => {
-          const serviceType = serviceTypes.find(st => st.name === serviceTypeName);
-          return serviceType ? parseInt(serviceType.id) : null;
-        })
-        .filter(id => id !== null) as number[];
-      
-      if (validServiceTypeIds.length > 0) {
-        params.service_type_id = validServiceTypeIds.length === 1 ? validServiceTypeIds[0] : validServiceTypeIds;
-      }
+    // Service type filter - use the numeric IDs directly
+    if (filters.service_type_ids && filters.service_type_ids.length > 0) {
+      params.service_type_ids = filters.service_type_ids;
+    }
+
+    // Service/Materials filter - use the numeric IDs directly
+    if (filters.service_ids && filters.service_ids.length > 0) {
+      params.service_ids = filters.service_ids;
+    }
+
+    // Date filters
+    if (filters.start_date) {
+      params.start_date = filters.start_date;
+    }
+    if (filters.end_date) {
+      params.end_date = filters.end_date;
     }
 
     return params;
@@ -346,16 +319,6 @@ class PurposeService {
     }
   }
 
-  private mapStatusToApi(status: string): string {
-    switch (status) {
-      case 'In Progress':
-        return 'IN_PROGRESS';
-      case 'Completed':
-        return 'COMPLETED';
-      default:
-        return status;
-    }
-  }
 
   // Transform API response to match frontend data structure
   transformApiResponse(apiData: PurposeApiResponse, hierarchies: any[]): {
