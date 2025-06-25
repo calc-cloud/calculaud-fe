@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
 import { ExpenditureTimelineResponse, DashboardFilters } from '@/types/analytics';
 
 interface CostOverTimeChartProps {
@@ -32,20 +35,39 @@ const GROUP_BY_OPTIONS = [
   { value: 'year', label: 'Yearly' }
 ];
 
-export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
-  data,
-  isLoading,
+export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({ 
+  data, 
+  isLoading, 
   globalFilters,
-  onGroupByChange
+  onGroupByChange 
 }) => {
   const [currency, setCurrency] = useState<'ILS' | 'USD'>('ILS');
+  const navigate = useNavigate();
+
+  const handleViewInSearch = () => {
+    const currentParams = new URLSearchParams(window.location.search);
+    navigate(`/search?${currentParams.toString()}`);
+  };
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Cost Over Time</CardTitle>
-          <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Cost Over Time</CardTitle>
+              <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 mb-4">
@@ -86,8 +108,21 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Cost Over Time</CardTitle>
-          <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Cost Over Time</CardTitle>
+              <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 mb-4">
@@ -188,8 +223,21 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cost Over Time</CardTitle>
-        <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Cost Over Time</CardTitle>
+            <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleViewInSearch}
+            className="h-8 w-8 p-0"
+            title="View in Search"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-4">

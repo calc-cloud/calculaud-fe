@@ -2,6 +2,9 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
 import { ServiceTypesDistributionResponse } from '@/types/analytics';
 
 interface ServiceTypesDistributionChartProps {
@@ -27,12 +30,31 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
   data, 
   isLoading 
 }) => {
+  const navigate = useNavigate();
+
+  const handleViewInSearch = () => {
+    const currentParams = new URLSearchParams(window.location.search);
+    navigate(`/search?${currentParams.toString()}`);
+  };
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Service Types Distribution</CardTitle>
-          <CardDescription>Purpose count by service type</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Service Types Distribution</CardTitle>
+              <CardDescription>Purpose count by service type</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center">
@@ -47,8 +69,21 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Service Types Distribution</CardTitle>
-          <CardDescription>Purpose count by service type</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Service Types Distribution</CardTitle>
+              <CardDescription>Purpose count by service type</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="h-[400px] flex items-center justify-center">
@@ -102,8 +137,21 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Service Types Distribution</CardTitle>
-        <CardDescription>Purpose count by service type</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Service Types Distribution</CardTitle>
+            <CardDescription>Purpose count by service type</CardDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleViewInSearch}
+            className="h-8 w-8 p-0"
+            title="View in Search"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="h-[400px]">

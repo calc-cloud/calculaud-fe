@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useNavigate } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
 import { HierarchyDistributionResponse, DashboardFilters } from '@/types/analytics';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -36,6 +39,12 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   onFiltersChange
 }) => {
   const { hierarchies } = useAdminData();
+  const navigate = useNavigate();
+
+  const handleViewInSearch = () => {
+    const currentParams = new URLSearchParams(window.location.search);
+    navigate(`/search?${currentParams.toString()}`);
+  };
   const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
   const [selectedLevel, setSelectedLevel] = useState<'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM' | 'DIRECT_CHILDREN'>('DIRECT_CHILDREN');
 
@@ -124,8 +133,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Purposes by Hierarchies</CardTitle>
-          <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Purposes by Hierarchies</CardTitle>
+              <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 mb-4">
@@ -165,8 +187,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Purposes by Hierarchies</CardTitle>
-          <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Purposes by Hierarchies</CardTitle>
+              <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleViewInSearch}
+              className="h-8 w-8 p-0"
+              title="View in Search"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 mb-4">
@@ -266,8 +301,21 @@ export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProp
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Purposes by Hierarchies</CardTitle>
-        <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Purposes by Hierarchies</CardTitle>
+            <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleViewInSearch}
+            className="h-8 w-8 p-0"
+            title="View in Search"
+          >
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4 mb-4">
