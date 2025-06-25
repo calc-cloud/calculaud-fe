@@ -12,20 +12,20 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if (filters.service_id?.length) {
+        params.service_id = filters.service_id;
       }
-      if (filters.service_type_ids?.length) {
-        params.service_type_ids = filters.service_type_ids;
+      if (filters.service_type_id?.length) {
+        params.service_type_id = filters.service_type_id;
       }
-      if (filters.hierarchy_ids?.length) {
-        params.hierarchy_ids = filters.hierarchy_ids;
+      if (filters.hierarchy_id?.length) {
+        params.hierarchy_id = filters.hierarchy_id;
       }
       if (filters.status?.length) {
         params.status = filters.status;
       }
-      if (filters.supplier_ids?.length) {
-        params.supplier_ids = filters.supplier_ids;
+      if (filters.supplier_id?.length) {
+        params.supplier_id = filters.supplier_id;
       }
     }
     
@@ -47,20 +47,20 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if (filters.service_id?.length) {
+        params.service_id = filters.service_id;
       }
-      if (filters.service_type_ids?.length) {
-        params.service_type_ids = filters.service_type_ids;
+      if (filters.service_type_id?.length) {
+        params.service_type_id = filters.service_type_id;
       }
-      if (filters.hierarchy_ids?.length) {
-        params.hierarchy_ids = filters.hierarchy_ids;
+      if (filters.hierarchy_id?.length) {
+        params.hierarchy_id = filters.hierarchy_id;
       }
       if (filters.status?.length) {
         params.status = filters.status;
       }
-      if (filters.supplier_ids?.length) {
-        params.supplier_ids = filters.supplier_ids;
+      if (filters.supplier_id?.length) {
+        params.supplier_id = filters.supplier_id;
       }
     }
     
@@ -96,20 +96,20 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if (filters.service_id?.length) {
+        params.service_id = filters.service_id;
       }
-      if (filters.service_type_ids?.length) {
-        params.service_type_ids = filters.service_type_ids;
+      if (filters.service_type_id?.length) {
+        params.service_type_id = filters.service_type_id;
       }
-      if (filters.hierarchy_ids?.length) {
-        params.hierarchy_ids = filters.hierarchy_ids;
+      if (filters.hierarchy_id?.length) {
+        params.hierarchy_id = filters.hierarchy_id;
       }
       if (filters.status?.length) {
         params.status = filters.status;
       }
-      if (filters.supplier_ids?.length) {
-        params.supplier_ids = filters.supplier_ids;
+      if (filters.supplier_id?.length) {
+        params.supplier_id = filters.supplier_id;
       }
     }
     
@@ -136,20 +136,20 @@ export class AnalyticsService {
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_ids?.length) {
-        params.service_ids = filters.service_ids;
+      if (filters.service_id?.length) {
+        params.service_id = filters.service_id;
       }
-      if (filters.service_type_ids?.length) {
-        params.service_type_ids = filters.service_type_ids;
+      if (filters.service_type_id?.length) {
+        params.service_type_id = filters.service_type_id;
       }
-      if (filters.hierarchy_ids?.length) {
-        params.hierarchy_ids = filters.hierarchy_ids;
+      if (filters.hierarchy_id?.length) {
+        params.hierarchy_id = filters.hierarchy_id;
       }
       if (filters.status?.length) {
         params.status = filters.status;
       }
-      if (filters.supplier_ids?.length) {
-        params.supplier_ids = filters.supplier_ids;
+      if (filters.supplier_id?.length) {
+        params.supplier_id = filters.supplier_id;
       }
     }
     

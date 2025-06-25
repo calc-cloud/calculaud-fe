@@ -35,21 +35,21 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   };
 
   const toggleServiceType = (serviceTypeId: number) => {
-    const currentTypes = filters.service_type_ids || [];
+    const currentTypes = filters.service_type_id || [];
     const updatedTypes = currentTypes.includes(serviceTypeId)
       ? currentTypes.filter(id => id !== serviceTypeId)
       : [...currentTypes, serviceTypeId];
     
-    updateFilter('service_type_ids', updatedTypes.length > 0 ? updatedTypes : undefined);
+    updateFilter('service_type_id', updatedTypes.length > 0 ? updatedTypes : undefined);
   };
 
   const toggleMaterial = (materialId: number) => {
-    const currentMaterials = filters.service_ids || []; // Keep using service_ids for backend compatibility
+    const currentMaterials = filters.service_id || []; // Keep using service_id for backend compatibility
     const updatedMaterials = currentMaterials.includes(materialId)
       ? currentMaterials.filter(id => id !== materialId)
       : [...currentMaterials, materialId];
     
-    updateFilter('service_ids', updatedMaterials.length > 0 ? updatedMaterials : undefined);
+    updateFilter('service_id', updatedMaterials.length > 0 ? updatedMaterials : undefined);
   };
 
   const toggleStatus = (status: string) => {
@@ -62,12 +62,12 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   };
 
   const toggleSupplier = (supplierId: number) => {
-    const currentSuppliers = filters.supplier_ids || [];
+    const currentSuppliers = filters.supplier_id || [];
     const updatedSuppliers = currentSuppliers.includes(supplierId)
       ? currentSuppliers.filter(id => id !== supplierId)
       : [...currentSuppliers, supplierId];
     
-    updateFilter('supplier_ids', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
+    updateFilter('supplier_id', updatedSuppliers.length > 0 ? updatedSuppliers : undefined);
   };
 
   // Calculate date range based on relative time selection
@@ -132,11 +132,11 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     let count = 0;
     
     // Only count non-default filters
-    if (filters.service_ids?.length) count++;
-    if (filters.service_type_ids?.length) count++;
-    if (filters.hierarchy_ids?.length) count++;
+    if (filters.service_id?.length) count++;
+    if (filters.service_type_id?.length) count++;
+    if (filters.hierarchy_id?.length) count++;
     if (filters.status?.length) count++;
-    if (filters.supplier_ids?.length) count++;
+    if (filters.supplier_id?.length) count++;
     
     // Only count date/time filters if they're not the default
     if (!isDefaultDateRange || !isDefaultRelativeTime) {
@@ -153,7 +153,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   const activeFiltersCount = getActiveFiltersCount();
 
   const getServiceTypeLabel = () => {
-    const selectedTypes = filters.service_type_ids || [];
+    const selectedTypes = filters.service_type_id || [];
     if (selectedTypes.length === 0) return 'Service Types';
     if (selectedTypes.length === 1) {
       const serviceType = serviceTypes.find(st => st.id === selectedTypes[0]);
@@ -163,7 +163,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   };
 
   const getMaterialLabel = () => {
-    const selectedMaterials = filters.service_ids || [];
+    const selectedMaterials = filters.service_id || [];
     if (selectedMaterials.length === 0) return 'Materials';
     if (selectedMaterials.length === 1) {
       const material = materials.find(m => m.id === selectedMaterials[0]);
@@ -180,7 +180,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   };
 
   const getSupplierLabel = () => {
-    const selectedSuppliers = filters.supplier_ids || [];
+    const selectedSuppliers = filters.supplier_id || [];
     if (selectedSuppliers.length === 0) return 'Suppliers';
     if (selectedSuppliers.length === 1) {
       const supplier = suppliers.find(s => s.id === selectedSuppliers[0]);
@@ -319,9 +319,9 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         <div className="flex-shrink-0 min-w-[200px]">
           <HierarchySelector
             hierarchies={hierarchies}
-            selectedIds={filters.hierarchy_ids || []}
+            selectedIds={filters.hierarchy_id || []}
             onSelectionChange={(selectedIds) => 
-              updateFilter('hierarchy_ids', selectedIds.length > 0 ? selectedIds : undefined)
+              updateFilter('hierarchy_id', selectedIds.length > 0 ? selectedIds : undefined)
             }
           />
         </div>
@@ -343,7 +343,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   onClick={() => toggleServiceType(type.id)}
                 >
                   <Checkbox
-                    checked={(filters.service_type_ids || []).includes(type.id)}
+                    checked={(filters.service_type_id || []).includes(type.id)}
                   />
                   <span>{type.name}</span>
                 </div>
@@ -369,7 +369,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   onClick={() => toggleMaterial(material.id)}
                 >
                   <Checkbox
-                    checked={(filters.service_ids || []).includes(material.id)}
+                    checked={(filters.service_id || []).includes(material.id)}
                   />
                   <span className="truncate">{material.name}</span>
                 </div>
@@ -423,7 +423,7 @@ export const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                   onClick={() => toggleSupplier(supplier.id)}
                 >
                   <Checkbox
-                    checked={(filters.supplier_ids || []).includes(supplier.id)}
+                    checked={(filters.supplier_id || []).includes(supplier.id)}
                   />
                   <span className="truncate">{supplier.name}</span>
                 </div>

@@ -3,11 +3,11 @@ export interface DashboardFilters {
   start_date?: string;
   end_date?: string;
   relative_time?: string;
-  service_ids?: number[];
-  service_type_ids?: number[];
-  hierarchy_ids?: number[];
+  service_id?: number[];
+  service_type_id?: number[];
+  hierarchy_id?: number[];
   status?: string[];
-  supplier_ids?: number[];
+  supplier_id?: number[];
 }
 
 export interface ServiceItem {
