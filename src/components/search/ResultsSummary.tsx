@@ -1,7 +1,7 @@
 import React from 'react';
 import {Badge} from '@/components/ui/badge';
 import {PurposeFilters} from '@/types';
-import {getSortDisplayName, SortConfig} from '@/utils/sorting';
+import {SortConfig} from '@/utils/sorting';
 import {TablePagination} from '@/components/tables/TablePagination';
 
 interface ResultsSummaryProps {
@@ -38,9 +38,6 @@ export const ResultsSummary: React.FC<ResultsSummaryProps> = ({
             {Object.keys(filters).filter(key => filters[key as keyof PurposeFilters]).length} filters applied
           </Badge>
         )}
-        <Badge variant="outline">
-          Sorted by {getSortDisplayName(sortConfig.field)} ({sortConfig.direction === 'asc' ? 'Ascending' : 'Descending'})
-        </Badge>
       </div>
       
       <div className="flex-shrink-0">

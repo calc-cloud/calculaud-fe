@@ -1,40 +1,39 @@
 import React from 'react';
-import { format } from 'date-fns';
-import { CalendarIcon, Search, ChevronDown, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import {format} from 'date-fns';
+import {CalendarIcon, ChevronDown, Search, X} from 'lucide-react';
+import {cn} from '@/lib/utils';
 
 // UI Components
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Calendar} from '@/components/ui/calendar';
+import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
+import {DropdownMenu, DropdownMenuContent, DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
+import {Checkbox} from '@/components/ui/checkbox';
+import {Badge} from '@/components/ui/badge';
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 
 // Components
-import { HierarchySelector } from '@/components/common/HierarchySelector';
+import {HierarchySelector} from '@/components/common/HierarchySelector';
 
 // Hooks and data
-import { useAdminData } from '@/contexts/AdminDataContext';
+import {useAdminData} from '@/contexts/AdminDataContext';
 
 // Types and utilities
-import { 
-  UnifiedFilters as UnifiedFiltersType, 
-  FilterComponentProps, 
-  RELATIVE_TIME_OPTIONS, 
-  PURPOSE_STATUSES_DISPLAY 
+import {
+  FilterComponentProps,
+  PURPOSE_STATUSES_DISPLAY,
+  RELATIVE_TIME_OPTIONS,
+  UnifiedFilters as UnifiedFiltersType
 } from '@/types/filters';
 import {
-  calculateDateRange,
-  handleRelativeTimeChange,
-  handleDateChange,
   clearFilters,
   getActiveFiltersCount,
-  toggleArrayItem,
-  getFilterLabel
+  getFilterLabel,
+  handleDateChange,
+  handleRelativeTimeChange,
+  toggleArrayItem
 } from '@/utils/filterUtils';
 
 export const UnifiedFilters: React.FC<FilterComponentProps> = ({
@@ -395,7 +394,7 @@ export const UnifiedFilters: React.FC<FilterComponentProps> = ({
       </TooltipProvider>
 
       {/* Active Filters Display for Search Mode */}
-      {config.mode === 'search' && activeFiltersCount > 0 && (
+        {config.mode === 'search' && !config.hideBadges && activeFiltersCount > 0 && (
         <div className="flex flex-wrap gap-2">
           {filters.service_type && (filters.service_type as number[]).length > 0 && (
             <div className="flex flex-wrap gap-1">

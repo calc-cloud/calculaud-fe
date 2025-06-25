@@ -24,6 +24,7 @@ export interface FilterConfig {
   filterOrder?: FilterType[];
   containerClassName?: string;
   showDateRange?: boolean;
+    hideBadges?: boolean;
 }
 
 export type FilterType = 
