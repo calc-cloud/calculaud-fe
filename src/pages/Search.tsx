@@ -249,19 +249,21 @@ const Search: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Search Purposes</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Search Purposes</h1>
       </div>
 
-              <SearchFilterBar
-        filters={filters}
-        onFiltersChange={setFilters}
-        onExport={handleExport}
-      />
+      <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+        <SearchFilterBar
+            filters={filters}
+            onFiltersChange={setFilters}
+            onExport={handleExport}
+        />
 
-      <SortControls
-        sortConfig={sortConfig}
-        onSortChange={setSortConfig}
-      />
+        <SortControls
+            sortConfig={sortConfig}
+            onSortChange={setSortConfig}
+        />
+      </div>
 
       <ResultsSummary
         startIndex={startIndex}
