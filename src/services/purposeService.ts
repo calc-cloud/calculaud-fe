@@ -1,5 +1,5 @@
-import { apiService } from '@/services/apiService';
-import { PurposeFilters, PurposeContent } from '@/types';
+import {apiService} from '@/services/apiService';
+import {PurposeFilters} from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
@@ -187,10 +187,12 @@ class PurposeService {
 
     // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
+      // The filters.supplier already contains IDs, not names
       const validSupplierIds = filters.supplier
-        .map(supplierName => {
-          const supplier = suppliers.find(s => s.name === supplierName);
-          return supplier ? parseInt(supplier.id) : null;
+          .map(supplierId => {
+            // Convert to number if it's a string, or use as-is if already a number
+            const numericId = typeof supplierId === 'string' ? parseInt(supplierId) : supplierId;
+            return isNaN(numericId) ? null : numericId;
         })
         .filter(id => id !== null) as number[];
       
@@ -202,9 +204,10 @@ class PurposeService {
     // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
       const validServiceTypeIds = filters.service_type
-        .map(serviceTypeName => {
-          const serviceType = serviceTypes.find(st => st.name === serviceTypeName);
-          return serviceType ? parseInt(serviceType.id) : null;
+          .map(serviceTypeId => {
+            // Convert to number if it's a string, or use as-is if already a number
+            const numericId = typeof serviceTypeId === 'string' ? parseInt(serviceTypeId) : serviceTypeId;
+            return isNaN(numericId) ? null : numericId;
         })
         .filter(id => id !== null) as number[];
       
@@ -215,10 +218,11 @@ class PurposeService {
 
     // Material filter - handle multiple materials (maps to service_id in API)
     if (filters.material && filters.material.length > 0) {
+      // The filters.material already contains IDs, not names
       const validMaterialIds = filters.material
-        .map(materialName => {
-          const material = materials.find(m => m.name === materialName);
-          return material ? parseInt(material.id) : null;
+          .map(materialId => {
+            const numericId = typeof materialId === 'string' ? parseInt(materialId) : materialId;
+            return isNaN(numericId) ? null : numericId;
         })
         .filter(id => id !== null) as number[];
       
