@@ -2,36 +2,28 @@ import React, {useEffect} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {PurposeTable} from '@/components/tables/PurposeTable';
 import {PurposeModal} from '@/components/modals/PurposeModal';
-import {SearchFilterBar} from '@/components/common/SearchFilterBar';
+import {UnifiedFilters} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
 import {Badge} from '@/components/ui/badge';
-import {X} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {X, Search as SearchIcon} from 'lucide-react';
 import {useAdminData} from '@/contexts/AdminDataContext';
-import {Purpose, PurposeFilters} from '@/types';
+import {Purpose} from '@/types';
+import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {usePurposeMutations} from '@/hooks/usePurposeMutations';
 import {exportPurposesToCSV} from '@/utils/csvExport';
+import {calculateDateRange} from '@/utils/filterUtils';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Helper function to calculate default "Last Year" date range
-  const getDefaultDateRange = () => {
-    const today = new Date();
-    const lastYear = new Date();
-    lastYear.setFullYear(today.getFullYear() - 1);
-    
-    return {
-      start_date: lastYear.toISOString().split('T')[0], // Format as YYYY-MM-DD
-      end_date: today.toISOString().split('T')[0]
-    };
-  };
-
   // Parse URL params to initial state
-  const getInitialFilters = (): PurposeFilters => {
-    const filters: PurposeFilters = {};
+  const getInitialFilters = (): UnifiedFiltersType => {
+    const filters: UnifiedFiltersType = {};
     
     if (searchParams.get('search_query')) {
       filters.search_query = searchParams.get('search_query') || undefined;
@@ -41,32 +33,34 @@ const Search: React.FC = () => {
     if (searchParams.get('service_type_id')) {
       const serviceTypeIds = searchParams.get('service_type_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
       if (serviceTypeIds && serviceTypeIds.length > 0) {
-        filters.service_type = serviceTypeIds as any;
+        filters.service_type = serviceTypeIds;
       }
     }
     
     if (searchParams.get('status')) {
-      filters.status = searchParams.get('status')?.split(',') as any;
+      filters.status = searchParams.get('status')?.split(',');
     }
     
     // Parse supplier IDs
     if (searchParams.get('supplier_id')) {
       const supplierIds = searchParams.get('supplier_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
       if (supplierIds && supplierIds.length > 0) {
-        filters.supplier = supplierIds as any;
+        filters.supplier = supplierIds;
       }
     }
     
     if (searchParams.get('hierarchy_id')) {
-      const hierarchyIds = searchParams.get('hierarchy_id')?.split(',');
-      filters.hierarchy_id = hierarchyIds && hierarchyIds.length > 1 ? hierarchyIds : hierarchyIds?.[0];
+      const hierarchyIds = searchParams.get('hierarchy_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (hierarchyIds && hierarchyIds.length > 0) {
+        filters.hierarchy_id = hierarchyIds;
+      }
     }
     
     // Parse material IDs (service IDs)
     if (searchParams.get('material_id')) {
       const materialIds = searchParams.get('material_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
       if (materialIds && materialIds.length > 0) {
-        filters.material = materialIds as any;
+        filters.material = materialIds;
       }
     }
     
@@ -83,9 +77,11 @@ const Search: React.FC = () => {
     // If no date/time filters are provided in URL, set default "Last Year" values
     const hasDateTimeParams = searchParams.get('start_date') || searchParams.get('end_date') || searchParams.get('relative_time');
     if (!hasDateTimeParams) {
-      const defaultRange = getDefaultDateRange();
-      filters.start_date = defaultRange.start_date;
-      filters.end_date = defaultRange.end_date;
+      const defaultRange = calculateDateRange('last_year');
+      if (defaultRange) {
+        filters.start_date = defaultRange.start_date;
+        filters.end_date = defaultRange.end_date;
+      }
       filters.relative_time = 'last_year';
     }
 
@@ -159,9 +155,8 @@ const Search: React.FC = () => {
     }
 
     // Add hierarchy IDs
-    if (filters.hierarchy_id) {
-      const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
-      params.set('hierarchy_id', hierarchyIds.join(','));
+    if (filters.hierarchy_id && filters.hierarchy_id.length > 0) {
+      params.set('hierarchy_id', filters.hierarchy_id.join(','));
     }
 
     // Add material IDs
@@ -254,98 +249,30 @@ const Search: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Search Purposes</h1>
-      </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
-        <SearchFilterBar
-            filters={filters}
-            onFiltersChange={setFilters}
-            onExport={handleExport}
-        />
-
-        {/* Filter badges to prevent layout jumps */}
-        <div className="min-h-[32px] flex flex-wrap gap-2">
-          {filters.service_type && (filters.service_type as number[]).length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {(filters.service_type as number[]).map((typeId) => {
-                  const type = serviceTypes.find(st => st.id === typeId);
-                  return type ? (
-                      <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
-                        Service: {type.name}
-                        <X
-                            className="h-3 w-3 cursor-pointer"
-                            onClick={() => {
-                              const currentArray = filters.service_type || [];
-                              const newArray = currentArray.filter(id => id !== typeId);
-                              setFilters({...filters, service_type: newArray.length > 0 ? newArray : undefined});
-                            }}
-                        />
-                      </Badge>
-                  ) : null;
-                })}
-              </div>
-          )}
-          {filters.status && filters.status.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.status.map((status) => (
-                    <Badge key={status} variant="secondary" className="flex items-center gap-1">
-                      Status: {status}
-                      <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => {
-                            const currentArray = filters.status || [];
-                            const newArray = currentArray.filter(s => s !== status);
-                            setFilters({...filters, status: newArray.length > 0 ? newArray : undefined});
-                          }}
-                      />
-                    </Badge>
-                ))}
-              </div>
-          )}
-          {filters.supplier && (filters.supplier as number[]).length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {(filters.supplier as number[]).map((supplierId) => {
-                  const supplier = suppliers.find(s => s.id === supplierId);
-                  return supplier ? (
-                      <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
-                        Supplier: {supplier.name}
-                        <X
-                            className="h-3 w-3 cursor-pointer"
-                            onClick={() => {
-                              const currentArray = filters.supplier || [];
-                              const newArray = currentArray.filter(id => id !== supplierId);
-                              setFilters({...filters, supplier: newArray.length > 0 ? newArray : undefined});
-                            }}
-                        />
-                      </Badge>
-                  ) : null;
-                })}
-              </div>
-          )}
-          {filters.material && (filters.material as number[]).length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {(filters.material as number[]).map((materialId) => {
-                  const material = materials.find(m => m.id === materialId);
-                  return material ? (
-                      <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
-                        Material: {material.name}
-                        <X
-                            className="h-3 w-3 cursor-pointer"
-                            onClick={() => {
-                              const currentArray = filters.material || [];
-                              const newArray = currentArray.filter(id => id !== materialId);
-                              setFilters({...filters, material: newArray.length > 0 ? newArray : undefined});
-                            }}
-                        />
-                      </Badge>
-                  ) : null;
-                })}
-              </div>
-          )}
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-gray-900 flex-shrink-0">Search Purposes</h1>
+        
+        <div className="flex items-center gap-3 flex-1 max-w-md">
+          <div className="relative flex-1">
+            <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by description, content, or EMF ID..."
+              value={filters.search_query || ''}
+              onChange={(e) => setFilters({...filters, search_query: e.target.value})}
+              className="pl-10 focus-visible:outline-none"
+            />
+          </div>
+          
+          <Button variant="outline" onClick={handleExport}>
+            Export
+          </Button>
         </div>
       </div>
+
+      <UnifiedFilters
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

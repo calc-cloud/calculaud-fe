@@ -1,17 +1,18 @@
 import {useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {ModalMode, Purpose, PurposeFilters} from '@/types';
+import {ModalMode, Purpose} from '@/types';
+import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
 import {purposeService} from '@/services/purposeService';
 import {useAdminData} from '@/contexts/AdminDataContext';
 
 export const usePurposeData = (
-  initialFilters: PurposeFilters = {},
+  initialFilters: UnifiedFilters = {},
   initialSortConfig: SortConfig = { field: 'creation_time', direction: 'desc' },
   initialPage: number = 1
 ) => {
   const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
-  const [filters, setFilters] = useState<PurposeFilters>(initialFilters);
+  const [filters, setFilters] = useState<UnifiedFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
@@ -28,13 +29,9 @@ export const usePurposeData = (
       filters,
       sortConfig,
       currentPage,
-      itemsPerPage,
-      hierarchies,
-      suppliers,
-      serviceTypes,
-      materials
+      itemsPerPage
     );
-  }, [filters, sortConfig, currentPage, hierarchies, suppliers, serviceTypes, materials]);
+  }, [filters, sortConfig, currentPage]);
 
   // Fetch purposes from API with disabled caching
   const {
@@ -97,7 +94,7 @@ export const usePurposeData = (
   }, [purposes, totalCount]);
 
   // Reset to first page when filters or sorting change
-  const handleFiltersChange = (newFilters: PurposeFilters) => {
+  const handleFiltersChange = (newFilters: UnifiedFilters) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page
   };
