@@ -72,18 +72,7 @@ export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance'
 
 export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic Advisors LLC' | 'Global Tech Services' | 'Innovation Partners' | 'Digital Solutions Co' | 'Enterprise Systems Ltd' | 'CloudTech Inc';
 
-// Filter and search types
-export interface PurposeFilters {
-  hierarchy_id?: string | string[]; // Updated to support multiple selections
-  service_type?: number[]; // Changed to use IDs instead of names
-  supplier?: number[]; // Changed to use IDs instead of names
-  status?: PurposeStatus[];
-  search_query?: string;
-  material?: number[]; // Changed to use IDs instead of names (maps to service_id in API)
-  start_date?: string;
-  end_date?: string;
-  relative_time?: string;
-}
+// Filter and search types have been moved to @/types/filters
 
 export interface PurposeSorting {
   field: 'creation_time' | 'last_modified' | 'expected_delivery';

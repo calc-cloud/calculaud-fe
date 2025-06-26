@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useSearchParams} from 'react-router-dom';
-import {UnifiedDashboardFilters} from '@/components/dashboard/UnifiedDashboardFilters';
+import {UnifiedFilters} from '@/components/common/UnifiedFilters';
 import {ServicesQuantityChart} from '@/components/dashboard/ServicesQuantityChart';
 import {ServiceTypesDistributionChart} from '@/components/dashboard/ServiceTypesDistributionChart';
 import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
@@ -9,6 +9,7 @@ import {CostOverTimeChart} from '@/components/dashboard/CostOverTimeChart';
 import {analyticsService} from '@/services/analyticsService';
 import {DashboardFilters as DashboardFiltersType} from '@/types/analytics';
 import {format, subYears} from 'date-fns';
+import {dashboardFiltersToUnified, unifiedToDashboardFilters} from '@/utils/filterAdapters';
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -178,9 +179,12 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Global Filters */}
-              <UnifiedDashboardFilters
-        filters={filters}
-        onFiltersChange={setFilters}
+      <UnifiedFilters
+        filters={dashboardFiltersToUnified(filters)}
+        onFiltersChange={(unifiedFilters) => {
+          const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+          setFilters(dashboardFilters);
+        }}
       />
 
       {/* Charts Section */}

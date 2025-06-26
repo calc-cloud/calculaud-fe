@@ -1,5 +1,5 @@
 import {apiService} from '@/services/apiService';
-import {PurposeFilters} from '@/types';
+import {UnifiedFilters} from '@/types/filters';
 
 export interface PurposeApiParams {
   page?: number;
@@ -140,14 +140,10 @@ class PurposeService {
 
   // Map frontend filters to API parameters
   mapFiltersToApiParams(
-    filters: PurposeFilters, 
+    filters: UnifiedFilters, 
     sortConfig: { field: string; direction: string },
     currentPage: number,
-    itemsPerPage: number,
-    hierarchies: any[],
-    suppliers: any[],
-    serviceTypes: any[],
-    materials: any[]
+    itemsPerPage: number
   ): PurposeApiParams {
     const params: PurposeApiParams = {
       page: currentPage,
@@ -167,68 +163,23 @@ class PurposeService {
     }
 
     // Hierarchy filter - handle multiple hierarchies
-    if (filters.hierarchy_id) {
-      const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
-      if (hierarchyIds.length > 0) {
-        const validHierarchyIds = hierarchyIds
-          .map(id => {
-            // Convert string id to number for comparison
-            const numericId = typeof id === 'string' ? parseInt(id) : id;
-            const hierarchy = hierarchies.find(h => h.id === numericId);
-            return hierarchy ? numericId : null;
-          })
-          .filter(id => id !== null) as number[];
-        
-        if (validHierarchyIds.length > 0) {
-          params.hierarchy_id = validHierarchyIds.length === 1 ? validHierarchyIds[0] : validHierarchyIds;
-        }
-      }
+    if (filters.hierarchy_id && filters.hierarchy_id.length > 0) {
+      params.hierarchy_id = filters.hierarchy_id.length === 1 ? filters.hierarchy_id[0] : filters.hierarchy_id;
     }
 
     // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
-      // The filters.supplier already contains IDs, not names
-      const validSupplierIds = filters.supplier
-          .map(supplierId => {
-            // Convert to number if it's a string, or use as-is if already a number
-            const numericId = typeof supplierId === 'string' ? parseInt(supplierId) : supplierId;
-            return isNaN(numericId) ? null : numericId;
-        })
-        .filter(id => id !== null) as number[];
-      
-      if (validSupplierIds.length > 0) {
-        params.supplier_id = validSupplierIds.length === 1 ? validSupplierIds[0] : validSupplierIds;
-      }
+      params.supplier_id = filters.supplier.length === 1 ? filters.supplier[0] : filters.supplier;
     }
 
     // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
-      const validServiceTypeIds = filters.service_type
-          .map(serviceTypeId => {
-            // Convert to number if it's a string, or use as-is if already a number
-            const numericId = typeof serviceTypeId === 'string' ? parseInt(serviceTypeId) : serviceTypeId;
-            return isNaN(numericId) ? null : numericId;
-        })
-        .filter(id => id !== null) as number[];
-      
-      if (validServiceTypeIds.length > 0) {
-        params.service_type_id = validServiceTypeIds.length === 1 ? validServiceTypeIds[0] : validServiceTypeIds;
-      }
+      params.service_type_id = filters.service_type.length === 1 ? filters.service_type[0] : filters.service_type;
     }
 
     // Material filter - handle multiple materials (maps to service_id in API)
     if (filters.material && filters.material.length > 0) {
-      // The filters.material already contains IDs, not names
-      const validMaterialIds = filters.material
-          .map(materialId => {
-            const numericId = typeof materialId === 'string' ? parseInt(materialId) : materialId;
-            return isNaN(numericId) ? null : numericId;
-        })
-        .filter(id => id !== null) as number[];
-      
-      if (validMaterialIds.length > 0) {
-        params.service_id = validMaterialIds.length === 1 ? validMaterialIds[0] : validMaterialIds;
-      }
+      params.service_id = filters.material.length === 1 ? filters.material[0] : filters.material;
     }
 
     // Date filters

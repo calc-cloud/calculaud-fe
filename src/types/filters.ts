@@ -6,39 +6,15 @@ export interface UnifiedFilters {
   end_date?: string;
   relative_time?: string;
   
-  // Entity filters - using arrays for consistency
-  hierarchy_id?: string[] | number[]; // Support both string and number arrays
-  service_type?: string[] | number[]; // Support both name strings and IDs
-  supplier?: string[] | number[]; // Support both name strings and IDs
+  // Entity filters - using number arrays consistently
+  hierarchy_id?: number[];
+  service_type?: number[];
+  supplier?: number[];
   status?: string[];
-  material?: string[] | number[]; // Maps to service_id in some contexts
+  material?: number[];
   
   // Search specific
   search_query?: string;
-}
-
-export interface FilterConfig {
-  mode: 'search' | 'dashboard';
-  showExport?: boolean;
-  showSearch?: boolean;
-  filterOrder?: FilterType[];
-  containerClassName?: string;
-  showDateRange?: boolean;
-    hideBadges?: boolean;
-}
-
-export type FilterType = 
-  | 'hierarchy' 
-  | 'service_type' 
-  | 'material' 
-  | 'supplier' 
-  | 'status';
-
-export interface FilterComponentProps {
-  filters: UnifiedFilters;
-  onFiltersChange: (filters: UnifiedFilters) => void;
-  onExport?: () => void;
-  config: FilterConfig;
 }
 
 // Relative time options - shared across components
@@ -55,17 +31,5 @@ export const RELATIVE_TIME_OPTIONS = [
   { value: 'custom', label: 'Custom Range' }
 ];
 
-// Purpose statuses - shared constants for display
-export const PURPOSE_STATUSES_DISPLAY = ['In Progress', 'Completed'];
-
-// Purpose statuses mapping - display to API values
-export const STATUS_DISPLAY_TO_API: Record<string, string> = {
-  'In Progress': 'IN_PROGRESS',
-  'Completed': 'COMPLETED'
-};
-
-// Purpose statuses mapping - API to display values
-export const STATUS_API_TO_DISPLAY: Record<string, string> = {
-  'IN_PROGRESS': 'In Progress',
-  'COMPLETED': 'Completed'
-}; 
+// Purpose statuses - using display format consistently
+export const PURPOSE_STATUSES_DISPLAY = ['In Progress', 'Completed']; 

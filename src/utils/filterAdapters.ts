@@ -1,39 +1,19 @@
 // Filter adapters to convert between different filter formats
-import { UnifiedFilters, STATUS_DISPLAY_TO_API, STATUS_API_TO_DISPLAY } from '@/types/filters';
-import { PurposeFilters } from '@/types/index';
+import { UnifiedFilters } from '@/types/filters';
 import { DashboardFilters } from '@/types/analytics';
 
-// Convert PurposeFilters to UnifiedFilters
-export const purposeFiltersToUnified = (filters: PurposeFilters): UnifiedFilters => {
-  return {
-    start_date: filters.start_date,
-    end_date: filters.end_date,
-    relative_time: filters.relative_time,
-    hierarchy_id: Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : (filters.hierarchy_id ? [filters.hierarchy_id] : undefined),
-    service_type: filters.service_type, // Now expects IDs for both modes
-    supplier: filters.supplier, // Now expects IDs for both modes
-    status: filters.status?.map(status => STATUS_API_TO_DISPLAY[status] || status),
-    material: filters.material, // Now expects IDs for both modes
-    search_query: filters.search_query
-  };
+// Status mapping for dashboard API compatibility
+const STATUS_DISPLAY_TO_API: Record<string, string> = {
+  'In Progress': 'IN_PROGRESS',
+  'Completed': 'COMPLETED'
 };
 
-// Convert UnifiedFilters to PurposeFilters
-export const unifiedToPurposeFilters = (filters: UnifiedFilters): PurposeFilters => {
-  return {
-    start_date: filters.start_date,
-    end_date: filters.end_date,
-    relative_time: filters.relative_time,
-    hierarchy_id: filters.hierarchy_id as string | string[],
-    service_type: filters.service_type as any[], // Now handles IDs for both modes
-    supplier: filters.supplier as any[], // Now handles IDs for both modes
-    status: filters.status?.map(status => STATUS_DISPLAY_TO_API[status] || status) as any[],
-    material: filters.material as any[], // Now handles IDs for both modes
-    search_query: filters.search_query
-  };
+const STATUS_API_TO_DISPLAY: Record<string, string> = {
+  'IN_PROGRESS': 'In Progress',
+  'COMPLETED': 'Completed'
 };
 
-// Convert DashboardFilters to UnifiedFilters
+// Convert DashboardFilters to UnifiedFilters (API format to display format)
 export const dashboardFiltersToUnified = (filters: DashboardFilters): UnifiedFilters => {
   return {
     start_date: filters.start_date,
@@ -47,16 +27,16 @@ export const dashboardFiltersToUnified = (filters: DashboardFilters): UnifiedFil
   };
 };
 
-// Convert UnifiedFilters to DashboardFilters
+// Convert UnifiedFilters to DashboardFilters (display format to API format)
 export const unifiedToDashboardFilters = (filters: UnifiedFilters): DashboardFilters => {
   return {
     start_date: filters.start_date,
     end_date: filters.end_date,
     relative_time: filters.relative_time,
-    hierarchy_id: filters.hierarchy_id as number[],
-    service_type_id: filters.service_type as number[],
-    supplier_id: filters.supplier as number[],
+    hierarchy_id: filters.hierarchy_id,
+    service_type_id: filters.service_type,
+    supplier_id: filters.supplier,
     status: filters.status?.map(status => STATUS_DISPLAY_TO_API[status] || status),
-    service_id: filters.material as number[], // material maps to service_id in dashboard context
+    service_id: filters.material, // material maps to service_id in dashboard context
   };
 }; 

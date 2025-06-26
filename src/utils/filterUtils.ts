@@ -2,6 +2,9 @@
 import { format, subDays, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
 import { UnifiedFilters } from '@/types/filters';
 
+// Cache the default date range to avoid recalculating
+const getDefaultDateRange = () => calculateDateRange('last_year');
+
 export const calculateDateRange = (relativeTime: string) => {
   const today = new Date();
   let startDate: Date;
@@ -92,35 +95,34 @@ export const handleDateChange = (
   onFiltersChange(newFilters);
 };
 
-export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void) => {
+export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void, currentFilters?: UnifiedFilters) => {
   // Reset to default state with "Last Year" relative time and corresponding date range
-  const defaultDateRange = calculateDateRange('last_year');
-  const defaultFilters = {
+  // but preserve the search_query if it exists
+  const defaultDateRange = getDefaultDateRange();
+  const defaultFilters: UnifiedFilters = {
     relative_time: 'last_year',
-    ...defaultDateRange
+    ...defaultDateRange,
+    // Preserve search_query if it exists in current filters
+    ...(currentFilters?.search_query && { search_query: currentFilters.search_query })
   };
   onFiltersChange(defaultFilters);
 };
 
-export const getActiveFiltersCount = (filters: UnifiedFilters, mode: 'search' | 'dashboard' = 'search') => {
+export const getActiveFiltersCount = (filters: UnifiedFilters) => {
   // Get default state for comparison
-  const defaultDateRange = calculateDateRange('last_year');
+  const defaultDateRange = getDefaultDateRange();
   const isDefaultDateRange = filters.start_date === defaultDateRange?.start_date && 
                             filters.end_date === defaultDateRange?.end_date;
   const isDefaultRelativeTime = (filters.relative_time || 'last_year') === 'last_year';
   
   let count = 0;
   
-  // Only count non-default filters
-  if (filters.search_query?.trim()) count++;
+  // Only count non-default filters (excluding search_query)
   if (filters.service_type?.length) count++;
   if (filters.status?.length) count++;
   if (filters.supplier?.length) count++;
   if (filters.material?.length) count++;
-  if (filters.hierarchy_id) {
-    const hierarchyIds = Array.isArray(filters.hierarchy_id) ? filters.hierarchy_id : [filters.hierarchy_id];
-    if (hierarchyIds.length > 0) count++;
-  }
+  if (filters.hierarchy_id?.length) count++;
   
   // Only count date/time filters if they're not the default
   if (!isDefaultDateRange || !isDefaultRelativeTime) {
@@ -132,6 +134,22 @@ export const getActiveFiltersCount = (filters: UnifiedFilters, mode: 'search' | 
   }
   
   return count;
+};
+
+// Generic toggle function for array filters
+export const createToggleFunction = <T>(
+  filterKey: keyof UnifiedFilters,
+  filters: UnifiedFilters,
+  onFiltersChange: (filters: UnifiedFilters) => void
+) => {
+  return (item: T) => {
+    const currentArray = (filters[filterKey] as T[]) || [];
+    const newArray = toggleArrayItem(currentArray, item);
+    onFiltersChange({
+      ...filters,
+      [filterKey]: newArray.length > 0 ? newArray : undefined
+    });
+  };
 };
 
 // Helper functions for array manipulation
