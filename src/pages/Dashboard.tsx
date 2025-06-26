@@ -1,15 +1,14 @@
-
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
-import { UnifiedDashboardFilters } from '@/components/dashboard/UnifiedDashboardFilters';
-import { ServicesQuantityChart } from '@/components/dashboard/ServicesQuantityChart';
-import { ServiceTypesDistributionChart } from '@/components/dashboard/ServiceTypesDistributionChart';
-import { HierarchyDistributionChart } from '@/components/dashboard/HierarchyDistributionChart';
-import { CostOverTimeChart } from '@/components/dashboard/CostOverTimeChart';
-import { analyticsService } from '@/services/analyticsService';
-import { DashboardFilters as DashboardFiltersType } from '@/types/analytics';
-import { format, subYears } from 'date-fns';
+import React, {useEffect, useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {useSearchParams} from 'react-router-dom';
+import {UnifiedDashboardFilters} from '@/components/dashboard/UnifiedDashboardFilters';
+import {ServicesQuantityChart} from '@/components/dashboard/ServicesQuantityChart';
+import {ServiceTypesDistributionChart} from '@/components/dashboard/ServiceTypesDistributionChart';
+import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
+import {CostOverTimeChart} from '@/components/dashboard/CostOverTimeChart';
+import {analyticsService} from '@/services/analyticsService';
+import {DashboardFilters as DashboardFiltersType} from '@/types/analytics';
+import {format, subYears} from 'date-fns';
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -175,7 +174,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
       {/* Global Filters */}

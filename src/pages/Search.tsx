@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { PurposeTable } from '@/components/tables/PurposeTable';
-import { PurposeModal } from '@/components/modals/PurposeModal';
-import { SearchFilterBar } from '@/components/common/SearchFilterBar';
-import { SortControls } from '@/components/search/SortControls';
-import { ResultsSummary } from '@/components/search/ResultsSummary';
-import { Purpose, PurposeFilters } from '@/types';
-import { SortConfig } from '@/utils/sorting';
-import { usePurposeData } from '@/hooks/usePurposeData';
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
-import { exportPurposesToCSV } from '@/utils/csvExport';
+import React, {useEffect} from 'react';
+import {useSearchParams} from 'react-router-dom';
+import {PurposeTable} from '@/components/tables/PurposeTable';
+import {PurposeModal} from '@/components/modals/PurposeModal';
+import {SearchFilterBar} from '@/components/common/SearchFilterBar';
+import {SortControls} from '@/components/search/SortControls';
+import {TablePagination} from '@/components/tables/TablePagination';
+import {Badge} from '@/components/ui/badge';
+import {X} from 'lucide-react';
+import {useAdminData} from '@/contexts/AdminDataContext';
+import {Purpose, PurposeFilters} from '@/types';
+import {SortConfig} from '@/utils/sorting';
+import {usePurposeData} from '@/hooks/usePurposeData';
+import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {exportPurposesToCSV} from '@/utils/csvExport';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -127,6 +130,9 @@ const Search: React.FC = () => {
 
   // Get mutation functions
   const { createPurpose, updatePurpose, deletePurpose } = usePurposeMutations();
+
+  // Get admin data for filter badges
+  const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
@@ -249,30 +255,118 @@ const Search: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Search Purposes</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Search Purposes</h1>
       </div>
 
-              <SearchFilterBar
-        filters={filters}
-        onFiltersChange={setFilters}
-        onExport={handleExport}
-      />
+      <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
+        <SearchFilterBar
+            filters={filters}
+            onFiltersChange={setFilters}
+            onExport={handleExport}
+        />
 
-      <SortControls
-        sortConfig={sortConfig}
-        onSortChange={setSortConfig}
-      />
+        {/* Filter badges to prevent layout jumps */}
+        <div className="min-h-[32px] flex flex-wrap gap-2">
+          {filters.service_type && (filters.service_type as number[]).length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {(filters.service_type as number[]).map((typeId) => {
+                  const type = serviceTypes.find(st => st.id === typeId);
+                  return type ? (
+                      <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
+                        Service: {type.name}
+                        <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => {
+                              const currentArray = filters.service_type || [];
+                              const newArray = currentArray.filter(id => id !== typeId);
+                              setFilters({...filters, service_type: newArray.length > 0 ? newArray : undefined});
+                            }}
+                        />
+                      </Badge>
+                  ) : null;
+                })}
+              </div>
+          )}
+          {filters.status && filters.status.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {filters.status.map((status) => (
+                    <Badge key={status} variant="secondary" className="flex items-center gap-1">
+                      Status: {status}
+                      <X
+                          className="h-3 w-3 cursor-pointer"
+                          onClick={() => {
+                            const currentArray = filters.status || [];
+                            const newArray = currentArray.filter(s => s !== status);
+                            setFilters({...filters, status: newArray.length > 0 ? newArray : undefined});
+                          }}
+                      />
+                    </Badge>
+                ))}
+              </div>
+          )}
+          {filters.supplier && (filters.supplier as number[]).length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {(filters.supplier as number[]).map((supplierId) => {
+                  const supplier = suppliers.find(s => s.id === supplierId);
+                  return supplier ? (
+                      <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
+                        Supplier: {supplier.name}
+                        <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => {
+                              const currentArray = filters.supplier || [];
+                              const newArray = currentArray.filter(id => id !== supplierId);
+                              setFilters({...filters, supplier: newArray.length > 0 ? newArray : undefined});
+                            }}
+                        />
+                      </Badge>
+                  ) : null;
+                })}
+              </div>
+          )}
+          {filters.material && (filters.material as number[]).length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {(filters.material as number[]).map((materialId) => {
+                  const material = materials.find(m => m.id === materialId);
+                  return material ? (
+                      <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
+                        Material: {material.name}
+                        <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => {
+                              const currentArray = filters.material || [];
+                              const newArray = currentArray.filter(id => id !== materialId);
+                              setFilters({...filters, material: newArray.length > 0 ? newArray : undefined});
+                            }}
+                        />
+                      </Badge>
+                  ) : null;
+                })}
+              </div>
+          )}
+        </div>
+      </div>
 
-      <ResultsSummary
-        startIndex={startIndex}
-        endIndex={endIndex}
-        filteredCount={totalCount}
-        filters={filters}
-        sortConfig={sortConfig}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <SortControls
+              sortConfig={sortConfig}
+              onSortChange={setSortConfig}
+          />
+          <p className="text-sm text-muted-foreground">
+            Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of {totalCount} purposes
+          </p>
+        </div>
+
+        <div className="flex-shrink-0">
+          <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              isLoading={isLoading}
+          />
+        </div>
+      </div>
 
       <PurposeTable
         purposes={filteredPurposes}

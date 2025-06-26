@@ -1,7 +1,7 @@
 import React from 'react';
-import { UnifiedFilters } from '@/components/common/UnifiedFilters';
-import { PurposeFilters } from '@/types/index';
-import { purposeFiltersToUnified, unifiedToPurposeFilters } from '@/utils/filterAdapters';
+import {UnifiedFilters} from '@/components/common/UnifiedFilters';
+import {PurposeFilters} from '@/types/index';
+import {purposeFiltersToUnified, unifiedToPurposeFilters} from '@/utils/filterAdapters';
 
 interface SearchFilterBarProps {
   filters: PurposeFilters;
@@ -23,7 +23,8 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
     mode: 'search' as const,
     showExport: true,
     showSearch: true,
-    showDateRange: true
+      showDateRange: true,
+      hideBadges: true
   };
 
   return (
