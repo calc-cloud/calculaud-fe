@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useSearchParams} from 'react-router-dom';
-import {UnifiedFilters} from '@/components/common/UnifiedFilters';
+import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {ServicesQuantityChart} from '@/components/dashboard/ServicesQuantityChart';
 import {ServiceTypesDistributionChart} from '@/components/dashboard/ServiceTypesDistributionChart';
 import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
@@ -179,13 +179,15 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Global Filters */}
-      <UnifiedFilters
-        filters={dashboardFiltersToUnified(filters)}
-        onFiltersChange={(unifiedFilters) => {
-          const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-          setFilters(dashboardFilters);
-        }}
-      />
+      <div className="flex items-center gap-4">
+        <FiltersDrawer
+          filters={dashboardFiltersToUnified(filters)}
+          onFiltersChange={(unifiedFilters) => {
+            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+            setFilters(dashboardFilters);
+          }}
+        />
+      </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
