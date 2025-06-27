@@ -8,7 +8,7 @@ const getDefaultDateRange = () => calculateDateRange('last_year');
 export const calculateDateRange = (relativeTime: string) => {
   const today = new Date();
   let startDate: Date;
-  let endDate: Date = today;
+  const endDate: Date = today;
 
   switch (relativeTime) {
     case 'last_7_days':
@@ -108,34 +108,6 @@ export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void,
   onFiltersChange(defaultFilters);
 };
 
-export const getActiveFiltersCount = (filters: UnifiedFilters) => {
-  // Get default state for comparison
-  const defaultDateRange = getDefaultDateRange();
-  const isDefaultDateRange = filters.start_date === defaultDateRange?.start_date && 
-                            filters.end_date === defaultDateRange?.end_date;
-  const isDefaultRelativeTime = (filters.relative_time || 'last_year') === 'last_year';
-  
-  let count = 0;
-  
-  // Only count non-default filters (excluding search_query)
-  if (filters.service_type?.length) count++;
-  if (filters.status?.length) count++;
-  if (filters.supplier?.length) count++;
-  if (filters.material?.length) count++;
-  if (filters.hierarchy_id?.length) count++;
-  
-  // Only count date/time filters if they're not the default
-  if (!isDefaultDateRange || !isDefaultRelativeTime) {
-    if (filters.relative_time === 'custom') {
-      count++; // Custom date range
-    } else if (filters.relative_time && filters.relative_time !== 'last_year') {
-      count++; // Non-default relative time
-    }
-  }
-  
-  return count;
-};
-
 // Generic toggle function for array filters
 export const createToggleFunction = <T>(
   filterKey: keyof UnifiedFilters,
@@ -152,8 +124,8 @@ export const createToggleFunction = <T>(
   };
 };
 
-// Helper functions for array manipulation
-export const toggleArrayItem = <T>(array: T[] | undefined, item: T): T[] => {
+// Helper function for array manipulation (internal use only)
+const toggleArrayItem = <T>(array: T[] | undefined, item: T): T[] => {
   const currentArray = array || [];
   const index = currentArray.indexOf(item);
   
@@ -162,17 +134,4 @@ export const toggleArrayItem = <T>(array: T[] | undefined, item: T): T[] => {
   } else {
     return currentArray.filter((_, i) => i !== index);
   }
-};
-
-// Label generation helpers
-export const getFilterLabel = (
-  items: any[] | undefined,
-  defaultLabel: string,
-  getName?: (item: any) => string
-): string => {
-  if (!items || items.length === 0) return defaultLabel;
-  if (items.length === 1) {
-    return getName ? getName(items[0]) : items[0];
-  }
-  return `${items.length} selected`;
 }; 

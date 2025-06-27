@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {PurposeTable} from '@/components/tables/PurposeTable';
 import {PurposeModal} from '@/components/modals/PurposeModal';
-import {UnifiedFilters} from '@/components/common/UnifiedFilters';
+import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
 import {Badge} from '@/components/ui/badge';
@@ -251,28 +251,28 @@ const Search: React.FC = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900 flex-shrink-0">Search Purposes</h1>
-        
-        <div className="flex items-center gap-3 flex-1 max-w-md">
-          <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by description, content, or EMF ID..."
-              value={filters.search_query || ''}
-              onChange={(e) => setFilters({...filters, search_query: e.target.value})}
-              className="pl-10 focus-visible:outline-none"
-            />
-          </div>
-          
-          <Button variant="outline" onClick={handleExport}>
-            Export
-          </Button>
-        </div>
       </div>
 
-      <UnifiedFilters
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-md">
+          <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by description, content, or EMF ID..."
+            value={filters.search_query || ''}
+            onChange={(e) => setFilters({...filters, search_query: e.target.value})}
+            className="pl-10 focus-visible:outline-none"
+          />
+        </div>
+        
+        <FiltersDrawer
+          filters={filters}
+          onFiltersChange={setFilters}
+        />
+        
+        <Button variant="outline" onClick={handleExport}>
+          Export
+        </Button>
+      </div>
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
