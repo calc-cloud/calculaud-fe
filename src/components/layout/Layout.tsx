@@ -33,10 +33,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    const clientId = "7918m61oh13tamdmmkebkaectb";
-    const logoutUri = "https://preview--calculaud-fe.lovable.app/";
-    const cognitoDomain = "https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com";
-    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+    const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
+    const logoutUri = import.meta.env.VITE_AUTH_LOGOUT_URI;
+    const logoutDomain = import.meta.env.VITE_AUTH_LOGOUT_DOMAIN;
+    auth.signoutSilent();
+    window.location.href = `${logoutDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
   return (
