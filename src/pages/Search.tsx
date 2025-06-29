@@ -16,7 +16,8 @@ import {SortConfig} from '@/utils/sorting';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {usePurposeMutations} from '@/hooks/usePurposeMutations';
 import {exportPurposesToCSV} from '@/utils/csvExport';
-import {calculateDateRange} from '@/utils/filterUtils';
+import {calculateDateRange, clearFilters} from '@/utils/filterUtils';
+import { ActiveFiltersBadges } from '@/components/common/ActiveFiltersBadges';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -233,6 +234,16 @@ const Search: React.FC = () => {
     exportPurposesToCSV(filteredPurposes, toast);
   };
 
+  // Count active filters
+  const activeFiltersCount = [
+    ...(filters.relative_time && filters.relative_time !== 'last_year' ? [1] : []),
+    ...(filters.hierarchy_id || []),
+    ...(filters.service_type || []),
+    ...(filters.status || []),
+    ...(filters.supplier || []),
+    ...(filters.material || []),
+  ].length;
+
   // Show error state
   if (error) {
     return (
@@ -263,16 +274,29 @@ const Search: React.FC = () => {
             className="pl-10 focus-visible:outline-none"
           />
         </div>
-        
         <FiltersDrawer
           filters={filters}
           onFiltersChange={setFilters}
         />
-        
+        {activeFiltersCount > 0 && (
+          <Button variant="outline" onClick={() => clearFilters(setFilters, filters)}>
+            <X className="h-4 w-4 mr-1" />
+            Clear Filters
+          </Button>
+        )}
         <Button variant="outline" onClick={handleExport}>
           Export
         </Button>
       </div>
+
+      <ActiveFiltersBadges
+        filters={filters}
+        onFiltersChange={setFilters}
+        hierarchies={hierarchies}
+        serviceTypes={serviceTypes}
+        suppliers={suppliers}
+        materials={materials}
+      />
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">

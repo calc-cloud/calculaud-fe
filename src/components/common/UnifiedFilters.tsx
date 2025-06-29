@@ -82,111 +82,23 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
     });
   };
 
+  // Filter materials based on selected service types
+  const filteredMaterials = React.useMemo(() => {
+    if (!filters.service_type || filters.service_type.length === 0) {
+      // If no service types are selected, show all materials
+      return materials;
+    }
+    
+    // Filter materials to only show those related to selected service types
+    return materials.filter(material => 
+      filters.service_type!.includes(material.service_type_id)
+    );
+  }, [materials, filters.service_type]);
+
   const activeFiltersCount = countActiveFilters(filters);
 
   return (
     <div className="space-y-4">
-      {/* Active Filters Display */}
-      {activeFiltersCount > 0 && (
-        <div className="space-y-3 pb-3 border-b">
-          <div className="flex justify-between items-center">
-            <h4 className="text-sm font-medium text-gray-900">Active Filters ({activeFiltersCount})</h4>
-            <Button variant="outline" size="sm" onClick={() => clearFilters(onFiltersChange, filters)}>
-              <X className="h-4 w-4 mr-1" />
-              Clear All
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {filters.relative_time && filters.relative_time !== 'last_year' && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                {RELATIVE_TIME_OPTIONS.find(option => option.value === filters.relative_time)?.label || filters.relative_time}
-                <X 
-                  className="h-3 w-3 cursor-pointer" 
-                  onClick={clearRelativeTime}
-                />
-              </Badge>
-            )}
-            {filters.hierarchy_id && filters.hierarchy_id.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.hierarchy_id.map((hierarchyId) => {
-                  const hierarchy = hierarchies.find(h => h.id === hierarchyId);
-                  return hierarchy ? (
-                    <Badge key={hierarchyId} variant="secondary" className="flex items-center gap-1">
-                      {hierarchy.name}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => toggleHierarchy(hierarchyId)}
-                      />
-                    </Badge>
-                  ) : null;
-                })}
-              </div>
-            )}
-            {filters.service_type && filters.service_type.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.service_type.map((typeId) => {
-                  const type = serviceTypes.find(st => st.id === typeId);
-                  return type ? (
-                    <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
-                      {type.name}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => toggleServiceType(typeId)}
-                      />
-                    </Badge>
-                  ) : null;
-                })}
-              </div>
-            )}
-            {filters.status && filters.status.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.status.map((status) => (
-                  <Badge key={status} variant="secondary" className="flex items-center gap-1">
-                    {status}
-                    <X 
-                      className="h-3 w-3 cursor-pointer" 
-                      onClick={() => toggleStatus(status)}
-                    />
-                  </Badge>
-                ))}
-              </div>
-            )}
-            {filters.supplier && filters.supplier.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.supplier.map((supplierId) => {
-                  const supplier = suppliers.find(s => s.id === supplierId);
-                  return supplier ? (
-                    <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
-                      {supplier.name}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => toggleSupplier(supplierId)}
-                      />
-                    </Badge>
-                  ) : null;
-                })}
-              </div>
-            )}
-            {filters.material && filters.material.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {filters.material.map((materialId) => {
-                  const material = materials.find(m => m.id === materialId);
-                  return material ? (
-                    <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
-                      {material.name}
-                      <X 
-                        className="h-3 w-3 cursor-pointer" 
-                        onClick={() => toggleMaterial(materialId)}
-                      />
-                    </Badge>
-                  ) : null;
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-      
       {/* Date Range Controls */}
       <div className="space-y-3">
         <div className="space-y-2">
@@ -319,22 +231,40 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
           <div className="border-b border-gray-200 pb-3">
             <Collapsible>
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1" disabled={isLoading}>
-                <span>{isLoading ? 'Loading...' : 'Materials'}</span>
+                <span>
+                  {isLoading ? 'Loading...' : 'Materials'}
+                  {filters.service_type && filters.service_type.length > 0 && (
+                    <span className="ml-2 text-xs text-blue-600 font-normal">
+                      (filtered by {filters.service_type.length} service type{filters.service_type.length > 1 ? 's' : ''})
+                    </span>
+                  )}
+                </span>
                 <ChevronDown className="h-4 w-4 flex-shrink-0" />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
-                {materials.map((material) => (
-                  <div
-                    key={material.id}
-                    className="flex items-center space-x-3 cursor-pointer py-1"
-                    onClick={() => toggleMaterial(material.id)}
-                  >
-                    <Checkbox
-                      checked={(filters.material || []).includes(material.id)}
-                    />
-                    <span className="text-sm truncate">{material.name}</span>
+                {filteredMaterials.length === 0 ? (
+                  <div className="text-sm text-gray-500 py-2 px-1">
+                    {filters.service_type && filters.service_type.length > 0 
+                      ? 'No materials found for selected service types'
+                      : 'No materials available'
+                    }
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {filteredMaterials.map((material) => (
+                      <div
+                        key={material.id}
+                        className="flex items-center space-x-3 cursor-pointer py-1"
+                        onClick={() => toggleMaterial(material.id)}
+                      >
+                        <Checkbox
+                          checked={(filters.material || []).includes(material.id)}
+                        />
+                        <span className="text-sm truncate">{material.name}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </CollapsibleContent>
             </Collapsible>
           </div>
