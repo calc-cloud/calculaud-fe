@@ -1,11 +1,11 @@
-
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { PurposeModal } from '@/components/modals/PurposeModal';
-import { Purpose, ModalMode } from '@/types';
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
+import React, {useState} from 'react';
+import {Link, useLocation} from 'react-router-dom';
+import {Button} from '@/components/ui/button';
+import {LogOut, Plus} from 'lucide-react';
+import {PurposeModal} from '@/components/modals/PurposeModal';
+import {Purpose} from '@/types';
+import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {useAuth} from 'react-oidc-context';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { createPurpose } = usePurposeMutations();
+  const auth = useAuth();
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
@@ -29,6 +30,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         // Modal stays open on error so user can retry
       }
     });
+  };
+
+  const handleLogout = () => {
+    const clientId = "7918m61oh13tamdmmkebkaectb";
+    const logoutUri = "https://preview--calculaud-fe.lovable.app/";
+    const cognitoDomain = "https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com";
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
   };
 
   return (
@@ -92,6 +100,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Button>
                 </Link>
               </div>
+              <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="flex items-center gap-2 ml-4"
+              >
+                <LogOut className="h-4 w-4"/>
+                Logout
+              </Button>
             </div>
           </div>
         </div>
