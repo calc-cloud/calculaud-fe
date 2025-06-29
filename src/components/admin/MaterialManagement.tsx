@@ -200,7 +200,6 @@ const MaterialManagement = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-9 focus-visible:ring-1"
-              disabled={isLoading || !!apiError}
             />
           </div>
           

@@ -82,6 +82,19 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
     });
   };
 
+  // Filter materials based on selected service types
+  const filteredMaterials = React.useMemo(() => {
+    if (!filters.service_type || filters.service_type.length === 0) {
+      // If no service types are selected, show all materials
+      return materials;
+    }
+    
+    // Filter materials to only show those related to selected service types
+    return materials.filter(material => 
+      filters.service_type!.includes(material.service_type_id)
+    );
+  }, [materials, filters.service_type]);
+
   const activeFiltersCount = countActiveFilters(filters);
 
   return (
@@ -319,22 +332,40 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
           <div className="border-b border-gray-200 pb-3">
             <Collapsible>
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1" disabled={isLoading}>
-                <span>{isLoading ? 'Loading...' : 'Materials'}</span>
+                <span>
+                  {isLoading ? 'Loading...' : 'Materials'}
+                  {filters.service_type && filters.service_type.length > 0 && (
+                    <span className="ml-2 text-xs text-blue-600 font-normal">
+                      (filtered by {filters.service_type.length} service type{filters.service_type.length > 1 ? 's' : ''})
+                    </span>
+                  )}
+                </span>
                 <ChevronDown className="h-4 w-4 flex-shrink-0" />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
-                {materials.map((material) => (
-                  <div
-                    key={material.id}
-                    className="flex items-center space-x-3 cursor-pointer py-1"
-                    onClick={() => toggleMaterial(material.id)}
-                  >
-                    <Checkbox
-                      checked={(filters.material || []).includes(material.id)}
-                    />
-                    <span className="text-sm truncate">{material.name}</span>
+                {filteredMaterials.length === 0 ? (
+                  <div className="text-sm text-gray-500 py-2 px-1">
+                    {filters.service_type && filters.service_type.length > 0 
+                      ? 'No materials found for selected service types'
+                      : 'No materials available'
+                    }
                   </div>
-                ))}
+                ) : (
+                  <>
+                    {filteredMaterials.map((material) => (
+                      <div
+                        key={material.id}
+                        className="flex items-center space-x-3 cursor-pointer py-1"
+                        onClick={() => toggleMaterial(material.id)}
+                      >
+                        <Checkbox
+                          checked={(filters.material || []).includes(material.id)}
+                        />
+                        <span className="text-sm truncate">{material.name}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
               </CollapsibleContent>
             </Collapsible>
           </div>
