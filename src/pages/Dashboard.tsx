@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {useSearchParams} from 'react-router-dom';
-import {UnifiedFilters} from '@/components/common/UnifiedFilters';
+import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {ServicesQuantityChart} from '@/components/dashboard/ServicesQuantityChart';
 import {ServiceTypesDistributionChart} from '@/components/dashboard/ServiceTypesDistributionChart';
 import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
@@ -10,6 +10,11 @@ import {analyticsService} from '@/services/analyticsService';
 import {DashboardFilters as DashboardFiltersType} from '@/types/analytics';
 import {format, subYears} from 'date-fns';
 import {dashboardFiltersToUnified, unifiedToDashboardFilters} from '@/utils/filterAdapters';
+import { ActiveFiltersBadges } from '@/components/common/ActiveFiltersBadges';
+import { useAdminData } from '@/contexts/AdminDataContext';
+import { Button } from '@/components/ui/button';
+import { clearFilters } from '@/utils/filterUtils';
+import { X } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -96,6 +101,8 @@ const Dashboard: React.FC = () => {
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
   const [expenditureGroupBy, setExpenditureGroupBy] = useState<'day' | 'week' | 'month' | 'year'>('month');
 
+  const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
+
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
@@ -172,6 +179,16 @@ const Dashboard: React.FC = () => {
     setExpenditureGroupBy(groupBy);
   };
 
+  const unifiedFilters = dashboardFiltersToUnified(filters);
+  const activeFiltersCount = [
+    ...(unifiedFilters.relative_time && unifiedFilters.relative_time !== 'last_year' ? [1] : []),
+    ...(unifiedFilters.hierarchy_id || []),
+    ...(unifiedFilters.service_type || []),
+    ...(unifiedFilters.status || []),
+    ...(unifiedFilters.supplier || []),
+    ...(unifiedFilters.material || []),
+  ].length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -179,12 +196,31 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Global Filters */}
-      <UnifiedFilters
-        filters={dashboardFiltersToUnified(filters)}
+      <div className="flex items-center gap-4">
+        <FiltersDrawer
+          filters={unifiedFilters}
+          onFiltersChange={(unifiedFilters) => {
+            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+            setFilters(dashboardFilters);
+          }}
+        />
+        {activeFiltersCount > 0 && (
+          <Button variant="outline" onClick={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}>
+            <X className="h-4 w-4 mr-1" />
+            Clear Filters
+          </Button>
+        )}
+      </div>
+      <ActiveFiltersBadges
+        filters={unifiedFilters}
         onFiltersChange={(unifiedFilters) => {
           const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
           setFilters(dashboardFilters);
         }}
+        hierarchies={hierarchies}
+        serviceTypes={serviceTypes}
+        suppliers={suppliers}
+        materials={materials}
       />
 
       {/* Charts Section */}
