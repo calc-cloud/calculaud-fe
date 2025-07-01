@@ -12,6 +12,7 @@ const authConfig = {
     response_type: import.meta.env.VITE_AUTH_RESPONSE_TYPE,
     response_mode: import.meta.env.VITE_AUTH_RESPONSE_MODE,
     scope: import.meta.env.VITE_AUTH_SCOPE,
+    automaticSilentRenew: true
 };
 
 createRoot(document.getElementById("root")!).render(
