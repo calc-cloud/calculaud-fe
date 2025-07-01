@@ -1,11 +1,20 @@
-
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { PurposeModal } from '@/components/modals/PurposeModal';
-import { Purpose, ModalMode } from '@/types';
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
+import React, {useState} from 'react';
+import {Link, useLocation} from 'react-router-dom';
+import {Button} from '@/components/ui/button';
+import {Copy, LogOut, Plus} from 'lucide-react';
+import {PurposeModal} from '@/components/modals/PurposeModal';
+import {Purpose} from '@/types';
+import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {useAuth} from 'react-oidc-context';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -15,6 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { createPurpose } = usePurposeMutations();
+  const auth = useAuth();
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
@@ -31,10 +41,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
   };
 
+  const handleLogout = () => {
+    const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
+    const logoutUri = import.meta.env.VITE_AUTH_LOGOUT_URI;
+    const logoutDomain = import.meta.env.VITE_AUTH_LOGOUT_DOMAIN;
+    auth.signoutSilent();
+    window.location.href = `${logoutDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  };
+
+  const handleCopyToken = async () => {
+    const token = auth.user?.access_token;
+    if (token) {
+      try {
+        await navigator.clipboard.writeText(token);
+        // You could add a toast notification here
+      } catch (err) {
+        console.error('Failed to copy token:', err);
+      }
+    }
+  };
+
+  const getUserInitials = () => {
+    const email = auth.user?.profile?.email || auth.user?.profile?.preferred_username || 'User';
+    return email.charAt(0).toUpperCase();
+  };
+
+  const getDisplayName = () => {
+    return auth.user?.profile?.email || auth.user?.profile?.preferred_username || 'User';
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/" className="text-xl font-semibold text-blue-700 hover:opacity-80 transition-opacity flex items-center space-x-3">
@@ -70,12 +109,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </span>
               </Link>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 ml-auto">
               <Button onClick={handleCreatePurpose} className="flex items-center gap-2 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-colors bg-cyan-800 hover:bg-cyan-700">
                 <Plus className="h-4 w-4" />
                 Create Purpose
               </Button>
-              <div className="flex items-center space-x-2 ml-4 border-l pl-4">
+              <div className="flex items-center space-x-2 border-l pl-4">
                 <Link to="/dashboard">
                   <Button variant={location.pathname === '/dashboard' ? 'default' : 'ghost'}>
                     Dashboard
@@ -92,6 +131,39 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </Button>
                 </Link>
               </div>
+
+              {/* User Avatar Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="" alt={getDisplayName()}/>
+                      <AvatarFallback className="bg-blue-600 text-white">
+                        {getUserInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {auth.user?.profile?.email || 'user@example.com'}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator/>
+                  <DropdownMenuItem onClick={handleCopyToken}>
+                    <Copy className="mr-2 h-4 w-4"/>
+                    <span>Copy Token</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4"/>
+                    <span>Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
