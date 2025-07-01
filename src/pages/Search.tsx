@@ -8,7 +8,8 @@ import {TablePagination} from '@/components/tables/TablePagination';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
-import {X, Search as SearchIcon} from 'lucide-react';
+import {X, Search as SearchIcon, Download} from 'lucide-react';
+import {Separator} from '@/components/ui/separator';
 import {useAdminData} from '@/contexts/AdminDataContext';
 import {Purpose} from '@/types';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
@@ -279,12 +280,18 @@ const Search: React.FC = () => {
           onFiltersChange={setFilters}
         />
         {activeFiltersCount > 0 && (
-          <Button variant="outline" onClick={() => clearFilters(setFilters, filters)}>
-            <X className="h-4 w-4 mr-1" />
+          <Button variant="outline" onClick={() => clearFilters(setFilters, filters)} className="gap-2">
+            <X className="h-4 w-4" />
             Clear Filters
           </Button>
         )}
-        <Button variant="outline" onClick={handleExport}>
+        <Separator orientation="vertical" className="h-8" />
+        <Button 
+          variant="outline" 
+          onClick={handleExport}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 hover:border-blue-700"
+        >
+          <Download className="h-4 w-4" />
           Export
         </Button>
       </div>
