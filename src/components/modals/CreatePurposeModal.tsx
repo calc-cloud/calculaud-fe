@@ -238,6 +238,16 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
             />
           </div>
 
+          {/* Hierarchy */}
+          <div className="space-y-2">
+            <Label htmlFor="hierarchy">Hierarchy *</Label>
+            <HierarchySelector
+              hierarchies={hierarchies}
+              selectedIds={selectedHierarchyIds}
+              onSelectionChange={handleHierarchyChange}
+            />
+          </div>
+
           {/* Supplier */}
           <div className="space-y-2">
             <Label htmlFor="supplier">Supplier *</Label>
@@ -276,16 +286,6 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Hierarchy */}
-          <div className="space-y-2">
-            <Label htmlFor="hierarchy">Hierarchy *</Label>
-            <HierarchySelector
-              hierarchies={hierarchies}
-              selectedIds={selectedHierarchyIds}
-              onSelectionChange={handleHierarchyChange}
-            />
           </div>
 
           {/* Contents */}

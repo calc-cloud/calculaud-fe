@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers } from 'lucide-react';
 import { Purpose, PurposeFile } from '@/types';
 import { usePurposeData } from '@/hooks/usePurposeData';
+import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
@@ -19,6 +21,7 @@ const PurposeDetail: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { hierarchies } = useAdminData();
+  const { deletePurpose } = usePurposeMutations();
   
   // State for modals and editing
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -86,7 +89,16 @@ const PurposeDetail: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-
+  const handleDeletePurpose = async () => {
+    if (!id) return;
+    
+    try {
+      await deletePurpose.mutateAsync(id);
+      navigate('/search');
+    } catch (error) {
+      // Error handling is done in the mutation
+    }
+  };
 
   const handleFilesChange = (newFiles: PurposeFile[]) => {
     if (purpose) {
@@ -155,6 +167,32 @@ const PurposeDetail: React.FC = () => {
             <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
           </div>
         </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Purpose
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the purpose
+                and remove all associated data.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeletePurpose}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* 2-Column Layout */}
@@ -162,14 +200,14 @@ const PurposeDetail: React.FC = () => {
         {/* Left Column: General Data */}
         <div className="lg:col-span-1">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">General Data</CardTitle>
               <Button variant="outline" size="sm" onClick={handleEditGeneralData}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </Button>
             </CardHeader>
-            <CardContent className="space-y-4 p-6">
+            <CardContent className="space-y-4 px-6 pb-6 pt-4">
               <div>
                 <h3 className="font-medium text-gray-900 mb-2">Description</h3>
                 <p className="text-gray-700">{purpose.description}</p>
@@ -337,10 +375,7 @@ const PurposeDetail: React.FC = () => {
 
           {/* Attached Files */}
           <Card className="flex-none">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">Attached Files</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <FileUpload
                 files={purpose.files}
                 onFilesChange={handleFilesChange}

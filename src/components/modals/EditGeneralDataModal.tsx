@@ -10,11 +10,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Purpose } from '@/types';
+import { Purpose, PurposeContent } from '@/types';
 import { PURPOSE_STATUSES } from '@/utils/constants';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
+import { ContentsSection } from '@/components/sections/ContentsSection';
 import { Supplier } from '@/types/suppliers';
 import { ServiceType } from '@/types/serviceTypes';
 
@@ -34,6 +35,7 @@ interface GeneralDataForm {
   hierarchy_id: string;
   hierarchy_name: string;
   comments: string;
+  contents: PurposeContent[];
 }
 
 export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
@@ -53,7 +55,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     status: 'IN_PROGRESS',
     hierarchy_id: '',
     hierarchy_name: '',
-    comments: ''
+    comments: '',
+    contents: []
   });
   
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date>();
@@ -73,7 +76,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
         status: purpose.status || 'IN_PROGRESS',
         hierarchy_id: purpose.hierarchy_id || '',
         hierarchy_name: purpose.hierarchy_name || '',
-        comments: purpose.comments || ''
+        comments: purpose.comments || '',
+        contents: purpose.contents || []
       });
 
       // Set selected hierarchy for tree selector
@@ -100,6 +104,18 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     if (!formData.selectedServiceType) {
       errors.push('Service type is required');
     }
+    if (!formData.contents || formData.contents.length === 0) {
+      errors.push('At least one content item is required');
+    } else {
+      formData.contents.forEach((content, index) => {
+        if (!content.material_id || content.material_id === 0) {
+          errors.push(`Content ${index + 1}: Material is required`);
+        }
+        if (!content.quantity || content.quantity <= 0) {
+          errors.push(`Content ${index + 1}: Quantity must be greater than 0`);
+        }
+      });
+    }
     return errors;
   };
 
@@ -123,10 +139,11 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
       service_type: formData.selectedServiceType!.name,
       service_type_id: formData.selectedServiceType!.id,
       expected_delivery: formData.expected_delivery,
-      status: formData.status,
+      status: formData.status as Purpose['status'],
       hierarchy_id: formData.hierarchy_id,
       hierarchy_name: formData.hierarchy_name,
-      comments: formData.comments.trim() || undefined
+      comments: formData.comments.trim() || undefined,
+      contents: formData.contents
     };
 
     onSave(updatedPurpose);
@@ -147,7 +164,12 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
 
   const handleServiceTypeChange = (serviceTypeId: string) => {
     const serviceType = serviceTypes.find(st => st.id === parseInt(serviceTypeId));
-    setFormData(prev => ({ ...prev, selectedServiceType: serviceType || null }));
+    setFormData(prev => ({ 
+      ...prev, 
+      selectedServiceType: serviceType || null,
+      // Reset contents when service type changes since materials will be different
+      contents: []
+    }));
   };
 
   const handleHierarchyChange = (selectedIds: number[]) => {
@@ -184,8 +206,14 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
   };
 
   const getStatusDisplay = (status: string) => {
-    const statusConfig = PURPOSE_STATUSES.find(s => s.value === status);
-    return statusConfig ? statusConfig.label : status;
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'COMPLETED':
+        return 'Completed';
+      default:
+        return status;
+    }
   };
 
   if (isLoading) {
@@ -293,8 +321,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {PURPOSE_STATUSES.map((status) => (
-                    <SelectItem key={status.value} value={status.value}>
-                      {status.label}
+                    <SelectItem key={status} value={status}>
+                      {getStatusDisplay(status)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -324,6 +352,14 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
               rows={2}
             />
           </div>
+
+          {/* Contents */}
+          <ContentsSection
+            contents={formData.contents}
+            onContentsChange={(contents) => handleFieldChange('contents', contents)}
+            selectedServiceTypeId={formData.selectedServiceType?.id}
+            showServiceTypeWarning={!formData.selectedServiceType}
+          />
         </div>
 
         <DialogFooter>
