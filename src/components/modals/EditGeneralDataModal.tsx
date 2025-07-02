@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
 import { Purpose, PurposeContent } from '@/types';
-import { PURPOSE_STATUSES } from '@/utils/constants';
+
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
@@ -59,7 +59,6 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     contents: []
   });
   
-  const [expectedDeliveryDate, setExpectedDeliveryDate] = useState<Date>();
   const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>([]);
 
   // Initialize form data when purpose changes
@@ -87,9 +86,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
         setSelectedHierarchyIds([]);
       }
 
-      if (purpose.expected_delivery) {
-        setExpectedDeliveryDate(new Date(purpose.expected_delivery));
-      }
+
     }
   }, [purpose, isOpen, suppliers, serviceTypes]);
 
@@ -135,9 +132,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
       ...purpose,
       description: formData.description.trim(),
       supplier: formData.selectedSupplier!.name,
-      supplier_id: formData.selectedSupplier!.id,
-      service_type: formData.selectedServiceType!.name,
-      service_type_id: formData.selectedServiceType!.id,
+      service_type: formData.selectedServiceType!.name as Purpose['service_type'],
       expected_delivery: formData.expected_delivery,
       status: formData.status as Purpose['status'],
       hierarchy_id: formData.hierarchy_id,
@@ -153,7 +148,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     onClose();
   };
 
-  const handleFieldChange = (field: keyof GeneralDataForm, value: any) => {
+  const handleFieldChange = <K extends keyof GeneralDataForm>(field: K, value: GeneralDataForm[K]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -193,17 +188,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     }
   };
 
-  const handleDateSelect = (date: Date | undefined) => {
-    setExpectedDeliveryDate(date);
-    if (date) {
-      setFormData(prev => ({ 
-        ...prev, 
-        expected_delivery: date.toISOString().split('T')[0] 
-      }));
-    } else {
-      setFormData(prev => ({ ...prev, expected_delivery: '' }));
-    }
-  };
+
 
   const getStatusDisplay = (status: string) => {
     switch (status) {
@@ -291,20 +276,25 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !expectedDeliveryDate && "text-muted-foreground"
+                      !formData.expected_delivery && "text-muted-foreground"
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {expectedDeliveryDate ? format(expectedDeliveryDate, "PPP") : "Pick a date"}
+                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                    <span className="truncate">
+                      {formData.expected_delivery 
+                        ? format(new Date(formData.expected_delivery), "dd/MM/yyyy") 
+                        : "Select delivery date"
+                      }
+                    </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={expectedDeliveryDate}
-                    onSelect={handleDateSelect}
-                    disabled={(date) => date < new Date("1900-01-01")}
+                    selected={formData.expected_delivery ? new Date(formData.expected_delivery) : undefined}
+                    onSelect={(date) => handleFieldChange('expected_delivery', date ? format(date, 'yyyy-MM-dd') : '')}
                     initialFocus
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -320,7 +310,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {PURPOSE_STATUSES.map((status) => (
+                  {['IN_PROGRESS', 'COMPLETED'].map((status) => (
                     <SelectItem key={status} value={status}>
                       {getStatusDisplay(status)}
                     </SelectItem>
@@ -337,7 +327,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
               hierarchies={hierarchies}
               selectedIds={selectedHierarchyIds}
               onSelectionChange={handleHierarchyChange}
-              placeholder="Select hierarchy..."
+              singleSelect={true}
             />
           </div>
 

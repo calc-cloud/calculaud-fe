@@ -19,12 +19,14 @@ interface HierarchySelectorProps {
   hierarchies: Hierarchy[];
   selectedIds: number[];
   onSelectionChange: (selectedIds: number[]) => void;
+  singleSelect?: boolean; // New prop to control single vs multiple selection
 }
 
 export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   hierarchies,
   selectedIds,
-  onSelectionChange
+  onSelectionChange,
+  singleSelect = false
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
 
@@ -38,20 +40,33 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   }));
 
   const getLabel = () => {
-    if (selectedIds.length === 0) return 'Hierarchy';
+    if (selectedIds.length === 0) {
+      return singleSelect ? 'Select hierarchy' : 'Hierarchy';
+    }
     if (selectedIds.length === 1) {
       const selected = transformedHierarchies.find(h => h.id === selectedIds[0]);
-      return selected ? selected.name : 'Hierarchy';
+      return selected ? selected.name : (singleSelect ? 'Select hierarchy' : 'Hierarchy');
     }
     return `${selectedIds.length} selected`;
   };
 
   const handleSelect = (hierarchyId: number) => {
     const isSelected = selectedIds.includes(hierarchyId);
-    if (isSelected) {
-      onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+    
+    if (singleSelect) {
+      // In single select mode, either select this item or deselect it
+      if (isSelected) {
+        onSelectionChange([]); // Deselect if already selected
+      } else {
+        onSelectionChange([hierarchyId]); // Select only this item
+      }
     } else {
-      onSelectionChange([...selectedIds, hierarchyId]);
+      // In multiple select mode, toggle selection
+      if (isSelected) {
+        onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+      } else {
+        onSelectionChange([...selectedIds, hierarchyId]);
+      }
     }
   };
 

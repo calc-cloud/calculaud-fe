@@ -10,16 +10,12 @@ import { CURRENCY_DISPLAY_NAMES } from '@/utils/constants';
 
 interface PurposeTableProps {
   purposes: Purpose[];
-  onView: (purpose: Purpose) => void;
-  onEdit: (purpose: Purpose) => void;
   onDelete: (purposeId: string) => void;
   isLoading?: boolean;
 }
 
 export const PurposeTable: React.FC<PurposeTableProps> = ({
   purposes,
-  onView,
-  onEdit,
   onDelete,
   isLoading = false
 }) => {

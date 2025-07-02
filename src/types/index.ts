@@ -74,18 +74,10 @@ export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic A
 
 // Filter and search types have been moved to @/types/filters
 
-export interface PurposeSorting {
-  field: 'creation_time' | 'last_modified' | 'expected_delivery';
-  direction: 'asc' | 'desc';
-}
 
-export interface PaginationParams {
-  page: number;
-  limit: number;
-}
 
 // Modal modes
-export type ModalMode = 'view' | 'create' | 'edit';
+
 
 // API response types
 export interface PaginatedResponse<T> {

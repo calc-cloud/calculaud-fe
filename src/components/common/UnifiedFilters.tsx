@@ -325,7 +325,9 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
 };
 
 // FiltersDrawer component that wraps UnifiedFilters in a Sheet
-interface FiltersDrawerProps extends UnifiedFiltersProps {
+interface FiltersDrawerProps {
+  filters: UnifiedFiltersType;
+  onFiltersChange: (filters: UnifiedFiltersType) => void;
   triggerText?: string;
 }
 

@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { ContentsSection } from '@/components/sections/ContentsSection';
+import { ServiceType } from '@/types/serviceTypes';
 
 interface CreatePurposeModalProps {
   isOpen: boolean;
@@ -22,7 +23,7 @@ interface CreatePurposeModalProps {
 interface CreateFormData {
   description: string;
   supplier_id: string;
-  selectedServiceType: any | null;
+  selectedServiceType: ServiceType | null;
   contents: PurposeContent[];
   hierarchy_id: string;
   hierarchy_name: string;
@@ -64,7 +65,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleFieldChange = (field: keyof CreateFormData, value: any) => {
+  const handleFieldChange = <K extends keyof CreateFormData>(field: K, value: CreateFormData[K]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -245,6 +246,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
               hierarchies={hierarchies}
               selectedIds={selectedHierarchyIds}
               onSelectionChange={handleHierarchyChange}
+              singleSelect={true}
             />
           </div>
 

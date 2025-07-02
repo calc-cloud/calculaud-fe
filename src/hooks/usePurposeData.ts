@@ -1,6 +1,6 @@
 import {useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {ModalMode, Purpose} from '@/types';
+import {Purpose} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
 import {purposeService} from '@/services/purposeService';
@@ -14,9 +14,6 @@ export const usePurposeData = (
   const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
   const [filters, setFilters] = useState<UnifiedFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<ModalMode>('view');
-  const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
 
@@ -111,12 +108,6 @@ export const usePurposeData = (
     setFilters: handleFiltersChange,
     sortConfig,
     setSortConfig: handleSortChange,
-    isModalOpen,
-    setIsModalOpen,
-    modalMode,
-    setModalMode,
-    selectedPurpose,
-    setSelectedPurpose,
     currentPage,
     setCurrentPage,
     totalPages,

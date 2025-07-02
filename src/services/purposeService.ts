@@ -1,6 +1,6 @@
 import {apiService} from '@/services/apiService';
 import {UnifiedFilters} from '@/types/filters';
-import {addDays, format, parseISO} from 'date-fns';
+import {format} from 'date-fns';
 
 export interface PurposeApiParams {
   page?: number;
@@ -192,12 +192,8 @@ class PurposeService {
       params.start_date = filters.start_date;
     }
     if (filters.end_date) {
-      // Make end_date inclusive by adding one day
-      // This ensures that if user selects "2024-12-10" as end date,
-      // items created on 2024-12-10 are included in the results
-      const endDate = parseISO(filters.end_date);
-      const inclusiveEndDate = addDays(endDate, 1);
-      params.end_date = format(inclusiveEndDate, 'yyyy-MM-dd');
+      // Backend is now inclusive, so pass end_date as-is
+      params.end_date = filters.end_date;
     }
 
     return params;

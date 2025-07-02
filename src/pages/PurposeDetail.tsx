@@ -20,8 +20,8 @@ const PurposeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { hierarchies } = useAdminData();
-  const { deletePurpose } = usePurposeMutations();
+  const { hierarchies, suppliers, serviceTypes } = useAdminData();
+  const { deletePurpose, updatePurpose } = usePurposeMutations();
   
   // State for modals and editing
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -44,23 +44,21 @@ const PurposeDetail: React.FC = () => {
       setError(null);
       
       try {
-        console.log('Loading purpose with ID:', id);
-        
         // Fetch purpose from API
         const apiPurpose = await purposeService.getPurpose(id);
         
         // Transform API data to frontend format
         const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
         
-        console.log('Loaded purpose:', transformedPurpose);
         setPurpose(transformedPurpose);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load purpose';
         console.error('Failed to load purpose:', err);
-        setError(err.message || 'Failed to load purpose');
+        setError(errorMessage);
         setPurpose(null);
         toast({
           title: "Error loading purpose",
-          description: err.message || "Failed to load purpose data",
+          description: errorMessage,
           variant: "destructive"
         });
       } finally {
@@ -81,8 +79,6 @@ const PurposeDetail: React.FC = () => {
         return { label: status, variant: 'outline' as const };
     }
   };
-
-
 
   const handleEditGeneralData = () => {
     setSelectedPurpose(purpose);
@@ -114,6 +110,45 @@ const PurposeDetail: React.FC = () => {
           description: `${newFiles.length - purpose.files.length} file(s) uploaded successfully.`,
         });
       }
+    }
+  };
+
+  const handleSaveGeneralData = async (editedPurpose: Purpose) => {
+    if (!id) return;
+    
+    try {
+      // Transform the edited purpose data to API format
+      const updateData = {
+        description: editedPurpose.description,
+        supplier_id: suppliers.find(s => s.name === editedPurpose.supplier)?.id,
+        service_type_id: serviceTypes.find(st => st.name === editedPurpose.service_type)?.id,
+        expected_delivery: editedPurpose.expected_delivery && editedPurpose.expected_delivery.trim() 
+          ? editedPurpose.expected_delivery 
+          : null,
+        status: editedPurpose.status,
+        hierarchy_id: editedPurpose.hierarchy_id,
+        comments: editedPurpose.comments && editedPurpose.comments.trim() 
+          ? editedPurpose.comments 
+          : null,
+        contents: editedPurpose.contents?.map(content => ({
+          service_id: content.material_id,
+          quantity: content.quantity
+        })) || []
+      };
+
+      // Call the update mutation
+      await updatePurpose.mutateAsync({ id, data: updateData });
+      
+      // Reload the purpose from API to get the latest data
+      const apiPurpose = await purposeService.getPurpose(id);
+      const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+      setPurpose(transformedPurpose);
+      
+      setIsEditModalOpen(false);
+      setSelectedPurpose(null);
+    } catch (error) {
+      // Error handling is done in the mutation
+      console.error('Failed to update purpose:', error);
     }
   };
 
@@ -395,15 +430,7 @@ const PurposeDetail: React.FC = () => {
             setSelectedPurpose(null);
           }}
           purpose={selectedPurpose}
-          onSave={(editedPurpose) => {
-            setPurpose(editedPurpose);
-            setIsEditModalOpen(false);
-            setSelectedPurpose(null);
-            toast({
-              title: "Purpose updated",
-              description: "General data has been successfully updated.",
-            });
-          }}
+          onSave={handleSaveGeneralData}
         />
       )}
     </div>
