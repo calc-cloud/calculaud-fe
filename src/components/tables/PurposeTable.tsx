@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -23,6 +24,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   isLoading = false
 }) => {
   const { hierarchies } = useAdminData();
+  const navigate = useNavigate();
 
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
@@ -150,7 +152,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   };
 
   const handleRowClick = (purpose: Purpose) => {
-    onView(purpose);
+    navigate(`/purposes/${purpose.id}`);
   };
 
   if (isLoading) {

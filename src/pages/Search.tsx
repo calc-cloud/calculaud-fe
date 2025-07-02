@@ -132,6 +132,8 @@ const Search: React.FC = () => {
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
 
+
+
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
     const params = new URLSearchParams();
@@ -343,6 +345,7 @@ const Search: React.FC = () => {
         onEdit={handleEditPurpose}
         onDelete={handleDeletePurpose}
       />
+
     </div>
   );
 };

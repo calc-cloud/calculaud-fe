@@ -1,5 +1,6 @@
 import {apiService} from '@/services/apiService';
 import {UnifiedFilters} from '@/types/filters';
+import {addDays, format, parseISO} from 'date-fns';
 
 export interface PurposeApiParams {
   page?: number;
@@ -126,6 +127,10 @@ class PurposeService {
     return apiService.get<PurposeApiResponse>('/purposes/', params);
   }
 
+  async getPurpose(id: string): Promise<Purpose> {
+    return apiService.get<Purpose>(`/purposes/${id}`);
+  }
+
   async createPurpose(data: CreatePurposeRequest): Promise<Purpose> {
     return apiService.post<Purpose>('/purposes/', data);
   }
@@ -187,7 +192,12 @@ class PurposeService {
       params.start_date = filters.start_date;
     }
     if (filters.end_date) {
-      params.end_date = filters.end_date;
+      // Make end_date inclusive by adding one day
+      // This ensures that if user selects "2024-12-10" as end date,
+      // items created on 2024-12-10 are included in the results
+      const endDate = parseISO(filters.end_date);
+      const inclusiveEndDate = addDays(endDate, 1);
+      params.end_date = format(inclusiveEndDate, 'yyyy-MM-dd');
     }
 
     return params;
@@ -339,6 +349,50 @@ class PurposeService {
   }
 
   // Transform API response to match frontend data structure
+  transformApiPurpose(apiPurpose: Purpose, hierarchies: any[] = []): any {
+    return {
+      id: apiPurpose.id.toString(),
+      description: apiPurpose.description,
+      contents: (apiPurpose.contents || []).map(content => ({
+        material_id: content.service_id,
+        material_name: content.service_name,
+        material_type: content.service_type,
+        quantity: content.quantity,
+        // Keep API fields for compatibility
+        service_id: content.service_id,
+        service_name: content.service_name,
+        service_type: content.service_type
+      })),
+      supplier: apiPurpose.supplier,
+      hierarchy_id: apiPurpose.hierarchy?.id?.toString() || '',
+      hierarchy_name: apiPurpose.hierarchy?.path || this.getHierarchyName(apiPurpose.hierarchy?.id || null, hierarchies),
+      status: this.mapApiStatusToFrontend(apiPurpose.status),
+      expected_delivery: apiPurpose.expected_delivery,
+      comments: apiPurpose.comments,
+      service_type: apiPurpose.service_type,
+      creation_time: apiPurpose.creation_time,
+      last_modified: apiPurpose.last_modified,
+      emfs: (apiPurpose.emfs || []).map(emf => ({
+        id: emf.emf_id,
+        purpose_id: apiPurpose.id.toString(),
+        creation_date: emf.creation_date,
+        demand_id: emf.demand_id,
+        demand_creation_date: emf.demand_creation_date,
+        order_id: emf.order_id,
+        order_creation_date: emf.order_creation_date,
+        bikushit_id: emf.bikushit_id,
+        bikushit_creation_date: emf.bikushit_creation_date,
+        costs: (emf.costs || []).map(cost => ({
+          id: cost.id.toString(),
+          emf_id: emf.emf_id,
+          amount: cost.amount,
+          currency: this.mapApiCurrencyToFrontend(cost.currency)
+        }))
+      })),
+      files: [] // Files would come from a separate endpoint
+    };
+  }
+
   transformApiResponse(apiData: PurposeApiResponse, hierarchies: any[]): {
     purposes: any[];
     total: number;
