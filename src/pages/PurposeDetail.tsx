@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers, Edit2, Check, X } from 'lucide-react';
 import { Purpose, PurposeFile } from '@/types';
-import { usePurposeData } from '@/hooks/usePurposeData';
+
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -26,6 +26,12 @@ const PurposeDetail: React.FC = () => {
   // State for modals and editing
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | null>(null);
+  
+  // Timeline state
+  const [editingStage, setEditingStage] = useState<string | null>(null);
+  const [selectedStage, setSelectedStage] = useState<any | null>(null);
+  const [selectedStagePosition, setSelectedStagePosition] = useState<{ x: number, isAbove: boolean } | null>(null);
+  const [editForm, setEditForm] = useState({ date: '', text: '' });
   
   // Real API data loading
   const [purpose, setPurpose] = useState<Purpose | null>(null);
@@ -150,6 +156,89 @@ const PurposeDetail: React.FC = () => {
       // Error handling is done in the mutation
       console.error('Failed to update purpose:', error);
     }
+  };
+
+  // Timeline utility functions
+
+  const handleStageClick = (stage: any, stageIndex: number, allStages: any[]) => {
+    const position = calculateStagePosition(allStages, stageIndex);
+    const isAbove = stageIndex % 2 === 0;
+    setSelectedStage(stage);
+    setSelectedStagePosition({ x: position, isAbove });
+  };
+
+  const handleEditStart = (stageId: string, date: string, itemId: string) => {
+    setEditingStage(stageId);
+    setEditForm({ date, text: itemId });
+  };
+
+  const handleEditCancel = () => {
+    setEditingStage(null);
+    setEditForm({ date: '', text: '' });
+  };
+
+  const handleCloseStagePopup = () => {
+    setSelectedStage(null);
+    setSelectedStagePosition(null);
+    setEditingStage(null);
+    setEditForm({ date: '', text: '' });
+  };
+
+  const formatDateForTimeline = (dateString: string | null) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit'
+    });
+  };
+
+  const convertEmfToStages = (emf: any) => {
+    const stages = [
+      {
+        id: `${emf.id}-emf`,
+        name: 'EMF',
+        completed: true,
+        date: emf.creation_date,
+        itemId: emf.id
+      },
+      {
+        id: `${emf.id}-bikushit`,
+        name: 'Bikushit',
+        completed: !!emf.bikushit_creation_date,
+        date: emf.bikushit_creation_date || emf.creation_date,
+        itemId: emf.bikushit_id || 'Pending'
+      },
+      {
+        id: `${emf.id}-demand`,
+        name: 'Demand',
+        completed: !!emf.demand_creation_date,
+        date: emf.demand_creation_date || emf.creation_date,
+        itemId: emf.demand_id || 'Pending'
+      },
+      {
+        id: `${emf.id}-order`,
+        name: 'Order',
+        completed: !!emf.order_creation_date,
+        date: emf.order_creation_date || emf.creation_date,
+        itemId: emf.order_id || 'Pending'
+      }
+    ];
+    
+    // Keep stages in logical order: EMF -> Bikushit -> Demand -> Order
+    return stages;
+  };
+
+  const calculateStagePosition = (stages: any[], stageIndex: number) => {
+    if (stages.length <= 1) return 50; // Center if only one stage
+    
+    // Distribute stages evenly across the timeline
+    // Add some padding (10% on each side) to prevent stages from touching the edges
+    const padding = 10;
+    const availableWidth = 100 - (padding * 2);
+    const position = padding + (stageIndex / (stages.length - 1)) * availableWidth;
+    
+    return position;
   };
 
   if (isLoading) {
@@ -326,65 +415,394 @@ const PurposeDetail: React.FC = () => {
           {/* Purchases Timeline */}
           <Card className="flex-none">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">Purchases & EMF Timeline</CardTitle>
+              <CardTitle className="text-lg font-semibold">Purchases</CardTitle>
             </CardHeader>
             <CardContent>
               {purpose.emfs.length > 0 ? (
-                <div className="space-y-4">
-                  {purpose.emfs.map((emf) => (
-                    <div key={emf.id} className="border rounded-lg p-3">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="font-medium text-sm">{emf.id}</h4>
+                <div className="space-y-8">
+                  {purpose.emfs.map((emf, emfIndex) => {
+                    const stages = convertEmfToStages(emf);
+                    
+                    return (
+                      <div key={emf.id}>
+                        <div className="bg-gray-50 rounded-lg p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800">{emf.id}</h3>
                         <div className="text-xs text-gray-500">
                           Created: {formatDate(emf.creation_date)}
                         </div>
                       </div>
                       
-                      {/* Timeline */}
-                      <div className="relative mb-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="text-xs text-gray-500">EMF</div>
-                          <div className="text-xs text-gray-500">Demand</div>
-                          <div className="text-xs text-gray-500">Order</div>
-                          <div className="text-xs text-gray-500">Bikushit</div>
-                        </div>
-                        
-                        <div className="flex items-center justify-between relative">
-                          <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-200 -translate-y-1/2"></div>
+                                                                                                                                                           <div className="relative">
+                           {/* Timeline Container with dedicated areas */}
+                           <div className="relative px-4" id={`timeline-${emf.id}`}>
+                             
+                             {/* Above Timeline Area */}
+                             <div className="relative h-20 mb-4">
+                               {stages.map((stage, index) => {
+                                 const position = calculateStagePosition(stages, index);
+                                 const isAboveTimeline = index % 2 === 0;
+                                 
+                                 if (!isAboveTimeline) return null;
+                                 
+                                 return (
+                                   <div key={`${stage.id}-above`}>
+                                     {/* Small Stage Card Above Timeline */}
+                                     <div
+                                       className="absolute bottom-0 flex flex-col items-center"
+                                       style={{
+                                         left: `${position}%`,
+                                         transform: 'translateX(-50%)'
+                                       }}
+                                     >
+                                       <div 
+                                         className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-200 w-24 p-2 hover:shadow-md"
+                                         onClick={() => handleStageClick(stage, index, stages)}
+                                       >
+                                         <div className="text-center">
+                                           <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
+                                           <div className="text-xs text-gray-500">
+                                             {formatDateForTimeline(stage.date)}
+                                           </div>
+                                         </div>
+                                       </div>
+                                     </div>
+                                     
+                                     {/* Detailed Stage Card Above Timeline */}
+                                     {selectedStage && selectedStagePosition && selectedStage.id === stage.id && (
+                                       <>
+                                         <div className="fixed inset-0 z-40" onClick={handleCloseStagePopup} />
+                                         <div
+                                           className="absolute bottom-0 flex flex-col items-center z-50"
+                                           style={{
+                                             left: `${position}%`,
+                                             transform: 'translateX(-50%)'
+                                           }}
+                                         >
+                                           <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 p-4">
+                                             <div className="flex items-center justify-between mb-3">
+                                               <h4 className="font-medium text-gray-800 text-sm">{selectedStage.name}</h4>
+                                               <div className="flex items-center space-x-1">
+                                                 <div 
+                                                   className={`w-3 h-3 rounded-full ${
+                                                     selectedStage.completed 
+                                                       ? 'bg-green-500' 
+                                                       : 'bg-gray-300'
+                                                   }`}
+                                                 />
+                                                 <button
+                                                   onClick={handleCloseStagePopup}
+                                                   className="text-gray-400 hover:text-gray-600 transition-colors"
+                                                 >
+                                                   <X className="w-4 h-4" />
+                                                 </button>
+                                               </div>
+                                             </div>
+                                             
+                                             {editingStage === selectedStage.id ? (
+                                               <div className="space-y-3">
+                                                 {selectedStage.completed && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <input
+                                                       type="date"
+                                                       value={editForm.date}
+                                                       onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                     />
+                                                   </div>
+                                                 )}
+                                                 {!selectedStage.completed && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <input
+                                                       type="date"
+                                                       value={new Date().toISOString().split('T')[0]}
+                                                       disabled
+                                                       className="w-full px-2 py-1 border border-gray-200 rounded text-sm bg-gray-50 text-gray-500"
+                                                     />
+                                                     <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
+                                                   </div>
+                                                 )}
+                                                 <div>
+                                                   <label className="text-xs text-gray-500 mb-1 block">ID</label>
+                                                   <input
+                                                     type="text"
+                                                     value={editForm.text}
+                                                     onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                                                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                   />
+                                                 </div>
+                                                 <div className="flex space-x-2">
+                                                   <button
+                                                     onClick={() => {
+                                                       // For incomplete stages, set date to today
+                                                       const finalDate = selectedStage.completed 
+                                                         ? editForm.date 
+                                                         : new Date().toISOString().split('T')[0];
+                                                       
+                                                       // Here you would typically save to backend
+                                                       console.log(`Saving stage ${selectedStage.id}:`, {
+                                                         date: finalDate,
+                                                         id: editForm.text,
+                                                         completed: !selectedStage.completed || selectedStage.completed
+                                                       });
+                                                       
+                                                       setEditingStage(null);
+                                                       setEditForm({ date: '', text: '' });
+                                                     }}
+                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                                   >
+                                                     <Check className="w-3 h-3 mr-1" />
+                                                     Save
+                                                   </button>
+                                                   <button
+                                                     onClick={handleEditCancel}
+                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+                                                   >
+                                                     <X className="w-3 h-3 mr-1" />
+                                                     Cancel
+                                                   </button>
+                                                 </div>
+                                               </div>
+                                             ) : (
+                                               <div className="space-y-3">
+                                                 <div className="flex items-center text-sm text-gray-600">
+                                                   <Calendar className="w-3 h-3 mr-1" />
+                                                   {formatDateForTimeline(selectedStage.date)}
+                                                 </div>
+                                                 <p className="text-xs text-gray-500 leading-relaxed">
+                                                   {selectedStage.itemId}
+                                                 </p>
+                                                 <div className="flex space-x-2">
+                                                   <button
+                                                     onClick={() => handleEditStart(selectedStage.id, selectedStage.date, selectedStage.itemId)}
+                                                     className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                                                   >
+                                                     <Edit2 className="w-3 h-3 mr-1" />
+                                                     Edit
+                                                   </button>
+                                                 </div>
+                                               </div>
+                                             )}
+                                           </div>
+                                         </div>
+                                       </>
+                                     )}
+                                   </div>
+                                 );
+                               })}
+                             </div>
+                             
+                             {/* Timeline Line */}
+                             <div className="relative h-1">
+                               <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-300 -translate-y-1/2"></div>
+                               
+                               {/* Stage Dots and Connecting Lines */}
+                               {stages.map((stage, index) => {
+                                 const position = calculateStagePosition(stages, index);
+                                 const isAboveTimeline = index % 2 === 0;
+                                 return (
+                                   <div 
+                                     key={`${stage.id}-dot`}
+                                     className="absolute top-1/2 transform -translate-y-1/2"
+                                     style={{
+                                       left: `${position}%`,
+                                       transform: 'translateX(-50%) translateY(-50%)',
+                                     }}
+                                   >
+                                     {/* Connecting Line */}
+                                     <div 
+                                       className="absolute w-0.5 bg-gray-200"
+                                       style={{
+                                         left: '50%',
+                                         transform: 'translateX(-50%)',
+                                         ...(isAboveTimeline 
+                                           ? { bottom: '0.5rem', height: '1.125rem' }
+                                           : { top: '0.5rem', height: '1.125rem' }
+                                         )
+                                       }}
+                                     />
+                                     
+                                     {/* Stage Dot */}
+                                     <div 
+                                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center relative z-10 ${
+                                         stage.completed 
+                                           ? 'bg-green-500 border-green-500' 
+                                           : 'bg-white border-gray-300'
+                                       }`}
+                                     >
+                                       {stage.completed && (
+                                         <Check className="w-2.5 h-2.5 text-white" />
+                                       )}
+                                     </div>
+                                   </div>
+                                 );
+                               })}
+                             </div>
+                             
+                             {/* Below Timeline Area */}
+                             <div className="relative h-20 mt-4">
+                               {stages.map((stage, index) => {
+                                 const position = calculateStagePosition(stages, index);
+                                 const isAboveTimeline = index % 2 === 0;
+                                 
+                                 if (isAboveTimeline) return null;
+                                 
+                                 return (
+                                   <div key={`${stage.id}-below`}>
+                                     {/* Small Stage Card Below Timeline */}
+                                     <div
+                                       className="absolute top-0 flex flex-col items-center"
+                                       style={{
+                                         left: `${position}%`,
+                                         transform: 'translateX(-50%)'
+                                       }}
+                                     >
+                                       <div 
+                                         className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-200 w-24 p-2 hover:shadow-md"
+                                         onClick={() => handleStageClick(stage, index, stages)}
+                                       >
+                                         <div className="text-center">
+                                           <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
+                                           <div className="text-xs text-gray-500">
+                                             {formatDateForTimeline(stage.date)}
+                                           </div>
+                                         </div>
+                                       </div>
+                                     </div>
+                                     
+                                     {/* Detailed Stage Card Below Timeline */}
+                                     {selectedStage && selectedStagePosition && selectedStage.id === stage.id && (
+                                       <>
+                                         <div className="fixed inset-0 z-40" onClick={handleCloseStagePopup} />
+                                         <div
+                                           className="absolute top-0 flex flex-col items-center z-50"
+                                           style={{
+                                             left: `${position}%`,
+                                             transform: 'translateX(-50%)'
+                                           }}
+                                         >
+                                           <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 p-4">
+                                             <div className="flex items-center justify-between mb-3">
+                                               <h4 className="font-medium text-gray-800 text-sm">{selectedStage.name}</h4>
+                                               <div className="flex items-center space-x-1">
+                                                 <div 
+                                                   className={`w-3 h-3 rounded-full ${
+                                                     selectedStage.completed 
+                                                       ? 'bg-green-500' 
+                                                       : 'bg-gray-300'
+                                                   }`}
+                                                 />
+                                                 <button
+                                                   onClick={handleCloseStagePopup}
+                                                   className="text-gray-400 hover:text-gray-600 transition-colors"
+                                                 >
+                                                   <X className="w-4 h-4" />
+                                                 </button>
+                                               </div>
+                                             </div>
+                                             
+                                             {editingStage === selectedStage.id ? (
+                                               <div className="space-y-3">
+                                                 {selectedStage.completed && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <input
+                                                       type="date"
+                                                       value={editForm.date}
+                                                       onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                     />
+                                                   </div>
+                                                 )}
+                                                 {!selectedStage.completed && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <input
+                                                       type="date"
+                                                       value={new Date().toISOString().split('T')[0]}
+                                                       disabled
+                                                       className="w-full px-2 py-1 border border-gray-200 rounded text-sm bg-gray-50 text-gray-500"
+                                                     />
+                                                     <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
+                                                   </div>
+                                                 )}
+                                                 <div>
+                                                   <label className="text-xs text-gray-500 mb-1 block">ID</label>
+                                                   <input
+                                                     type="text"
+                                                     value={editForm.text}
+                                                     onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                                                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                   />
+                                                 </div>
+                                                 <div className="flex space-x-2">
+                                                   <button
+                                                     onClick={() => {
+                                                       // For incomplete stages, set date to today
+                                                       const finalDate = selectedStage.completed 
+                                                         ? editForm.date 
+                                                         : new Date().toISOString().split('T')[0];
+                                                       
+                                                       // Here you would typically save to backend
+                                                       console.log(`Saving stage ${selectedStage.id}:`, {
+                                                         date: finalDate,
+                                                         id: editForm.text,
+                                                         completed: !selectedStage.completed || selectedStage.completed
+                                                       });
+                                                       
+                                                       setEditingStage(null);
+                                                       setEditForm({ date: '', text: '' });
+                                                     }}
+                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                                   >
+                                                     <Check className="w-3 h-3 mr-1" />
+                                                     Save
+                                                   </button>
+                                                   <button
+                                                     onClick={handleEditCancel}
+                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+                                                   >
+                                                     <X className="w-3 h-3 mr-1" />
+                                                     Cancel
+                                                   </button>
+                                                 </div>
+                                               </div>
+                                             ) : (
+                                               <div className="space-y-3">
+                                                 <div className="flex items-center text-sm text-gray-600">
+                                                   <Calendar className="w-3 h-3 mr-1" />
+                                                   {formatDateForTimeline(selectedStage.date)}
+                                                 </div>
+                                                 <p className="text-xs text-gray-500 leading-relaxed">
+                                                   {selectedStage.itemId}
+                                                 </p>
+                                                 <div className="flex space-x-2">
+                                                   <button
+                                                     onClick={() => handleEditStart(selectedStage.id, selectedStage.date, selectedStage.itemId)}
+                                                     className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
+                                                   >
+                                                     <Edit2 className="w-3 h-3 mr-1" />
+                                                     Edit
+                                                   </button>
+                                                 </div>
+                                               </div>
+                                             )}
+                                           </div>
+                                         </div>
+                                       </>
+                                     )}
+                                   </div>
+                                 );
+                               })}
+                             </div>
+                           </div>
+                         </div>
                           
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className="w-2.5 h-2.5 bg-green-500 rounded-full mb-1"></div>
-                            <div className="text-xs text-center">
-                              <div className="font-medium">{formatDate(emf.creation_date)}</div>
-                            </div>
-                          </div>
-                          
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className={`w-2.5 h-2.5 rounded-full mb-1 ${emf.demand_creation_date ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                            <div className="text-xs text-center">
-                              <div className="font-medium">{emf.demand_creation_date ? formatDate(emf.demand_creation_date) : '-'}</div>
-                            </div>
-                          </div>
-                          
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className={`w-2.5 h-2.5 rounded-full mb-1 ${emf.order_creation_date ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                            <div className="text-xs text-center">
-                              <div className="font-medium">{emf.order_creation_date ? formatDate(emf.order_creation_date) : '-'}</div>
-                            </div>
-                          </div>
-                          
-                          <div className="relative z-10 flex flex-col items-center">
-                            <div className={`w-2.5 h-2.5 rounded-full mb-1 ${emf.bikushit_creation_date ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                            <div className="text-xs text-center">
-                              <div className="font-medium">{emf.bikushit_creation_date ? formatDate(emf.bikushit_creation_date) : '-'}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Costs */}
-                      <div>
-                        <h5 className="text-sm font-medium mb-2">Costs</h5>
+                          {/* Cost */}
+                          <div className="mt-6">
+                            <h5 className="text-sm font-medium mb-2">Cost</h5>
                         <div className="flex flex-wrap gap-1">
                           {emf.costs.map((cost) => (
                             <Badge key={cost.id} variant="outline" className="text-xs">
@@ -394,7 +812,16 @@ const PurposeDetail: React.FC = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                        
+                        {/* Add separator between EMFs, but not after the last one */}
+                        {emfIndex < purpose.emfs.length - 1 && (
+                          <div className="mt-6">
+                            <Separator />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-6">
@@ -433,6 +860,7 @@ const PurposeDetail: React.FC = () => {
           onSave={handleSaveGeneralData}
         />
       )}
+
     </div>
   );
 };
