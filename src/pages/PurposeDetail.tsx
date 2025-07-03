@@ -78,9 +78,9 @@ const PurposeDetail: React.FC = () => {
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'IN_PROGRESS':
-        return { label: 'In Progress', variant: 'default' as const };
+        return { label: 'In Progress', variant: 'secondary' as const };
       case 'COMPLETED':
-        return { label: 'Completed', variant: 'secondary' as const };
+        return { label: 'Completed', variant: 'default' as const };
       default:
         return { label: status, variant: 'outline' as const };
     }
@@ -445,53 +445,54 @@ const PurposeDetail: React.FC = () => {
                                  
                                  if (!isAboveTimeline) return null;
                                  
+                                 const isExpanded = selectedStage?.id === stage.id;
+                                 
                                  return (
                                    <div key={`${stage.id}-above`}>
-                                     {/* Small Stage Card Above Timeline */}
-                                     <div
-                                       className="absolute bottom-0 flex flex-col items-center"
-                                       style={{
-                                         left: `${position}%`,
-                                         transform: 'translateX(-50%)'
-                                       }}
-                                     >
-                                       <div 
-                                         className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-200 w-24 p-2 hover:shadow-md"
+                                                                           {/* Expandable Stage Card Above Timeline */}
+                                      <div
+                                        className="absolute bottom-0 flex flex-col items-center"
+                                        style={{
+                                          left: `${position}%`,
+                                          transform: 'translateX(-50%)'
+                                        }}
+                                      >
+                                        <div 
+                                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
+                                            isExpanded 
+                                              ? 'w-64 p-4 shadow-xl hover:shadow-2xl' 
+                                              : 'w-24 p-2 hover:shadow-md'
+                                          }`}
                                          onClick={() => handleStageClick(stage, index, stages)}
                                        >
-                                         <div className="text-center">
-                                           <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
-                                           <div className="text-xs text-gray-500">
-                                             {formatDateForTimeline(stage.date)}
+                                         {/* Collapsed Content */}
+                                         {!isExpanded && (
+                                           <div className="text-center">
+                                             <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
+                                             <div className="text-xs text-gray-500">
+                                               {formatDateForTimeline(stage.date)}
+                                             </div>
                                            </div>
-                                         </div>
-                                       </div>
-                                     </div>
-                                     
-                                     {/* Detailed Stage Card Above Timeline */}
-                                     {selectedStage && selectedStagePosition && selectedStage.id === stage.id && (
-                                       <>
-                                         <div className="fixed inset-0 z-40" onClick={handleCloseStagePopup} />
-                                         <div
-                                           className="absolute bottom-0 flex flex-col items-center z-50"
-                                           style={{
-                                             left: `${position}%`,
-                                             transform: 'translateX(-50%)'
-                                           }}
-                                         >
-                                           <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 p-4">
+                                         )}
+                                         
+                                         {/* Expanded Content */}
+                                         {isExpanded && (
+                                           <div className="space-y-3">
                                              <div className="flex items-center justify-between mb-3">
-                                               <h4 className="font-medium text-gray-800 text-sm">{selectedStage.name}</h4>
+                                               <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
                                                <div className="flex items-center space-x-1">
                                                  <div 
                                                    className={`w-3 h-3 rounded-full ${
-                                                     selectedStage.completed 
+                                                     stage.completed 
                                                        ? 'bg-green-500' 
                                                        : 'bg-gray-300'
                                                    }`}
                                                  />
                                                  <button
-                                                   onClick={handleCloseStagePopup}
+                                                   onClick={(e) => {
+                                                     e.stopPropagation();
+                                                     handleCloseStagePopup();
+                                                   }}
                                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                                  >
                                                    <X className="w-4 h-4" />
@@ -499,9 +500,9 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              </div>
                                              
-                                             {editingStage === selectedStage.id ? (
+                                             {editingStage === stage.id ? (
                                                <div className="space-y-3">
-                                                 {selectedStage.completed && (
+                                                 {stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Date</label>
                                                      <input
@@ -512,7 +513,7 @@ const PurposeDetail: React.FC = () => {
                                                      />
                                                    </div>
                                                  )}
-                                                 {!selectedStage.completed && (
+                                                 {!stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Date</label>
                                                      <input
@@ -535,17 +536,18 @@ const PurposeDetail: React.FC = () => {
                                                  </div>
                                                  <div className="flex space-x-2">
                                                    <button
-                                                     onClick={() => {
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
                                                        // For incomplete stages, set date to today
-                                                       const finalDate = selectedStage.completed 
+                                                       const finalDate = stage.completed 
                                                          ? editForm.date 
                                                          : new Date().toISOString().split('T')[0];
                                                        
                                                        // Here you would typically save to backend
-                                                       console.log(`Saving stage ${selectedStage.id}:`, {
+                                                       console.log(`Saving stage ${stage.id}:`, {
                                                          date: finalDate,
                                                          id: editForm.text,
-                                                         completed: !selectedStage.completed || selectedStage.completed
+                                                         completed: !stage.completed || stage.completed
                                                        });
                                                        
                                                        setEditingStage(null);
@@ -557,7 +559,10 @@ const PurposeDetail: React.FC = () => {
                                                      Save
                                                    </button>
                                                    <button
-                                                     onClick={handleEditCancel}
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
+                                                       handleEditCancel();
+                                                     }}
                                                      className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
                                                    >
                                                      <X className="w-3 h-3 mr-1" />
@@ -569,14 +574,17 @@ const PurposeDetail: React.FC = () => {
                                                <div className="space-y-3">
                                                  <div className="flex items-center text-sm text-gray-600">
                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                   {formatDateForTimeline(selectedStage.date)}
+                                                   {formatDateForTimeline(stage.date)}
                                                  </div>
                                                  <p className="text-xs text-gray-500 leading-relaxed">
-                                                   {selectedStage.itemId}
+                                                   {stage.itemId}
                                                  </p>
                                                  <div className="flex space-x-2">
                                                    <button
-                                                     onClick={() => handleEditStart(selectedStage.id, selectedStage.date, selectedStage.itemId)}
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
+                                                       handleEditStart(stage.id, stage.date, stage.itemId);
+                                                     }}
                                                      className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
                                                    >
                                                      <Edit2 className="w-3 h-3 mr-1" />
@@ -586,9 +594,9 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              )}
                                            </div>
-                                         </div>
-                                       </>
-                                     )}
+                                         )}
+                                       </div>
+                                     </div>
                                    </div>
                                  );
                                })}
@@ -633,7 +641,7 @@ const PurposeDetail: React.FC = () => {
                                        }`}
                                      >
                                        {stage.completed && (
-                                         <Check className="w-2.5 h-2.5 text-white" />
+                                         <Check className="w-2 h-2 text-white" />
                                        )}
                                      </div>
                                    </div>
@@ -649,53 +657,54 @@ const PurposeDetail: React.FC = () => {
                                  
                                  if (isAboveTimeline) return null;
                                  
+                                 const isExpanded = selectedStage?.id === stage.id;
+                                 
                                  return (
                                    <div key={`${stage.id}-below`}>
-                                     {/* Small Stage Card Below Timeline */}
-                                     <div
-                                       className="absolute top-0 flex flex-col items-center"
-                                       style={{
-                                         left: `${position}%`,
-                                         transform: 'translateX(-50%)'
-                                       }}
-                                     >
-                                       <div 
-                                         className="bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-200 w-24 p-2 hover:shadow-md"
+                                                                           {/* Expandable Stage Card Below Timeline */}
+                                      <div
+                                        className="absolute top-0 flex flex-col items-center"
+                                        style={{
+                                          left: `${position}%`,
+                                          transform: 'translateX(-50%)'
+                                        }}
+                                      >
+                                        <div 
+                                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
+                                            isExpanded 
+                                              ? 'w-60 p-4 shadow-xl hover:shadow-2xl' 
+                                              : 'w-24 p-2 hover:shadow-md'
+                                          }`}
                                          onClick={() => handleStageClick(stage, index, stages)}
                                        >
-                                         <div className="text-center">
-                                           <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
-                                           <div className="text-xs text-gray-500">
-                                             {formatDateForTimeline(stage.date)}
+                                         {/* Collapsed Content */}
+                                         {!isExpanded && (
+                                           <div className="text-center">
+                                             <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
+                                             <div className="text-xs text-gray-500">
+                                               {formatDateForTimeline(stage.date)}
+                                             </div>
                                            </div>
-                                         </div>
-                                       </div>
-                                     </div>
-                                     
-                                     {/* Detailed Stage Card Below Timeline */}
-                                     {selectedStage && selectedStagePosition && selectedStage.id === stage.id && (
-                                       <>
-                                         <div className="fixed inset-0 z-40" onClick={handleCloseStagePopup} />
-                                         <div
-                                           className="absolute top-0 flex flex-col items-center z-50"
-                                           style={{
-                                             left: `${position}%`,
-                                             transform: 'translateX(-50%)'
-                                           }}
-                                         >
-                                           <div className="bg-white rounded-lg shadow-xl border border-gray-200 w-72 p-4">
+                                         )}
+                                         
+                                         {/* Expanded Content */}
+                                         {isExpanded && (
+                                           <div className="space-y-3">
                                              <div className="flex items-center justify-between mb-3">
-                                               <h4 className="font-medium text-gray-800 text-sm">{selectedStage.name}</h4>
+                                               <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
                                                <div className="flex items-center space-x-1">
                                                  <div 
                                                    className={`w-3 h-3 rounded-full ${
-                                                     selectedStage.completed 
+                                                     stage.completed 
                                                        ? 'bg-green-500' 
                                                        : 'bg-gray-300'
                                                    }`}
                                                  />
                                                  <button
-                                                   onClick={handleCloseStagePopup}
+                                                   onClick={(e) => {
+                                                     e.stopPropagation();
+                                                     handleCloseStagePopup();
+                                                   }}
                                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                                  >
                                                    <X className="w-4 h-4" />
@@ -703,9 +712,9 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              </div>
                                              
-                                             {editingStage === selectedStage.id ? (
+                                             {editingStage === stage.id ? (
                                                <div className="space-y-3">
-                                                 {selectedStage.completed && (
+                                                 {stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Date</label>
                                                      <input
@@ -716,7 +725,7 @@ const PurposeDetail: React.FC = () => {
                                                      />
                                                    </div>
                                                  )}
-                                                 {!selectedStage.completed && (
+                                                 {!stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Date</label>
                                                      <input
@@ -739,17 +748,18 @@ const PurposeDetail: React.FC = () => {
                                                  </div>
                                                  <div className="flex space-x-2">
                                                    <button
-                                                     onClick={() => {
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
                                                        // For incomplete stages, set date to today
-                                                       const finalDate = selectedStage.completed 
+                                                       const finalDate = stage.completed 
                                                          ? editForm.date 
                                                          : new Date().toISOString().split('T')[0];
                                                        
                                                        // Here you would typically save to backend
-                                                       console.log(`Saving stage ${selectedStage.id}:`, {
+                                                       console.log(`Saving stage ${stage.id}:`, {
                                                          date: finalDate,
                                                          id: editForm.text,
-                                                         completed: !selectedStage.completed || selectedStage.completed
+                                                         completed: !stage.completed || stage.completed
                                                        });
                                                        
                                                        setEditingStage(null);
@@ -761,7 +771,10 @@ const PurposeDetail: React.FC = () => {
                                                      Save
                                                    </button>
                                                    <button
-                                                     onClick={handleEditCancel}
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
+                                                       handleEditCancel();
+                                                     }}
                                                      className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
                                                    >
                                                      <X className="w-3 h-3 mr-1" />
@@ -773,14 +786,17 @@ const PurposeDetail: React.FC = () => {
                                                <div className="space-y-3">
                                                  <div className="flex items-center text-sm text-gray-600">
                                                    <Calendar className="w-3 h-3 mr-1" />
-                                                   {formatDateForTimeline(selectedStage.date)}
+                                                   {formatDateForTimeline(stage.date)}
                                                  </div>
                                                  <p className="text-xs text-gray-500 leading-relaxed">
-                                                   {selectedStage.itemId}
+                                                   {stage.itemId}
                                                  </p>
                                                  <div className="flex space-x-2">
                                                    <button
-                                                     onClick={() => handleEditStart(selectedStage.id, selectedStage.date, selectedStage.itemId)}
+                                                     onClick={(e) => {
+                                                       e.stopPropagation();
+                                                       handleEditStart(stage.id, stage.date, stage.itemId);
+                                                     }}
                                                      className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
                                                    >
                                                      <Edit2 className="w-3 h-3 mr-1" />
@@ -790,9 +806,9 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              )}
                                            </div>
-                                         </div>
-                                       </>
-                                     )}
+                                         )}
+                                       </div>
+                                     </div>
                                    </div>
                                  );
                                })}
