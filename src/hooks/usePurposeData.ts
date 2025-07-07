@@ -59,20 +59,29 @@ export const usePurposeData = (
       };
     }
 
-    const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
-
-    // Update the previous pagination values when we have fresh data
-    previousPaginationRef.current = {
-      totalPages: transformed.pages,
-      totalCount: transformed.total
-    };
-    
-    return {
-      purposes: transformed.purposes,
-      filteredPurposes: transformed.purposes, // No client-side filtering needed
-      totalPages: transformed.pages,
-      totalCount: transformed.total
-    };
+    try {
+      const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+      
+      // Update the previous pagination values when we have fresh data
+      previousPaginationRef.current = {
+        totalPages: transformed.pages,
+        totalCount: transformed.total
+      };
+      
+      return {
+        purposes: transformed.purposes,
+        filteredPurposes: transformed.purposes, // No client-side filtering needed
+        totalPages: transformed.pages,
+        totalCount: transformed.total
+      };
+    } catch (transformError) {
+      return {
+        purposes: [],
+        filteredPurposes: [],
+        totalPages: 0,
+        totalCount: 0
+      };
+    }
   }, [apiResponse, hierarchies, isLoading]);
 
   // Calculate dashboard statistics from current purposes

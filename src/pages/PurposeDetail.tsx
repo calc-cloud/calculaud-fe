@@ -59,7 +59,6 @@ const PurposeDetail: React.FC = () => {
         setPurpose(transformedPurpose);
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to load purpose';
-        console.error('Failed to load purpose:', err);
         setError(errorMessage);
         setPurpose(null);
         toast({
@@ -154,7 +153,6 @@ const PurposeDetail: React.FC = () => {
       setSelectedPurpose(null);
     } catch (error) {
       // Error handling is done in the mutation
-      console.error('Failed to update purpose:', error);
     }
   };
 
@@ -544,11 +542,6 @@ const PurposeDetail: React.FC = () => {
                                                          : new Date().toISOString().split('T')[0];
                                                        
                                                        // Here you would typically save to backend
-                                                       console.log(`Saving stage ${stage.id}:`, {
-                                                         date: finalDate,
-                                                         id: editForm.text,
-                                                         completed: !stage.completed || stage.completed
-                                                       });
                                                        
                                                        setEditingStage(null);
                                                        setEditForm({ date: '', text: '' });
@@ -756,11 +749,6 @@ const PurposeDetail: React.FC = () => {
                                                          : new Date().toISOString().split('T')[0];
                                                        
                                                        // Here you would typically save to backend
-                                                       console.log(`Saving stage ${stage.id}:`, {
-                                                         date: finalDate,
-                                                         id: editForm.text,
-                                                         completed: !stage.completed || stage.completed
-                                                       });
                                                        
                                                        setEditingStage(null);
                                                        setEditForm({ date: '', text: '' });

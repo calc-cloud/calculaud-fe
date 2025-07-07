@@ -389,50 +389,97 @@ class PurposeService {
     };
   }
 
-  transformApiResponse(apiData: PurposeApiResponse, hierarchies: any[]): {
+  transformApiResponse(apiData: any, hierarchies: any[]): {
     purposes: any[];
     total: number;
     page: number;
     pages: number;
   } {
-    const transformedPurposes = apiData.items.map(purpose => ({
-      id: purpose.id.toString(),
-      description: purpose.description,
-      contents: purpose.contents || [], // Changed from content to contents
-      supplier: purpose.supplier,
-      hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
-      hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',
-      status: this.mapApiStatusToFrontend(purpose.status),
-      expected_delivery: purpose.expected_delivery,
-      comments: purpose.comments || '',
-      service_type: purpose.service_type,
-      creation_time: purpose.creation_time,
-      last_modified: purpose.last_modified,
-      emfs: purpose.emfs.map(emf => ({
-        id: emf.emf_id,
-        purpose_id: purpose.id.toString(),
-        creation_date: emf.creation_date, // Use creation_date from API
-        demand_id: emf.demand_id || undefined,
-        demand_creation_date: emf.demand_creation_date || undefined,
-        order_id: emf.order_id || undefined,
-        order_creation_date: emf.order_creation_date || undefined,
-        bikushit_id: emf.bikushit_id || undefined,
-        bikushit_creation_date: emf.bikushit_creation_date || undefined,
-        costs: emf.costs.map(cost => ({
-          id: cost.id.toString(),
-          emf_id: emf.emf_id,
-          amount: cost.amount,
-          currency: this.mapApiCurrencyToFrontend(cost.currency)
-        }))
-      })),
-      files: [] // API doesn't return files yet
-    }));
+    // Handle case where apiData is null/undefined
+    if (!apiData) {
+      return {
+        purposes: [],
+        total: 0,
+        page: 1,
+        pages: 1
+      };
+    }
+
+    // Handle different possible response formats
+    let items = apiData.items || apiData.data || [];
+    let total = apiData.total || 0;
+    let page = apiData.page || 1;
+    let pages = apiData.pages || apiData.total_pages || 1;
+
+    // Check if items is an array
+    if (!Array.isArray(items)) {
+      return {
+        purposes: [],
+        total: 0,
+        page: 1,
+        pages: 1
+      };
+    }
+
+    const transformedPurposes = items.map(purpose => {
+      try {
+        return {
+          id: purpose.id?.toString() || '',
+          description: purpose.description || '',
+          contents: purpose.contents || purpose.content || [], // Support both field names
+          supplier: purpose.supplier || '',
+          hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
+          hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',
+          status: this.mapApiStatusToFrontend(purpose.status || ''),
+          expected_delivery: purpose.expected_delivery || '',
+          comments: purpose.comments || '',
+          service_type: purpose.service_type || '',
+          creation_time: purpose.creation_time || '',
+          last_modified: purpose.last_modified || '',
+          emfs: (purpose.emfs || []).map(emf => ({
+            id: emf.emf_id || '',
+            purpose_id: purpose.id?.toString() || '',
+            creation_date: emf.creation_date || emf.creation_time || '', // Support both field names
+            demand_id: emf.demand_id || undefined,
+            demand_creation_date: emf.demand_creation_date || undefined,
+            order_id: emf.order_id || undefined,
+            order_creation_date: emf.order_creation_date || undefined,
+            bikushit_id: emf.bikushit_id || undefined,
+            bikushit_creation_date: emf.bikushit_creation_date || undefined,
+            costs: (emf.costs || []).map(cost => ({
+              id: cost.id?.toString() || '',
+              emf_id: emf.emf_id || '',
+              amount: cost.amount || 0,
+              currency: this.mapApiCurrencyToFrontend(cost.currency || '')
+            }))
+          })),
+          files: [] // API doesn't return files yet
+        };
+      } catch (error) {
+        return {
+          id: purpose.id?.toString() || '',
+          description: 'Error loading purpose',
+          contents: [],
+          supplier: '',
+          hierarchy_id: '',
+          hierarchy_name: '',
+          status: '',
+          expected_delivery: '',
+          comments: '',
+          service_type: '',
+          creation_time: '',
+          last_modified: '',
+          emfs: [],
+          files: []
+        };
+      }
+    });
 
     return {
       purposes: transformedPurposes,
-      total: apiData.total,
-      page: apiData.page,
-      pages: apiData.pages
+      total,
+      page,
+      pages
     };
   }
 

@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         await navigator.clipboard.writeText(token);
         // You could add a toast notification here
       } catch (err) {
-        console.error('Failed to copy token:', err);
+        // Failed to copy token silently
       }
     }
   };
