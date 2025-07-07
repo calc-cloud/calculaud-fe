@@ -162,7 +162,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <div className="flex-1 ml-2">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">{node.fullPath}</span>
+                <span className="text-sm font-medium text-gray-900">{node.name}</span>
               </div>
               <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
                 {node.type.toLowerCase()}

@@ -13,7 +13,7 @@ export interface Purpose {
   service_type: ServiceType;
   creation_time: string;
   last_modified: string;
-  emfs: EMF[];
+  purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
 }
 
@@ -30,25 +30,42 @@ export interface PurposeContent {
   quantity: number;
 }
 
-export interface EMF {
+// New Purchase workflow types
+export interface Purchase {
   id: string;
   purpose_id: string;
-  creation_date: string; // Changed from creation_time to creation_date
-  demand_id?: string;
-  demand_creation_date?: string;
-  order_id?: string;
-  order_creation_date?: string;
-  bikushit_id?: string;
-  bikushit_creation_date?: string;
-  costs: EMFCost[];
+  creation_date: string;
+  costs: Cost[];
+  flow_stages: Stage[];
 }
 
-export interface EMFCost {
+export interface Stage {
   id: string;
-  emf_id: string;
+  purchase_id: string;
+  stage_type_id: string;
+  priority: number;
+  value: string | null;
+  completion_date: string | null;
+  stage_type: StageType;
+}
+
+export interface StageType {
+  id: string;
+  name: string;
+  value_required: boolean;
+}
+
+export interface Cost {
+  id: string;
+  purchase_id: string; // Changed from emf_id to purchase_id
   amount: number;
   currency: Currency;
+  cost_type: CostType;
 }
+
+export type CostType = 'SUPPORT' | 'AVAILABLE';
+
+
 
 export interface PurposeFile {
   id: string;

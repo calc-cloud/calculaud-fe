@@ -90,8 +90,8 @@ export const usePurposeData = (
     const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
     const completed = purposes.filter(p => p.status === 'COMPLETED').length;
     const totalCost = purposes.reduce((sum, purpose) => {
-      const purposeCost = purpose.emfs.reduce((emfSum, emf) => 
-        emfSum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
+      const purposeCost = purpose.purchases.reduce((purchaseSum, purchase) => 
+        purchaseSum + purchase.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
       );
       return sum + purposeCost;
     }, 0);

@@ -157,6 +157,37 @@ const PurposeDetail: React.FC = () => {
   };
 
   // Timeline utility functions
+  const convertPurchaseToStages = (purchase: any) => {
+    // Sort stages by priority and convert to timeline format
+    const stages = (purchase.flow_stages || [])
+      .sort((a: any, b: any) => a.priority - b.priority)
+      .map((stage: any) => ({
+        id: stage.id,
+        name: stage.stage_type.name,
+        completed: !!stage.completion_date,
+        date: stage.completion_date || purchase.creation_date,
+        itemId: stage.value || 'Pending',
+        priority: stage.priority,
+        stage_type: stage.stage_type
+      }));
+    
+    // If no stages exist, create a basic creation stage
+    if (stages.length === 0) {
+      return [{
+        id: `${purchase.id}-creation`,
+        name: 'Created',
+        completed: true,
+        date: purchase.creation_date,
+        itemId: `Purchase #${purchase.id}`,
+        priority: 1,
+        stage_type: { name: 'creation', value_required: false }
+      }];
+    }
+    
+    return stages;
+  };
+
+
 
   const handleStageClick = (stage: any, stageIndex: number, allStages: any[]) => {
     const position = calculateStagePosition(allStages, stageIndex);
@@ -189,42 +220,6 @@ const PurposeDetail: React.FC = () => {
       month: '2-digit',
       year: '2-digit'
     });
-  };
-
-  const convertEmfToStages = (emf: any) => {
-    const stages = [
-      {
-        id: `${emf.id}-emf`,
-        name: 'EMF',
-        completed: true,
-        date: emf.creation_date,
-        itemId: emf.id
-      },
-      {
-        id: `${emf.id}-bikushit`,
-        name: 'Bikushit',
-        completed: !!emf.bikushit_creation_date,
-        date: emf.bikushit_creation_date || emf.creation_date,
-        itemId: emf.bikushit_id || 'Pending'
-      },
-      {
-        id: `${emf.id}-demand`,
-        name: 'Demand',
-        completed: !!emf.demand_creation_date,
-        date: emf.demand_creation_date || emf.creation_date,
-        itemId: emf.demand_id || 'Pending'
-      },
-      {
-        id: `${emf.id}-order`,
-        name: 'Order',
-        completed: !!emf.order_creation_date,
-        date: emf.order_creation_date || emf.creation_date,
-        itemId: emf.order_id || 'Pending'
-      }
-    ];
-    
-    // Keep stages in logical order: EMF -> Bikushit -> Demand -> Order
-    return stages;
   };
 
   const calculateStagePosition = (stages: any[], stageIndex: number) => {
@@ -409,24 +404,24 @@ const PurposeDetail: React.FC = () => {
               <CardTitle className="text-lg font-semibold">Purchases</CardTitle>
             </CardHeader>
             <CardContent>
-              {purpose.emfs.length > 0 ? (
+              {purpose.purchases.length > 0 ? (
                 <div className="space-y-8">
-                  {purpose.emfs.map((emf, emfIndex) => {
-                    const stages = convertEmfToStages(emf);
+                  {purpose.purchases.map((purchase, purchaseIndex) => {
+                    const stages = convertPurchaseToStages(purchase);
                     
-                    return (
-                      <div key={emf.id}>
-                        <div className="bg-gray-50 rounded-lg p-6">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">{emf.id}</h3>
-                        <div className="text-xs text-gray-500">
-                          Created: {formatDate(emf.creation_date)}
+                                          return (
+                        <div key={purchase.id}>
+                          <div className="bg-gray-50 rounded-lg p-6">
+                            <div className="flex items-center justify-between mb-4">
+                              <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
+                          <div className="text-xs text-gray-500">
+                            Created: {formatDate(purchase.creation_date)}
+                          </div>
                         </div>
-                      </div>
                       
                                                                                                                                                            <div className="relative">
                            {/* Timeline Container with dedicated areas */}
-                           <div className="relative px-4" id={`timeline-${emf.id}`}>
+                           <div className="relative px-4" id={`timeline-${purchase.id}`}>
                              
                              {/* Above Timeline Area */}
                              <div className="relative h-20 mb-4">
@@ -801,17 +796,17 @@ const PurposeDetail: React.FC = () => {
                           <div className="mt-6">
                             <h5 className="text-sm font-medium mb-2">Cost</h5>
                         <div className="flex flex-wrap gap-1">
-                          {emf.costs.map((cost) => (
+                          {purchase.costs.map((cost) => (
                             <Badge key={cost.id} variant="outline" className="text-xs">
-                              ${cost.amount.toLocaleString()} {cost.currency.replace('_', ' ')}
+                              ${cost.amount.toLocaleString()} {cost.currency} ({cost.cost_type})
                             </Badge>
                           ))}
                         </div>
                       </div>
                     </div>
                         
-                        {/* Add separator between EMFs, but not after the last one */}
-                        {emfIndex < purpose.emfs.length - 1 && (
+                        {/* Add separator between purchases, but not after the last one */}
+                        {purchaseIndex < purpose.purchases.length - 1 && (
                           <div className="mt-6">
                             <Separator />
                           </div>
@@ -822,10 +817,10 @@ const PurposeDetail: React.FC = () => {
                 </div>
               ) : (
                 <div className="text-center py-6">
-                  <p className="text-gray-500 mb-3 text-sm">No purchases or EMFs yet</p>
+                  <p className="text-gray-500 mb-3 text-sm">No purchases yet</p>
                   <Button variant="outline" size="sm">
                     <Plus className="mr-2 h-3 w-3" />
-                    Add First EMF
+                    Add First Purchase
                   </Button>
                 </div>
               )}

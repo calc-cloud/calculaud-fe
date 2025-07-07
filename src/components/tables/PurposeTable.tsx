@@ -25,12 +25,13 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
     
-    purpose.emfs.forEach(emf => {
-      emf.costs.forEach(cost => {
-        if (!costsByCurrency[cost.currency]) {
-          costsByCurrency[cost.currency] = 0;
+    purpose.purchases.forEach(purchase => {
+      purchase.costs.forEach(cost => {
+        const key = `${cost.currency}_${cost.cost_type}`;
+        if (!costsByCurrency[key]) {
+          costsByCurrency[key] = 0;
         }
-        costsByCurrency[cost.currency] += cost.amount;
+        costsByCurrency[key] += cost.amount;
       });
     });
 
@@ -41,8 +42,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 
     const getCurrencySymbol = (currency: string) => {
       switch (currency) {
-        case 'SUPPORT_USD':
-        case 'AVAILABLE_USD':
+        case 'USD':
           return '$';
         case 'ILS':
           return '₪';
@@ -52,11 +52,17 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
 
     const costStrings = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${getCurrencySymbol(currency)}${formatAmount(amount)}`
+      ([key, amount]) => {
+        const [currency, costType] = key.split('_');
+        return `${getCurrencySymbol(currency)}${formatAmount(amount)} (${costType})`;
+      }
     );
 
     const costDetails = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${formatAmount(amount)} ${CURRENCY_DISPLAY_NAMES[currency as keyof typeof CURRENCY_DISPLAY_NAMES] || currency}`
+      ([key, amount]) => {
+        const [currency, costType] = key.split('_');
+        return `${formatAmount(amount)} ${currency} (${costType})`;
+      }
     );
 
     const allCosts = costStrings.join(', ') || '0';
@@ -68,8 +74,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
   };
 
-  const getEMFIds = (purpose: Purpose) => {
-    const ids = purpose.emfs.map(emf => emf.id);
+  const getPurchaseIds = (purpose: Purpose) => {
+    const ids = purpose.purchases.map(purchase => purchase.id);
     return {
       ids: ids,
       allIds: ids.join(', ') || 'None'
@@ -178,7 +184,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             <TableHead className="text-center">Hierarchy</TableHead>
             <TableHead className="text-center">Service Type</TableHead>
             <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">EMF IDs</TableHead>
+            <TableHead className="text-center">Purchase IDs</TableHead>
             <TableHead className="text-center">Total Cost</TableHead>
             <TableHead className="text-center">Expected Delivery</TableHead>
             <TableHead className="text-center">
@@ -192,7 +198,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <TableBody>
           {purposes.map((purpose) => {
             const totalCost = getTotalCostWithCurrencies(purpose);
-            const emfIds = getEMFIds(purpose);
+            const purchaseIds = getPurchaseIds(purpose);
             const hierarchyInfo = getHierarchyInfo(purpose);
             const contentsInfo = getContentsDisplay(purpose);
             return (
@@ -270,8 +276,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex flex-col gap-0.5 items-center">
-                        {emfIds.ids.length > 0 ? (
-                          emfIds.ids.slice(0, 2).map((id, index) => (
+                        {purchaseIds.ids.length > 0 ? (
+                          purchaseIds.ids.slice(0, 2).map((id, index) => (
                             <div key={index} className="text-sm truncate">
                               {id}
                             </div>
@@ -279,15 +285,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         ) : (
                           <div className="text-sm text-muted-foreground">None</div>
                         )}
-                        {emfIds.ids.length > 2 && (
+                        {purchaseIds.ids.length > 2 && (
                           <div className="text-xs text-muted-foreground">
-                            +{emfIds.ids.length - 2} more
+                            +{purchaseIds.ids.length - 2} more
                           </div>
                         )}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{emfIds.allIds}</p>
+                      <p>{purchaseIds.allIds}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
