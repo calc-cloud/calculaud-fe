@@ -288,6 +288,7 @@ const PurposeDetail: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
             <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
           </div>
+          <Badge variant={statusDisplay.variant}>{statusDisplay.label}</Badge>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -355,19 +356,11 @@ const PurposeDetail: React.FC = () => {
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 col-span-2">
                   <Calendar className="h-4 w-4 text-gray-500" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Expected Delivery</p>
                     <p className="text-sm text-gray-600">{formatDate(purpose.expected_delivery)}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Activity className="h-4 w-4 text-gray-500" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Status</p>
-                    <Badge variant={statusDisplay.variant}>{statusDisplay.label}</Badge>
                   </div>
                 </div>
                 
