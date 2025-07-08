@@ -158,28 +158,30 @@ const PurposeDetail: React.FC = () => {
 
   // Timeline utility functions
   const convertPurchaseToStages = (purchase: any) => {
-    // Sort stages by priority and convert to timeline format
+    // Keep stages in the order from API response (no sorting by priority or dates)
+    // Flatten nested arrays of stages - treat array items as independent stages
     const stages = (purchase.flow_stages || [])
-      .sort((a: any, b: any) => a.priority - b.priority)
+      .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
+      .filter((stage: any) => stage && stage.stage_type && (stage.stage_type.display_name || stage.stage_type.name)) // Filter out invalid stages
       .map((stage: any) => ({
         id: stage.id,
-        name: stage.stage_type.name,
+        name: stage.stage_type.display_name || stage.stage_type.name, // Using display_name from API response
         completed: !!stage.completion_date,
-        date: stage.completion_date || purchase.creation_date,
-        itemId: stage.value || 'Pending',
+        date: stage.completion_date, // Only show completion date, no fallback to creation date
+        value: stage.value || 'Pending',
         priority: stage.priority,
         stage_type: stage.stage_type
       }));
     
-    // If no stages exist, create a basic creation stage
+    // Only create a basic creation stage if there are truly no flow stages
     if (stages.length === 0) {
       return [{
         id: `${purchase.id}-creation`,
         name: 'Created',
         completed: true,
         date: purchase.creation_date,
-        itemId: `Purchase #${purchase.id}`,
-        priority: 1,
+        value: `Purchase #${purchase.id}`,
+        priority: 0, // Changed from 1 to 0 to ensure it comes before any actual stages
         stage_type: { name: 'creation', value_required: false }
       }];
     }
@@ -196,9 +198,9 @@ const PurposeDetail: React.FC = () => {
     setSelectedStagePosition({ x: position, isAbove });
   };
 
-  const handleEditStart = (stageId: string, date: string, itemId: string) => {
+  const handleEditStart = (stageId: string, date: string, value: string) => {
     setEditingStage(stageId);
-    setEditForm({ date, text: itemId });
+    setEditForm({ date, text: value });
   };
 
   const handleEditCancel = () => {
@@ -222,12 +224,54 @@ const PurposeDetail: React.FC = () => {
     });
   };
 
+  const getDaysSinceLastCompletion = (stages: any[], currentIndex: number) => {
+    // Find the last completed stage before this one
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      if (stages[i].completed && stages[i].date) {
+        const lastCompletionDate = new Date(stages[i].date);
+        const today = new Date();
+        const diffTime = Math.abs(today.getTime() - lastCompletionDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+    }
+    return null;
+  };
+
+  const getStageDisplayDate = (stage: any, stages: any[], index: number) => {
+    if (stage.completed && stage.date) {
+      return formatDateForTimeline(stage.date);
+    }
+    
+    // Only show days counter for the immediate next stage after the last completed stage
+    if (!stage.completed) {
+      // Find the last completed stage index
+      let lastCompletedIndex = -1;
+      for (let i = stages.length - 1; i >= 0; i--) {
+        if (stages[i].completed && stages[i].date) {
+          lastCompletedIndex = i;
+          break;
+        }
+      }
+      
+      // Only show counter if this is the immediate next stage after the last completed one
+      if (lastCompletedIndex !== -1 && index === lastCompletedIndex + 1) {
+        const daysSince = getDaysSinceLastCompletion(stages, index);
+        if (daysSince !== null) {
+          return `${daysSince} days since last completion`;
+        }
+      }
+    }
+    
+    return ''; // No text for other incomplete stages
+  };
+
   const calculateStagePosition = (stages: any[], stageIndex: number) => {
     if (stages.length <= 1) return 50; // Center if only one stage
     
     // Distribute stages evenly across the timeline
-    // Add some padding (10% on each side) to prevent stages from touching the edges
-    const padding = 10;
+    // Use minimal padding (5% on each side) to maximize use of available space
+    const padding = 5;
     const availableWidth = 100 - (padding * 2);
     const position = padding + (stageIndex / (stages.length - 1)) * availableWidth;
     
@@ -424,7 +468,7 @@ const PurposeDetail: React.FC = () => {
                            <div className="relative px-4" id={`timeline-${purchase.id}`}>
                              
                              {/* Above Timeline Area */}
-                             <div className="relative h-20 mb-4">
+                             <div className="relative h-28 mb-6">
                                {stages.map((stage, index) => {
                                  const position = calculateStagePosition(stages, index);
                                  const isAboveTimeline = index % 2 === 0;
@@ -440,26 +484,34 @@ const PurposeDetail: React.FC = () => {
                                         className="absolute bottom-0 flex flex-col items-center"
                                         style={{
                                           left: `${position}%`,
-                                          transform: 'translateX(-50%)'
+                                          transform: 'translateX(-50%)',
+                                          zIndex: isExpanded ? 50 : 10
                                         }}
                                       >
-                                        <div 
-                                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
-                                            isExpanded 
-                                              ? 'w-64 p-4 shadow-xl hover:shadow-2xl' 
-                                              : 'w-24 p-2 hover:shadow-md'
-                                          }`}
-                                         onClick={() => handleStageClick(stage, index, stages)}
-                                       >
-                                         {/* Collapsed Content */}
-                                         {!isExpanded && (
-                                           <div className="text-center">
-                                             <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
-                                             <div className="text-xs text-gray-500">
-                                               {formatDateForTimeline(stage.date)}
-                                             </div>
-                                           </div>
-                                         )}
+                                                                <div 
+                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
+                            isExpanded 
+                              ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50' 
+                              : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10'
+                          }`}
+                         onClick={() => handleStageClick(stage, index, stages)}
+                       >
+                         {/* Collapsed Content */}
+                         {!isExpanded && (
+                           <div className="text-center">
+                             <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                               <div className="text-xs text-blue-600 font-medium mb-1 break-words">
+                                 {stage.value}
+                               </div>
+                             )}
+                             {getStageDisplayDate(stage, stages, index) && (
+                               <div className="text-xs text-gray-500">
+                                 {getStageDisplayDate(stage, stages, index)}
+                               </div>
+                             )}
+                           </div>
+                         )}
                                          
                                          {/* Expanded Content */}
                                          {isExpanded && (
@@ -512,7 +564,7 @@ const PurposeDetail: React.FC = () => {
                                                    </div>
                                                  )}
                                                  <div>
-                                                   <label className="text-xs text-gray-500 mb-1 block">ID</label>
+                                                   <label className="text-xs text-gray-500 mb-1 block">Value</label>
                                                    <input
                                                      type="text"
                                                      value={editForm.text}
@@ -553,18 +605,22 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              ) : (
                                                <div className="space-y-3">
-                                                 <div className="flex items-center text-sm text-gray-600">
-                                                   <Calendar className="w-3 h-3 mr-1" />
-                                                   {formatDateForTimeline(stage.date)}
-                                                 </div>
-                                                 <p className="text-xs text-gray-500 leading-relaxed">
-                                                   {stage.itemId}
-                                                 </p>
+                                                 {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                                                   <div className="text-sm text-blue-600 font-medium">
+                                                     {stage.value}
+                                                   </div>
+                                                 )}
+                                                 {stage.completed && stage.date && (
+                                                   <div className="flex items-center text-sm text-gray-600">
+                                                     <Calendar className="w-3 h-3 mr-1" />
+                                                     {formatDateForTimeline(stage.date)}
+                                                   </div>
+                                                 )}
                                                  <div className="flex space-x-2">
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
-                                                       handleEditStart(stage.id, stage.date, stage.itemId);
+                                                       handleEditStart(stage.id, stage.date, stage.value);
                                                      }}
                                                      className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
                                                    >
@@ -619,8 +675,8 @@ const PurposeDetail: React.FC = () => {
                                          left: '50%',
                                          transform: 'translateX(-50%)',
                                          ...(isAboveTimeline 
-                                           ? { bottom: '0.5rem', height: '1.125rem' }
-                                           : { top: '0.5rem', height: '1.125rem' }
+                                           ? { bottom: '0.5rem', height: '1.5rem' }
+                                           : { top: '0.5rem', height: '1.5rem' }
                                          )
                                        }}
                                      />
@@ -643,7 +699,7 @@ const PurposeDetail: React.FC = () => {
                              </div>
                              
                              {/* Below Timeline Area */}
-                             <div className="relative h-20 mt-4">
+                             <div className="relative h-28 mt-6">
                                {stages.map((stage, index) => {
                                  const position = calculateStagePosition(stages, index);
                                  const isAboveTimeline = index % 2 === 0;
@@ -659,26 +715,34 @@ const PurposeDetail: React.FC = () => {
                                         className="absolute top-0 flex flex-col items-center"
                                         style={{
                                           left: `${position}%`,
-                                          transform: 'translateX(-50%)'
+                                          transform: 'translateX(-50%)',
+                                          zIndex: isExpanded ? 50 : 10
                                         }}
                                       >
-                                        <div 
-                                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
-                                            isExpanded 
-                                              ? 'w-60 p-4 shadow-xl hover:shadow-2xl' 
-                                              : 'w-24 p-2 hover:shadow-md'
-                                          }`}
-                                         onClick={() => handleStageClick(stage, index, stages)}
-                                       >
-                                         {/* Collapsed Content */}
-                                         {!isExpanded && (
-                                           <div className="text-center">
-                                             <h4 className="font-medium text-gray-800 text-xs mb-1 truncate">{stage.name}</h4>
-                                             <div className="text-xs text-gray-500">
-                                               {formatDateForTimeline(stage.date)}
-                                             </div>
-                                           </div>
-                                         )}
+                                                                <div 
+                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
+                            isExpanded 
+                              ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50' 
+                              : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10'
+                          }`}
+                         onClick={() => handleStageClick(stage, index, stages)}
+                       >
+                         {/* Collapsed Content */}
+                         {!isExpanded && (
+                           <div className="text-center">
+                             <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                               <div className="text-xs text-blue-600 font-medium mb-1 break-words">
+                                 {stage.value}
+                               </div>
+                             )}
+                             {getStageDisplayDate(stage, stages, index) && (
+                               <div className="text-xs text-gray-500">
+                                 {getStageDisplayDate(stage, stages, index)}
+                               </div>
+                             )}
+                           </div>
+                         )}
                                          
                                          {/* Expanded Content */}
                                          {isExpanded && (
@@ -731,7 +795,7 @@ const PurposeDetail: React.FC = () => {
                                                    </div>
                                                  )}
                                                  <div>
-                                                   <label className="text-xs text-gray-500 mb-1 block">ID</label>
+                                                   <label className="text-xs text-gray-500 mb-1 block">Value</label>
                                                    <input
                                                      type="text"
                                                      value={editForm.text}
@@ -772,18 +836,22 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              ) : (
                                                <div className="space-y-3">
-                                                 <div className="flex items-center text-sm text-gray-600">
-                                                   <Calendar className="w-3 h-3 mr-1" />
-                                                   {formatDateForTimeline(stage.date)}
-                                                 </div>
-                                                 <p className="text-xs text-gray-500 leading-relaxed">
-                                                   {stage.itemId}
-                                                 </p>
+                                                 {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                                                   <div className="text-sm text-blue-600 font-medium">
+                                                     {stage.value}
+                                                   </div>
+                                                 )}
+                                                 {stage.completed && stage.date && (
+                                                   <div className="flex items-center text-sm text-gray-600">
+                                                     <Calendar className="w-3 h-3 mr-1" />
+                                                     {formatDateForTimeline(stage.date)}
+                                                   </div>
+                                                 )}
                                                  <div className="flex space-x-2">
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
-                                                       handleEditStart(stage.id, stage.date, stage.itemId);
+                                                       handleEditStart(stage.id, stage.date, stage.value);
                                                      }}
                                                      className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
                                                    >

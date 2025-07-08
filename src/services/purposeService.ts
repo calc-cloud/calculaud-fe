@@ -390,15 +390,17 @@ class PurposeService {
           amount: cost.amount || 0,
           currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
         })),
-        flow_stages: (purchase.flow_stages || []).map(stage => ({
-          id: stage.id?.toString() || '',
-          purchase_id: purchase.id?.toString() || '',
-          stage_type_id: stage.stage_type_id || 0,
-          priority: stage.priority || 0,
-          value: stage.value || null,
-          completion_date: stage.completion_date || null,
-          stage_type: stage.stage_type || { id: '', name: '', value_required: false }
-        })),
+        flow_stages: (purchase.flow_stages || [])
+          .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
+          .map((stage: any) => ({
+            id: stage.id?.toString() || '',
+            purchase_id: purchase.id?.toString() || '',
+            stage_type_id: stage.stage_type_id || 0,
+            priority: stage.priority || 0,
+            value: stage.value || null,
+            completion_date: stage.completion_date || null,
+            stage_type: stage.stage_type || { id: '', name: '', value_required: false }
+          })),
         files: [] // Files would come from a separate endpoint
       })),
       files: [] // Files would come from a separate endpoint
@@ -462,15 +464,17 @@ class PurposeService {
               amount: cost.amount || 0,
               currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
             })),
-            flow_stages: (purchase.flow_stages || []).map(stage => ({
-              id: stage.id?.toString() || '',
-              purchase_id: purchase.id?.toString() || '',
-              stage_type_id: stage.stage_type_id || 0,
-              priority: stage.priority || 0,
-              value: stage.value || null,
-              completion_date: stage.completion_date || null,
-              stage_type: stage.stage_type || { id: '', name: '', value_required: false }
-            })),
+            flow_stages: (purchase.flow_stages || [])
+              .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
+              .map((stage: any) => ({
+                id: stage.id?.toString() || '',
+                purchase_id: purchase.id?.toString() || '',
+                stage_type_id: stage.stage_type_id || 0,
+                priority: stage.priority || 0,
+                value: stage.value || null,
+                completion_date: stage.completion_date || null,
+                stage_type: stage.stage_type || { id: '', name: '', value_required: false }
+              })),
             files: [] // API doesn't return files yet
           })),
           files: [] // API doesn't return files yet
