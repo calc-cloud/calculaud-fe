@@ -82,25 +82,7 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     }
   };
 
-  const addStage = (purchaseIndex: number) => {
-    const newStage: Stage = {
-      id: `stage-${Date.now()}`,
-      purchase_id: purchases[purchaseIndex].id,
-      stage_type_id: '1',
-      priority: purchases[purchaseIndex].flow_stages.length + 1,
-      value: null,
-      completion_date: null,
-      stage_type: {
-        id: '1',
-        name: 'emf_id',
-        value_required: true
-      }
-    };
-    
-    updatePurchase(purchaseIndex, {
-      flow_stages: [...(purchases[purchaseIndex]?.flow_stages || []), newStage]
-    });
-  };
+
 
   const updateStage = (purchaseIndex: number, stageId: string, updates: Partial<Stage>) => {
     const purchase = purchases[purchaseIndex];
@@ -113,14 +95,7 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     }
   };
 
-  const deleteStage = (purchaseIndex: number, stageId: string) => {
-    const purchase = purchases[purchaseIndex];
-    if (purchase) {
-      updatePurchase(purchaseIndex, {
-        flow_stages: purchase.flow_stages.filter(stage => stage.id !== stageId)
-      });
-    }
-  };
+
 
   const getTotalCostWithCurrencies = (purchase: Purchase) => {
     const costsByCurrency: { [key: string]: number } = {};
@@ -262,12 +237,6 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Workflow Stages</Label>
-                    {!isReadOnly && (
-                      <Button onClick={() => addStage(index)} size="sm" variant="outline">
-                        <Plus className="h-3 w-3 mr-1" />
-                        Add Stage
-                      </Button>
-                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -289,12 +258,14 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
                           </div>
                           {!isReadOnly && (
                             <div className="flex items-center gap-2">
-                              <Input
-                                placeholder="Stage value"
-                                value={stage.value || ''}
-                                onChange={(e) => updateStage(index, stage.id, { value: e.target.value })}
-                                className="w-32"
-                              />
+                              {stage.stage_type.value_required && (
+                                <Input
+                                  placeholder="Stage value"
+                                  value={stage.value || ''}
+                                  onChange={(e) => updateStage(index, stage.id, { value: e.target.value })}
+                                  className="w-32"
+                                />
+                              )}
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -303,13 +274,6 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
                                 })}
                               >
                                 {stage.completion_date ? 'Mark Incomplete' : 'Mark Complete'}
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => deleteStage(index, stage.id)}
-                              >
-                                <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
                           )}

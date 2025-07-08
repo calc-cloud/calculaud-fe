@@ -301,29 +301,29 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   </Tooltip>
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex flex-col gap-0.5 items-center">
-                        {emfIds.ids.length > 0 ? (
-                          emfIds.ids.slice(0, 2).map((id, index) => (
+                  {emfIds.ids.length > 0 ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col gap-0.5 items-center">
+                          {emfIds.ids.slice(0, 2).map((id, index) => (
                             <div key={index} className="text-sm truncate">
                               {id}
                             </div>
-                          ))
-                        ) : (
-                          <div className="text-sm text-muted-foreground">-</div>
-                        )}
-                        {emfIds.ids.length > 2 && (
-                          <div className="text-xs text-muted-foreground">
-                            +{emfIds.ids.length - 2} more
-                          </div>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{emfIds.allIds}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                          ))}
+                          {emfIds.ids.length > 2 && (
+                            <div className="text-xs text-muted-foreground">
+                              +{emfIds.ids.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{emfIds.allIds}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">-</div>
+                  )}
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
                   <Tooltip>

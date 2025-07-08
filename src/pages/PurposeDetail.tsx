@@ -228,16 +228,28 @@ const PurposeDetail: React.FC = () => {
     const isAbove = stageIndex % 2 === 0;
     setSelectedStage(stage);
     setSelectedStagePosition({ x: position, isAbove });
+    // Automatically start editing when clicking on a stage
+    handleEditStart(stage.id, stage.date, stage.value);
+  };
+
+  const formatDateForInput = (dateString: string | null) => {
+    if (!dateString) return '';
+    // Convert date to YYYY-MM-DD format for HTML date input
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
   };
 
   const handleEditStart = (stageId: string, date: string, value: string) => {
     setEditingStage(stageId);
-    setEditForm({ date, text: value });
+    setEditForm({ date: formatDateForInput(date), text: value });
   };
 
   const handleEditCancel = () => {
     setEditingStage(null);
     setEditForm({ date: '', text: '' });
+    // Close the popup completely instead of showing expanded read mode
+    setSelectedStage(null);
+    setSelectedStagePosition(null);
   };
 
   const handleCloseStagePopup = () => {
@@ -511,7 +523,7 @@ const PurposeDetail: React.FC = () => {
                            {/* Timeline Container with dedicated areas */}
                            <div className="relative px-4" id={`timeline-${purchase.id}`}>
                              
-                             {/* Above Timeline Area */}
+                                                                          {/* Above Timeline Area */}
                              <div className="relative h-28 mb-6">
                                {stages.map((stage, index) => {
                                  const position = calculateStagePosition(stages, index);
@@ -582,11 +594,11 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              </div>
                                              
-                                             {editingStage === stage.id ? (
+                                             {editingStage === stage.id && (
                                                <div className="space-y-3">
                                                  {stage.completed && (
                                                    <div>
-                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
                                                        value={editForm.date}
@@ -597,7 +609,7 @@ const PurposeDetail: React.FC = () => {
                                                  )}
                                                  {!stage.completed && (
                                                    <div>
-                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
                                                        value={new Date().toISOString().split('T')[0]}
@@ -607,15 +619,17 @@ const PurposeDetail: React.FC = () => {
                                                      <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
                                                    </div>
                                                  )}
-                                                 <div>
-                                                   <label className="text-xs text-gray-500 mb-1 block">Value</label>
-                                                   <input
-                                                     type="text"
-                                                     value={editForm.text}
-                                                     onChange={(e) => setEditForm({...editForm, text: e.target.value})}
-                                                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                   />
-                                                 </div>
+                                                 {stage.stage_type.value_required && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Value</label>
+                                                     <input
+                                                       type="text"
+                                                       value={editForm.text}
+                                                       onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                     />
+                                                   </div>
+                                                 )}
                                                  <div className="flex space-x-2">
                                                    <button
                                                      onClick={(e) => {
@@ -629,6 +643,9 @@ const PurposeDetail: React.FC = () => {
                                                        
                                                        setEditingStage(null);
                                                        setEditForm({ date: '', text: '' });
+                                                       // Close the popup completely
+                                                       setSelectedStage(null);
+                                                       setSelectedStagePosition(null);
                                                      }}
                                                      className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
                                                    >
@@ -644,32 +661,6 @@ const PurposeDetail: React.FC = () => {
                                                    >
                                                      <X className="w-3 h-3 mr-1" />
                                                      Cancel
-                                                   </button>
-                                                 </div>
-                                               </div>
-                                             ) : (
-                                               <div className="space-y-3">
-                                                 {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
-                                                   <div className="text-sm text-blue-600 font-medium">
-                                                     {stage.value}
-                                                   </div>
-                                                 )}
-                                                 {stage.completed && stage.date && (
-                                                   <div className="flex items-center text-sm text-gray-600">
-                                                     <Calendar className="w-3 h-3 mr-1" />
-                                                     {formatDateForTimeline(stage.date)}
-                                                   </div>
-                                                 )}
-                                                 <div className="flex space-x-2">
-                                                   <button
-                                                     onClick={(e) => {
-                                                       e.stopPropagation();
-                                                       handleEditStart(stage.id, stage.date, stage.value);
-                                                     }}
-                                                     className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
-                                                   >
-                                                     <Edit2 className="w-3 h-3 mr-1" />
-                                                     Edit
                                                    </button>
                                                  </div>
                                                </div>
@@ -813,11 +804,11 @@ const PurposeDetail: React.FC = () => {
                                                </div>
                                              </div>
                                              
-                                             {editingStage === stage.id ? (
+                                             {editingStage === stage.id && (
                                                <div className="space-y-3">
                                                  {stage.completed && (
                                                    <div>
-                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
                                                        value={editForm.date}
@@ -828,7 +819,7 @@ const PurposeDetail: React.FC = () => {
                                                  )}
                                                  {!stage.completed && (
                                                    <div>
-                                                     <label className="text-xs text-gray-500 mb-1 block">Date</label>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
                                                        value={new Date().toISOString().split('T')[0]}
@@ -838,15 +829,17 @@ const PurposeDetail: React.FC = () => {
                                                      <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
                                                    </div>
                                                  )}
-                                                 <div>
-                                                   <label className="text-xs text-gray-500 mb-1 block">Value</label>
-                                                   <input
-                                                     type="text"
-                                                     value={editForm.text}
-                                                     onChange={(e) => setEditForm({...editForm, text: e.target.value})}
-                                                     className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                   />
-                                                 </div>
+                                                 {stage.stage_type.value_required && (
+                                                   <div>
+                                                     <label className="text-xs text-gray-500 mb-1 block">Value</label>
+                                                     <input
+                                                       type="text"
+                                                       value={editForm.text}
+                                                       onChange={(e) => setEditForm({...editForm, text: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                     />
+                                                   </div>
+                                                 )}
                                                  <div className="flex space-x-2">
                                                    <button
                                                      onClick={(e) => {
@@ -860,6 +853,9 @@ const PurposeDetail: React.FC = () => {
                                                        
                                                        setEditingStage(null);
                                                        setEditForm({ date: '', text: '' });
+                                                       // Close the popup completely
+                                                       setSelectedStage(null);
+                                                       setSelectedStagePosition(null);
                                                      }}
                                                      className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
                                                    >
@@ -878,32 +874,6 @@ const PurposeDetail: React.FC = () => {
                                                    </button>
                                                  </div>
                                                </div>
-                                             ) : (
-                                               <div className="space-y-3">
-                                                 {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
-                                                   <div className="text-sm text-blue-600 font-medium">
-                                                     {stage.value}
-                                                   </div>
-                                                 )}
-                                                 {stage.completed && stage.date && (
-                                                   <div className="flex items-center text-sm text-gray-600">
-                                                     <Calendar className="w-3 h-3 mr-1" />
-                                                     {formatDateForTimeline(stage.date)}
-                                                   </div>
-                                                 )}
-                                                 <div className="flex space-x-2">
-                                                   <button
-                                                     onClick={(e) => {
-                                                       e.stopPropagation();
-                                                       handleEditStart(stage.id, stage.date, stage.value);
-                                                     }}
-                                                     className="flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors"
-                                                   >
-                                                     <Edit2 className="w-3 h-3 mr-1" />
-                                                     Edit
-                                                   </button>
-                                                 </div>
-                                               </div>
                                              )}
                                            </div>
                                          )}
@@ -918,11 +888,11 @@ const PurposeDetail: React.FC = () => {
                           
                           {/* Cost */}
                           <div className="mt-6">
-                            <h5 className="text-sm font-medium mb-2">Cost</h5>
+                            <h5 className="text-base font-medium mb-2">Cost</h5>
                         <div className="flex flex-wrap gap-1">
                           {purchase.costs.map((cost) => {
                             return (
-                              <Badge key={cost.id} variant="outline" className="text-xs">
+                              <Badge key={cost.id} variant="outline" className="text-sm">
                                 {getCurrencySymbol(cost.currency)}{cost.amount.toLocaleString()} {cost.currency}
                               </Badge>
                             );
