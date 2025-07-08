@@ -279,6 +279,7 @@ const PurposeDetail: React.FC = () => {
       
       // Handle completion date
       // Use the edited date from the form for both completed and incomplete stages
+      // editForm.date is already in "YYYY-MM-DD" format from HTML date input
       updateData.completion_date = editForm.date || null;
       
       // Call the API
@@ -316,7 +317,7 @@ const PurposeDetail: React.FC = () => {
 
   const formatDateForTimeline = (dateString: string | null) => {
     if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
       year: '2-digit'

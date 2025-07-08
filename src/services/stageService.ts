@@ -2,7 +2,7 @@ import { apiService } from '@/services/apiService';
 
 export interface UpdateStageRequest {
   value?: string;
-  completion_date?: string | null;
+  completion_date?: string | null; // Date format: "YYYY-MM-DD" (e.g., "2025-07-08")
 }
 
 export interface UpdateStageResponse {
@@ -11,7 +11,7 @@ export interface UpdateStageResponse {
   stage_type_id: number;
   priority: number;
   value: string | null;
-  completion_date: string | null;
+  completion_date: string | null; // Date format: "YYYY-MM-DD" (e.g., "2025-07-08")
   stage_type: {
     id: number;
     name: string;
