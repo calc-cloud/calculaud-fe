@@ -82,8 +82,6 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     }
   };
 
-
-
   const updateStage = (purchaseIndex: number, stageId: string, updates: Partial<Stage>) => {
     const purchase = purchases[purchaseIndex];
     if (purchase) {
@@ -94,8 +92,6 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
       });
     }
   };
-
-
 
   const getTotalCostWithCurrencies = (purchase: Purchase) => {
     const costsByCurrency: { [key: string]: number } = {};

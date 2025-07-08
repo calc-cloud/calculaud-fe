@@ -16,6 +16,7 @@ import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
 import { FileUpload } from '@/components/common/FileUpload';
 import { useToast } from '@/hooks/use-toast';
 import { purposeService } from '@/services/purposeService';
+import { stageService, UpdateStageRequest } from '@/services/stageService';
 
 const PurposeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +36,7 @@ const PurposeDetail: React.FC = () => {
   const [selectedStage, setSelectedStage] = useState<any | null>(null);
   const [selectedStagePosition, setSelectedStagePosition] = useState<{ x: number, isAbove: boolean } | null>(null);
   const [editForm, setEditForm] = useState({ date: '', text: '' });
+  const [isUpdatingStage, setIsUpdatingStage] = useState(false);
   
   // Real API data loading
   const [purpose, setPurpose] = useState<Purpose | null>(null);
@@ -200,7 +202,7 @@ const PurposeDetail: React.FC = () => {
         name: stage.stage_type.display_name || stage.stage_type.name, // Using display_name from API response
         completed: !!stage.completion_date,
         date: stage.completion_date, // Only show completion date, no fallback to creation date
-        value: stage.value || 'Pending',
+        value: stage.value || '',
         priority: stage.priority,
         stage_type: stage.stage_type
       }));
@@ -241,7 +243,9 @@ const PurposeDetail: React.FC = () => {
 
   const handleEditStart = (stageId: string, date: string, value: string) => {
     setEditingStage(stageId);
-    setEditForm({ date: formatDateForInput(date), text: value });
+    // For incomplete stages (no date), use today's date as default
+    const formDate = date ? formatDateForInput(date) : new Date().toISOString().split('T')[0];
+    setEditForm({ date: formDate, text: value });
   };
 
   const handleEditCancel = () => {
@@ -257,6 +261,57 @@ const PurposeDetail: React.FC = () => {
     setSelectedStagePosition(null);
     setEditingStage(null);
     setEditForm({ date: '', text: '' });
+  };
+
+  const handleSaveStage = async (stage: any) => {
+    if (!stage.id || isUpdatingStage) return;
+    
+    setIsUpdatingStage(true);
+    
+    try {
+      // Prepare the update data
+      const updateData: UpdateStageRequest = {};
+      
+      // Add value if stage requires it
+      if (stage.stage_type.value_required) {
+        updateData.value = editForm.text || null;
+      }
+      
+      // Handle completion date
+      // Use the edited date from the form for both completed and incomplete stages
+      updateData.completion_date = editForm.date || null;
+      
+      // Call the API
+      await stageService.updateStage(stage.id.toString(), updateData);
+      
+      toast({
+        title: "Stage updated",
+        description: "The stage has been updated successfully.",
+      });
+      
+      // Close the editing mode
+      setEditingStage(null);
+      setEditForm({ date: '', text: '' });
+      setSelectedStage(null);
+      setSelectedStagePosition(null);
+      
+      // Refresh the purpose data to show updated stage
+      if (id) {
+        const apiPurpose = await purposeService.getPurpose(id);
+        const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+        setPurpose(transformedPurpose);
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update stage';
+      toast({
+        title: "Error updating stage",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsUpdatingStage(false);
+    }
   };
 
   const formatDateForTimeline = (dateString: string | null) => {
@@ -320,6 +375,14 @@ const PurposeDetail: React.FC = () => {
     const position = padding + (stageIndex / (stages.length - 1)) * availableWidth;
     
     return position;
+  };
+
+  const isPurchaseComplete = (purchase: any) => {
+    // Convert purchase to stages to check completion status
+    const stages = convertPurchaseToStages(purchase);
+    
+    // A purchase is complete if all stages have completion dates
+    return stages.every(stage => stage.completed);
   };
 
   if (isLoading) {
@@ -506,7 +569,21 @@ const PurposeDetail: React.FC = () => {
             <CardContent>
               {purpose.purchases.length > 0 ? (
                 <div className="space-y-8">
-                  {purpose.purchases.map((purchase, purchaseIndex) => {
+                  {purpose.purchases
+                    .sort((a, b) => {
+                      // Sort incomplete purchases first, then completed purchases
+                      const aComplete = isPurchaseComplete(a);
+                      const bComplete = isPurchaseComplete(b);
+                      
+                      if (aComplete === bComplete) {
+                        // If both are complete or both are incomplete, maintain original order
+                        return 0;
+                      }
+                      
+                      // Incomplete (false) comes before complete (true)
+                      return aComplete ? 1 : -1;
+                    })
+                    .map((purchase, purchaseIndex) => {
                     const stages = convertPurchaseToStages(purchase);
                     
                                           return (
@@ -556,7 +633,7 @@ const PurposeDetail: React.FC = () => {
                          {!isExpanded && (
                            <div className="text-center">
                              <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
-                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== '' && (
                                <div className="text-xs text-blue-600 font-medium mb-1 break-words">
                                  {stage.value}
                                </div>
@@ -612,11 +689,10 @@ const PurposeDetail: React.FC = () => {
                                                      <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
-                                                       value={new Date().toISOString().split('T')[0]}
-                                                       disabled
-                                                       className="w-full px-2 py-1 border border-gray-200 rounded text-sm bg-gray-50 text-gray-500"
+                                                       value={editForm.date}
+                                                       onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                      />
-                                                     <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
                                                    </div>
                                                  )}
                                                  {stage.stage_type.value_required && (
@@ -634,30 +710,21 @@ const PurposeDetail: React.FC = () => {
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
-                                                       // For incomplete stages, set date to today
-                                                       const finalDate = stage.completed 
-                                                         ? editForm.date 
-                                                         : new Date().toISOString().split('T')[0];
-                                                       
-                                                       // Here you would typically save to backend
-                                                       
-                                                       setEditingStage(null);
-                                                       setEditForm({ date: '', text: '' });
-                                                       // Close the popup completely
-                                                       setSelectedStage(null);
-                                                       setSelectedStagePosition(null);
+                                                       handleSaveStage(stage);
                                                      }}
-                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                                     disabled={isUpdatingStage}
+                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                    >
                                                      <Check className="w-3 h-3 mr-1" />
-                                                     Save
+                                                     {isUpdatingStage ? 'Saving...' : 'Save'}
                                                    </button>
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
                                                        handleEditCancel();
                                                      }}
-                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+                                                     disabled={isUpdatingStage}
+                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                    >
                                                      <X className="w-3 h-3 mr-1" />
                                                      Cancel
@@ -766,7 +833,7 @@ const PurposeDetail: React.FC = () => {
                          {!isExpanded && (
                            <div className="text-center">
                              <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
-                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value !== 'Pending' && (
+                             {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== '' && (
                                <div className="text-xs text-blue-600 font-medium mb-1 break-words">
                                  {stage.value}
                                </div>
@@ -822,11 +889,10 @@ const PurposeDetail: React.FC = () => {
                                                      <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                                                      <input
                                                        type="date"
-                                                       value={new Date().toISOString().split('T')[0]}
-                                                       disabled
-                                                       className="w-full px-2 py-1 border border-gray-200 rounded text-sm bg-gray-50 text-gray-500"
+                                                       value={editForm.date}
+                                                       onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                                       className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                      />
-                                                     <p className="text-xs text-gray-400 mt-1">Date will be set to today when saved</p>
                                                    </div>
                                                  )}
                                                  {stage.stage_type.value_required && (
@@ -844,30 +910,21 @@ const PurposeDetail: React.FC = () => {
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
-                                                       // For incomplete stages, set date to today
-                                                       const finalDate = stage.completed 
-                                                         ? editForm.date 
-                                                         : new Date().toISOString().split('T')[0];
-                                                       
-                                                       // Here you would typically save to backend
-                                                       
-                                                       setEditingStage(null);
-                                                       setEditForm({ date: '', text: '' });
-                                                       // Close the popup completely
-                                                       setSelectedStage(null);
-                                                       setSelectedStagePosition(null);
+                                                       handleSaveStage(stage);
                                                      }}
-                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors"
+                                                     disabled={isUpdatingStage}
+                                                     className="flex items-center px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                    >
                                                      <Check className="w-3 h-3 mr-1" />
-                                                     Save
+                                                     {isUpdatingStage ? 'Saving...' : 'Save'}
                                                    </button>
                                                    <button
                                                      onClick={(e) => {
                                                        e.stopPropagation();
                                                        handleEditCancel();
                                                      }}
-                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors"
+                                                     disabled={isUpdatingStage}
+                                                     className="flex items-center px-2 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                                    >
                                                      <X className="w-3 h-3 mr-1" />
                                                      Cancel
