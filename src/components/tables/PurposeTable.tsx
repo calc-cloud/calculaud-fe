@@ -49,32 +49,41 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       return '';
     };
 
-    const costStrings = Object.entries(costsByCurrency).map(
+    // For display: only amount + currency symbol
+    const displayStrings = Object.entries(costsByCurrency).map(
+      ([currency, amount]) => {
+        return `${getCurrencySymbol(currency)}${formatAmount(amount)}`;
+      }
+    );
+
+    // For tooltip: currency symbol + amount + full currency name
+    const costDetails = Object.entries(costsByCurrency).map(
       ([currency, amount]) => {
         return `${getCurrencySymbol(currency)}${formatAmount(amount)} ${currency}`;
       }
     );
 
-    const costDetails = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => {
-        return `${formatAmount(amount)} ${currency}`;
-      }
-    );
-
-    const allCosts = costStrings.join(', ') || '0';
-
     return {
-      display: costStrings,
+      display: displayStrings,
       details: costDetails,
-      allCosts
+      allCosts: costDetails.join(', ') || '0'
     };
   };
 
   const getEMFIds = (purpose: Purpose) => {
-    const ids = purpose.purchases.map(purchase => purchase.id);
+    const emfIds: string[] = [];
+    
+    purpose.purchases.forEach(purchase => {
+      purchase.flow_stages.forEach(stage => {
+        if (stage.stage_type.name === 'emf_id' && stage.value && stage.value.trim()) {
+          emfIds.push(stage.value.trim());
+        }
+      });
+    });
+    
     return {
-      ids: ids,
-      allIds: ids.join(', ') || 'None'
+      ids: emfIds,
+      allIds: emfIds.length > 0 ? emfIds.join(', ') : '-'
     };
   };
 
@@ -92,7 +101,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     );
 
     const contentDetails = purpose.contents.map(content => 
-      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`} (${content.service_type || content.material_type || 'Unknown type'})`
+      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}`
     );
 
     return {
@@ -175,7 +184,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-32 text-center">Description</TableHead>
-            <TableHead className="w-32 text-center">Contents</TableHead>
+            <TableHead className="w-32 text-center">Content</TableHead>
             <TableHead className="text-center">Supplier</TableHead>
             <TableHead className="text-center">Hierarchy</TableHead>
             <TableHead className="text-center">Service Type</TableHead>
@@ -204,9 +213,16 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
                 <TableCell className="font-medium w-32 text-center">
-                  <div className="line-clamp-2 text-sm leading-tight">
-                    {purpose.description}
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="line-clamp-2 text-sm leading-tight">
+                        {purpose.description}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{purpose.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
                 <TableCell className="w-32 text-center">
                   <Tooltip>
@@ -256,12 +272,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 <TableCell className="text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Badge 
-                        variant={purpose.status === 'COMPLETED' ? 'default' : 
-                                 purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
-                      >
-                        {getStatusDisplay(purpose.status)}
-                      </Badge>
+                      <div className="cursor-pointer">
+                        <Badge 
+                          variant={purpose.status === 'COMPLETED' ? 'default' : 
+                                   purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
+                          className="pointer-events-none"
+                        >
+                          {getStatusDisplay(purpose.status)}
+                        </Badge>
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{purpose.comments || 'No status message'}</p>
@@ -279,7 +298,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                             </div>
                           ))
                         ) : (
-                          <div className="text-sm text-muted-foreground">None</div>
+                          <div className="text-sm text-muted-foreground">-</div>
                         )}
                         {emfIds.ids.length > 2 && (
                           <div className="text-xs text-muted-foreground">
