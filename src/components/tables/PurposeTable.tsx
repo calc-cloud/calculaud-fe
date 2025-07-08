@@ -40,14 +40,36 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       return parseFloat(formattedNumber).toLocaleString();
     };
 
+    // Combine both USD types into a single total
+    const combinedCostsByCurrency: { [key: string]: number } = {};
+    const usdBreakdown: { [key: string]: number } = {};
+    
+    Object.entries(costsByCurrency).forEach(([currency, amount]) => {
+      if (currency === 'SUPPORT_USD' || currency === 'AVAILABLE_USD') {
+        // Store individual USD types for detailed tooltip
+        usdBreakdown[currency] = amount;
+        
+        // Combine into single USD total
+        if (!combinedCostsByCurrency['USD']) {
+          combinedCostsByCurrency['USD'] = 0;
+        }
+        combinedCostsByCurrency['USD'] += amount;
+      } else {
+        // Keep other currencies as is
+        combinedCostsByCurrency[currency] = amount;
+      }
+    });
+
     // For display: only amount + currency symbol
-    const displayStrings = Object.entries(costsByCurrency).map(
+    const displayStrings = Object.entries(combinedCostsByCurrency).map(
       ([currency, amount]) => {
-        return `${getCurrencySymbol(currency as any)}${formatAmount(amount)}`;
+        // For combined USD, use the $ symbol
+        const symbol = currency === 'USD' ? '$' : getCurrencySymbol(currency as any);
+        return `${symbol}${formatAmount(amount)}`;
       }
     );
 
-    // For tooltip: currency symbol + amount + full currency name
+    // For tooltip: show original format with individual currency types
     const costDetails = Object.entries(costsByCurrency).map(
       ([currency, amount]) => {
         return `${getCurrencySymbol(currency as any)}${formatAmount(amount)} ${currency}`;
