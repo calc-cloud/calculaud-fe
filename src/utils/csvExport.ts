@@ -32,7 +32,7 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
 
     // Create Purchase details string
     const purchaseDetails = purpose.purchases.map(purchase => {
-      const purchaseCosts = purchase.costs.map(cost => `${cost.amount} ${cost.currency} (${cost.cost_type})`).join('; ');
+      const purchaseCosts = purchase.costs.map(cost => `${cost.amount} ${cost.currency}`).join('; ');
       const stages = purchase.flow_stages.map(stage => `${stage.stage_type.name}: ${stage.value || 'Pending'}${stage.completion_date ? ` (${stage.completion_date})` : ''}`).join(', ');
       return `Purchase ${purchase.id}: Created ${purchase.creation_date}, Stages: ${stages}, Costs: ${purchaseCosts}`;
     }).join(' | ');

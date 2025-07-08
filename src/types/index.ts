@@ -10,7 +10,7 @@ export interface Purpose {
   status: PurposeStatus;
   expected_delivery: string;
   comments?: string;
-  service_type: ServiceType;
+  service_type: string;
   creation_time: string;
   last_modified: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
@@ -59,13 +59,8 @@ export interface Cost {
   id: string;
   purchase_id: string; // Changed from emf_id to purchase_id
   amount: number;
-  currency: Currency;
-  cost_type: CostType;
+  currency: string; // Now stores full currency description from API
 }
-
-export type CostType = 'SUPPORT' | 'AVAILABLE';
-
-
 
 export interface PurposeFile {
   id: string;
@@ -83,17 +78,6 @@ export interface Hierarchy {
 
 export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED';
 
-export type Currency = 'SUPPORT_USD' | 'AVAILABLE_USD' | 'ILS';
-
-export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance' | 'Training' | 'Other';
-
-export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic Advisors LLC' | 'Global Tech Services' | 'Innovation Partners' | 'Digital Solutions Co' | 'Enterprise Systems Ltd' | 'CloudTech Inc';
-
-// Filter and search types have been moved to @/types/filters
-
-
-
-// Modal modes
 
 
 // API response types

@@ -56,8 +56,7 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
       id: `cost-${Date.now()}`,
       purchase_id: purchases[purchaseIndex].id,
       amount: 0,
-      currency: 'USD',
-      cost_type: 'SUPPORT'
+      currency: 'USD Support' // Default to USD Support
     };
     
     updatePurchase(purchaseIndex, {
@@ -127,11 +126,11 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     const costsByCurrency: { [key: string]: number } = {};
     
     purchase.costs.forEach(cost => {
-      const key = `${cost.currency}_${cost.cost_type}`;
-      if (!costsByCurrency[key]) {
-        costsByCurrency[key] = 0;
+      const currency = cost.currency;
+      if (!costsByCurrency[currency]) {
+        costsByCurrency[currency] = 0;
       }
-      costsByCurrency[key] += cost.amount;
+      costsByCurrency[currency] += cost.amount;
     });
 
     const formatAmount = (amount: number) => {
@@ -140,20 +139,17 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
     };
 
     const getCurrencySymbol = (currency: string) => {
-      switch (currency) {
-        case 'USD':
-          return '$';
-        case 'ILS':
-          return '₪';
-        default:
-          return currency;
+      if (currency.includes('USD')) {
+        return '$';
+      } else if (currency.includes('ILS')) {
+        return '₪';
       }
+      return '';
     };
 
     const costStrings = Object.entries(costsByCurrency).map(
-      ([key, amount]) => {
-        const [currency, costType] = key.split('_');
-        return `${getCurrencySymbol(currency)}${formatAmount(amount)} (${costType})`;
+      ([currency, amount]) => {
+        return `${getCurrencySymbol(currency)}${formatAmount(amount)} ${currency}`;
       }
     );
 
@@ -362,25 +358,13 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
                           onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
                           disabled={isReadOnly}
                         >
-                          <SelectTrigger className="w-24">
+                          <SelectTrigger className="w-48">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-white z-50">
-                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="USD Support">USD Support</SelectItem>
+                            <SelectItem value="USD Available">USD Available</SelectItem>
                             <SelectItem value="ILS">ILS</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={cost.cost_type}
-                          onValueChange={(value) => updateCost(index, cost.id, { cost_type: value as 'SUPPORT' | 'AVAILABLE' })}
-                          disabled={isReadOnly}
-                        >
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="bg-white z-50">
-                            <SelectItem value="SUPPORT">Support</SelectItem>
-                            <SelectItem value="AVAILABLE">Available</SelectItem>
                           </SelectContent>
                         </Select>
                         {!isReadOnly && (

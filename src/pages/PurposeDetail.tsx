@@ -283,7 +283,7 @@ const PurposeDetail: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
             <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
           </div>
-          <Badge variant={statusDisplay.variant}>{statusDisplay.label}</Badge>
+          <Badge variant={statusDisplay.variant} className="cursor-default pointer-events-none">{statusDisplay.label}</Badge>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -585,7 +585,19 @@ const PurposeDetail: React.FC = () => {
                              
                              {/* Timeline Line */}
                              <div className="relative h-1">
-                               <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gray-300 -translate-y-1/2"></div>
+                               {(() => {
+                                 const firstStagePosition = calculateStagePosition(stages, 0);
+                                 const lastStagePosition = calculateStagePosition(stages, stages.length - 1);
+                                 return (
+                                   <div 
+                                     className="absolute top-1/2 h-0.5 bg-gray-300 -translate-y-1/2"
+                                     style={{
+                                       left: `${firstStagePosition}%`,
+                                       right: `${100 - lastStagePosition}%`
+                                     }}
+                                   ></div>
+                                 );
+                               })()}
                                
                                {/* Stage Dots and Connecting Lines */}
                                {stages.map((stage, index) => {
@@ -796,11 +808,22 @@ const PurposeDetail: React.FC = () => {
                           <div className="mt-6">
                             <h5 className="text-sm font-medium mb-2">Cost</h5>
                         <div className="flex flex-wrap gap-1">
-                          {purchase.costs.map((cost) => (
-                            <Badge key={cost.id} variant="outline" className="text-xs">
-                              ${cost.amount.toLocaleString()} {cost.currency} ({cost.cost_type})
-                            </Badge>
-                          ))}
+                          {purchase.costs.map((cost) => {
+                            const getCurrencySymbol = (currency: string) => {
+                              if (currency.includes('USD')) {
+                                return '$';
+                              } else if (currency.includes('ILS')) {
+                                return '₪';
+                              }
+                              return '';
+                            };
+                            
+                            return (
+                              <Badge key={cost.id} variant="outline" className="text-xs">
+                                {getCurrencySymbol(cost.currency)}{cost.amount.toLocaleString()} {cost.currency}
+                              </Badge>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>

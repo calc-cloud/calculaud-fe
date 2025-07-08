@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
-import { CURRENCY_DISPLAY_NAMES } from '@/utils/constants';
+
 
 interface PurposeTableProps {
   purposes: Purpose[];
@@ -27,11 +27,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     
     purpose.purchases.forEach(purchase => {
       purchase.costs.forEach(cost => {
-        const key = `${cost.currency}_${cost.cost_type}`;
-        if (!costsByCurrency[key]) {
-          costsByCurrency[key] = 0;
+        const currency = cost.currency;
+        if (!costsByCurrency[currency]) {
+          costsByCurrency[currency] = 0;
         }
-        costsByCurrency[key] += cost.amount;
+        costsByCurrency[currency] += cost.amount;
       });
     });
 
@@ -41,27 +41,23 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
 
     const getCurrencySymbol = (currency: string) => {
-      switch (currency) {
-        case 'USD':
-          return '$';
-        case 'ILS':
-          return '₪';
-        default:
-          return currency;
+      if (currency.includes('USD')) {
+        return '$';
+      } else if (currency.includes('ILS')) {
+        return '₪';
       }
+      return '';
     };
 
     const costStrings = Object.entries(costsByCurrency).map(
-      ([key, amount]) => {
-        const [currency, costType] = key.split('_');
-        return `${getCurrencySymbol(currency)}${formatAmount(amount)} (${costType})`;
+      ([currency, amount]) => {
+        return `${getCurrencySymbol(currency)}${formatAmount(amount)} ${currency}`;
       }
     );
 
     const costDetails = Object.entries(costsByCurrency).map(
-      ([key, amount]) => {
-        const [currency, costType] = key.split('_');
-        return `${formatAmount(amount)} ${currency} (${costType})`;
+      ([currency, amount]) => {
+        return `${formatAmount(amount)} ${currency}`;
       }
     );
 
@@ -74,7 +70,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
   };
 
-  const getPurchaseIds = (purpose: Purpose) => {
+  const getEMFIds = (purpose: Purpose) => {
     const ids = purpose.purchases.map(purchase => purchase.id);
     return {
       ids: ids,
@@ -184,7 +180,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             <TableHead className="text-center">Hierarchy</TableHead>
             <TableHead className="text-center">Service Type</TableHead>
             <TableHead className="text-center">Status</TableHead>
-            <TableHead className="text-center">Purchase IDs</TableHead>
+            <TableHead className="text-center">EMF IDs</TableHead>
             <TableHead className="text-center">Total Cost</TableHead>
             <TableHead className="text-center">Expected Delivery</TableHead>
             <TableHead className="text-center">
@@ -198,7 +194,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <TableBody>
           {purposes.map((purpose) => {
             const totalCost = getTotalCostWithCurrencies(purpose);
-            const purchaseIds = getPurchaseIds(purpose);
+            const emfIds = getEMFIds(purpose);
             const hierarchyInfo = getHierarchyInfo(purpose);
             const contentsInfo = getContentsDisplay(purpose);
             return (
@@ -276,8 +272,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex flex-col gap-0.5 items-center">
-                        {purchaseIds.ids.length > 0 ? (
-                          purchaseIds.ids.slice(0, 2).map((id, index) => (
+                        {emfIds.ids.length > 0 ? (
+                          emfIds.ids.slice(0, 2).map((id, index) => (
                             <div key={index} className="text-sm truncate">
                               {id}
                             </div>
@@ -285,15 +281,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         ) : (
                           <div className="text-sm text-muted-foreground">None</div>
                         )}
-                        {purchaseIds.ids.length > 2 && (
+                        {emfIds.ids.length > 2 && (
                           <div className="text-xs text-muted-foreground">
-                            +{purchaseIds.ids.length - 2} more
+                            +{emfIds.ids.length - 2} more
                           </div>
                         )}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>{purchaseIds.allIds}</p>
+                      <p>{emfIds.allIds}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>

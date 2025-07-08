@@ -82,7 +82,6 @@ export interface Cost {
   purchase_id: number; // Changed from emf_id to purchase_id
   currency: string;
   amount: number;
-  cost_type: string;
 }
 
 
@@ -121,7 +120,6 @@ export interface CreateStageRequest {
 export interface CreateCostRequest {
   currency: string;
   amount: number;
-  cost_type: string;
 }
 
 
@@ -271,8 +269,7 @@ class PurposeService {
         creation_date: purchase.creation_date || undefined, // Use creation_date field
         costs: purchase.costs.map((cost: any) => ({
           currency: cost.currency,
-          amount: cost.amount,
-          cost_type: cost.cost_type
+          amount: cost.amount
         })),
         flow_stages: purchase.flow_stages.map((stage: any) => ({
           stage_type_id: stage.stage_type_id,
@@ -321,8 +318,7 @@ class PurposeService {
         creation_date: purchase.creation_date || undefined, // Use creation_date field
         costs: purchase.costs.map((cost: any) => ({
           currency: cost.currency,
-          amount: cost.amount,
-          cost_type: cost.cost_type
+          amount: cost.amount
         })),
         flow_stages: purchase.flow_stages.map((stage: any) => ({
           stage_type_id: stage.stage_type_id,
@@ -385,23 +381,23 @@ class PurposeService {
       creation_time: apiPurpose.creation_time,
       last_modified: apiPurpose.last_modified,
       purchases: (apiPurpose.purchases || []).map(purchase => ({
-        id: purchase.id.toString(),
-        purpose_id: apiPurpose.id.toString(),
-        creation_date: purchase.creation_date,
+        id: purchase.id?.toString() || '',
+        purpose_id: apiPurpose.id?.toString() || '',
+        creation_date: purchase.creation_date || '',
         costs: (purchase.costs || []).map(cost => ({
-          id: cost.id.toString(),
-          purchase_id: cost.purchase_id,
-          amount: cost.amount,
-          currency: this.mapApiCurrencyToFrontend(cost.currency),
-          cost_type: cost.cost_type
+          id: cost.id?.toString() || '',
+          purchase_id: cost.purchase_id?.toString() || '',
+          amount: cost.amount || 0,
+          currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
         })),
         flow_stages: (purchase.flow_stages || []).map(stage => ({
-          id: stage.id.toString(),
-          purchase_id: purchase.id.toString(),
-          stage_type_id: stage.stage_type_id,
-          priority: stage.priority,
-          value: stage.value,
-          completion_date: stage.completion_date
+          id: stage.id?.toString() || '',
+          purchase_id: purchase.id?.toString() || '',
+          stage_type_id: stage.stage_type_id || 0,
+          priority: stage.priority || 0,
+          value: stage.value || null,
+          completion_date: stage.completion_date || null,
+          stage_type: stage.stage_type || { id: '', name: '', value_required: false }
         })),
         files: [] // Files would come from a separate endpoint
       })),
@@ -462,18 +458,18 @@ class PurposeService {
             creation_date: purchase.creation_date || '',
             costs: (purchase.costs || []).map(cost => ({
               id: cost.id?.toString() || '',
-              purchase_id: cost.purchase_id,
+              purchase_id: cost.purchase_id?.toString() || '',
               amount: cost.amount || 0,
               currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
-              cost_type: cost.cost_type
             })),
             flow_stages: (purchase.flow_stages || []).map(stage => ({
               id: stage.id?.toString() || '',
               purchase_id: purchase.id?.toString() || '',
-              stage_type_id: stage.stage_type_id,
-              priority: stage.priority,
-              value: stage.value,
-              completion_date: stage.completion_date
+              stage_type_id: stage.stage_type_id || 0,
+              priority: stage.priority || 0,
+              value: stage.value || null,
+              completion_date: stage.completion_date || null,
+              stage_type: stage.stage_type || { id: '', name: '', value_required: false }
             })),
             files: [] // API doesn't return files yet
           })),
@@ -528,10 +524,8 @@ class PurposeService {
     switch (currency) {
       case 'ILS':
         return 'ILS';
-      case 'SUPPORT_USD':
-        return 'SUPPORT_USD';
-      case 'AVAILABLE_USD':
-        return 'AVAILABLE_USD';
+      case 'USD':
+        return 'USD';
       default:
         return currency;
     }
