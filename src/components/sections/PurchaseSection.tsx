@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, CheckCircle, Clock } from 'lucide-react';
-import { Purchase, Stage, Cost } from '@/types';
+import { Purchase, Stage, Cost, Currency, getCurrencyDisplayName, getCurrencySymbol } from '@/types';
 import { formatDate, calculateDaysSince, getTodayString } from '@/utils/dateUtils';
 import { Badge } from '@/components/ui/badge';
 
@@ -56,7 +56,7 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
       id: `cost-${Date.now()}`,
       purchase_id: purchases[purchaseIndex].id,
       amount: 0,
-      currency: 'USD Support' // Default to USD Support
+      currency: Currency.SUPPORT_USD // Default to USD Support
     };
     
     updatePurchase(purchaseIndex, {
@@ -138,18 +138,11 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
       return parseFloat(formattedNumber).toLocaleString();
     };
 
-    const getCurrencySymbol = (currency: string) => {
-      if (currency.includes('USD')) {
-        return '$';
-      } else if (currency.includes('ILS')) {
-        return '₪';
-      }
-      return '';
-    };
-
     const costStrings = Object.entries(costsByCurrency).map(
       ([currency, amount]) => {
-        return `${getCurrencySymbol(currency)}${formatAmount(amount)} ${currency}`;
+        const symbol = getCurrencySymbol(currency as Currency);
+        const displayName = getCurrencyDisplayName(currency as Currency);
+        return `${symbol}${formatAmount(amount)} ${displayName}`;
       }
     );
 
@@ -355,16 +348,18 @@ export const PurchaseSection: React.FC<PurchaseSectionProps> = ({
                         />
                         <Select
                           value={cost.currency}
-                          onValueChange={(value) => updateCost(index, cost.id, { currency: value })}
+                          onValueChange={(value) => updateCost(index, cost.id, { currency: value as Currency })}
                           disabled={isReadOnly}
                         >
                           <SelectTrigger className="w-48">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-white z-50">
-                            <SelectItem value="USD Support">USD Support</SelectItem>
-                            <SelectItem value="USD Available">USD Available</SelectItem>
-                            <SelectItem value="ILS">ILS</SelectItem>
+                            {Object.values(Currency).map((currency) => (
+                              <SelectItem key={currency} value={currency}>
+                                {getCurrencyDisplayName(currency)}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         {!isReadOnly && (

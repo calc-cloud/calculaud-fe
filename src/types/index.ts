@@ -1,5 +1,67 @@
 // Core entity types for the Procurement Management System
 
+// Currency enum with API values
+export enum Currency {
+  ILS = 'ILS',
+  SUPPORT_USD = 'SUPPORT_USD',
+  AVAILABLE_USD = 'AVAILABLE_USD'
+}
+
+// Helper to get display name for currency
+export const getCurrencyDisplayName = (currency: Currency): string => {
+  switch (currency) {
+    case Currency.ILS:
+      return 'ILS';
+    case Currency.SUPPORT_USD:
+      return 'USD Support';
+    case Currency.AVAILABLE_USD:
+      return 'USD Available';
+    default:
+      return currency;
+  }
+};
+
+// Helper to get currency symbol
+export const getCurrencySymbol = (currency: Currency): string => {
+  switch (currency) {
+    case Currency.ILS:
+      return '₪';
+    case Currency.SUPPORT_USD:
+    case Currency.AVAILABLE_USD:
+      return '$';
+    default:
+      return '';
+  }
+};
+
+// Helper to map frontend display names to API values
+export const mapDisplayNameToApiValue = (displayName: string): Currency => {
+  switch (displayName) {
+    case 'ILS':
+      return Currency.ILS;
+    case 'USD Support':
+      return Currency.SUPPORT_USD;
+    case 'USD Available':
+      return Currency.AVAILABLE_USD;
+    default:
+      return Currency.ILS;
+  }
+};
+
+// Helper to map API values to frontend display names
+export const mapApiValueToDisplayName = (apiValue: string): string => {
+  switch (apiValue) {
+    case 'ILS':
+      return 'ILS';
+    case 'SUPPORT_USD':
+      return 'USD Support';
+    case 'AVAILABLE_USD':
+      return 'USD Available';
+    default:
+      return apiValue;
+  }
+};
+
 export interface Purpose {
   id: string;
   description: string;
@@ -59,7 +121,18 @@ export interface Cost {
   id: string;
   purchase_id: string; // Changed from emf_id to purchase_id
   amount: number;
-  currency: string; // Now stores full currency description from API
+  currency: Currency; // Now uses Currency enum
+}
+
+// Request interface for creating a new purchase
+export interface CreatePurchaseRequest {
+  purpose_id: number;
+  costs: CreateCostRequest[];
+}
+
+export interface CreateCostRequest {
+  amount: number;
+  currency: Currency;
 }
 
 export interface PurposeFile {

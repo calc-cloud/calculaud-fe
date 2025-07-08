@@ -6,12 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers, Edit2, Check, X } from 'lucide-react';
-import { Purpose, PurposeFile } from '@/types';
+import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
+import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
 import { FileUpload } from '@/components/common/FileUpload';
 import { useToast } from '@/hooks/use-toast';
 import { purposeService } from '@/services/purposeService';
@@ -26,6 +27,8 @@ const PurposeDetail: React.FC = () => {
   // State for modals and editing
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | null>(null);
+  const [isAddPurchaseModalOpen, setIsAddPurchaseModalOpen] = useState(false);
+  const [isCreatingPurchase, setIsCreatingPurchase] = useState(false);
   
   // Timeline state
   const [editingStage, setEditingStage] = useState<string | null>(null);
@@ -153,6 +156,35 @@ const PurposeDetail: React.FC = () => {
       setSelectedPurpose(null);
     } catch (error) {
       // Error handling is done in the mutation
+    }
+  };
+
+  const handleCreatePurchase = async (purchaseData: CreatePurchaseRequest) => {
+    if (!id) return;
+    
+    setIsCreatingPurchase(true);
+    
+    try {
+      await purposeService.createPurchase(purchaseData);
+      
+      toast({
+        title: "Purchase created",
+        description: "The purchase has been created successfully.",
+      });
+      
+      // Refresh the page to get the updated purpose with the new purchase
+      window.location.reload();
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create purchase';
+      toast({
+        title: "Error creating purchase",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingPurchase(false);
+      setIsAddPurchaseModalOpen(false);
     }
   };
 
@@ -445,7 +477,19 @@ const PurposeDetail: React.FC = () => {
           {/* Purchases Timeline */}
           <Card className="flex-none">
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">Purchases</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold">Purchases</CardTitle>
+                {purpose.purchases.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsAddPurchaseModalOpen(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Purchase
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               {purpose.purchases.length > 0 ? (
@@ -877,15 +921,6 @@ const PurposeDetail: React.FC = () => {
                             <h5 className="text-sm font-medium mb-2">Cost</h5>
                         <div className="flex flex-wrap gap-1">
                           {purchase.costs.map((cost) => {
-                            const getCurrencySymbol = (currency: string) => {
-                              if (currency.includes('USD')) {
-                                return '$';
-                              } else if (currency.includes('ILS')) {
-                                return '₪';
-                              }
-                              return '';
-                            };
-                            
                             return (
                               <Badge key={cost.id} variant="outline" className="text-xs">
                                 {getCurrencySymbol(cost.currency)}{cost.amount.toLocaleString()} {cost.currency}
@@ -909,7 +944,11 @@ const PurposeDetail: React.FC = () => {
               ) : (
                 <div className="text-center py-6">
                   <p className="text-gray-500 mb-3 text-sm">No purchases yet</p>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setIsAddPurchaseModalOpen(true)}
+                  >
                     <Plus className="mr-2 h-3 w-3" />
                     Add First Purchase
                   </Button>
@@ -941,6 +980,17 @@ const PurposeDetail: React.FC = () => {
           }}
           purpose={selectedPurpose}
           onSave={handleSaveGeneralData}
+        />
+      )}
+
+      {/* Add Purchase Modal */}
+      {purpose && (
+        <AddPurchaseModal
+          isOpen={isAddPurchaseModalOpen}
+          onClose={() => setIsAddPurchaseModalOpen(false)}
+          onSubmit={handleCreatePurchase}
+          purposeId={parseInt(purpose.id)}
+          isLoading={isCreatingPurchase}
         />
       )}
 

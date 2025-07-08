@@ -1,6 +1,7 @@
 import {apiService} from '@/services/apiService';
 import {UnifiedFilters} from '@/types/filters';
 import {format} from 'date-fns';
+import {CreatePurchaseRequest as PurchaseCreateRequest} from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
@@ -155,6 +156,10 @@ class PurposeService {
 
   async deletePurpose(id: string): Promise<void> {
     return apiService.delete<void>(`/purposes/${id}`);
+  }
+
+  async createPurchase(data: PurchaseCreateRequest): Promise<Purchase> {
+    return apiService.post<Purchase>('/purchases/', data);
   }
 
   // Map frontend filters to API parameters
@@ -528,8 +533,12 @@ class PurposeService {
     switch (currency) {
       case 'ILS':
         return 'ILS';
+      case 'SUPPORT_USD':
+        return 'SUPPORT_USD';
+      case 'AVAILABLE_USD':
+        return 'AVAILABLE_USD';
       case 'USD':
-        return 'USD';
+        return 'SUPPORT_USD'; // Default old USD values to SUPPORT_USD
       default:
         return currency;
     }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Purpose } from '@/types';
+import { Purpose, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
@@ -40,26 +40,17 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       return parseFloat(formattedNumber).toLocaleString();
     };
 
-    const getCurrencySymbol = (currency: string) => {
-      if (currency.includes('USD')) {
-        return '$';
-      } else if (currency.includes('ILS')) {
-        return '₪';
-      }
-      return '';
-    };
-
     // For display: only amount + currency symbol
     const displayStrings = Object.entries(costsByCurrency).map(
       ([currency, amount]) => {
-        return `${getCurrencySymbol(currency)}${formatAmount(amount)}`;
+        return `${getCurrencySymbol(currency as any)}${formatAmount(amount)}`;
       }
     );
 
     // For tooltip: currency symbol + amount + full currency name
     const costDetails = Object.entries(costsByCurrency).map(
       ([currency, amount]) => {
-        return `${getCurrencySymbol(currency)}${formatAmount(amount)} ${currency}`;
+        return `${getCurrencySymbol(currency as any)}${formatAmount(amount)} ${currency}`;
       }
     );
 
