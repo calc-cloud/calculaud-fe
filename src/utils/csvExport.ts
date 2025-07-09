@@ -17,23 +17,24 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
     'Comments',
     'Total Cost',
     'Currency',
-    'EMF Count',
-    'EMF Details',
+    'Purchase Count',
+    'Purchase Details',
     'Files Count'
   ];
 
   const csvRows = filteredPurposes.map(purpose => {
-    const totalCost = purpose.emfs.reduce((sum, emf) => 
-      sum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
+    const totalCost = purpose.purchases.reduce((sum, purchase) => 
+      sum + purchase.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
     );
 
     // Get currency from first cost entry, default to USD
-    const currency = purpose.emfs[0]?.costs[0]?.currency || 'USD';
+    const currency = purpose.purchases[0]?.costs[0]?.currency || 'USD';
 
-    // Create EMF details string
-    const emfDetails = purpose.emfs.map(emf => {
-      const emfCosts = emf.costs.map(cost => `${cost.amount} ${cost.currency}`).join('; ');
-      return `EMF ${emf.id}: Created ${emf.creation_date}${emf.demand_id ? `, Demand ${emf.demand_id} (${emf.demand_creation_date})` : ''}${emf.order_id ? `, Order ${emf.order_id} (${emf.order_creation_date})` : ''}${emf.bikushit_id ? `, Bikushit ${emf.bikushit_id} (${emf.bikushit_creation_date})` : ''}, Costs: ${emfCosts}`;
+    // Create Purchase details string
+    const purchaseDetails = purpose.purchases.map(purchase => {
+      const purchaseCosts = purchase.costs.map(cost => `${cost.amount} ${cost.currency}`).join('; ');
+      const stages = purchase.flow_stages.map(stage => `${stage.stage_type.name}: ${stage.value || 'Pending'}${stage.completion_date ? ` (${stage.completion_date})` : ''}`).join(', ');
+      return `Purchase ${purchase.id}: Created ${purchase.creation_date}, Stages: ${stages}, Costs: ${purchaseCosts}`;
     }).join(' | ');
 
     // Format contents array as string for CSV
@@ -56,8 +57,8 @@ export const exportPurposesToCSV = (filteredPurposes: Purpose[], toast: any) => 
       purpose.comments ? `"${purpose.comments.replace(/"/g, '""')}"` : '',
       totalCost,
       currency,
-      purpose.emfs.length,
-      emfDetails ? `"${emfDetails.replace(/"/g, '""')}"` : '',
+      purpose.purchases.length,
+      purchaseDetails ? `"${purchaseDetails.replace(/"/g, '""')}"` : '',
       purpose.files.length
     ];
   });

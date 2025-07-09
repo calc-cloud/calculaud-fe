@@ -11,6 +11,7 @@ import { serviceTypeService } from '@/services/serviceTypeService';
 import { ServiceType } from '@/types/serviceTypes';
 import { API_CONFIG } from '@/config/api';
 import ServiceTypeModal from './ServiceTypeModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ServiceTypeManagement = () => {
   const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
@@ -28,6 +29,7 @@ const ServiceTypeManagement = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const itemsPerPage = API_CONFIG.PAGINATION.DEFAULT_LIMIT;
 
   // Debounce search query
@@ -110,6 +112,9 @@ const ServiceTypeManagement = () => {
         toast({ title: "Service type created successfully" });
       }
       
+      // Invalidate the React Query cache so other components get updated data
+      queryClient.invalidateQueries({ queryKey: ['service-types'] });
+      
       await fetchServiceTypes();
     } catch (error) {
       toast({
@@ -143,6 +148,10 @@ const ServiceTypeManagement = () => {
       toast({ title: "Service type deleted successfully" });
       setDeleteDialogOpen(false);
       setServiceTypeToDelete(null);
+      
+      // Invalidate the React Query cache so other components get updated data
+      queryClient.invalidateQueries({ queryKey: ['service-types'] });
+      
       await fetchServiceTypes();
     } catch (error) {
       toast({

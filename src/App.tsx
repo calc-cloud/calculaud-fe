@@ -9,6 +9,7 @@ import Search from "@/pages/Search";
 import NotFound from "./pages/NotFound";
 import Admin from "@/pages/Admin";
 import Dashboard from "@/pages/Dashboard";
+import PurposeDetail from "@/pages/PurposeDetail";
 import {AdminDataProvider} from "@/contexts/AdminDataContext";
 import {apiService} from "@/services/apiService";
 import {useEffect} from "react";
@@ -79,6 +80,7 @@ const App = () => {
                             <Routes>
                                 <Route path="/" element={<Navigate to="/search" replace/>}/>
                                 <Route path="/search" element={<Search/>}/>
+                                <Route path="/purposes/:id" element={<PurposeDetail/>}/>
                                 <Route path="/dashboard" element={<Dashboard/>}/>
                                 <Route path="/admin" element={<Admin/>}/>
                                 <Route path="*" element={<NotFound/>}/>

@@ -11,15 +11,7 @@ export const formatDate = (dateString: string | null | undefined): string => {
   });
 };
 
-export const formatDateTime = (dateString: string): string => {
-  return new Date(dateString).toLocaleString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
+
 
 export const calculateDaysSince = (dateString: string): number => {
   const date = new Date(dateString);

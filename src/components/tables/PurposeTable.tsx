@@ -1,38 +1,37 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Purpose } from '@/types';
+import { Purpose, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
-import { CURRENCY_DISPLAY_NAMES } from '@/utils/constants';
+
 
 interface PurposeTableProps {
   purposes: Purpose[];
-  onView: (purpose: Purpose) => void;
-  onEdit: (purpose: Purpose) => void;
   onDelete: (purposeId: string) => void;
   isLoading?: boolean;
 }
 
 export const PurposeTable: React.FC<PurposeTableProps> = ({
   purposes,
-  onView,
-  onEdit,
   onDelete,
   isLoading = false
 }) => {
   const { hierarchies } = useAdminData();
+  const navigate = useNavigate();
 
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
     
-    purpose.emfs.forEach(emf => {
-      emf.costs.forEach(cost => {
-        if (!costsByCurrency[cost.currency]) {
-          costsByCurrency[cost.currency] = 0;
+    purpose.purchases.forEach(purchase => {
+      purchase.costs.forEach(cost => {
+        const currency = cost.currency;
+        if (!costsByCurrency[currency]) {
+          costsByCurrency[currency] = 0;
         }
-        costsByCurrency[cost.currency] += cost.amount;
+        costsByCurrency[currency] += cost.amount;
       });
     });
 
@@ -41,40 +40,63 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       return parseFloat(formattedNumber).toLocaleString();
     };
 
-    const getCurrencySymbol = (currency: string) => {
-      switch (currency) {
-        case 'SUPPORT_USD':
-        case 'AVAILABLE_USD':
-          return '$';
-        case 'ILS':
-          return '₪';
-        default:
-          return currency;
+    // Combine both USD types into a single total
+    const combinedCostsByCurrency: { [key: string]: number } = {};
+    const usdBreakdown: { [key: string]: number } = {};
+    
+    Object.entries(costsByCurrency).forEach(([currency, amount]) => {
+      if (currency === 'SUPPORT_USD' || currency === 'AVAILABLE_USD') {
+        // Store individual USD types for detailed tooltip
+        usdBreakdown[currency] = amount;
+        
+        // Combine into single USD total
+        if (!combinedCostsByCurrency['USD']) {
+          combinedCostsByCurrency['USD'] = 0;
+        }
+        combinedCostsByCurrency['USD'] += amount;
+      } else {
+        // Keep other currencies as is
+        combinedCostsByCurrency[currency] = amount;
       }
-    };
+    });
 
-    const costStrings = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${getCurrencySymbol(currency)}${formatAmount(amount)}`
+    // For display: only amount + currency symbol
+    const displayStrings = Object.entries(combinedCostsByCurrency).map(
+      ([currency, amount]) => {
+        // For combined USD, use the $ symbol
+        const symbol = currency === 'USD' ? '$' : getCurrencySymbol(currency as any);
+        return `${symbol}${formatAmount(amount)}`;
+      }
     );
 
+    // For tooltip: show original format with individual currency types
     const costDetails = Object.entries(costsByCurrency).map(
-      ([currency, amount]) => `${formatAmount(amount)} ${CURRENCY_DISPLAY_NAMES[currency as keyof typeof CURRENCY_DISPLAY_NAMES] || currency}`
+      ([currency, amount]) => {
+        return `${getCurrencySymbol(currency as any)}${formatAmount(amount)} ${currency}`;
+      }
     );
-
-    const allCosts = costStrings.join(', ') || '0';
 
     return {
-      display: costStrings,
+      display: displayStrings,
       details: costDetails,
-      allCosts
+      allCosts: costDetails.join(', ') || '0'
     };
   };
 
   const getEMFIds = (purpose: Purpose) => {
-    const ids = purpose.emfs.map(emf => emf.id);
+    const emfIds: string[] = [];
+    
+    purpose.purchases.forEach(purchase => {
+      purchase.flow_stages.forEach(stage => {
+        if (stage.stage_type.name === 'emf_id' && stage.value && stage.value.trim()) {
+          emfIds.push(stage.value.trim());
+        }
+      });
+    });
+    
     return {
-      ids: ids,
-      allIds: ids.join(', ') || 'None'
+      ids: emfIds,
+      allIds: emfIds.length > 0 ? emfIds.join(', ') : '-'
     };
   };
 
@@ -92,7 +114,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     );
 
     const contentDetails = purpose.contents.map(content => 
-      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`} (${content.service_type || content.material_type || 'Unknown type'})`
+      `${content.quantity} × ${content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}`
     );
 
     return {
@@ -150,7 +172,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
   };
 
   const handleRowClick = (purpose: Purpose) => {
-    onView(purpose);
+    navigate(`/purposes/${purpose.id}`);
   };
 
   if (isLoading) {
@@ -175,7 +197,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <TableHeader>
           <TableRow>
             <TableHead className="w-32 text-center">Description</TableHead>
-            <TableHead className="w-32 text-center">Contents</TableHead>
+            <TableHead className="w-32 text-center">Content</TableHead>
             <TableHead className="text-center">Supplier</TableHead>
             <TableHead className="text-center">Hierarchy</TableHead>
             <TableHead className="text-center">Service Type</TableHead>
@@ -204,9 +226,16 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
                 <TableCell className="font-medium w-32 text-center">
-                  <div className="line-clamp-2 text-sm leading-tight">
-                    {purpose.description}
-                  </div>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="line-clamp-2 text-sm leading-tight">
+                        {purpose.description}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{purpose.description}</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </TableCell>
                 <TableCell className="w-32 text-center">
                   <Tooltip>
@@ -256,12 +285,15 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 <TableCell className="text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Badge 
-                        variant={purpose.status === 'COMPLETED' ? 'default' : 
-                                 purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
-                      >
-                        {getStatusDisplay(purpose.status)}
-                      </Badge>
+                      <div className="cursor-pointer">
+                        <Badge 
+                          variant={purpose.status === 'COMPLETED' ? 'default' : 
+                                   purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
+                          className="pointer-events-none"
+                        >
+                          {getStatusDisplay(purpose.status)}
+                        </Badge>
+                      </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>{purpose.comments || 'No status message'}</p>
@@ -269,29 +301,29 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   </Tooltip>
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex flex-col gap-0.5 items-center">
-                        {emfIds.ids.length > 0 ? (
-                          emfIds.ids.slice(0, 2).map((id, index) => (
+                  {emfIds.ids.length > 0 ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex flex-col gap-0.5 items-center">
+                          {emfIds.ids.slice(0, 2).map((id, index) => (
                             <div key={index} className="text-sm truncate">
                               {id}
                             </div>
-                          ))
-                        ) : (
-                          <div className="text-sm text-muted-foreground">None</div>
-                        )}
-                        {emfIds.ids.length > 2 && (
-                          <div className="text-xs text-muted-foreground">
-                            +{emfIds.ids.length - 2} more
-                          </div>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{emfIds.allIds}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                          ))}
+                          {emfIds.ids.length > 2 && (
+                            <div className="text-xs text-muted-foreground">
+                              +{emfIds.ids.length - 2} more
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{emfIds.allIds}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">-</div>
+                  )}
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
                   <Tooltip>

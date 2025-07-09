@@ -2,9 +2,7 @@ import React, {useState} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import {Button} from '@/components/ui/button';
 import {Copy, LogOut, Plus} from 'lucide-react';
-import {PurposeModal} from '@/components/modals/PurposeModal';
-import {Purpose} from '@/types';
-import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {CreatePurposeModal} from '@/components/modals/CreatePurposeModal';
 import {useAuth} from 'react-oidc-context';
 import {
   DropdownMenu,
@@ -23,22 +21,10 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { createPurpose } = usePurposeMutations();
   const auth = useAuth();
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
-  };
-
-  const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    createPurpose.mutate(purposeData, {
-      onSuccess: () => {
-        setIsModalOpen(false);
-      },
-      onError: (error) => {
-        // Modal stays open on error so user can retry
-      }
-    });
   };
 
   const handleLogout = () => {
@@ -56,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         await navigator.clipboard.writeText(token);
         // You could add a toast notification here
       } catch (err) {
-        console.error('Failed to copy token:', err);
+        // Failed to copy token silently
       }
     }
   };
@@ -169,16 +155,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
       
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+      <main className="mx-auto py-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
         {children}
       </main>
 
-      {/* Global Purpose Modal */}
-      <PurposeModal 
+      {/* Global Create Purpose Modal */}
+      <CreatePurposeModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        mode="create" 
-        onSave={handleSavePurpose} 
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import {useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {ModalMode, Purpose} from '@/types';
+import {Purpose} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
 import {purposeService} from '@/services/purposeService';
@@ -14,9 +14,6 @@ export const usePurposeData = (
   const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
   const [filters, setFilters] = useState<UnifiedFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<ModalMode>('view');
-  const [selectedPurpose, setSelectedPurpose] = useState<Purpose | undefined>();
   const [currentPage, setCurrentPage] = useState(initialPage);
   const itemsPerPage = 10;
 
@@ -62,20 +59,29 @@ export const usePurposeData = (
       };
     }
 
-    const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
-
-    // Update the previous pagination values when we have fresh data
-    previousPaginationRef.current = {
-      totalPages: transformed.pages,
-      totalCount: transformed.total
-    };
-    
-    return {
-      purposes: transformed.purposes,
-      filteredPurposes: transformed.purposes, // No client-side filtering needed
-      totalPages: transformed.pages,
-      totalCount: transformed.total
-    };
+    try {
+      const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+      
+      // Update the previous pagination values when we have fresh data
+      previousPaginationRef.current = {
+        totalPages: transformed.pages,
+        totalCount: transformed.total
+      };
+      
+      return {
+        purposes: transformed.purposes,
+        filteredPurposes: transformed.purposes, // No client-side filtering needed
+        totalPages: transformed.pages,
+        totalCount: transformed.total
+      };
+    } catch (transformError) {
+      return {
+        purposes: [],
+        filteredPurposes: [],
+        totalPages: 0,
+        totalCount: 0
+      };
+    }
   }, [apiResponse, hierarchies, isLoading]);
 
   // Calculate dashboard statistics from current purposes
@@ -84,8 +90,8 @@ export const usePurposeData = (
     const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
     const completed = purposes.filter(p => p.status === 'COMPLETED').length;
     const totalCost = purposes.reduce((sum, purpose) => {
-      const purposeCost = purpose.emfs.reduce((emfSum, emf) => 
-        emfSum + emf.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
+      const purposeCost = purpose.purchases.reduce((purchaseSum, purchase) => 
+        purchaseSum + purchase.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
       );
       return sum + purposeCost;
     }, 0);
@@ -111,12 +117,6 @@ export const usePurposeData = (
     setFilters: handleFiltersChange,
     sortConfig,
     setSortConfig: handleSortChange,
-    isModalOpen,
-    setIsModalOpen,
-    modalMode,
-    setModalMode,
-    selectedPurpose,
-    setSelectedPurpose,
     currentPage,
     setCurrentPage,
     totalPages,

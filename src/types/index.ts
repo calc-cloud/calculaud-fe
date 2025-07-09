@@ -1,5 +1,67 @@
 // Core entity types for the Procurement Management System
 
+// Currency enum with API values
+export enum Currency {
+  ILS = 'ILS',
+  SUPPORT_USD = 'SUPPORT_USD',
+  AVAILABLE_USD = 'AVAILABLE_USD'
+}
+
+// Helper to get display name for currency
+export const getCurrencyDisplayName = (currency: Currency): string => {
+  switch (currency) {
+    case Currency.ILS:
+      return 'ILS';
+    case Currency.SUPPORT_USD:
+      return 'USD Support';
+    case Currency.AVAILABLE_USD:
+      return 'USD Available';
+    default:
+      return currency;
+  }
+};
+
+// Helper to get currency symbol
+export const getCurrencySymbol = (currency: Currency): string => {
+  switch (currency) {
+    case Currency.ILS:
+      return '₪';
+    case Currency.SUPPORT_USD:
+    case Currency.AVAILABLE_USD:
+      return '$';
+    default:
+      return '';
+  }
+};
+
+// Helper to map frontend display names to API values
+export const mapDisplayNameToApiValue = (displayName: string): Currency => {
+  switch (displayName) {
+    case 'ILS':
+      return Currency.ILS;
+    case 'USD Support':
+      return Currency.SUPPORT_USD;
+    case 'USD Available':
+      return Currency.AVAILABLE_USD;
+    default:
+      return Currency.ILS;
+  }
+};
+
+// Helper to map API values to frontend display names
+export const mapApiValueToDisplayName = (apiValue: string): string => {
+  switch (apiValue) {
+    case 'ILS':
+      return 'ILS';
+    case 'SUPPORT_USD':
+      return 'USD Support';
+    case 'AVAILABLE_USD':
+      return 'USD Available';
+    default:
+      return apiValue;
+  }
+};
+
 export interface Purpose {
   id: string;
   description: string;
@@ -10,10 +72,10 @@ export interface Purpose {
   status: PurposeStatus;
   expected_delivery: string;
   comments?: string;
-  service_type: ServiceType;
+  service_type: string;
   creation_time: string;
   last_modified: string;
-  emfs: EMF[];
+  purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
 }
 
@@ -30,22 +92,48 @@ export interface PurposeContent {
   quantity: number;
 }
 
-export interface EMF {
+// New Purchase workflow types
+export interface Purchase {
   id: string;
   purpose_id: string;
-  creation_date: string; // Changed from creation_time to creation_date
-  demand_id?: string;
-  demand_creation_date?: string;
-  order_id?: string;
-  order_creation_date?: string;
-  bikushit_id?: string;
-  bikushit_creation_date?: string;
-  costs: EMFCost[];
+  creation_date: string;
+  costs: Cost[];
+  flow_stages: Stage[];
+  current_pending_stages?: Stage[];
+  time_since_last_completion?: string;
 }
 
-export interface EMFCost {
+export interface Stage {
   id: string;
-  emf_id: string;
+  purchase_id: string;
+  stage_type_id: string;
+  priority: number;
+  value: string | null;
+  completion_date: string | null;
+  stage_type: StageType;
+}
+
+export interface StageType {
+  id: string;
+  name: string;
+  display_name?: string;
+  value_required: boolean;
+}
+
+export interface Cost {
+  id: string;
+  purchase_id: string; // Changed from emf_id to purchase_id
+  amount: number;
+  currency: Currency; // Now uses Currency enum
+}
+
+// Request interface for creating a new purchase
+export interface CreatePurchaseRequest {
+  purpose_id: number;
+  costs: CreateCostRequest[];
+}
+
+export interface CreateCostRequest {
   amount: number;
   currency: Currency;
 }
@@ -66,26 +154,7 @@ export interface Hierarchy {
 
 export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED';
 
-export type Currency = 'SUPPORT_USD' | 'AVAILABLE_USD' | 'ILS';
 
-export type ServiceType = 'Consulting' | 'Software' | 'Hardware' | 'Maintenance' | 'Training' | 'Other';
-
-export type Supplier = 'TechCorp Solutions' | 'Hardware Plus Inc' | 'Strategic Advisors LLC' | 'Global Tech Services' | 'Innovation Partners' | 'Digital Solutions Co' | 'Enterprise Systems Ltd' | 'CloudTech Inc';
-
-// Filter and search types have been moved to @/types/filters
-
-export interface PurposeSorting {
-  field: 'creation_time' | 'last_modified' | 'expected_delivery';
-  direction: 'asc' | 'desc';
-}
-
-export interface PaginationParams {
-  page: number;
-  limit: number;
-}
-
-// Modal modes
-export type ModalMode = 'view' | 'create' | 'edit';
 
 // API response types
 export interface PaginatedResponse<T> {

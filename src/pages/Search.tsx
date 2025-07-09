@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {PurposeTable} from '@/components/tables/PurposeTable';
-import {PurposeModal} from '@/components/modals/PurposeModal';
+
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
@@ -112,12 +112,6 @@ const Search: React.FC = () => {
     setFilters,
     sortConfig,
     setSortConfig,
-    isModalOpen,
-    setIsModalOpen,
-    modalMode,
-    setModalMode,
-    selectedPurpose,
-    setSelectedPurpose,
     currentPage,
     setCurrentPage,
     totalPages,
@@ -131,6 +125,8 @@ const Search: React.FC = () => {
 
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
+
+
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
@@ -197,37 +193,8 @@ const Search: React.FC = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
 
-  const handleViewPurpose = (purpose: Purpose) => {
-    setSelectedPurpose(purpose);
-    setModalMode('view');
-    setIsModalOpen(true);
-  };
-
-  const handleEditPurpose = (purpose: Purpose) => {
-    setSelectedPurpose(purpose);
-    setModalMode('edit');
-    setIsModalOpen(true);
-  };
-
   const handleDeletePurpose = (purposeId: string) => {
     deletePurpose.mutate(purposeId);
-  };
-
-  const handleSavePurpose = (purposeData: Partial<Purpose>) => {
-    if (modalMode === 'create') {
-      try {
-        createPurpose.mutate(purposeData);
-      } catch (error) {
-        // Error handling will be done by the mutation
-      }
-    } else if (modalMode === 'edit' && selectedPurpose) {
-      updatePurpose.mutate({ 
-        id: selectedPurpose.id, 
-        data: purposeData 
-      });
-    }
-
-    setIsModalOpen(false);
   };
 
   const handleExport = () => {
@@ -258,6 +225,8 @@ const Search: React.FC = () => {
       </div>
     );
   }
+
+
 
   return (
     <div className="space-y-6">
@@ -328,21 +297,10 @@ const Search: React.FC = () => {
 
       <PurposeTable
         purposes={filteredPurposes}
-        onView={handleViewPurpose}
-        onEdit={handleEditPurpose}
         onDelete={handleDeletePurpose}
         isLoading={isLoading}
       />
 
-      <PurposeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        mode={modalMode}
-        purpose={selectedPurpose}
-        onSave={handleSavePurpose}
-        onEdit={handleEditPurpose}
-        onDelete={handleDeletePurpose}
-      />
     </div>
   );
 };

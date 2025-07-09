@@ -19,12 +19,14 @@ interface HierarchySelectorProps {
   hierarchies: Hierarchy[];
   selectedIds: number[];
   onSelectionChange: (selectedIds: number[]) => void;
+  singleSelect?: boolean; // New prop to control single vs multiple selection
 }
 
 export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   hierarchies,
   selectedIds,
-  onSelectionChange
+  onSelectionChange,
+  singleSelect = false
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
 
@@ -38,20 +40,33 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   }));
 
   const getLabel = () => {
-    if (selectedIds.length === 0) return 'Hierarchy';
+    if (selectedIds.length === 0) {
+      return singleSelect ? 'Select hierarchy' : 'Hierarchy';
+    }
     if (selectedIds.length === 1) {
       const selected = transformedHierarchies.find(h => h.id === selectedIds[0]);
-      return selected ? selected.name : 'Hierarchy';
+      return selected ? selected.name : (singleSelect ? 'Select hierarchy' : 'Hierarchy');
     }
     return `${selectedIds.length} selected`;
   };
 
   const handleSelect = (hierarchyId: number) => {
     const isSelected = selectedIds.includes(hierarchyId);
-    if (isSelected) {
-      onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+    
+    if (singleSelect) {
+      // In single select mode, either select this item or deselect it
+      if (isSelected) {
+        onSelectionChange([]); // Deselect if already selected
+      } else {
+        onSelectionChange([hierarchyId]); // Select only this item
+      }
     } else {
-      onSelectionChange([...selectedIds, hierarchyId]);
+      // In multiple select mode, toggle selection
+      if (isSelected) {
+        onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+      } else {
+        onSelectionChange([...selectedIds, hierarchyId]);
+      }
     }
   };
 
@@ -147,7 +162,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <div className="flex-1 ml-2">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">{node.fullPath}</span>
+                <span className="text-sm font-medium text-gray-900">{node.name}</span>
               </div>
               <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
                 {node.type.toLowerCase()}
