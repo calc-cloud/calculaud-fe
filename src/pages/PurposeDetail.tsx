@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers, Edit2, Check, X, Workflow, Info } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Layers, Check, X, Workflow, Info } from 'lucide-react';
 import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
