@@ -12,6 +12,7 @@ import { Material } from '@/types/materials';
 import { API_CONFIG } from '@/config/api';
 import { useServiceTypes } from '@/hooks/useServiceTypes';
 import MaterialModal from './MaterialModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 const MaterialManagement = () => {
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -30,6 +31,7 @@ const MaterialManagement = () => {
 
   const { toast } = useToast();
   const { data: serviceTypesData } = useServiceTypes();
+  const queryClient = useQueryClient();
   const itemsPerPage = API_CONFIG.PAGINATION.DEFAULT_LIMIT;
 
   // Debounce search query
@@ -111,6 +113,9 @@ const MaterialManagement = () => {
         toast({ title: "Material created successfully" });
       }
       
+      // Invalidate the React Query cache so other components get updated data
+      queryClient.invalidateQueries({ queryKey: ['materials'] });
+      
       await fetchMaterials();
     } catch (error) {
       toast({
@@ -144,6 +149,10 @@ const MaterialManagement = () => {
       toast({ title: "Material deleted successfully" });
       setDeleteDialogOpen(false);
       setMaterialToDelete(null);
+      
+      // Invalidate the React Query cache so other components get updated data
+      queryClient.invalidateQueries({ queryKey: ['materials'] });
+      
       await fetchMaterials();
     } catch (error) {
       toast({
