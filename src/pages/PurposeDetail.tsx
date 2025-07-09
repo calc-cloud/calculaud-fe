@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers, Edit2, Check, X } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Activity, Layers, Edit2, Check, X, Workflow, Info } from 'lucide-react';
 import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
@@ -192,7 +192,6 @@ const PurposeDetail: React.FC = () => {
 
   // Timeline utility functions
   const convertPurchaseToStages = (purchase: any) => {
-    // Keep stages in the order from API response (no sorting by priority or dates)
     // Flatten nested arrays of stages - treat array items as independent stages
     const stages = (purchase.flow_stages || [])
       .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
@@ -205,7 +204,18 @@ const PurposeDetail: React.FC = () => {
         value: stage.value || '',
         priority: stage.priority,
         stage_type: stage.stage_type
-      }));
+      }))
+      .sort((a: any, b: any) => {
+        // First sort by priority
+        if (a.priority !== b.priority) {
+          return a.priority - b.priority;
+        }
+        // Within the same priority, sort by completion status (completed first)
+        if (a.completed !== b.completed) {
+          return a.completed ? -1 : 1; // completed stages first
+        }
+        return 0;
+      });
     
     // Only create a basic creation stage if there are truly no flow stages
     if (stages.length === 0) {
@@ -324,46 +334,55 @@ const PurposeDetail: React.FC = () => {
     });
   };
 
-  const getDaysSinceLastCompletion = (stages: any[], currentIndex: number) => {
-    // Find the last completed stage before this one
-    for (let i = currentIndex - 1; i >= 0; i--) {
-      if (stages[i].completed && stages[i].date) {
-        const lastCompletionDate = new Date(stages[i].date);
-        const today = new Date();
-        const diffTime = Math.abs(today.getTime() - lastCompletionDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
-      }
-    }
-    return null;
+  // Parse ISO 8601 duration format (e.g., "PT0S", "P1DT2H3M4S") and convert to days
+  const parseDurationToDays = (duration: string) => {
+    if (!duration || duration === 'PT0S') return 0;
+    
+    // Parse ISO 8601 duration format
+    const match = duration.match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/);
+    if (!match) return 0;
+    
+    const days = parseInt(match[1] || '0', 10);
+    const hours = parseInt(match[2] || '0', 10);
+    const minutes = parseInt(match[3] || '0', 10);
+    const seconds = parseInt(match[4] || '0', 10);
+    
+    // Convert everything to days
+    const totalDays = days + (hours / 24) + (minutes / (24 * 60)) + (seconds / (24 * 60 * 60));
+    return Math.floor(totalDays);
   };
+
+
 
   const getStageDisplayDate = (stage: any, stages: any[], index: number) => {
     if (stage.completed && stage.date) {
       return formatDateForTimeline(stage.date);
     }
     
-    // Only show days counter for the immediate next stage after the last completed stage
-    if (!stage.completed) {
-      // Find the last completed stage index
-      let lastCompletedIndex = -1;
-      for (let i = stages.length - 1; i >= 0; i--) {
-        if (stages[i].completed && stages[i].date) {
-          lastCompletedIndex = i;
-          break;
-        }
-      }
-      
-      // Only show counter if this is the immediate next stage after the last completed one
-      if (lastCompletedIndex !== -1 && index === lastCompletedIndex + 1) {
-        const daysSince = getDaysSinceLastCompletion(stages, index);
-        if (daysSince !== null) {
-          return `${daysSince} days since last completion`;
-        }
-      }
+    return ''; // No text for incomplete stages
+  };
+
+  // Check if stage has other stages with the same priority
+  const hasMultipleStagesWithSamePriority = (stages: any[], stage: any) => {
+    return stages.filter(s => s.priority === stage.priority).length > 1;
+  };
+
+  // Get priority variant for badge
+  const getPriorityVariant = (priority: number) => {
+    const variants = [
+      'secondary', // purple-ish
+      'outline',   // teal-ish
+      'default'    // blue-ish
+    ];
+    return variants[(priority - 1) % variants.length] as 'secondary' | 'outline' | 'default';
+  };
+
+  // Check if a stage is in the current pending stages from API
+  const isCurrentPendingStage = (stage: any, purchase: any) => {
+    if (!purchase.current_pending_stages || purchase.current_pending_stages.length === 0) {
+      return false;
     }
-    
-    return ''; // No text for other incomplete stages
+    return purchase.current_pending_stages.some((pendingStage: any) => pendingStage.id === stage.id);
   };
 
   const calculateStagePosition = (stages: any[], stageIndex: number) => {
@@ -588,14 +607,25 @@ const PurposeDetail: React.FC = () => {
                     const stages = convertPurchaseToStages(purchase);
                     
                                           return (
-                        <div key={purchase.id}>
+                                                <div key={purchase.id}>
                           <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center justify-between mb-4">
-                              <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
-                          <div className="text-xs text-gray-500">
-                            Created: {formatDate(purchase.creation_date)}
-                          </div>
-                        </div>
+                              <div className="flex items-center space-x-4">
+                                <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
+                                {isPurchaseComplete(purchase) ? (
+                                  <span className="text-sm text-green-600 font-medium ml-2">Purchase is completed</span>
+                                ) : (
+                                  purchase.time_since_last_completion && purchase.current_pending_stages && purchase.current_pending_stages.length > 0 && (
+                                    <span className="text-sm text-orange-600 font-medium ml-2">
+                                      {parseDurationToDays(purchase.time_since_last_completion)} days in {purchase.current_pending_stages.map(stage => stage.stage_type.display_name || stage.stage_type.name).join(', ')}
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                Created: {formatDate(purchase.creation_date)}
+                              </div>
+                            </div>
                       
                                                                                                                                                            <div className="relative">
                            {/* Timeline Container with dedicated areas */}
@@ -623,19 +653,30 @@ const PurposeDetail: React.FC = () => {
                                         }}
                                       >
                                                                 <div 
-                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
-                            isExpanded 
-                              ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50' 
-                              : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10'
+                          className={`bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-300 ${
+                            isCurrentPendingStage(stage, purchase)
+                              ? isExpanded 
+                                ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50 border-2 border-orange-400' 
+                                : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border-2 border-orange-400'
+                              : isExpanded 
+                                ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200' 
+                                : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200'
                           }`}
                          onClick={() => handleStageClick(stage, index, stages)}
                        >
                          {/* Collapsed Content */}
                          {!isExpanded && (
                            <div className="text-center">
-                             <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                             <div className="flex items-center justify-center mb-1">
+                               <h4 className="font-medium text-gray-800 text-xs leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                               {hasMultipleStagesWithSamePriority(stages, stage) && (
+                                 <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
+                                   <Workflow className="w-3 h-3" />
+                                 </Badge>
+                               )}
+                             </div>
                              {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== '' && (
-                               <div className="text-xs text-blue-600 font-medium mb-1 break-words">
+                               <div className="text-xs text-gray-900 font-medium mb-1 break-words">
                                  {stage.value}
                                </div>
                              )}
@@ -645,13 +686,20 @@ const PurposeDetail: React.FC = () => {
                                </div>
                              )}
                            </div>
-                         )}
+                                                                  )}
                                          
                                          {/* Expanded Content */}
                                          {isExpanded && (
                                            <div className="space-y-3">
                                              <div className="flex items-center justify-between mb-3">
-                                               <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                                               <div className="flex items-center">
+                                                 <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                                                 {hasMultipleStagesWithSamePriority(stages, stage) && (
+                                                   <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
+                                                     <Workflow className="w-3 h-3" />
+                                                   </Badge>
+                                                 )}
+                                               </div>
                                                <div className="flex items-center space-x-1">
                                                  <div 
                                                    className={`w-3 h-3 rounded-full ${
@@ -823,19 +871,30 @@ const PurposeDetail: React.FC = () => {
                                         }}
                                       >
                                                                 <div 
-                          className={`bg-white rounded-lg shadow-sm border border-gray-200 cursor-pointer transition-all duration-300 ${
-                            isExpanded 
-                              ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50' 
-                              : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10'
+                          className={`bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-300 ${
+                            isCurrentPendingStage(stage, purchase)
+                              ? isExpanded 
+                                ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50 border-2 border-orange-400' 
+                                : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border-2 border-orange-400'
+                              : isExpanded 
+                                ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200' 
+                                : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200'
                           }`}
                          onClick={() => handleStageClick(stage, index, stages)}
                        >
                          {/* Collapsed Content */}
                          {!isExpanded && (
                            <div className="text-center">
-                             <h4 className="font-medium text-gray-800 text-xs mb-1 leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                             <div className="flex items-center justify-center mb-1">
+                               <h4 className="font-medium text-gray-800 text-xs leading-tight break-words">{stage.name || 'Unknown Stage'}</h4>
+                               {hasMultipleStagesWithSamePriority(stages, stage) && (
+                                 <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
+                                   <Workflow className="w-3 h-3" />
+                                 </Badge>
+                               )}
+                             </div>
                              {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== '' && (
-                               <div className="text-xs text-blue-600 font-medium mb-1 break-words">
+                               <div className="text-xs text-gray-900 font-medium mb-1 break-words">
                                  {stage.value}
                                </div>
                              )}
@@ -851,7 +910,14 @@ const PurposeDetail: React.FC = () => {
                                          {isExpanded && (
                                            <div className="space-y-3">
                                              <div className="flex items-center justify-between mb-3">
-                                               <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                                               <div className="flex items-center">
+                                                 <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                                                 {hasMultipleStagesWithSamePriority(stages, stage) && (
+                                                   <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
+                                                     <Workflow className="w-3 h-3" />
+                                                   </Badge>
+                                                 )}
+                                               </div>
                                                <div className="flex items-center space-x-1">
                                                  <div 
                                                    className={`w-3 h-3 rounded-full ${
@@ -947,16 +1013,26 @@ const PurposeDetail: React.FC = () => {
                           {/* Cost */}
                           <div className="mt-6">
                             <h5 className="text-base font-medium mb-2">Cost</h5>
-                        <div className="flex flex-wrap gap-1">
-                          {purchase.costs.map((cost) => {
-                            return (
-                              <Badge key={cost.id} variant="outline" className="text-sm">
-                                {getCurrencySymbol(cost.currency)}{cost.amount.toLocaleString()} {cost.currency}
-                              </Badge>
-                            );
-                          })}
-                        </div>
-                      </div>
+                            <div className="flex flex-wrap items-center justify-between gap-1">
+                              <div className="flex flex-wrap gap-1">
+                                {purchase.costs.map((cost) => {
+                                  return (
+                                    <Badge key={cost.id} variant="outline" className="text-sm">
+                                      {getCurrencySymbol(cost.currency)}{cost.amount.toLocaleString()} {cost.currency}
+                                    </Badge>
+                                  );
+                                })}
+                              </div>
+                                                             {/* Parallelism Explanation */}
+                               <div className="flex items-center gap-2 text-sm text-gray-500">
+                                 <Info className="w-3 h-3" />
+                                 <span>
+                                   <Workflow className="w-3 h-3 inline mr-1" />
+                                   indicates stages that can run in parallel
+                                 </span>
+                               </div>
+                            </div>
+                          </div>
                     </div>
                         
                         {/* Add separator between purchases, but not after the last one */}

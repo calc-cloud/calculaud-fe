@@ -60,6 +60,8 @@ export interface Purchase {
   creation_date: string;
   costs: Cost[];
   flow_stages: Stage[];
+  current_pending_stages?: Stage[];
+  time_since_last_completion?: string;
 }
 
 export interface Stage {
@@ -75,6 +77,7 @@ export interface Stage {
 export interface StageType {
   id: number;
   name: string;
+  display_name?: string;
   value_required: boolean;
 }
 
@@ -406,6 +409,16 @@ class PurposeService {
             completion_date: stage.completion_date || null,
             stage_type: stage.stage_type || { id: '', name: '', value_required: false }
           })),
+        current_pending_stages: (purchase.current_pending_stages || []).map((stage: any) => ({
+          id: stage.id?.toString() || '',
+          purchase_id: purchase.id?.toString() || '',
+          stage_type_id: stage.stage_type_id || 0,
+          priority: stage.priority || 0,
+          value: stage.value || null,
+          completion_date: stage.completion_date || null,
+          stage_type: stage.stage_type || { id: '', name: '', value_required: false }
+        })),
+        time_since_last_completion: purchase.time_since_last_completion || null,
         files: [] // Files would come from a separate endpoint
       })),
       files: [] // Files would come from a separate endpoint

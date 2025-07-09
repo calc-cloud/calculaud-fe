@@ -99,6 +99,8 @@ export interface Purchase {
   creation_date: string;
   costs: Cost[];
   flow_stages: Stage[];
+  current_pending_stages?: Stage[];
+  time_since_last_completion?: string;
 }
 
 export interface Stage {
@@ -114,6 +116,7 @@ export interface Stage {
 export interface StageType {
   id: string;
   name: string;
+  display_name?: string;
   value_required: boolean;
 }
 
