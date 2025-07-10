@@ -631,7 +631,10 @@ const PurposeDetail: React.FC = () => {
                       
                                                                                                                                                            <div className="relative">
                            {/* Timeline Container with dedicated areas */}
-                           <div className="relative px-4" id={`timeline-${purchase.id}`}>
+                           <div 
+                             className="relative px-4" 
+                             id={`timeline-${purchase.id}`}
+                           >
                              
                                                                           {/* Above Timeline Area */}
                              <div className="relative h-28 mb-6">
@@ -655,7 +658,9 @@ const PurposeDetail: React.FC = () => {
                                         }}
                                       >
                                                                 <div 
-                          className={`bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-300 ${
+                          className={`bg-white rounded-lg shadow-sm transition-all duration-300 ${
+                            editingStage === stage.id ? '' : 'cursor-pointer'
+                          } ${
                             isCurrentPendingStage(stage, purchase)
                               ? isExpanded 
                                 ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50 border-2 border-orange-400' 
@@ -664,7 +669,13 @@ const PurposeDetail: React.FC = () => {
                                 ? 'w-64 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200' 
                                 : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200'
                           }`}
-                         onClick={() => handleStageClick(stage, index, stages)}
+                         onClick={() => {
+                           // Don't trigger if already in edit mode
+                           if (editingStage === stage.id) {
+                             return;
+                           }
+                           handleStageClick(stage, index, stages);
+                         }}
                        >
                          {/* Collapsed Content */}
                          {!isExpanded && (
@@ -723,7 +734,7 @@ const PurposeDetail: React.FC = () => {
                                              </div>
                                              
                                              {editingStage === stage.id && (
-                                               <div className="space-y-3">
+                                               <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
                                                  {stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
@@ -873,7 +884,9 @@ const PurposeDetail: React.FC = () => {
                                         }}
                                       >
                                                                 <div 
-                          className={`bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-300 ${
+                          className={`bg-white rounded-lg shadow-sm transition-all duration-300 ${
+                            editingStage === stage.id ? '' : 'cursor-pointer'
+                          } ${
                             isCurrentPendingStage(stage, purchase)
                               ? isExpanded 
                                 ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50 border-2 border-orange-400' 
@@ -882,7 +895,13 @@ const PurposeDetail: React.FC = () => {
                                 ? 'w-60 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200' 
                                 : 'min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200'
                           }`}
-                         onClick={() => handleStageClick(stage, index, stages)}
+                         onClick={() => {
+                           // Don't trigger if already in edit mode
+                           if (editingStage === stage.id) {
+                             return;
+                           }
+                           handleStageClick(stage, index, stages);
+                         }}
                        >
                          {/* Collapsed Content */}
                          {!isExpanded && (
@@ -941,7 +960,7 @@ const PurposeDetail: React.FC = () => {
                                              </div>
                                              
                                              {editingStage === stage.id && (
-                                               <div className="space-y-3">
+                                               <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
                                                  {stage.completed && (
                                                    <div>
                                                      <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
@@ -1097,6 +1116,14 @@ const PurposeDetail: React.FC = () => {
           onSubmit={handleCreatePurchase}
           purposeId={parseInt(purpose.id)}
           isLoading={isCreatingPurchase}
+        />
+      )}
+
+      {/* Full-screen overlay when stage is expanded */}
+      {selectedStage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-20 z-40"
+          onClick={handleCloseStagePopup}
         />
       )}
 
