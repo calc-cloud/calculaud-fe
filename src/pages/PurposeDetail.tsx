@@ -10,6 +10,7 @@ import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
+import { getPendingStagesText, convertPurchaseToStages, parseDurationToDays } from '@/utils/stageUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
 import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
@@ -191,47 +192,6 @@ const PurposeDetail: React.FC = () => {
   };
 
   // Timeline utility functions
-  const convertPurchaseToStages = (purchase: any) => {
-    // Flatten nested arrays of stages - treat array items as independent stages
-    const stages = (purchase.flow_stages || [])
-      .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
-      .filter((stage: any) => stage && stage.stage_type && (stage.stage_type.display_name || stage.stage_type.name)) // Filter out invalid stages
-      .map((stage: any) => ({
-        id: stage.id,
-        name: stage.stage_type.display_name || stage.stage_type.name, // Using display_name from API response
-        completed: !!stage.completion_date,
-        date: stage.completion_date, // Only show completion date, no fallback to creation date
-        value: stage.value || '',
-        priority: stage.priority,
-        stage_type: stage.stage_type
-      }))
-      .sort((a: any, b: any) => {
-        // First sort by priority
-        if (a.priority !== b.priority) {
-          return a.priority - b.priority;
-        }
-        // Within the same priority, sort by completion status (completed first)
-        if (a.completed !== b.completed) {
-          return a.completed ? -1 : 1; // completed stages first
-        }
-        return 0;
-      });
-    
-    // Only create a basic creation stage if there are truly no flow stages
-    if (stages.length === 0) {
-      return [{
-        id: `${purchase.id}-creation`,
-        name: 'Created',
-        completed: true,
-        date: purchase.creation_date,
-        value: `Purchase #${purchase.id}`,
-        priority: 0, // Changed from 1 to 0 to ensure it comes before any actual stages
-        stage_type: { name: 'creation', value_required: false }
-      }];
-    }
-    
-    return stages;
-  };
 
 
 
@@ -334,23 +294,7 @@ const PurposeDetail: React.FC = () => {
     });
   };
 
-  // Parse ISO 8601 duration format (e.g., "PT0S", "P1DT2H3M4S") and convert to days
-  const parseDurationToDays = (duration: string) => {
-    if (!duration || duration === 'PT0S') return 0;
-    
-    // Parse ISO 8601 duration format
-    const match = duration.match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/);
-    if (!match) return 0;
-    
-    const days = parseInt(match[1] || '0', 10);
-    const hours = parseInt(match[2] || '0', 10);
-    const minutes = parseInt(match[3] || '0', 10);
-    const seconds = parseInt(match[4] || '0', 10);
-    
-    // Convert everything to days
-    const totalDays = days + (hours / 24) + (minutes / (24 * 60)) + (seconds / (24 * 60 * 60));
-    return Math.floor(totalDays);
-  };
+
 
 
 
@@ -404,6 +348,8 @@ const PurposeDetail: React.FC = () => {
     // A purchase is complete if all stages have completion dates
     return stages.every(stage => stage.completed);
   };
+
+
 
   if (isLoading) {
     return (
@@ -612,15 +558,15 @@ const PurposeDetail: React.FC = () => {
                             <div className="flex items-center justify-between mb-4">
                               <div className="flex items-center space-x-4">
                                 <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
-                                {isPurchaseComplete(purchase) ? (
-                                  <span className="text-sm text-green-600 font-medium ml-2">Purchase is completed</span>
-                                ) : (
-                                  purchase.time_since_last_completion && purchase.current_pending_stages && purchase.current_pending_stages.length > 0 && (
-                                    <span className="text-sm text-orange-600 font-medium ml-2">
-                                      {parseDurationToDays(purchase.time_since_last_completion)} days in {purchase.current_pending_stages.map(stage => stage.stage_type.display_name || stage.stage_type.name).join(', ')}
-                                    </span>
-                                  )
-                                )}
+                                                                 {isPurchaseComplete(purchase) ? (
+                                   <span className="text-sm text-green-600 font-medium ml-2">Purchase is completed</span>
+                                 ) : (
+                                   getPendingStagesText(purchase) && (
+                                     <span className="text-sm text-orange-600 font-medium ml-2">
+                                       {getPendingStagesText(purchase)}
+                                     </span>
+                                   )
+                                 )}
                               </div>
                               <div className="text-xs text-gray-500">
                                 Created: {formatDate(purchase.creation_date)}

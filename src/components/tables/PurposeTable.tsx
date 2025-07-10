@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Purpose, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
+import { getPendingStagesText } from '@/utils/stageUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 
 
@@ -21,6 +22,19 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
+
+  // Get pending stages display for all purchases in a purpose
+  const getPendingStagesDisplay = (purpose: Purpose) => {
+    if (purpose.status !== 'IN_PROGRESS') {
+      return null;
+    }
+
+    const pendingStagesTexts = purpose.purchases
+      .map(purchase => getPendingStagesText(purchase))
+      .filter(text => text !== null);
+
+    return pendingStagesTexts;
+  };
 
   const getTotalCostWithCurrencies = (purpose: Purpose) => {
     const costsByCurrency: { [key: string]: number } = {};
@@ -219,6 +233,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             const emfIds = getEMFIds(purpose);
             const hierarchyInfo = getHierarchyInfo(purpose);
             const contentsInfo = getContentsDisplay(purpose);
+            const pendingStagesTexts = getPendingStagesDisplay(purpose);
             return (
               <TableRow 
                 key={purpose.id} 
@@ -283,22 +298,50 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
                 <TableCell className="text-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="cursor-pointer">
-                        <Badge 
-                          variant={purpose.status === 'COMPLETED' ? 'default' : 
-                                   purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
-                          className="pointer-events-none"
-                        >
-                          {getStatusDisplay(purpose.status)}
-                        </Badge>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{purpose.comments || 'No status message'}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  {purpose.status === 'IN_PROGRESS' && pendingStagesTexts && pendingStagesTexts.length > 0 ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-pointer">
+                          <div className="flex flex-col gap-0.5 items-center">
+                            {pendingStagesTexts.slice(0, 2).map((text, index) => (
+                              <div key={index} className="text-sm text-orange-600 font-medium">
+                                {text}
+                              </div>
+                            ))}
+                            {pendingStagesTexts.length > 2 && (
+                              <div className="text-xs text-muted-foreground">
+                                +{pendingStagesTexts.length - 2} more
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex flex-col">
+                          {pendingStagesTexts.map((text, index) => (
+                            <div key={index} className="text-orange-600 font-medium">{text}</div>
+                          ))}
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-pointer">
+                          <Badge 
+                            variant={purpose.status === 'COMPLETED' ? 'default' : 
+                                     purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
+                            className="pointer-events-none"
+                          >
+                            {getStatusDisplay(purpose.status)}
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{purpose.comments || 'No status message'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
                   {emfIds.ids.length > 0 ? (
