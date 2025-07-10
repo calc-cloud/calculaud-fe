@@ -165,6 +165,10 @@ class PurposeService {
     return apiService.post<Purchase>('/purchases/', data);
   }
 
+  async deletePurchase(purchaseId: string): Promise<void> {
+    return apiService.delete<void>(`/purchases/${purchaseId}`);
+  }
+
   // Map frontend filters to API parameters
   mapFiltersToApiParams(
     filters: UnifiedFilters, 
