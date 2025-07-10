@@ -12,18 +12,12 @@ import Dashboard from "@/pages/Dashboard";
 import PurposeDetail from "@/pages/PurposeDetail";
 import {AdminDataProvider} from "@/contexts/AdminDataContext";
 import {apiService} from "@/services/apiService";
-import {useEffect} from "react";
 import {AlertTriangle, Loader2} from "lucide-react";
 
 const queryClient = new QueryClient();
 
 const App = () => {
     const auth = useAuth();
-
-    // Set up API service with auth token
-    useEffect(() => {
-        apiService.setTokenProvider(() => auth.user?.access_token);
-    }, [auth.user?.access_token]);
 
     if (auth.isLoading) {
         return (
@@ -67,6 +61,11 @@ const App = () => {
                 </div>
             </div>
         );
+    }
+
+    // Set up API token provider immediately when authenticated
+    if (auth.user?.access_token) {
+        apiService.setTokenProvider(() => auth.user?.access_token);
     }
 
     return (
