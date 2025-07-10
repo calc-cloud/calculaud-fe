@@ -191,6 +191,32 @@ const PurposeDetail: React.FC = () => {
     }
   };
 
+  const handleDeletePurchase = async (purchaseId: string) => {
+    try {
+      await purposeService.deletePurchase(purchaseId);
+      
+      toast({
+        title: "Purchase deleted",
+        description: "The purchase has been deleted successfully.",
+      });
+      
+      // Refresh the purpose data to show updated purchases
+      if (id) {
+        const apiPurpose = await purposeService.getPurpose(id);
+        const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+        setPurpose(transformedPurpose);
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete purchase';
+      toast({
+        title: "Error deleting purchase",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  };
+
   // Timeline utility functions
 
 
@@ -556,21 +582,51 @@ const PurposeDetail: React.FC = () => {
                                                 <div key={purchase.id}>
                           <div className="bg-gray-50 rounded-lg p-6">
                             <div className="flex items-center justify-between mb-4">
-                              <div className="flex items-center space-x-4">
-                                <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
-                                                                 {isPurchaseComplete(purchase) ? (
-                                   <span className="text-sm text-green-600 font-medium ml-2">Purchase is completed</span>
-                                 ) : (
-                                   getPendingStagesText(purchase) && (
-                                     <span className="text-sm text-orange-600 font-medium ml-2">
-                                       {getPendingStagesText(purchase)}
-                                     </span>
-                                   )
-                                 )}
+                              <div className="flex flex-col">
+                                <div className="flex items-center space-x-4">
+                                  <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
+                                  {isPurchaseComplete(purchase) ? (
+                                    <span className="text-sm text-green-600 font-medium">Purchase is completed</span>
+                                  ) : (
+                                    getPendingStagesText(purchase) && (
+                                      <span className="text-sm text-orange-600 font-medium">
+                                        {getPendingStagesText(purchase)}
+                                      </span>
+                                    )
+                                  )}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  Created: {formatDate(purchase.creation_date)}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-500">
-                                Created: {formatDate(purchase.creation_date)}
-                              </div>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete Purchase #{purchase.id}? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleDeletePurchase(purchase.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                       
                                                                                                                                                            <div className="relative">

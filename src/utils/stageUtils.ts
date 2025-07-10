@@ -115,13 +115,16 @@ export const getCurrentPendingStages = (stages: any[]) => {
 /**
  * Generate pending stages text for a purchase
  * Follows three-tier logic: API fields -> Hybrid -> Manual calculation
+ * @param purchase - The purchase object
+ * @param showPurchasePrefix - Whether to include "Purchase {id}" prefix in the text
  */
-export const getPendingStagesText = (purchase: any): string | null => {
+export const getPendingStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
   // First try the API-provided data (tier 1: full API)
   if (purchase.time_since_last_completion && purchase.current_pending_stages && purchase.current_pending_stages.length > 0) {
     const days = parseDurationToDays(purchase.time_since_last_completion);
     const stageNames = purchase.current_pending_stages.map((stage: any) => stage.stage_type.display_name || stage.stage_type.name).join(', ');
-    return `${days} days in ${stageNames}`;
+    const baseText = `${days} days in ${stageNames}`;
+    return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
   }
 
   // Fallback: calculate stages manually but prefer API time calculation (tier 2: hybrid & tier 3: full manual)
@@ -141,5 +144,6 @@ export const getPendingStagesText = (purchase: any): string | null => {
   }
 
   const stageNames = pendingStages.map(stage => stage.name).join(', ');
-  return `${days} days in ${stageNames}`;
+  const baseText = `${days} days in ${stageNames}`;
+  return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 }; 

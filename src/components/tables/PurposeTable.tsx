@@ -30,7 +30,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     }
 
     const pendingStagesTexts = purpose.purchases
-      .map(purchase => getPendingStagesText(purchase))
+      .map(purchase => getPendingStagesText(purchase, true))
       .filter(text => text !== null);
 
     return pendingStagesTexts;
@@ -304,7 +304,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         <div className="cursor-pointer">
                           <div className="flex flex-col gap-0.5 items-center">
                             {pendingStagesTexts.slice(0, 2).map((text, index) => (
-                              <div key={index} className="text-sm text-orange-600 font-medium">
+                              <div key={index} className="text-sm">
                                 {text}
                               </div>
                             ))}
@@ -319,7 +319,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       <TooltipContent>
                         <div className="flex flex-col">
                           {pendingStagesTexts.map((text, index) => (
-                            <div key={index} className="text-orange-600 font-medium">{text}</div>
+                            <div key={index}>{text}</div>
                           ))}
                         </div>
                       </TooltipContent>
