@@ -4,26 +4,6 @@
  */
 
 /**
- * Parse ISO 8601 duration format (e.g., "PT0S", "P1DT2H3M4S") and convert to days
- */
-export const parseDurationToDays = (duration: string): number => {
-  if (!duration || duration === 'PT0S') return 0;
-  
-  // Parse ISO 8601 duration format
-  const match = duration.match(/P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/);
-  if (!match) return 0;
-  
-  const days = parseInt(match[1] || '0', 10);
-  const hours = parseInt(match[2] || '0', 10);
-  const minutes = parseInt(match[3] || '0', 10);
-  const seconds = parseInt(match[4] || '0', 10);
-  
-  // Convert everything to days
-  const totalDays = days + (hours / 24) + (minutes / (24 * 60)) + (seconds / (24 * 60 * 60));
-  return Math.floor(totalDays);
-};
-
-/**
  * Convert purchase data to structured stages array
  */
 export const convertPurchaseToStages = (purchase: any) => {
@@ -120,8 +100,8 @@ export const getCurrentPendingStages = (stages: any[]) => {
  */
 export const getPendingStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
   // First try the API-provided data (tier 1: full API)
-  if (purchase.time_since_last_completion && purchase.current_pending_stages && purchase.current_pending_stages.length > 0) {
-    const days = parseDurationToDays(purchase.time_since_last_completion);
+  if (purchase.days_since_last_completion !== undefined && purchase.current_pending_stages && purchase.current_pending_stages.length > 0) {
+    const days = purchase.days_since_last_completion;
     const stageNames = purchase.current_pending_stages.map((stage: any) => stage.stage_type.display_name || stage.stage_type.name).join(', ');
     const baseText = `${days} days in ${stageNames}`;
     return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
@@ -137,8 +117,8 @@ export const getPendingStagesText = (purchase: any, showPurchasePrefix: boolean 
 
   // Prefer API time field, fallback to manual calculation only if API field missing
   let days;
-  if (purchase.time_since_last_completion) {
-    days = parseDurationToDays(purchase.time_since_last_completion);
+  if (purchase.days_since_last_completion !== undefined) {
+    days = purchase.days_since_last_completion;
   } else {
     days = calculateTimeSinceLastCompletion(stages, purchase);
   }

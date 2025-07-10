@@ -34,33 +34,7 @@ export const getCurrencySymbol = (currency: Currency): string => {
   }
 };
 
-// Helper to map frontend display names to API values
-export const mapDisplayNameToApiValue = (displayName: string): Currency => {
-  switch (displayName) {
-    case 'ILS':
-      return Currency.ILS;
-    case 'USD Support':
-      return Currency.SUPPORT_USD;
-    case 'USD Available':
-      return Currency.AVAILABLE_USD;
-    default:
-      return Currency.ILS;
-  }
-};
 
-// Helper to map API values to frontend display names
-export const mapApiValueToDisplayName = (apiValue: string): string => {
-  switch (apiValue) {
-    case 'ILS':
-      return 'ILS';
-    case 'SUPPORT_USD':
-      return 'USD Support';
-    case 'AVAILABLE_USD':
-      return 'USD Available';
-    default:
-      return apiValue;
-  }
-};
 
 export interface Purpose {
   id: string;
@@ -100,7 +74,7 @@ export interface Purchase {
   costs: Cost[];
   flow_stages: Stage[];
   current_pending_stages?: Stage[];
-  time_since_last_completion?: string;
+  days_since_last_completion?: number;
 }
 
 export interface Stage {
@@ -155,15 +129,6 @@ export interface Hierarchy {
 export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED';
 
 
-
-// API response types
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  total_pages: number;
-}
 
 // Add specific API response type for purposes
 export interface PurposesApiResponse {

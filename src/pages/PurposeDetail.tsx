@@ -10,7 +10,7 @@ import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
-import { getPendingStagesText, convertPurchaseToStages, parseDurationToDays } from '@/utils/stageUtils';
+import { getPendingStagesText, convertPurchaseToStages } from '@/utils/stageUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
 import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
