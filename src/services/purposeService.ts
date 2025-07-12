@@ -422,7 +422,7 @@ class PurposeService {
           completion_date: stage.completion_date || null,
           stage_type: stage.stage_type || { id: '', name: '', value_required: false }
         })),
-        days_since_last_completion: purchase.days_since_last_completion || null,
+        days_since_last_completion: purchase.days_since_last_completion ?? null,
         files: [] // Files would come from a separate endpoint
       })),
       files: [] // Files would come from a separate endpoint
@@ -497,7 +497,7 @@ class PurposeService {
                 completion_date: stage.completion_date || null,
                 stage_type: stage.stage_type || { id: '', name: '', value_required: false }
               })),
-            days_since_last_completion: purchase.days_since_last_completion || null,
+            days_since_last_completion: purchase.days_since_last_completion ?? null,
             files: [] // API doesn't return files yet
           })),
           files: [] // API doesn't return files yet
