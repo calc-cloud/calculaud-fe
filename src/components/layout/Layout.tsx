@@ -53,7 +53,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   const getDisplayName = () => {
-    return auth.user?.profile?.email || auth.user?.profile?.preferred_username || 'User';
+    return auth.user?.profile?.unique_name || auth.user?.profile?.email || auth.user?.profile?.preferred_username || 'User';
   };
 
   return (
@@ -135,7 +135,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {auth.user?.profile?.email || 'user@example.com'}
+                        {auth.user?.profile?.upn || auth.user?.profile?.email || 'user@example.com'}
                       </p>
                     </div>
                   </DropdownMenuLabel>

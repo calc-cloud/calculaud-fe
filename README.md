@@ -139,7 +139,37 @@ npm run build
 
 The build artifacts will be stored in the `dist/` directory, ready for deployment to any static hosting service.
 
+### Docker Deployment
+
+This application supports runtime environment variable injection, allowing the same Docker image to be deployed across
+multiple environments.
+
+#### Build Docker Image
+
+```bash
+docker build -t calculaud-fe .
+```
+
+#### Run with Runtime Environment Variables
+
+**Development (localhost:8080):**
+
+```bash
+docker run -p 8080:80 \
+  -e RUNTIME_API_BASE_URL=https://calcloud-api-production.up.railway.app/api/v1 \
+  -e RUNTIME_AUTH_AUTHORITY=https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_jdDrJBCLe \
+  -e RUNTIME_AUTH_CLIENT_ID=7918m61oh13tamdmmkebkaectb \
+  -e RUNTIME_AUTH_REDIRECT_URI=http://localhost:8080/ \
+  -e RUNTIME_AUTH_LOGOUT_DOMAIN=https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com \
+  -e RUNTIME_AUTH_LOGOUT_URI=http://localhost:8080/ \
+  calculaud-fe
+```
+
+The application will be available at http://localhost:8080
+
 ### Supported Platforms
+
+- **Docker** - Containerized deployment with runtime environment injection
 - **Vercel** - Zero-configuration deployment
 - **Netlify** - Static site hosting with forms and serverless functions
 - **Railway** - Full-stack application deployment
