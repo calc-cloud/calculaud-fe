@@ -146,8 +146,23 @@ multiple environments.
 
 #### Build Docker Image
 
+**Standard Build (current platform):**
 ```bash
 docker build -t calculaud-fe .
+```
+
+**Cross-Platform Builds:**
+
+```bash
+# For Linux (recommended for production/cloud deployment)
+docker build --platform linux/amd64 -t calculaud-fe .
+
+# For Windows
+docker build --platform windows/amd64 -t calculaud-fe .
+
+# For multiple platforms
+docker buildx create --name multiplatform --use
+docker buildx build --platform linux/amd64,windows/amd64 -t calculaud-fe .
 ```
 
 #### Run with Runtime Environment Variables
