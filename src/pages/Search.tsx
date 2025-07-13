@@ -5,20 +5,18 @@ import {PurposeTable} from '@/components/tables/PurposeTable';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
-import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
-import {X, Search as SearchIcon, Download} from 'lucide-react';
+import {Download, Search as SearchIcon, X} from 'lucide-react';
 import {Separator} from '@/components/ui/separator';
 import {useAdminData} from '@/contexts/AdminDataContext';
-import {Purpose} from '@/types';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {usePurposeMutations} from '@/hooks/usePurposeMutations';
 import {exportPurposesToCSV} from '@/utils/csvExport';
-import {calculateDateRange, clearFilters} from '@/utils/filterUtils';
-import { ActiveFiltersBadges } from '@/components/common/ActiveFiltersBadges';
+import {clearFilters} from '@/utils/filterUtils';
+import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -76,15 +74,11 @@ const Search: React.FC = () => {
       filters.relative_time = searchParams.get('relative_time') || undefined;
     }
 
-    // If no date/time filters are provided in URL, set default "Last Year" values
+    // If no date/time filters are provided in URL, set default "All Time" values
     const hasDateTimeParams = searchParams.get('start_date') || searchParams.get('end_date') || searchParams.get('relative_time');
     if (!hasDateTimeParams) {
-      const defaultRange = calculateDateRange('last_year');
-      if (defaultRange) {
-        filters.start_date = defaultRange.start_date;
-        filters.end_date = defaultRange.end_date;
-      }
-      filters.relative_time = 'last_year';
+      // For "All Time", don't set start_date or end_date
+      filters.relative_time = 'all_time';
     }
 
     return filters;
@@ -204,7 +198,7 @@ const Search: React.FC = () => {
 
   // Count active filters
   const activeFiltersCount = [
-    ...(filters.relative_time && filters.relative_time !== 'last_year' ? [1] : []),
+    ...(filters.relative_time && filters.relative_time !== 'all_time' ? [1] : []),
     ...(filters.hierarchy_id || []),
     ...(filters.service_type || []),
     ...(filters.status || []),

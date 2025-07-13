@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {format} from 'date-fns';
-import {CalendarIcon, ChevronDown, X, Filter} from 'lucide-react';
+import {CalendarIcon, ChevronDown, Filter} from 'lucide-react';
 import {cn} from '@/lib/utils';
 
 // UI Components
@@ -20,24 +20,14 @@ import {HierarchySelector} from '@/components/common/HierarchySelector';
 import {useAdminData} from '@/contexts/AdminDataContext';
 
 // Types and utilities
-import {
-  UnifiedFilters as UnifiedFiltersType,
-  PURPOSE_STATUSES_DISPLAY,
-  RELATIVE_TIME_OPTIONS
-} from '@/types/filters';
-import {
-  clearFilters,
-  handleDateChange,
-  handleRelativeTimeChange,
-  createToggleFunction,
-  calculateDateRange
-} from '@/utils/filterUtils';
+import {PURPOSE_STATUSES_DISPLAY, RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
+import {createToggleFunction, handleDateChange, handleRelativeTimeChange} from '@/utils/filterUtils';
 
 // Helper function to count active filters
 const countActiveFilters = (filters: UnifiedFiltersType) => {
   return [
     // Count relative time only if it's not the default
-    ...(filters.relative_time && filters.relative_time !== 'last_year' ? [1] : []),
+    ...(filters.relative_time && filters.relative_time !== 'all_time' ? [1] : []),
     // Count each individual hierarchy selection
     ...(filters.hierarchy_id || []),
     // Count each individual service type selection
@@ -73,12 +63,11 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
 
   // Function to reset relative time filter to default
   const clearRelativeTime = () => {
-    const defaultRange = calculateDateRange('last_year');
     onFiltersChange({
       ...filters,
-      relative_time: 'last_year',
-      start_date: defaultRange?.start_date,
-      end_date: defaultRange?.end_date
+      relative_time: 'all_time',
+      start_date: undefined,
+      end_date: undefined
     });
   };
 
@@ -167,7 +156,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
           <div className="space-y-2">
             <label className="text-sm font-medium">Relative Time:</label>
             <Select
-              value={filters.relative_time || 'last_year'}
+                value={filters.relative_time || 'all_time'}
               onValueChange={(relativeTime) => handleRelativeTimeChange(relativeTime, filters, onFiltersChange)}
             >
               <SelectTrigger className="w-full">

@@ -8,26 +8,21 @@ import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistri
 import {CostOverTimeChart} from '@/components/dashboard/CostOverTimeChart';
 import {analyticsService} from '@/services/analyticsService';
 import {DashboardFilters as DashboardFiltersType} from '@/types/analytics';
-import {format, subYears} from 'date-fns';
 import {dashboardFiltersToUnified, unifiedToDashboardFilters} from '@/utils/filterAdapters';
-import { ActiveFiltersBadges } from '@/components/common/ActiveFiltersBadges';
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { Button } from '@/components/ui/button';
-import { clearFilters } from '@/utils/filterUtils';
-import { X } from 'lucide-react';
+import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
+import {useAdminData} from '@/contexts/AdminDataContext';
+import {Button} from '@/components/ui/button';
+import {clearFilters} from '@/utils/filterUtils';
+import {X} from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Set default filters with "Last Year" relative time
+  // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
-    const today = new Date();
-    const lastYear = subYears(today, 1);
-    
     return {
-      relative_time: 'last_year',
-      start_date: format(lastYear, 'yyyy-MM-dd'),
-      end_date: format(today, 'yyyy-MM-dd')
+      relative_time: 'all_time'
+      // No start_date or end_date for "All Time"
     };
   };
 
@@ -181,7 +176,7 @@ const Dashboard: React.FC = () => {
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
   const activeFiltersCount = [
-    ...(unifiedFilters.relative_time && unifiedFilters.relative_time !== 'last_year' ? [1] : []),
+    ...(unifiedFilters.relative_time && unifiedFilters.relative_time !== 'all_time' ? [1] : []),
     ...(unifiedFilters.hierarchy_id || []),
     ...(unifiedFilters.service_type || []),
     ...(unifiedFilters.status || []),

@@ -458,8 +458,9 @@ const PurposeDetail: React.FC = () => {
 
       {/* 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Left Column: General Data */}
-        <div className="lg:col-span-1">
+        {/* Left Column: General Data + Attached Files */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* General Data */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-lg font-semibold">General Data</CardTitle>
@@ -537,9 +538,20 @@ const PurposeDetail: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Attached Files */}
+          <Card className="flex-none">
+            <CardContent className="p-6">
+              <FileUpload
+                files={purpose.files}
+                onFilesChange={handleFilesChange}
+                isReadOnly={false}
+              />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Right Column: Purchases Timeline + Attached Files */}
+        {/* Right Column: Purchases Timeline */}
         <div className="space-y-4 lg:col-span-3">
           {/* Purchases Timeline */}
           <Card className="flex-none">
@@ -1079,17 +1091,6 @@ const PurposeDetail: React.FC = () => {
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Attached Files */}
-          <Card className="flex-none">
-            <CardContent className="p-6">
-              <FileUpload
-                files={purpose.files}
-                onFilesChange={handleFilesChange}
-                isReadOnly={false}
-              />
             </CardContent>
           </Card>
         </div>
