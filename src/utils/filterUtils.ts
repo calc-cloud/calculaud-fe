@@ -1,9 +1,9 @@
 // Shared filter utilities
-import { format, subDays, subMonths, subYears, startOfWeek, startOfMonth, startOfYear } from 'date-fns';
-import { UnifiedFilters } from '@/types/filters';
+import {format, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subYears} from 'date-fns';
+import {UnifiedFilters} from '@/types/filters';
 
 // Cache the default date range to avoid recalculating
-const getDefaultDateRange = () => calculateDateRange('last_year');
+const getDefaultDateRange = () => calculateDateRange('all_time');
 
 export const calculateDateRange = (relativeTime: string) => {
   const today = new Date();
@@ -96,11 +96,11 @@ export const handleDateChange = (
 };
 
 export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void, currentFilters?: UnifiedFilters) => {
-  // Reset to default state with "Last Year" relative time and corresponding date range
+  // Reset to default state with "All Time" relative time and corresponding date range
   // but preserve the search_query if it exists
   const defaultDateRange = getDefaultDateRange();
   const defaultFilters: UnifiedFilters = {
-    relative_time: 'last_year',
+    relative_time: 'all_time',
     ...defaultDateRange,
     // Preserve search_query if it exists in current filters
     ...(currentFilters?.search_query && { search_query: currentFilters.search_query })

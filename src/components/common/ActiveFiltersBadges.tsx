@@ -1,13 +1,12 @@
 import React from 'react';
-import { X } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { UnifiedFilters as UnifiedFiltersType, PURPOSE_STATUSES_DISPLAY, RELATIVE_TIME_OPTIONS } from '@/types/filters';
-import { Hierarchy } from '@/types/hierarchies';
-import { ServiceType } from '@/types/serviceTypes';
-import { Supplier } from '@/types/suppliers';
-import { Material } from '@/types/materials';
-import { clearFilters, createToggleFunction, handleRelativeTimeChange } from '@/utils/filterUtils';
+import {X} from 'lucide-react';
+import {Badge} from '@/components/ui/badge';
+import {RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
+import {Hierarchy} from '@/types/hierarchies';
+import {ServiceType} from '@/types/serviceTypes';
+import {Supplier} from '@/types/suppliers';
+import {Material} from '@/types/materials';
+import {createToggleFunction} from '@/utils/filterUtils';
 
 interface ActiveFiltersBadgesProps {
   filters: UnifiedFiltersType;
@@ -35,14 +34,14 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   const clearRelativeTime = () => {
     onFiltersChange({
       ...filters,
-      relative_time: 'last_year',
+      relative_time: 'all_time',
       start_date: undefined,
       end_date: undefined,
     });
   };
 
   const activeFiltersCount = [
-    ...(filters.relative_time && filters.relative_time !== 'last_year' ? [1] : []),
+    ...(filters.relative_time && filters.relative_time !== 'all_time' ? [1] : []),
     ...(filters.hierarchy_id || []),
     ...(filters.service_type || []),
     ...(filters.status || []),
