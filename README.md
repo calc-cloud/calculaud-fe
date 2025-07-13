@@ -170,7 +170,7 @@ docker buildx build --platform linux/amd64,windows/amd64 -t calculaud-fe .
 **Development (localhost:8080):**
 
 ```bash
-docker run -p 8080:80 \
+docker run -p 8080:8080 \
   -e RUNTIME_API_BASE_URL=https://calcloud-api-production.up.railway.app/api/v1 \
   -e RUNTIME_AUTH_AUTHORITY=https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_jdDrJBCLe \
   -e RUNTIME_AUTH_CLIENT_ID=7918m61oh13tamdmmkebkaectb \
