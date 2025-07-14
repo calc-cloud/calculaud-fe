@@ -12,7 +12,11 @@ const authConfig = {
     response_mode: import.meta.env.VITE_AUTH_RESPONSE_MODE,
     scope: import.meta.env.VITE_AUTH_SCOPE,
     post_logout_redirect_uri: import.meta.env.VITE_AUTH_LOGOUT_URI,
-    automaticSilentRenew: true, // todo: need to implement renewal in backend
+    automaticSilentRenew: true,
+    accessTokenExpiringNotificationTime: 300, // 5 minutes before expiry
+    silentRequestTimeout: 10000, // 10 second timeout for silent renewal
+    includeIdTokenInSilentRenew: true,
+    revokeAccessTokenOnSignout: true,
     metadata: {
         token_endpoint: `${import.meta.env.VITE_API_BASE_URL}/auth/token`,
         authorization_endpoint: import.meta.env.VITE_AUTH_AUTHORIZATION_ENDPOINT,
