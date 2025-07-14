@@ -28,15 +28,7 @@ const Layout: React.FC<LayoutProps> = ({children}) => {
     };
 
     const handleLogout = async () => {
-        const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
-        const logoutUri = import.meta.env.VITE_AUTH_LOGOUT_URI;
-        const logoutDomain = import.meta.env.VITE_AUTH_LOGOUT_DOMAIN;
-        try {
-            await auth.signoutSilent();
-        } catch (error) {
-            console.error('Silent logout failed:', error);
-        }
-        window.location.href = `${logoutDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+        await auth.signoutRedirect();
     };
 
 

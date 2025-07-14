@@ -22,16 +22,20 @@ FROM nginxinc/nginx-unprivileged:alpine
 # Copy built application from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy runtime environment injection script
 COPY env.sh /docker-entrypoint.d/env.sh
 
-# Fix permissions as root user
+# Fix permissions for OpenShift compatibility
 USER root
 RUN chmod +x /docker-entrypoint.d/env.sh && \
-    chown -R nginx:nginx /usr/share/nginx/html && \
-    chmod -R 755 /usr/share/nginx/html
+    chown -R nginx:root /usr/share/nginx/html && \
+    chmod -R g+rwX /usr/share/nginx/html && \
+    chmod -R o+rX /usr/share/nginx/html
 
-# Switch back to non-root user
+# Switch back to non-root user (OpenShift will override this)
 USER nginx
 
 # Expose port 8080 (unprivileged port)

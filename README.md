@@ -175,11 +175,12 @@ docker run -p 8080:8080 \
   -e RUNTIME_AUTH_AUTHORITY=https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_jdDrJBCLe \
   -e RUNTIME_AUTH_CLIENT_ID=7918m61oh13tamdmmkebkaectb \
   -e RUNTIME_AUTH_REDIRECT_URI=http://localhost:8080/ \
+  -e RUNTIME_AUTH_AUTHORIZATION_ENDPOINT=https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com/oauth2/authorize \
   -e RUNTIME_AUTH_LOGOUT_DOMAIN=https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com \
   -e RUNTIME_AUTH_LOGOUT_URI=http://localhost:8080/ \
   -e RUNTIME_AUTH_RESPONSE_TYPE=code \
   -e RUNTIME_AUTH_RESPONSE_MODE=query \
-  -e RUNTIME_AUTH_SCOPE="email openid phone" \
+  -e RUNTIME_AUTH_SCOPE="openid" \
   calculaud-fe
 ```
 
