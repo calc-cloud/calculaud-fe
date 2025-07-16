@@ -54,7 +54,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   return (
     <div className="space-y-2 pb-2">
       <div className="flex flex-wrap gap-2">
-        {filters.relative_time && filters.relative_time !== 'last_year' && (
+        {filters.relative_time && filters.relative_time !== 'all_time' && (
           <Badge variant="secondary" className="flex items-center gap-1">
             {RELATIVE_TIME_OPTIONS.find(option => option.value === filters.relative_time)?.label || filters.relative_time}
             <X className="h-3 w-3 cursor-pointer" onClick={clearRelativeTime} />
