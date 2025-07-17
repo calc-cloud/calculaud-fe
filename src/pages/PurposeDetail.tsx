@@ -10,7 +10,7 @@ import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '
 
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { formatDate } from '@/utils/dateUtils';
-import { getPendingStagesText, convertPurchaseToStages } from '@/utils/stageUtils';
+import { getStagesText, convertPurchaseToStages, calculateDaysSinceLastStageCompletion } from '@/utils/stageUtils';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
 import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
@@ -594,11 +594,18 @@ const PurposeDetail: React.FC = () => {
                                 <div className="flex items-center space-x-4">
                                   <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
                                   {isPurchaseComplete(purchase) ? (
-                                    <span className="text-sm text-green-600 font-medium">Purchase is completed</span>
+                                    (() => {
+                                      const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
+                                      return (
+                                        <span className="text-sm text-green-600 font-medium">
+                                          Purchase completed {daysAgo !== null ? `${daysAgo} days ago` : ''}
+                                        </span>
+                                      );
+                                    })()
                                   ) : (
-                                    getPendingStagesText(purchase) && (
+                                    getStagesText(purchase) && (
                                       <span className="text-sm text-orange-600 font-medium">
-                                        {getPendingStagesText(purchase)}
+                                        {getStagesText(purchase)}
                                       </span>
                                     )
                                   )}
