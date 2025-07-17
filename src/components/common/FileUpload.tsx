@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -23,8 +23,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   purposeId
 }) => {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
   const [deletingFiles, setDeletingFiles] = useState<Set<string>>(new Set());
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
@@ -188,10 +193,23 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Attachments</h3>
         {!isReadOnly && (
-          <div className="relative">
+          <>
+            {/* Hidden file input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              multiple
+              className="hidden"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
+              disabled={uploadingFiles.size > 0}
+            />
+            
+            {/* Upload button */}
             <Button 
               variant="outline" 
               size="sm" 
+              onClick={handleButtonClick}
               disabled={uploadingFiles.size > 0}
             >
               {uploadingFiles.size > 0 ? (
@@ -201,17 +219,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               )}
               {uploadingFiles.size > 0 ? 'Uploading...' : 'Upload Files'}
             </Button>
-            <input
-              type="file"
-              multiple
-              onChange={handleFileUpload}
-              className={`absolute inset-0 w-full h-full opacity-0 z-10 ${
-                uploadingFiles.size > 0 ? 'hover:file:cursor-not-allowed' : 'hover:file:cursor-pointer'
-              }`}
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
-              disabled={uploadingFiles.size > 0}
-            />
-          </div>
+          </>
         )}
       </div>
 
