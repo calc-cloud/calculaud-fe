@@ -113,14 +113,6 @@ const PurposeDetail: React.FC = () => {
         ...purpose,
         files: newFiles
       });
-      
-      // Only show toast if files were added (not just reordered)
-      if (newFiles.length > purpose.files.length) {
-        toast({
-          title: "Files uploaded",
-          description: `${newFiles.length - purpose.files.length} file(s) uploaded successfully.`,
-        });
-      }
     }
   };
 
@@ -153,6 +145,7 @@ const PurposeDetail: React.FC = () => {
       // Reload the purpose from API to get the latest data
       const apiPurpose = await purposeService.getPurpose(id);
       const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+      
       setPurpose(transformedPurpose);
       
       setIsEditModalOpen(false);
@@ -204,6 +197,7 @@ const PurposeDetail: React.FC = () => {
       if (id) {
         const apiPurpose = await purposeService.getPurpose(id);
         const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+        
         setPurpose(transformedPurpose);
       }
       
@@ -296,6 +290,7 @@ const PurposeDetail: React.FC = () => {
       if (id) {
         const apiPurpose = await purposeService.getPurpose(id);
         const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+        
         setPurpose(transformedPurpose);
       }
       
@@ -546,6 +541,7 @@ const PurposeDetail: React.FC = () => {
                 files={purpose.files}
                 onFilesChange={handleFilesChange}
                 isReadOnly={false}
+                purposeId={purpose.id}
               />
             </CardContent>
           </Card>

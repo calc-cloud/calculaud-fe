@@ -1,41 +1,124 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Upload, FileText, Trash2 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Upload, FileText, Trash2, Loader2, Download, FileImage, FileSpreadsheet, FileType, File, MoreVertical } from 'lucide-react';
 import { PurposeFile } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
+import { purposeService } from '@/services/purposeService';
+import { useToast } from '@/hooks/use-toast';
 
 interface FileUploadProps {
   files: PurposeFile[];
   onFilesChange: (files: PurposeFile[]) => void;
   isReadOnly: boolean;
+  purposeId: string;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   files,
   onFilesChange,
-  isReadOnly
+  isReadOnly,
+  purposeId
 }) => {
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const { toast } = useToast();
+  const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
+  const [deletingFiles, setDeletingFiles] = useState<Set<string>>(new Set());
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     if (!selectedFiles) return;
 
-    const newFiles: PurposeFile[] = Array.from(selectedFiles).map(file => ({
-      id: `file-${Date.now()}-${Math.random()}`,
-      purpose_id: '',
-      filename: file.name,
-      file_url: URL.createObjectURL(file), // Temporary URL for preview
-      upload_date: new Date().toISOString(),
-      file_size: file.size
-    }));
+    const fileArray = Array.from(selectedFiles);
+    
+    // Track which files are being uploaded
+    const uploadIds = fileArray.map(file => `upload-${Date.now()}-${Math.random()}`);
+    setUploadingFiles(new Set(uploadIds));
 
-    onFilesChange([...files, ...newFiles]);
+    try {
+      // Upload files sequentially to avoid overwhelming the server
+      const uploadPromises = fileArray.map(async (file, index) => {
+        try {
+          const response = await purposeService.uploadFile(purposeId, file);
+          return {
+            id: response.id.toString(),
+            purpose_id: purposeId,
+            filename: response.original_filename,
+            file_url: response.file_url,
+            upload_date: response.uploaded_at,
+            file_size: response.file_size
+          };
+        } catch (error) {
+          console.error(`Failed to upload ${file.name}:`, error);
+          toast({
+            title: "Upload failed",
+            description: `Failed to upload ${file.name}`,
+            variant: "destructive",
+          });
+          return null;
+        }
+      });
+
+      const uploadedFiles = await Promise.all(uploadPromises);
+      const validFiles = uploadedFiles.filter((file): file is PurposeFile => file !== null);
+      
+      if (validFiles.length > 0) {
+        onFilesChange([...files, ...validFiles]);
+        toast({
+          title: "Files uploaded",
+          description: `${validFiles.length} file(s) uploaded successfully.`,
+        });
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload files",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingFiles(new Set());
+      // Clear the input value to allow re-uploading the same file
+      event.target.value = '';
+    }
   };
 
-  const removeFile = (fileId: string) => {
-    onFilesChange(files.filter(file => file.id !== fileId));
+  const removeFile = async (fileId: string) => {
+    setDeletingFiles(prev => new Set([...prev, fileId]));
+    
+    try {
+      await purposeService.deleteFile(purposeId, fileId);
+      onFilesChange(files.filter(file => file.id !== fileId));
+      toast({
+        title: "File deleted",
+        description: "File deleted successfully.",
+      });
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete file",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingFiles(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(fileId);
+        return newSet;
+      });
+    }
+  };
+
+  const handleDownload = (file: PurposeFile) => {
+    if (file.file_url) {
+      const link = document.createElement('a');
+      link.href = file.file_url;
+      link.download = file.filename || 'download';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   const formatFileSize = (bytes: number) => {
@@ -46,22 +129,87 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const getFileIcon = (filename: string) => {
+    const extension = filename?.toLowerCase().split('.').pop() || '';
+    
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'webp':
+        return <FileImage className="h-5 w-5 text-blue-500" />;
+      case 'pdf':
+        return <FileType className="h-5 w-5 text-red-500" />;
+      case 'doc':
+      case 'docx':
+        return <FileText className="h-5 w-5 text-blue-600" />;
+      case 'xls':
+      case 'xlsx':
+        return <FileSpreadsheet className="h-5 w-5 text-green-600" />;
+      case 'txt':
+        return <FileText className="h-5 w-5 text-gray-500" />;
+      default:
+        return <File className="h-5 w-5 text-muted-foreground" />;
+    }
+  };
+
+  const isImageFile = (filename: string) => {
+    const extension = filename?.toLowerCase().split('.').pop() || '';
+    return ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(extension);
+  };
+
+  const FilePreview: React.FC<{ file: PurposeFile }> = ({ file }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    if (isImageFile(file.filename || '') && file.file_url && !imageError) {
+      return (
+        <div className="w-12 h-12 rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
+          <img
+            src={file.file_url}
+            alt={file.filename || 'File preview'}
+            className="w-full h-full object-cover"
+            onError={() => setImageError(true)}
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="w-12 h-12 rounded-md border border-gray-200 flex items-center justify-center flex-shrink-0 bg-gray-50">
+        {getFileIcon(file.filename || '')}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">Attachments</h3>
         {!isReadOnly && (
           <div className="relative">
-            <Button variant="outline" size="sm">
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Files
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={uploadingFiles.size > 0}
+            >
+              {uploadingFiles.size > 0 ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              {uploadingFiles.size > 0 ? 'Uploading...' : 'Upload Files'}
             </Button>
             <input
               type="file"
               multiple
               onChange={handleFileUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className={`absolute inset-0 w-full h-full opacity-0 z-10 ${
+                uploadingFiles.size > 0 ? 'hover:file:cursor-not-allowed' : 'hover:file:cursor-pointer'
+              }`}
               accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
+              disabled={uploadingFiles.size > 0}
             />
           </div>
         )}
@@ -85,13 +233,18 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
       {files.length > 0 && (
         <div className="space-y-2">
-          {files.map((file) => (
-            <Card key={file.id}>
+          {files.map((file, index) => (
+            <Card key={file.id || `file-${index}`}>
               <CardContent className="flex items-center justify-between p-3">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium text-sm">{file.filename}</p>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <FilePreview file={file} />
+                  <div className="min-w-0 flex-1">
+                    <p 
+                      className="font-medium text-sm truncate max-w-[200px]" 
+                      title={file.filename || 'Unknown file'}
+                    >
+                      {file.filename || 'Unknown file'}
+                    </p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{formatFileSize(file.file_size)}</span>
                       <span>•</span>
@@ -99,20 +252,33 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs">
-                    {file.filename.split('.').pop()?.toUpperCase()}
-                  </Badge>
-                  {!isReadOnly && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeFile(file.id)}
-                    >
-                      <Trash2 className="h-3 w-3" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-3 w-3" />
                     </Button>
-                  )}
-                </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleDownload(file)}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </DropdownMenuItem>
+                    {!isReadOnly && (
+                      <DropdownMenuItem 
+                        onClick={() => removeFile(file.id)}
+                        disabled={deletingFiles.has(file.id)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        {deletingFiles.has(file.id) ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="mr-2 h-4 w-4" />
+                        )}
+                        {deletingFiles.has(file.id) ? 'Deleting...' : 'Delete'}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </CardContent>
             </Card>
           ))}
