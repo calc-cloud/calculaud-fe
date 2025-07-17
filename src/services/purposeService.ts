@@ -1,7 +1,7 @@
 import {apiService} from '@/services/apiService';
 import {UnifiedFilters} from '@/types/filters';
 import {format} from 'date-fns';
-import {CreatePurchaseRequest as PurchaseCreateRequest} from '@/types';
+import {CreatePurchaseRequest as PurchaseCreateRequest, PurposeFile} from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
@@ -52,6 +52,15 @@ export interface Purpose {
   creation_time: string;
   last_modified: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
+  file_attachments: {
+    id: number;
+    original_filename: string;
+    mime_type: string;
+    file_size: number;
+    s3_key: string;
+    uploaded_at: string;
+    file_url: string;
+  }[];
 }
 
 export interface Purchase {
@@ -168,6 +177,27 @@ class PurposeService {
   async deletePurchase(purchaseId: string): Promise<void> {
     return apiService.delete<void>(`/purchases/${purchaseId}`);
   }
+
+  async uploadFile(purposeId: string, file: File): Promise<{
+    id: number;
+    original_filename: string;
+    mime_type: string;
+    file_size: number;
+    s3_key: string;
+    uploaded_at: string;
+    file_url: string;
+  }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    return apiService.uploadFile(`/purposes/${purposeId}/files`, formData);
+  }
+
+  async deleteFile(purposeId: string, fileId: string): Promise<void> {
+    return apiService.delete<void>(`/purposes/${purposeId}/files/${fileId}`);
+  }
+
+
 
   // Map frontend filters to API parameters
   mapFiltersToApiParams(
@@ -425,7 +455,14 @@ class PurposeService {
         days_since_last_completion: purchase.days_since_last_completion ?? null,
         files: [] // Files would come from a separate endpoint
       })),
-      files: [] // Files would come from a separate endpoint
+      files: (apiPurpose.file_attachments || []).map(file => ({
+        id: file.id.toString(),
+        purpose_id: apiPurpose.id.toString(),
+        filename: file.original_filename,
+        file_url: file.file_url,
+        upload_date: file.uploaded_at,
+        file_size: file.file_size
+      }))
     };
   }
 
@@ -500,7 +537,14 @@ class PurposeService {
             days_since_last_completion: purchase.days_since_last_completion ?? null,
             files: [] // API doesn't return files yet
           })),
-          files: [] // API doesn't return files yet
+          files: (purpose.file_attachments || []).map((file: any) => ({
+            id: file.id?.toString() || '',
+            purpose_id: purpose.id?.toString() || '',
+            filename: file.original_filename || '',
+            file_url: file.file_url || '',
+            upload_date: file.uploaded_at || '',
+            file_size: file.file_size || 0
+          }))
         };
       } catch (error) {
         return {

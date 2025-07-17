@@ -57,6 +57,43 @@ class ApiService {
         });
     }
 
+    async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+        const url = `${this.baseUrl}${endpoint}`;
+
+        const headers: Record<string, string> = {};
+
+        // Add Authorization header if token is available
+        if (this.getToken) {
+            const token = this.getToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        // Don't set Content-Type for FormData, let the browser set it with boundary
+        const config: RequestInit = {
+            method: 'POST',
+            headers,
+            body: formData,
+        };
+
+        const response = await fetch(url, config);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'An error occurred'
+            }));
+            throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+
+        // Handle 204 No Content responses
+        if (response.status === 204) {
+            return undefined as T;
+        }
+
+        return await response.json();
+    }
+
     private async request<T>(
         endpoint: string,
         options: RequestInit = {}
