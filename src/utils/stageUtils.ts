@@ -49,34 +49,6 @@ export const convertPurchaseToStages = (purchase: any) => {
 };
 
 /**
- * Calculate time since last completion (or creation if no stages completed)
- */
-export const calculateTimeSinceLastCompletion = (stages: any[], purchase: any): number => {
-  const completedStages = stages.filter(stage => stage.completed && stage.date);
-  
-  let referenceDate;
-  
-  if (completedStages.length === 0) {
-    // No completed stages yet - use purchase creation date
-    referenceDate = purchase.creation_date;
-  } else {
-    // Find the most recent completion date
-    const mostRecentCompletion = completedStages.reduce((latest, stage) => {
-      return new Date(stage.date) > new Date(latest.date) ? stage : latest;
-    });
-    referenceDate = mostRecentCompletion.date;
-  }
-
-  // Calculate duration since reference date
-  const now = new Date();
-  const refDate = new Date(referenceDate);
-  const diffMs = now.getTime() - refDate.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  
-  return diffDays;
-};
-
-/**
  * Get current pending stages (incomplete stages with lowest priority)
  */
 export const getCurrentPendingStages = (stages: any[]) => {
@@ -93,37 +65,67 @@ export const getCurrentPendingStages = (stages: any[]) => {
 };
 
 /**
- * Generate pending stages text for a purchase
+ * Generate stages text for a purchase (pending or completed)
  * Follows three-tier logic: API fields -> Hybrid -> Manual calculation
  * @param purchase - The purchase object
  * @param showPurchasePrefix - Whether to include "Purchase {id}" prefix in the text
  */
-export const getPendingStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
-  // First try the API-provided data (tier 1: full API)
+export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
+  const stages = convertPurchaseToStages(purchase);
+  const isCompleted = stages.every(stage => stage.completed);
+  if (isCompleted) {
+    const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
+    if (daysAgo !== null) {
+      const baseText = `Completed ${daysAgo} days ago`;
+      return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
+    }
+    return null;
+  }
   if (purchase.days_since_last_completion !== undefined && purchase.current_pending_stages && purchase.current_pending_stages.length > 0) {
     const days = purchase.days_since_last_completion;
     const stageNames = purchase.current_pending_stages.map((stage: any) => stage.stage_type.display_name || stage.stage_type.name).join(', ');
     const baseText = `${days} days in ${stageNames}`;
     return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
   }
-
-  // Fallback: calculate stages manually but prefer API time calculation (tier 2: hybrid & tier 3: full manual)
-  const stages = convertPurchaseToStages(purchase);
   const pendingStages = getCurrentPendingStages(stages);
-  
   if (pendingStages.length === 0) {
     return null;
   }
-
-  // Prefer API time field, fallback to manual calculation only if API field missing
   let days;
   if (purchase.days_since_last_completion !== undefined) {
     days = purchase.days_since_last_completion;
   } else {
-    days = calculateTimeSinceLastCompletion(stages, purchase);
+    days = calculateDaysSinceLastStageCompletion(purchase);
   }
-
   const stageNames = pendingStages.map(stage => stage.name).join(', ');
   const baseText = `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
+}; 
+
+/**
+ * Calculate days since the last stage completion (highest priority completed stage)
+ * Used for showing "Purchase is completed Y days ago"
+ */
+export const calculateDaysSinceLastStageCompletion = (purchase: any): number | null => {
+  const stages = convertPurchaseToStages(purchase);
+  
+  // Find completed stages
+  const completedStages = stages.filter(stage => stage.completed && stage.date);
+  
+  if (completedStages.length === 0) {
+    return null; // No completed stages
+  }
+  
+  // Find the stage with the highest priority among completed stages
+  const lastCompletedStage = completedStages.reduce((latest, stage) => {
+    return stage.priority > latest.priority ? stage : latest;
+  });
+  
+  // Calculate days since completion
+  const now = new Date();
+  const completionDate = new Date(lastCompletedStage.date);
+  const diffMs = now.getTime() - completionDate.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  return diffDays;
 }; 
