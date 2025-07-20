@@ -235,16 +235,25 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
                 <TableCell className="font-medium w-32 text-center">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="line-clamp-2 text-sm leading-tight">
-                        {purpose.description}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{purpose.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-8 rounded-full flex-shrink-0 ${
+                      purpose.status === 'COMPLETED' 
+                        ? 'bg-green-500' 
+                        : purpose.status === 'IN_PROGRESS' 
+                        ? 'bg-yellow-500'
+                        : 'bg-gray-300'
+                    }`}></div>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="line-clamp-2 text-sm leading-tight">
+                          {purpose.description}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{purpose.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </TableCell>
                 <TableCell className="w-32 text-center">
                   <Tooltip>
