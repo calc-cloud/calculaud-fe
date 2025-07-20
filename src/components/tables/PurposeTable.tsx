@@ -292,7 +292,20 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
                 <TableCell className="text-center">
-                  { stagesTexts && stagesTexts.length > 0 ? (
+                  { purpose.status === 'COMPLETED' ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="cursor-pointer">
+                          <Badge variant="default" className="pointer-events-none">
+                            {getStatusDisplay(purpose.status)}
+                          </Badge>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{purpose.comments || 'No status message'}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : stagesTexts && stagesTexts.length > 0 ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-pointer">
@@ -318,13 +331,16 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                         </div>
                       </TooltipContent>
                     </Tooltip>
+                  ) : purpose.purchases.length === 0 ? (
+                    <div className="text-sm text-muted-foreground">
+                      No purchases added
+                    </div>
                   ) : (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-pointer">
                           <Badge 
-                            variant={purpose.status === 'COMPLETED' ? 'default' : 
-                                     purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
+                            variant={purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
                             className="pointer-events-none"
                           >
                             {getStatusDisplay(purpose.status)}
