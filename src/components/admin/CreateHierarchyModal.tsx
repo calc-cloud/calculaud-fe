@@ -58,7 +58,13 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   // Fetch hierarchies for parent selection
   const { data: hierarchiesData } = useHierarchies();
-  const availableHierarchies = hierarchiesData?.items || [];
+  const hierarchies = hierarchiesData?.items || [];
+
+  // Get available parent hierarchies based on selected type
+  const availableHierarchies = hierarchies.filter(hierarchy => {
+    // Simple filtering logic - can be enhanced based on business rules
+    return hierarchy.type !== selectedType;
+  });
 
   // Get available parent types (only higher levels in hierarchy)
   const getAvailableParentTypes = (): HierarchyType[] => {

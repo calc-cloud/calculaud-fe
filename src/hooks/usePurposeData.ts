@@ -1,7 +1,6 @@
 import {useQuery} from '@tanstack/react-query';
 import {useMemo, useRef, useState} from 'react';
 
-import {useAdminData} from '@/contexts/AdminDataContext';
 import {purposeService} from '@/services/purposeService';
 import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
@@ -11,7 +10,6 @@ export const usePurposeData = (
   initialSortConfig: SortConfig = { field: 'creation_time', direction: 'desc' },
   initialPage: number = 1
 ) => {
-  const { hierarchies } = useAdminData();
   const [filters, setFilters] = useState<UnifiedFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -82,7 +80,7 @@ export const usePurposeData = (
         totalCount: 0
       };
     }
-  }, [apiResponse, hierarchies, isLoading]);
+  }, [apiResponse, isLoading]);
 
   // Calculate dashboard statistics from current purposes
   const stats = useMemo(() => {

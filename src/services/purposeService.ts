@@ -1,5 +1,5 @@
 import {apiService} from '@/services/apiService';
-import {CreatePurchaseRequest as PurchaseCreateRequest} from '@/types';
+import {CreatePurchaseRequest as PurchaseCreateRequest, Currency} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 
 export interface PurposeApiParams {
@@ -92,7 +92,7 @@ export interface StageType {
 export interface Cost {
   id: number;
   purchase_id: number; // Changed from emf_id to purchase_id
-  currency: string;
+  currency: Currency;
   amount: number;
 }
 
@@ -130,7 +130,7 @@ export interface CreateStageRequest {
 }
 
 export interface CreateCostRequest {
-  currency: string;
+  currency: Currency;
   amount: number;
 }
 
@@ -549,7 +549,8 @@ class PurposeService {
             file_size: file.file_size || 0
           }))
         };
-      } catch {
+      } catch (_error) {
+        // Return fallback object for malformed purpose data
         return {
           id: purpose.id?.toString() || '',
           description: 'Error loading purpose',
@@ -594,18 +595,18 @@ class PurposeService {
     }
   }
 
-  private mapApiCurrencyToFrontend(currency: string): string {
+  private mapApiCurrencyToFrontend(currency: string): Currency {
     switch (currency) {
       case 'ILS':
-        return 'ILS';
+        return Currency.ILS;
       case 'SUPPORT_USD':
-        return 'SUPPORT_USD';
+        return Currency.SUPPORT_USD;
       case 'AVAILABLE_USD':
-        return 'AVAILABLE_USD';
+        return Currency.AVAILABLE_USD;
       case 'USD':
-        return 'SUPPORT_USD'; // Default old USD values to SUPPORT_USD
+        return Currency.SUPPORT_USD; // Default old USD values to SUPPORT_USD
       default:
-        return currency;
+        return currency as Currency;
     }
   }
 }

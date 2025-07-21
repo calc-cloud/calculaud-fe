@@ -75,7 +75,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
     
     // Filter materials to only show those related to selected service types
     return materials.filter(material => 
-      filters.service_type!.includes(material.service_type_id)
+      filters.service_type?.includes(material.service_type_id) || false
     );
   }, [materials, filters.service_type]);
 

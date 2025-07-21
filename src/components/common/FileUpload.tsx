@@ -56,10 +56,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             file_size: response.file_size
           };
         } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           toast({
             title: "Upload failed",
-            description: `Failed to upload ${file.name}`,
+            description: `Failed to upload ${file.name}: ${errorMessage}`,
             variant: "destructive",
           });
           return null;
@@ -77,10 +77,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         });
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Upload failed",
-        description: "Failed to upload files",
+        description: `Failed to upload files: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -101,10 +101,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         description: "File deleted successfully.",
       });
     } catch (error) {
-      console.error('Delete error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Delete failed",
-        description: "Failed to delete file",
+        description: `Failed to delete file: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {

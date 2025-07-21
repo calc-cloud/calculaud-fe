@@ -130,8 +130,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     const updatedPurpose: Purpose = {
       ...purpose,
       description: formData.description.trim(),
-      supplier: formData.selectedSupplier!.name,
-      service_type: formData.selectedServiceType!.name as Purpose['service_type'],
+      supplier: formData.selectedSupplier?.name || '',
+      service_type: formData.selectedServiceType?.name as Purpose['service_type'],
       expected_delivery: formData.expected_delivery,
       status: formData.status as Purpose['status'],
       hierarchy_id: formData.hierarchy_id,

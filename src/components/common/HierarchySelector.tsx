@@ -110,11 +110,15 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
     // Second pass: build parent-child relationships
     items.forEach(item => {
-      const itemWithChildren = itemMap.get(item.id)!;
+      const itemWithChildren = itemMap.get(item.id);
+      if (!itemWithChildren) return;
+      
       if (item.parentId && itemMap.has(item.parentId)) {
-        const parent = itemMap.get(item.parentId)!;
-        parent.children = parent.children || [];
-        parent.children.push(itemWithChildren);
+        const parent = itemMap.get(item.parentId);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(itemWithChildren);
+        }
       } else {
         roots.push(itemWithChildren);
       }
@@ -173,7 +177,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         
         {hasChildren && isExpanded && (
           <div>
-            {node.children!.map(child => renderTreeNode(child, level + 1))}
+            {node.children?.map(child => renderTreeNode(child, level + 1))}
           </div>
         )}
       </div>

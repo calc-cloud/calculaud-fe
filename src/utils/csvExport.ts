@@ -50,7 +50,6 @@ export const exportPurposesToCSV = async (
       description: `Successfully exported purposes to CSV with all applied filters and sorting.`,
     });
   } catch (error) {
-    console.error('Export error:', error);
     toast({
       title: "Export failed",
       description: error instanceof Error ? error.message : "An error occurred while exporting data.",
