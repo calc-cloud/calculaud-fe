@@ -178,6 +178,10 @@ class PurposeService {
     return apiService.delete<void>(`/purchases/${purchaseId}`);
   }
 
+  async exportPurposesCSV(params: Omit<PurposeApiParams, 'page' | 'limit'>): Promise<Response> {
+    return apiService.downloadBlob('/purposes/export_csv', params);
+  }
+
   async uploadFile(purposeId: string, file: File): Promise<{
     id: number;
     original_filename: string;

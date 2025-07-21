@@ -57,6 +57,31 @@ class ApiService {
         });
     }
 
+    async downloadBlob(endpoint: string, params?: Record<string, any>): Promise<Response> {
+        const searchParams = new URLSearchParams();
+        if (params) {
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    // Handle array values by adding multiple parameters with the same name
+                    if (Array.isArray(value)) {
+                        value.forEach(item => {
+                            if (item !== undefined && item !== null && item !== '') {
+                                searchParams.append(key, String(item));
+                            }
+                        });
+                    } else {
+                        searchParams.append(key, String(value));
+                    }
+                }
+            });
+        }
+
+        const queryString = searchParams.toString();
+        const url = queryString ? `${endpoint}?${queryString}` : endpoint;
+
+        return this.requestBlob(url);
+    }
+
     async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
         const url = `${this.baseUrl}${endpoint}`;
 
@@ -134,6 +159,41 @@ class ApiService {
 
         return await response.json();
 
+    }
+
+    private async requestBlob(
+        endpoint: string,
+        options: RequestInit = {}
+    ): Promise<Response> {
+        const url = `${this.baseUrl}${endpoint}`;
+
+        const headers: Record<string, string> = {
+            ...(options.headers as Record<string, string> || {}),
+        };
+
+        // Add Authorization header if token is available
+        if (this.getToken) {
+            const token = this.getToken();
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+        }
+
+        const config: RequestInit = {
+            headers,
+            ...options,
+        };
+
+        const response = await fetch(url, config);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({
+                message: 'An error occurred'
+            }));
+            throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+
+        return response;
     }
 }
 

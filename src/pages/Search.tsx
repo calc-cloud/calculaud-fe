@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 import {PurposeTable} from '@/components/tables/PurposeTable';
 
@@ -7,7 +7,7 @@ import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
-import {Download, Search as SearchIcon, X} from 'lucide-react';
+import {Download, Search as SearchIcon, X, Loader2} from 'lucide-react';
 import {Separator} from '@/components/ui/separator';
 import {useAdminData} from '@/contexts/AdminDataContext';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
@@ -17,6 +17,7 @@ import {usePurposeMutations} from '@/hooks/usePurposeMutations';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
 import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
+import {useToast} from '@/hooks/use-toast';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -120,7 +121,11 @@ const Search: React.FC = () => {
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
 
+  // Get toast function
+  const { toast } = useToast();
 
+  // Export loading state
+  const [isExportLoading, setIsExportLoading] = useState(false);
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
@@ -192,8 +197,7 @@ const Search: React.FC = () => {
   };
 
   const handleExport = () => {
-    const { toast } = require('@/hooks/use-toast');
-    exportPurposesToCSV(filteredPurposes, toast);
+    exportPurposesToCSV(filters, sortConfig, toast, setIsExportLoading);
   };
 
   // Count active filters
@@ -252,10 +256,15 @@ const Search: React.FC = () => {
         <Button 
           variant="outline" 
           onClick={handleExport}
-          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 hover:border-blue-700"
+          disabled={isExportLoading}
+          className="gap-2 bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 hover:border-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Download className="h-4 w-4" />
-          Export
+          {isExportLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          {isExportLoading ? 'Exporting...' : 'Export'}
         </Button>
       </div>
 
