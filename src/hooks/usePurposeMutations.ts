@@ -1,8 +1,9 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { purposeService } from '@/services/purposeService';
-import { Purpose } from '@/types';
+
 import { useToast } from '@/hooks/use-toast';
+import { purposeService } from '@/services/purposeService';
+
 
 export const usePurposeMutations = () => {
   const queryClient = useQueryClient();

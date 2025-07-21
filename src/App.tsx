@@ -1,18 +1,21 @@
-import {useAuth} from "react-oidc-context";
-import {Toaster} from "@/components/ui/toaster";
-import {Toaster as Sonner} from "@/components/ui/sonner";
-import {TooltipProvider} from "@/components/ui/tooltip";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {AlertTriangle, Loader2} from "lucide-react";
+import {useAuth} from "react-oidc-context";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+
 import Layout from "@/components/layout/Layout";
-import Search from "@/pages/Search";
-import NotFound from "./pages/NotFound";
+import {Toaster as Sonner} from "@/components/ui/sonner";
+import {Toaster} from "@/components/ui/toaster";
+import {TooltipProvider} from "@/components/ui/tooltip";
+import {AdminDataProvider} from "@/contexts/AdminDataContext";
 import Admin from "@/pages/Admin";
 import Dashboard from "@/pages/Dashboard";
 import PurposeDetail from "@/pages/PurposeDetail";
-import {AdminDataProvider} from "@/contexts/AdminDataContext";
+import Search from "@/pages/Search";
 import {apiService} from "@/services/apiService";
-import {AlertTriangle, Loader2} from "lucide-react";
+
+import NotFound from "./pages/NotFound";
+
 
 const queryClient = new QueryClient();
 
@@ -54,8 +57,8 @@ const App = () => {
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-pulse mb-4">
-                        <div className="w-12 h-12 bg-blue-200 rounded-full mx-auto mb-2"></div>
-                        <div className="w-24 h-2 bg-blue-200 rounded mx-auto"></div>
+                        <div className="w-12 h-12 bg-blue-200 rounded-full mx-auto mb-2" />
+                        <div className="w-24 h-2 bg-blue-200 rounded mx-auto" />
                     </div>
                     <p className="text-gray-600 text-lg">Redirecting to login...</p>
                 </div>

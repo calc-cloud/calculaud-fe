@@ -1,11 +1,12 @@
-import React from 'react';
 import {X} from 'lucide-react';
+import React from 'react';
+
 import {Badge} from '@/components/ui/badge';
 import {RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {Hierarchy} from '@/types/hierarchies';
+import {Material} from '@/types/materials';
 import {ServiceType} from '@/types/serviceTypes';
 import {Supplier} from '@/types/suppliers';
-import {Material} from '@/types/materials';
 import {createToggleFunction} from '@/utils/filterUtils';
 
 interface ActiveFiltersBadgesProps {

@@ -1,17 +1,15 @@
-import {useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {Purpose} from '@/types';
+import {useMemo, useRef, useState} from 'react';
+
+import {purposeService} from '@/services/purposeService';
 import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
-import {purposeService} from '@/services/purposeService';
-import {useAdminData} from '@/contexts/AdminDataContext';
 
 export const usePurposeData = (
   initialFilters: UnifiedFilters = {},
   initialSortConfig: SortConfig = { field: 'creation_time', direction: 'desc' },
   initialPage: number = 1
 ) => {
-  const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
   const [filters, setFilters] = useState<UnifiedFilters>(initialFilters);
   const [sortConfig, setSortConfig] = useState<SortConfig>(initialSortConfig);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -60,7 +58,7 @@ export const usePurposeData = (
     }
 
     try {
-      const transformed = purposeService.transformApiResponse(apiResponse, hierarchies);
+      const transformed = purposeService.transformApiResponse(apiResponse);
       
       // Update the previous pagination values when we have fresh data
       previousPaginationRef.current = {
@@ -74,7 +72,7 @@ export const usePurposeData = (
         totalPages: transformed.pages,
         totalCount: transformed.total
       };
-    } catch (transformError) {
+    } catch (_transformError) {
       return {
         purposes: [],
         filteredPurposes: [],
@@ -82,7 +80,7 @@ export const usePurposeData = (
         totalCount: 0
       };
     }
-  }, [apiResponse, hierarchies, isLoading]);
+  }, [apiResponse, isLoading]);
 
   // Calculate dashboard statistics from current purposes
   const stats = useMemo(() => {

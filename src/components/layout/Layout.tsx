@@ -1,9 +1,11 @@
-import React, {useState} from 'react';
-import {Link, useLocation} from 'react-router-dom';
-import {Button} from '@/components/ui/button';
 import {LogOut, Plus} from 'lucide-react';
-import {CreatePurposeModal} from '@/components/modals/CreatePurposeModal';
+import React, {useState} from 'react';
 import {useAuth} from 'react-oidc-context';
+import {Link, useLocation} from 'react-router-dom';
+
+import {CreatePurposeModal} from '@/components/modals/CreatePurposeModal';
+import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
+import {Button} from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,7 +14,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {Avatar, AvatarFallback, AvatarImage} from '@/components/ui/avatar';
 
 interface LayoutProps {
     children: React.ReactNode;

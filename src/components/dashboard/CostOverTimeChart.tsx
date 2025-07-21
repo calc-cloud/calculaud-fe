@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useNavigate } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ExpenditureTimelineResponse, DashboardFilters } from '@/types/analytics';
 
 interface CostOverTimeChartProps {
@@ -38,7 +39,6 @@ const GROUP_BY_OPTIONS = [
 export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({ 
   data, 
   isLoading, 
-  globalFilters,
   onGroupByChange 
 }) => {
   const [currency, setCurrency] = useState<'ILS' | 'USD'>('ILS');
@@ -178,7 +178,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
     };
 
     // Add each service type as a separate property for stacking
-    item.data.forEach((serviceType, index) => {
+    item.data.forEach((serviceType) => {
       const value = currency === 'ILS' ? serviceType.total_ils : serviceType.total_usd;
       transformedItem[serviceType.name] = value;
     });

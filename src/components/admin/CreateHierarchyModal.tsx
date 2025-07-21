@@ -1,15 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
-import { Hierarchy, HierarchyType } from '@/types/hierarchies';
-import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
 import { useHierarchies } from '@/hooks/useHierarchies';
+import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
+import { Hierarchy, HierarchyType } from '@/types/hierarchies';
 
 interface CreateHierarchyModalProps {
   open: boolean;
@@ -57,7 +58,13 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   // Fetch hierarchies for parent selection
   const { data: hierarchiesData } = useHierarchies();
-  const availableHierarchies = hierarchiesData?.items || [];
+  const hierarchies = hierarchiesData?.items || [];
+
+  // Get available parent hierarchies based on selected type
+  const availableHierarchies = hierarchies.filter(hierarchy => {
+    // Simple filtering logic - can be enhanced based on business rules
+    return hierarchy.type !== selectedType;
+  });
 
   // Get available parent types (only higher levels in hierarchy)
   const getAvailableParentTypes = (): HierarchyType[] => {
@@ -143,7 +150,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       }
 
       handleCancel();
-    } catch (error) {
+    } catch (_error) {
       // Error handling is done in the mutation hooks
 
     }

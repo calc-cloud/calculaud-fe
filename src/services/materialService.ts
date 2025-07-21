@@ -1,4 +1,3 @@
-import { apiService } from './apiService';
 import { API_CONFIG } from '@/config/api';
 import { 
   Material, 
@@ -6,6 +5,8 @@ import {
   MaterialCreateRequest, 
   MaterialUpdateRequest 
 } from '@/types/materials';
+
+import { apiService } from './apiService';
 
 export class MaterialService {
   private endpoint = API_CONFIG.ENDPOINTS.SERVICES;
