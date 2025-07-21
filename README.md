@@ -1,6 +1,10 @@
-# Calculaud - Procurement Management System
+# calculaud-fe
 
-A comprehensive procurement management and analytics dashboard for tracking purposes, materials, services, and expenditures across organizational hierarchies.
+[![CI](https://github.com/calc-cloud/calculaud-fe/actions/workflows/ci.yml/badge.svg)](https://github.com/calc-cloud/calculaud-fe/actions/workflows/ci.yml)
+[![CD](https://github.com/calc-cloud/calculaud-fe/actions/workflows/cd.yml/badge.svg)](https://github.com/calc-cloud/calculaud-fe/actions/workflows/cd.yml)
+[![Release](https://github.com/calc-cloud/calculaud-fe/actions/workflows/release.yml/badge.svg)](https://github.com/calc-cloud/calculaud-fe/actions/workflows/release.yml)
+
+Procurement Management System frontend built with React and TypeScript.
 
 ## 🚀 Features
 
@@ -130,7 +134,142 @@ NODE_ENV=production npm run build    # Production build
 NODE_ENV=development npm run build   # Development build
 ```
 
-## 🌐 Deployment
+## 🚀 Docker Deployment
+
+This project includes automated Docker image building and publishing to DockerHub via GitHub Actions.
+
+### Setup Instructions
+
+1. **Configure GitHub Secrets**
+   
+   Go to your repository Settings → Secrets and variables → Actions, and add:
+   - `DOCKERHUB_USERNAME`: Your DockerHub username
+   - `DOCKERHUB_TOKEN`: Your DockerHub access token (not password)
+
+2. **Configure Repository Variables** (Optional)
+   
+   Go to your repository Settings → Secrets and variables → Actions → Variables tab:
+   - `DOCKER_IMAGE_NAME`: Custom image name (defaults to repository name)
+
+3. **Generate DockerHub Access Token**
+   
+   1. Go to DockerHub → Account Settings → Security
+   2. Click "New Access Token"
+   3. Give it a descriptive name (e.g., "GitHub Actions")
+   4. Copy the token and add it as `DOCKERHUB_TOKEN` secret
+
+### How It Works
+
+The CI/CD pipeline consists of three workflows:
+
+**CI Pipeline** (`ci.yml`):
+- Runs on all pushes and pull requests
+- Performs code quality checks: linting (ESLint), build verification (Vite)
+- Must pass before merging PRs
+
+**CD Pipeline** (`cd.yml`):
+- Runs on pushes to `main` branch only
+- Waits for CI workflow to complete successfully
+- Builds production-optimized Docker image
+- Pushes to DockerHub with development tags:
+  - `latest` (for main branch)
+  - `main-{timestamp}` (for main branch with timestamp)
+  - `{git-sha}` (for specific commits)
+
+**Release Pipeline** (`release.yml`):
+- Runs when a GitHub release is published
+- Waits for CI workflow to complete successfully
+- Builds production-optimized Docker image with version
+- Pushes to DockerHub with release tags:
+  - `v{version}` (e.g., `v1.0.0`)
+  - `{version}` (e.g., `1.0.0`)
+  - `latest` (updated to release version)
+
+### Manual Deployment
+
+You can also trigger the CD deployment manually:
+1. Go to Actions → CD - Build and Deploy
+2. Click "Run workflow"
+3. Optionally specify a custom tag
+
+## 🚀 Release Process
+
+### Creating a New Release
+
+1. **Prepare Release Branch**
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b release/v1.0.0
+   ```
+
+2. **Update Version** (if needed)
+   - Update version in `package.json`
+   - Update any documentation
+
+3. **Create Pull Request**
+   ```bash
+   git add .
+   git commit -m "chore: prepare release v1.0.0"
+   git push -u origin release/v1.0.0
+   ```
+   - Create PR from release branch to main
+   - Wait for CI to pass and get approval
+
+4. **Merge and Create GitHub Release**
+   - Merge PR to main
+   - Go to GitHub → Releases → "Create a new release"
+   - Choose tag: `v1.0.0` (will be created)
+   - Release title: `v1.0.0`
+   - Use the template from `.github/release_template.md`
+   - Click "Publish release"
+
+5. **Automatic Deployment**
+   - Release workflow automatically triggers
+   - Docker images are built and pushed with proper tags
+   - Check Actions tab for deployment status
+
+### Release Tags
+
+Each release creates multiple Docker tags:
+- `youruser/calculaud-fe:v1.0.0`
+- `youruser/calculaud-fe:1.0.0`
+- `youruser/calculaud-fe:latest` (updated to release)
+
+### Running Locally
+
+```bash
+# Build the image
+docker build -t calculaud-fe .
+
+# Run the container
+docker run -p 8080:8080 calculaud-fe
+```
+
+### Runtime Environment Variables
+
+The application supports runtime environment variable injection using `RUNTIME_` prefixed variables:
+
+```bash
+docker run -p 8080:8080 \
+  -e RUNTIME_API_BASE_URL=https://calcloud-api-production.up.railway.app/api/v1 \
+  -e RUNTIME_AUTH_AUTHORITY=https://adfs.contoso.com/adfs \
+  -e RUNTIME_AUTH_CLIENT_ID=00001111-aaaa-2222-bbbb-3333cccc4444 \
+  -e RUNTIME_AUTH_REDIRECT_URI=http://localhost:8080/ \
+  -e RUNTIME_AUTH_RESPONSE_TYPE=code \
+  -e RUNTIME_AUTH_RESPONSE_MODE=query \
+  -e RUNTIME_AUTH_SCOPE=openid \
+  calculaud-fe
+```
+
+### Docker Image Features
+
+- Multi-stage build (Node.js → nginx)
+- Non-root user for security
+- Runtime environment variable injection
+- OpenShift compatibility
+- AMD64 architecture support
+- Optimized layer caching
 
 ### Build for Production
 ```bash
@@ -138,53 +277,6 @@ npm run build
 ```
 
 The build artifacts will be stored in the `dist/` directory, ready for deployment to any static hosting service.
-
-### Docker Deployment
-
-This application supports runtime environment variable injection, allowing the same Docker image to be deployed across
-multiple environments.
-
-#### Build Docker Image
-
-**Standard Build (current platform):**
-```bash
-docker build -t calculaud-fe .
-```
-
-**Cross-Platform Builds:**
-
-```bash
-# For Linux (recommended for production/cloud deployment)
-docker build --platform linux/amd64 -t calculaud-fe .
-
-# For Windows
-docker build --platform windows/amd64 -t calculaud-fe .
-
-# For multiple platforms
-docker buildx create --name multiplatform --use
-docker buildx build --platform linux/amd64,windows/amd64 -t calculaud-fe .
-```
-
-#### Run with Runtime Environment Variables
-
-**Development (localhost:8080):**
-
-```bash
-docker run -p 8080:8080 \
-  -e RUNTIME_API_BASE_URL=https://calcloud-api-production.up.railway.app/api/v1 \
-  -e RUNTIME_AUTH_AUTHORITY=https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_jdDrJBCLe \
-  -e RUNTIME_AUTH_CLIENT_ID=7918m61oh13tamdmmkebkaectb \
-  -e RUNTIME_AUTH_REDIRECT_URI=http://localhost:8080/ \
-  -e RUNTIME_AUTH_AUTHORIZATION_ENDPOINT=https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com/oauth2/authorize \
-  -e RUNTIME_AUTH_LOGOUT_DOMAIN=https://eu-central-1jddrjbcle.auth.eu-central-1.amazoncognito.com \
-  -e RUNTIME_AUTH_LOGOUT_URI=http://localhost:8080/ \
-  -e RUNTIME_AUTH_RESPONSE_TYPE=code \
-  -e RUNTIME_AUTH_RESPONSE_MODE=query \
-  -e RUNTIME_AUTH_SCOPE="openid" \
-  calculaud-fe
-```
-
-The application will be available at http://localhost:8080
 
 ### Supported Platforms
 
