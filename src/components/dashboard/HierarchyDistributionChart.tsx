@@ -1,7 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { Button } from '@/components/ui/button';

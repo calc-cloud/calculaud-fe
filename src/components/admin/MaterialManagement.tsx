@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Edit, Trash2, Search, MoreHorizontal, Loader, AlertTriangle } from 'lucide-react';
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { TablePagination } from '@/components/tables/TablePagination';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
