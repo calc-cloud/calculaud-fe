@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+
 import { serviceTypeService } from '@/services/serviceTypeService';
 
 export const useServiceTypes = () => {

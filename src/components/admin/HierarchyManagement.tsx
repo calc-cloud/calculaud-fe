@@ -1,17 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Edit, Trash2, Search, MoreHorizontal, Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import React, { useState, useEffect, useCallback } from 'react';
+
 import { TablePagination } from '@/components/tables/TablePagination';
-import { CreateHierarchyModal } from './CreateHierarchyModal';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { API_CONFIG } from '@/config/api';
+import { useToast } from '@/hooks/use-toast';
 import { useHierarchies } from '@/hooks/useHierarchies';
 import { useDeleteHierarchy } from '@/hooks/useHierarchyMutations';
 import { Hierarchy, HierarchyType } from '@/types/hierarchies';
-import { API_CONFIG } from '@/config/api';
+
+import { CreateHierarchyModal } from './CreateHierarchyModal';
+
 
 const HierarchyManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');

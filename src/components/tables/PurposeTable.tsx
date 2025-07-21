@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useAdminData } from '@/contexts/AdminDataContext';
 import { Purpose, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { getStagesText } from '@/utils/stageUtils';
-import { useAdminData } from '@/contexts/AdminDataContext';
 
 
 interface PurposeTableProps {

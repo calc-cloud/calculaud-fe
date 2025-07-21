@@ -1,18 +1,19 @@
+import { Plus, Trash2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+
+import { HierarchySelector } from '@/components/common/HierarchySelector';
+import { ContentsSection } from '@/components/sections/ContentsSection';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2 } from 'lucide-react';
-import { PurposeContent } from '@/types';
+import { Textarea } from '@/components/ui/textarea';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
 import { usePurposeMutations } from '@/hooks/usePurposeMutations';
-import { HierarchySelector } from '@/components/common/HierarchySelector';
-import { ContentsSection } from '@/components/sections/ContentsSection';
+import { PurposeContent } from '@/types';
 import { ServiceType } from '@/types/serviceTypes';
 
 interface CreatePurposeModalProps {
@@ -246,7 +247,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
               hierarchies={hierarchies}
               selectedIds={selectedHierarchyIds}
               onSelectionChange={handleHierarchyChange}
-              singleSelect={true}
+              singleSelect
             />
           </div>
 

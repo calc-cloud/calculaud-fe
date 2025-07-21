@@ -1,23 +1,23 @@
+import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Layers, Check, X, Workflow, Info } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Edit, Plus, Trash2, Calendar, Building, Target, MessageSquare, Layers, Check, X, Workflow, Info } from 'lucide-react';
-import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
-import { formatDate } from '@/utils/dateUtils';
-import { getStagesText, convertPurchaseToStages, calculateDaysSinceLastStageCompletion } from '@/utils/stageUtils';
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
-import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
 import { FileUpload } from '@/components/common/FileUpload';
+import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
+import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useAdminData } from '@/contexts/AdminDataContext';
 import { useToast } from '@/hooks/use-toast';
+import { usePurposeMutations } from '@/hooks/usePurposeMutations';
 import { purposeService } from '@/services/purposeService';
 import { stageService, UpdateStageRequest } from '@/services/stageService';
+import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
+import { formatDate } from '@/utils/dateUtils';
+import { getStagesText, convertPurchaseToStages, calculateDaysSinceLastStageCompletion } from '@/utils/stageUtils';
 
 const PurposeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -376,11 +376,11 @@ const PurposeDetail: React.FC = () => {
     return (
       <div>
         <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-6" />
           <div className="grid gap-6">
-            <div className="h-64 bg-gray-200 rounded"></div>
-            <div className="h-48 bg-gray-200 rounded"></div>
-            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-64 bg-gray-200 rounded" />
+            <div className="h-48 bg-gray-200 rounded" />
+            <div className="h-32 bg-gray-200 rounded" />
           </div>
         </div>
       </div>
@@ -830,7 +830,7 @@ const PurposeDetail: React.FC = () => {
                                        left: `${firstStagePosition}%`,
                                        right: `${100 - lastStagePosition}%`
                                      }}
-                                   ></div>
+                                    />
                                  );
                                })()}
                                

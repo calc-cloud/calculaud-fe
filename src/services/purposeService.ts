@@ -1,7 +1,8 @@
-import {apiService} from '@/services/apiService';
-import {UnifiedFilters} from '@/types/filters';
 import {format} from 'date-fns';
+
+import {apiService} from '@/services/apiService';
 import {CreatePurchaseRequest as PurchaseCreateRequest, PurposeFile} from '@/types';
+import {UnifiedFilters} from '@/types/filters';
 
 export interface PurposeApiParams {
   page?: number;
@@ -487,10 +488,10 @@ class PurposeService {
     }
 
     // Handle different possible response formats
-    let items = apiData.items || apiData.data || [];
-    let total = apiData.total || 0;
-    let page = apiData.page || 1;
-    let pages = apiData.pages || apiData.total_pages || 1;
+    const items = apiData.items || apiData.data || [];
+    const total = apiData.total || 0;
+    const page = apiData.page || 1;
+    const pages = apiData.pages || apiData.total_pages || 1;
 
     // Check if items is an array
     if (!Array.isArray(items)) {

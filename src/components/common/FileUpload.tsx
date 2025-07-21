@@ -1,13 +1,14 @@
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Upload, FileText, Trash2, Loader2, Download, FileImage, FileSpreadsheet, FileType, File, MoreVertical } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
+import { purposeService } from '@/services/purposeService';
 import { PurposeFile } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
-import { purposeService } from '@/services/purposeService';
-import { useToast } from '@/hooks/use-toast';
 
 interface FileUploadProps {
   files: PurposeFile[];
@@ -131,7 +132,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))  } ${  sizes[i]}`;
   };
 
   const getFileIcon = (filename: string) => {

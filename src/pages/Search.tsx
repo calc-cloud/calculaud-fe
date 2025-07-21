@@ -1,23 +1,23 @@
+import {Download, Search as SearchIcon, X, Loader2} from 'lucide-react';
 import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
-import {PurposeTable} from '@/components/tables/PurposeTable';
 
+import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
+import {PurposeTable} from '@/components/tables/PurposeTable';
 import {TablePagination} from '@/components/tables/TablePagination';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
-import {Download, Search as SearchIcon, X, Loader2} from 'lucide-react';
 import {Separator} from '@/components/ui/separator';
 import {useAdminData} from '@/contexts/AdminDataContext';
-import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
-import {SortConfig} from '@/utils/sorting';
+import {useToast} from '@/hooks/use-toast';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {usePurposeMutations} from '@/hooks/usePurposeMutations';
+import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
-import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
-import {useToast} from '@/hooks/use-toast';
+import {SortConfig} from '@/utils/sorting';
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

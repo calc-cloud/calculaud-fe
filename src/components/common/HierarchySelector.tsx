@@ -1,9 +1,10 @@
+import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
 import React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Hierarchy } from '@/types/hierarchies';
 
 interface HierarchyItem {
@@ -193,7 +194,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         align="start" 
         side="bottom"
         sideOffset={4}
-        avoidCollisions={true}
+        avoidCollisions
         collisionPadding={10}
       >
         <div className="py-2">

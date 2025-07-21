@@ -1,15 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
-import { Hierarchy, HierarchyType } from '@/types/hierarchies';
-import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
 import { useHierarchies } from '@/hooks/useHierarchies';
+import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
+import { Hierarchy, HierarchyType } from '@/types/hierarchies';
 
 interface CreateHierarchyModalProps {
   open: boolean;

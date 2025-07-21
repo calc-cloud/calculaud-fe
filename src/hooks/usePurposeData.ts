@@ -1,10 +1,11 @@
-import {useMemo, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
+import {useMemo, useRef, useState} from 'react';
+
+import {useAdminData} from '@/contexts/AdminDataContext';
+import {purposeService} from '@/services/purposeService';
 import {Purpose} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 import {SortConfig} from '@/utils/sorting';
-import {purposeService} from '@/services/purposeService';
-import {useAdminData} from '@/contexts/AdminDataContext';
 
 export const usePurposeData = (
   initialFilters: UnifiedFilters = {},

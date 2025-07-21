@@ -1,5 +1,6 @@
 // Shared filter utilities
 import {format, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subYears} from 'date-fns';
+
 import {UnifiedFilters} from '@/types/filters';
 
 // Cache the default date range to avoid recalculating

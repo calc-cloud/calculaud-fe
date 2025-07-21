@@ -1,5 +1,4 @@
 
-import { apiService } from './apiService';
 import { API_CONFIG } from '@/config/api';
 import { 
   Supplier, 
@@ -7,6 +6,8 @@ import {
   SupplierCreateRequest, 
   SupplierUpdateRequest 
 } from '@/types/suppliers';
+
+import { apiService } from './apiService';
 
 export class SupplierService {
   private endpoint = API_CONFIG.ENDPOINTS.SUPPLIERS;

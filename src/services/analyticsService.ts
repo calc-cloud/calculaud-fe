@@ -1,5 +1,6 @@
-import { apiService } from './apiService';
 import { DashboardFilters, ServicesQuantityResponse, ServiceTypesDistributionResponse, HierarchyDistributionResponse, ExpenditureTimelineResponse } from '@/types/analytics';
+
+import { apiService } from './apiService';
 
 export class AnalyticsService {
   async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {

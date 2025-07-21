@@ -1,7 +1,7 @@
 
+import { purposeService } from '@/services/purposeService';
 import { UnifiedFilters } from '@/types/filters';
 import { SortConfig } from '@/utils/sorting';
-import { purposeService } from '@/services/purposeService';
 
 export const exportPurposesToCSV = async (
   filters: UnifiedFilters, 

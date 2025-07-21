@@ -1,8 +1,9 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { useToast } from '@/hooks/use-toast';
 import { hierarchyService } from '@/services/hierarchyService';
 import { HierarchyCreateRequest, HierarchyUpdateRequest, Hierarchy } from '@/types/hierarchies';
-import { useToast } from '@/hooks/use-toast';
 
 export const useCreateHierarchy = () => {
   const queryClient = useQueryClient();
