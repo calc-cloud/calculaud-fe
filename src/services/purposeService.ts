@@ -1,7 +1,5 @@
-import {format} from 'date-fns';
-
 import {apiService} from '@/services/apiService';
-import {CreatePurchaseRequest as PurchaseCreateRequest, PurposeFile} from '@/types';
+import {CreatePurchaseRequest as PurchaseCreateRequest} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 
 export interface PurposeApiParams {
@@ -471,7 +469,7 @@ class PurposeService {
     };
   }
 
-  transformApiResponse(apiData: any, hierarchies: any[]): {
+  transformApiResponse(apiData: any): {
     purposes: any[];
     total: number;
     page: number;
@@ -551,7 +549,7 @@ class PurposeService {
             file_size: file.file_size || 0
           }))
         };
-      } catch (error) {
+      } catch {
         return {
           id: purpose.id?.toString() || '',
           description: 'Error loading purpose',

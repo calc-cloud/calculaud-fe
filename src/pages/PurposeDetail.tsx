@@ -35,7 +35,6 @@ const PurposeDetail: React.FC = () => {
   // Timeline state
   const [editingStage, setEditingStage] = useState<string | null>(null);
   const [selectedStage, setSelectedStage] = useState<any | null>(null);
-  const [selectedStagePosition, setSelectedStagePosition] = useState<{ x: number, isAbove: boolean } | null>(null);
   const [editForm, setEditForm] = useState({ date: '', text: '' });
   const [isUpdatingStage, setIsUpdatingStage] = useState(false);
   
@@ -102,7 +101,7 @@ const PurposeDetail: React.FC = () => {
     try {
       await deletePurpose.mutateAsync(id);
       navigate('/search');
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation
     }
   };
@@ -150,7 +149,7 @@ const PurposeDetail: React.FC = () => {
       
       setIsEditModalOpen(false);
       setSelectedPurpose(null);
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation
     }
   };
@@ -215,11 +214,8 @@ const PurposeDetail: React.FC = () => {
 
 
 
-  const handleStageClick = (stage: any, stageIndex: number, allStages: any[]) => {
-    const position = calculateStagePosition(allStages, stageIndex);
-    const isAbove = stageIndex % 2 === 0;
+  const handleStageClick = (stage: any) => {
     setSelectedStage(stage);
-    setSelectedStagePosition({ x: position, isAbove });
     // Automatically start editing when clicking on a stage
     handleEditStart(stage.id, stage.date, stage.value);
   };
@@ -243,12 +239,10 @@ const PurposeDetail: React.FC = () => {
     setEditForm({ date: '', text: '' });
     // Close the popup completely instead of showing expanded read mode
     setSelectedStage(null);
-    setSelectedStagePosition(null);
   };
 
   const handleCloseStagePopup = () => {
     setSelectedStage(null);
-    setSelectedStagePosition(null);
     setEditingStage(null);
     setEditForm({ date: '', text: '' });
   };
@@ -284,7 +278,6 @@ const PurposeDetail: React.FC = () => {
       setEditingStage(null);
       setEditForm({ date: '', text: '' });
       setSelectedStage(null);
-      setSelectedStagePosition(null);
       
       // Refresh the purpose data to show updated stage
       if (id) {
@@ -319,7 +312,7 @@ const PurposeDetail: React.FC = () => {
 
 
 
-  const getStageDisplayDate = (stage: any, stages: any[], index: number) => {
+  const getStageDisplayDate = (stage: any) => {
     if (stage.completed && stage.date) {
       return formatDateForTimeline(stage.date);
     }
@@ -689,7 +682,7 @@ const PurposeDetail: React.FC = () => {
                            if (editingStage === stage.id) {
                              return;
                            }
-                           handleStageClick(stage, index, stages);
+                           handleStageClick(stage);
                          }}
                        >
                          {/* Collapsed Content */}
@@ -708,9 +701,9 @@ const PurposeDetail: React.FC = () => {
                                  {stage.value}
                                </div>
                              )}
-                             {getStageDisplayDate(stage, stages, index) && (
+                             {getStageDisplayDate(stage) && (
                                <div className="text-xs text-gray-500">
-                                 {getStageDisplayDate(stage, stages, index)}
+                                 {getStageDisplayDate(stage)}
                                </div>
                              )}
                            </div>
@@ -915,7 +908,7 @@ const PurposeDetail: React.FC = () => {
                            if (editingStage === stage.id) {
                              return;
                            }
-                           handleStageClick(stage, index, stages);
+                           handleStageClick(stage);
                          }}
                        >
                          {/* Collapsed Content */}
@@ -934,9 +927,9 @@ const PurposeDetail: React.FC = () => {
                                  {stage.value}
                                </div>
                              )}
-                             {getStageDisplayDate(stage, stages, index) && (
+                             {getStageDisplayDate(stage) && (
                                <div className="text-xs text-gray-500">
-                                 {getStageDisplayDate(stage, stages, index)}
+                                 {getStageDisplayDate(stage)}
                                </div>
                              )}
                            </div>

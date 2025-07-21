@@ -48,8 +48,8 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
     try {
       await onSave(serviceTypeName.trim(), editItem?.id);
       onOpenChange(false);
-    } catch (error) {
-
+    } catch (_error) {
+      // Error handling could be added here if needed
     } finally {
       setIsLoading(false);
     }

@@ -39,7 +39,6 @@ const GROUP_BY_OPTIONS = [
 export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({ 
   data, 
   isLoading, 
-  globalFilters,
   onGroupByChange 
 }) => {
   const [currency, setCurrency] = useState<'ILS' | 'USD'>('ILS');
@@ -179,7 +178,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
     };
 
     // Add each service type as a separate property for stacking
-    item.data.forEach((serviceType, index) => {
+    item.data.forEach((serviceType) => {
       const value = currency === 'ILS' ? serviceType.total_ils : serviceType.total_usd;
       transformedItem[serviceType.name] = value;
     });

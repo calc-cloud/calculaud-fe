@@ -7,12 +7,8 @@ export const useServiceTypes = () => {
   return useQuery({
     queryKey: ['service-types'],
     queryFn: async () => {
-      try {
-        const data = await serviceTypeService.getServiceTypes();
-        return data;
-      } catch (error) {
-        throw error;
-      }
+      const data = await serviceTypeService.getServiceTypes();
+      return data;
     },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });

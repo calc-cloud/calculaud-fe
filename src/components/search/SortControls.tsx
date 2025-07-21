@@ -21,19 +21,6 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
     onSortChange({ field: sortConfig.field, direction: newDirection });
   };
 
-  const getFieldDisplayName = (field: SortField) => {
-    switch (field) {
-      case 'creation_time':
-        return 'Creation Time';
-      case 'expected_delivery':
-        return 'Expected Delivery';
-      case 'last_modified':
-        return 'Last Modified';
-      default:
-        return field;
-    }
-  };
-
   return (
     <div className="flex items-center gap-4">
       <div className="flex items-center gap-2">

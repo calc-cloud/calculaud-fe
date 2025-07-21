@@ -204,7 +204,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
       onClose();
       navigate(`/purposes/${newPurpose.id}`);
       
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to create purpose. Please try again.",

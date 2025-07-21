@@ -3,7 +3,7 @@ import { Upload, FileText, Trash2, Loader2, Download, FileImage, FileSpreadsheet
 import React, { useState, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { purposeService } from '@/services/purposeService';
@@ -39,12 +39,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const fileArray = Array.from(selectedFiles);
     
     // Track which files are being uploaded
-    const uploadIds = fileArray.map(file => `upload-${Date.now()}-${Math.random()}`);
+    const uploadIds = Array.from({length: fileArray.length}, () => `upload-${Date.now()}-${Math.random()}`);
     setUploadingFiles(new Set(uploadIds));
 
     try {
       // Upload files sequentially to avoid overwhelming the server
-      const uploadPromises = fileArray.map(async (file, index) => {
+      const uploadPromises = fileArray.map(async (file) => {
         try {
           const response = await purposeService.uploadFile(purposeId, file);
           return {

@@ -129,7 +129,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     return a.service.localeCompare(b.service);
   });
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, _label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

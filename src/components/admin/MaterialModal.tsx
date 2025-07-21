@@ -58,8 +58,8 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
     try {
       await onSave(materialName.trim(), parseInt(selectedServiceTypeId), editItem?.id);
       onOpenChange(false);
-    } catch (error) {
-
+    } catch (_error) {
+      // Error handling could be added here if needed
     } finally {
       setIsLoading(false);
     }

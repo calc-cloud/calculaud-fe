@@ -2,8 +2,6 @@ import {format} from 'date-fns';
 import {CalendarIcon, ChevronDown, Filter} from 'lucide-react';
 import React, {useState} from 'react';
 
-
-// UI Components
 import {HierarchySelector} from '@/components/common/HierarchySelector';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
@@ -13,16 +11,13 @@ import {Collapsible, CollapsibleContent, CollapsibleTrigger} from '@/components/
 import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from '@/components/ui/sheet';
-
-// Components
-
-// Hooks and data
 import {useAdminData} from '@/contexts/AdminDataContext';
 import {cn} from '@/lib/utils';
-
-// Types and utilities
 import {PURPOSE_STATUSES_DISPLAY, RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {createToggleFunction, handleDateChange, handleRelativeTimeChange} from '@/utils/filterUtils';
+
+// UI Components
+
 
 // Helper function to count active filters
 const countActiveFilters = (filters: UnifiedFiltersType) => {
@@ -60,10 +55,9 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
   const toggleStatus = createToggleFunction<string>('status', filters, onFiltersChange);
   const toggleSupplier = createToggleFunction<number>('supplier', filters, onFiltersChange);
   const toggleMaterial = createToggleFunction<number>('material', filters, onFiltersChange);
-  const toggleHierarchy = createToggleFunction<number>('hierarchy_id', filters, onFiltersChange);
 
   // Function to reset relative time filter to default
-  const clearRelativeTime = () => {
+  const _clearRelativeTime = () => {
     onFiltersChange({
       ...filters,
       relative_time: 'all_time',
@@ -84,8 +78,6 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
       filters.service_type!.includes(material.service_type_id)
     );
   }, [materials, filters.service_type]);
-
-  const activeFiltersCount = countActiveFilters(filters);
 
   return (
     <div className="space-y-4">

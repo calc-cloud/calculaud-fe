@@ -12,13 +12,11 @@ import { getStagesText } from '@/utils/stageUtils';
 
 interface PurposeTableProps {
   purposes: Purpose[];
-  onDelete: (purposeId: string) => void;
   isLoading?: boolean;
 }
 
 export const PurposeTable: React.FC<PurposeTableProps> = ({
   purposes,
-  onDelete,
   isLoading = false
 }) => {
   const { hierarchies } = useAdminData();

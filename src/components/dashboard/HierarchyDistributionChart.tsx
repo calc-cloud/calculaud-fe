@@ -36,7 +36,6 @@ const HIERARCHY_LEVELS = ['UNIT', 'CENTER', 'ANAF', 'MADOR', 'TEAM'] as const;
 export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProps> = ({ 
   data, 
   isLoading,
-  globalFilters,
   onFiltersChange
 }) => {
   const { hierarchies } = useAdminData();

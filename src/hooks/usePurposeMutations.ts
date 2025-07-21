@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useToast } from '@/hooks/use-toast';
 import { purposeService } from '@/services/purposeService';
-import { Purpose } from '@/types';
+
 
 export const usePurposeMutations = () => {
   const queryClient = useQueryClient();

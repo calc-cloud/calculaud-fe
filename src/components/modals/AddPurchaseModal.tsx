@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Currency, getCurrencyDisplayName, CreatePurchaseRequest, CreateCostRequest } from '@/types';
+import { Currency, getCurrencyDisplayName, CreatePurchaseRequest } from '@/types';
 
 interface AddPurchaseModalProps {
   isOpen: boolean;

@@ -13,7 +13,6 @@ import {Separator} from '@/components/ui/separator';
 import {useAdminData} from '@/contexts/AdminDataContext';
 import {useToast} from '@/hooks/use-toast';
 import {usePurposeData} from '@/hooks/usePurposeData';
-import {usePurposeMutations} from '@/hooks/usePurposeMutations';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
@@ -101,7 +100,6 @@ const Search: React.FC = () => {
   };
 
   const {
-    purposes,
     filteredPurposes,
     filters,
     setFilters,
@@ -114,9 +112,6 @@ const Search: React.FC = () => {
     isLoading,
     error
   } = usePurposeData(getInitialFilters(), getInitialSortConfig(), getInitialPage());
-
-  // Get mutation functions
-  const { createPurpose, updatePurpose, deletePurpose } = usePurposeMutations();
 
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
@@ -191,10 +186,6 @@ const Search: React.FC = () => {
   // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
-
-  const handleDeletePurpose = (purposeId: string) => {
-    deletePurpose.mutate(purposeId);
-  };
 
   const handleExport = () => {
     exportPurposesToCSV(filters, sortConfig, toast, setIsExportLoading);
@@ -300,7 +291,6 @@ const Search: React.FC = () => {
 
       <PurposeTable
         purposes={filteredPurposes}
-        onDelete={handleDeletePurpose}
         isLoading={isLoading}
       />
 

@@ -1,4 +1,4 @@
-import { Plus, Edit, Trash2, Search, MoreHorizontal, Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, MoreHorizontal, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 import { TablePagination } from '@/components/tables/TablePagination';
@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { API_CONFIG } from '@/config/api';
-import { useToast } from '@/hooks/use-toast';
 import { useHierarchies } from '@/hooks/useHierarchies';
 import { useDeleteHierarchy } from '@/hooks/useHierarchyMutations';
 import { Hierarchy, HierarchyType } from '@/types/hierarchies';
@@ -24,7 +23,7 @@ const HierarchyManagement = () => {
   const [hierarchyToDelete, setHierarchyToDelete] = useState<Hierarchy | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editingHierarchy, setEditingHierarchy] = useState<Hierarchy | null>(null);
-  const { toast } = useToast();
+
   const itemsPerPage = 10;
   
   // Debounce search query to prevent excessive API calls
@@ -48,22 +47,7 @@ const HierarchyManagement = () => {
   // Delete mutation
   const deleteMutation = useDeleteHierarchy();
   
-  const getHierarchyIcon = (type: HierarchyType) => {
-    switch (type) {
-      case 'UNIT':
-        return Building2;
-      case 'CENTER':
-        return Building;
-      case 'ANAF':
-        return Users;
-      case 'TEAM':
-        return UserCheck;
-      case 'MADOR':
-        return User;
-      default:
-        return Building2;
-    }
-  };
+
 
   const formatTypeDisplay = (type: HierarchyType): string => {
     return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
@@ -90,7 +74,7 @@ const HierarchyManagement = () => {
         await deleteMutation.mutateAsync(hierarchyToDelete.id);
         setDeleteDialogOpen(false);
         setHierarchyToDelete(null);
-      } catch (error) {
+      } catch (_error) {
         // Error handling is done in the mutation hook
 
       }
