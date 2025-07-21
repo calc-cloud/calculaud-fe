@@ -9,13 +9,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run dev` - Start development server on port 8080
 - `npm run build` - Production build
 - `npm run build:dev` - Development build with dev optimizations
-- `npm run lint` - Run ESLint for code quality checks
+- `npm run lint` - Run ESLint for code quality checks (ALWAYS run before commit)
 - `npm run preview` - Preview production build locally
 
 ### Package Management
 
 - Uses both `npm` and `bun` (bun.lockb present)
 - Dependencies managed through package.json
+
+### CI/CD Commands
+
+**Code Quality (REQUIRED before every commit):**
+```bash
+npm run lint    # ESLint checks
+npm run build   # Build verification
+```
+
+**Docker Commands:**
+```bash
+docker build -t calculaud-fe .                    # Build image
+docker run -p 8080:8080 calculaud-fe             # Run container
+docker build --platform linux/amd64 -t calculaud-fe .  # Cross-platform build
+```
 
 ## Architecture Overview
 
@@ -136,3 +151,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - CRUD operations for hierarchies, materials, suppliers, and service types
 - Modal-based editing interfaces
 - Real-time data updates via React Query mutations
+
+## CI/CD Workflow
+
+This project uses GitHub Actions for automated CI/CD with three workflows:
+
+### Workflow Structure
+- **ci.yml** - Code quality checks on all PRs and main pushes
+- **cd.yml** - Docker build and deployment on main branch
+- **release.yml** - Versioned releases with Docker image assets
+
+### Required Secrets
+- `DOCKERHUB_USERNAME` - DockerHub username
+- `DOCKERHUB_TOKEN` - DockerHub access token
+
+### Release Process
+1. Create release branch: `git checkout -b release/v1.0.0`
+2. Update version in `package.json`
+3. Create PR and merge to main
+4. Create GitHub release with tag `v1.0.0`
+5. Workflows automatically build and deploy Docker images

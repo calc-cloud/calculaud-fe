@@ -1,5 +1,4 @@
 
-import { apiService } from './apiService';
 import { API_CONFIG } from '@/config/api';
 import { 
   ServiceType, 
@@ -7,6 +6,8 @@ import {
   ServiceTypeCreateRequest, 
   ServiceTypeUpdateRequest 
 } from '@/types/serviceTypes';
+
+import { apiService } from './apiService';
 
 export class ServiceTypeService {
   private endpoint = API_CONFIG.ENDPOINTS.SERVICE_TYPES;

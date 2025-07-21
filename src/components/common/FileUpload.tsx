@@ -1,13 +1,14 @@
 
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Upload, FileText, Trash2, Loader2, Download, FileImage, FileSpreadsheet, FileType, File, MoreVertical } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
+import { purposeService } from '@/services/purposeService';
 import { PurposeFile } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
-import { purposeService } from '@/services/purposeService';
-import { useToast } from '@/hooks/use-toast';
 
 interface FileUploadProps {
   files: PurposeFile[];
@@ -38,12 +39,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const fileArray = Array.from(selectedFiles);
     
     // Track which files are being uploaded
-    const uploadIds = fileArray.map(file => `upload-${Date.now()}-${Math.random()}`);
+    const uploadIds = Array.from({length: fileArray.length}, () => `upload-${Date.now()}-${Math.random()}`);
     setUploadingFiles(new Set(uploadIds));
 
     try {
       // Upload files sequentially to avoid overwhelming the server
-      const uploadPromises = fileArray.map(async (file, index) => {
+      const uploadPromises = fileArray.map(async (file) => {
         try {
           const response = await purposeService.uploadFile(purposeId, file);
           return {
@@ -55,10 +56,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             file_size: response.file_size
           };
         } catch (error) {
-          console.error(`Failed to upload ${file.name}:`, error);
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           toast({
             title: "Upload failed",
-            description: `Failed to upload ${file.name}`,
+            description: `Failed to upload ${file.name}: ${errorMessage}`,
             variant: "destructive",
           });
           return null;
@@ -76,10 +77,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         });
       }
     } catch (error) {
-      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Upload failed",
-        description: "Failed to upload files",
+        description: `Failed to upload files: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -100,10 +101,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         description: "File deleted successfully.",
       });
     } catch (error) {
-      console.error('Delete error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       toast({
         title: "Delete failed",
-        description: "Failed to delete file",
+        description: `Failed to delete file: ${errorMessage}`,
         variant: "destructive",
       });
     } finally {
@@ -131,7 +132,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))  } ${  sizes[i]}`;
   };
 
   const getFileIcon = (filename: string) => {

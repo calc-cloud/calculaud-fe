@@ -1,12 +1,13 @@
+import { Trash2, Plus } from 'lucide-react';
 import React from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Trash2, Plus } from 'lucide-react';
-import { PurposeContent } from '@/types';
 import { useMaterials } from '@/hooks/useMaterials';
+import { PurposeContent } from '@/types';
 
 interface ContentsSectionProps {
   contents: PurposeContent[];
@@ -164,7 +165,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
                 {isReadOnly ? (
                   <Input
                     value={content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}
-                    disabled={true}
+                    disabled
                   />
                 ) : (
                   <>

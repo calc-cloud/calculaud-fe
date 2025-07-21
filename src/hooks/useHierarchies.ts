@@ -1,5 +1,6 @@
 
 import { useQuery } from '@tanstack/react-query';
+
 import { hierarchyService } from '@/services/hierarchyService';
 import { HierarchyFilters } from '@/types/hierarchies';
 

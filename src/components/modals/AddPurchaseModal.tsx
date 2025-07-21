@@ -1,11 +1,12 @@
+import { Plus, Trash2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2 } from 'lucide-react';
-import { Currency, getCurrencyDisplayName, CreatePurchaseRequest, CreateCostRequest } from '@/types';
+import { Currency, getCurrencyDisplayName, CreatePurchaseRequest } from '@/types';
 
 interface AddPurchaseModalProps {
   isOpen: boolean;

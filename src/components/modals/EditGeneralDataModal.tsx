@@ -1,23 +1,22 @@
-import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { Purpose, PurposeContent } from '@/types';
+import React, { useState, useEffect } from 'react';
 
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { useToast } from '@/hooks/use-toast';
 import { HierarchySelector } from '@/components/common/HierarchySelector';
 import { ContentsSection } from '@/components/sections/ContentsSection';
-import { Supplier } from '@/types/suppliers';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { useAdminData } from '@/contexts/AdminDataContext';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { Purpose, PurposeContent } from '@/types';
 import { ServiceType } from '@/types/serviceTypes';
+import { Supplier } from '@/types/suppliers';
 
 interface EditGeneralDataModalProps {
   isOpen: boolean;
@@ -131,8 +130,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     const updatedPurpose: Purpose = {
       ...purpose,
       description: formData.description.trim(),
-      supplier: formData.selectedSupplier!.name,
-      service_type: formData.selectedServiceType!.name as Purpose['service_type'],
+      supplier: formData.selectedSupplier?.name || '',
+      service_type: formData.selectedServiceType?.name as Purpose['service_type'],
       expected_delivery: formData.expected_delivery,
       status: formData.status as Purpose['status'],
       hierarchy_id: formData.hierarchy_id,
@@ -327,7 +326,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
               hierarchies={hierarchies}
               selectedIds={selectedHierarchyIds}
               onSelectionChange={handleHierarchyChange}
-              singleSelect={true}
+              singleSelect
             />
           </div>
 

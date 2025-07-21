@@ -1,7 +1,6 @@
 import {apiService} from '@/services/apiService';
+import {CreatePurchaseRequest as PurchaseCreateRequest, Currency} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
-import {format} from 'date-fns';
-import {CreatePurchaseRequest as PurchaseCreateRequest, PurposeFile} from '@/types';
 
 export interface PurposeApiParams {
   page?: number;
@@ -93,7 +92,7 @@ export interface StageType {
 export interface Cost {
   id: number;
   purchase_id: number; // Changed from emf_id to purchase_id
-  currency: string;
+  currency: Currency;
   amount: number;
 }
 
@@ -131,7 +130,7 @@ export interface CreateStageRequest {
 }
 
 export interface CreateCostRequest {
-  currency: string;
+  currency: Currency;
   amount: number;
 }
 
@@ -176,6 +175,10 @@ class PurposeService {
 
   async deletePurchase(purchaseId: string): Promise<void> {
     return apiService.delete<void>(`/purchases/${purchaseId}`);
+  }
+
+  async exportPurposesCSV(params: Omit<PurposeApiParams, 'page' | 'limit'>): Promise<Response> {
+    return apiService.downloadBlob('/purposes/export_csv', params);
   }
 
   async uploadFile(purposeId: string, file: File): Promise<{
@@ -466,7 +469,7 @@ class PurposeService {
     };
   }
 
-  transformApiResponse(apiData: any, hierarchies: any[]): {
+  transformApiResponse(apiData: any): {
     purposes: any[];
     total: number;
     page: number;
@@ -483,10 +486,10 @@ class PurposeService {
     }
 
     // Handle different possible response formats
-    let items = apiData.items || apiData.data || [];
-    let total = apiData.total || 0;
-    let page = apiData.page || 1;
-    let pages = apiData.pages || apiData.total_pages || 1;
+    const items = apiData.items || apiData.data || [];
+    const total = apiData.total || 0;
+    const page = apiData.page || 1;
+    const pages = apiData.pages || apiData.total_pages || 1;
 
     // Check if items is an array
     if (!Array.isArray(items)) {
@@ -546,7 +549,8 @@ class PurposeService {
             file_size: file.file_size || 0
           }))
         };
-      } catch (error) {
+      } catch (_error) {
+        // Return fallback object for malformed purpose data
         return {
           id: purpose.id?.toString() || '',
           description: 'Error loading purpose',
@@ -591,18 +595,18 @@ class PurposeService {
     }
   }
 
-  private mapApiCurrencyToFrontend(currency: string): string {
+  private mapApiCurrencyToFrontend(currency: string): Currency {
     switch (currency) {
       case 'ILS':
-        return 'ILS';
+        return Currency.ILS;
       case 'SUPPORT_USD':
-        return 'SUPPORT_USD';
+        return Currency.SUPPORT_USD;
       case 'AVAILABLE_USD':
-        return 'AVAILABLE_USD';
+        return Currency.AVAILABLE_USD;
       case 'USD':
-        return 'SUPPORT_USD'; // Default old USD values to SUPPORT_USD
+        return Currency.SUPPORT_USD; // Default old USD values to SUPPORT_USD
       default:
-        return currency;
+        return currency as Currency;
     }
   }
 }

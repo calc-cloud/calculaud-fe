@@ -1,5 +1,6 @@
-import { apiService } from './apiService';
 import { DashboardFilters, ServicesQuantityResponse, ServiceTypesDistributionResponse, HierarchyDistributionResponse, ExpenditureTimelineResponse } from '@/types/analytics';
+
+import { apiService } from './apiService';
 
 export class AnalyticsService {
   async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
@@ -29,12 +30,8 @@ export class AnalyticsService {
       }
     }
     
-    try {
-      const result = await apiService.get<ServicesQuantityResponse>('/analytics/services/quantities', params);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await apiService.get<ServicesQuantityResponse>('/analytics/services/quantities', params);
+    return result;
   }
 
   async getServiceTypesDistribution(filters?: DashboardFilters): Promise<ServiceTypesDistributionResponse> {
@@ -64,12 +61,8 @@ export class AnalyticsService {
       }
     }
     
-    try {
-      const result = await apiService.get<ServiceTypesDistributionResponse>('/analytics/service-types/distribution', params);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await apiService.get<ServiceTypesDistributionResponse>('/analytics/service-types/distribution', params);
+    return result;
   }
 
   async getHierarchyDistribution(
@@ -113,12 +106,8 @@ export class AnalyticsService {
       }
     }
     
-    try {
-      const result = await apiService.get<HierarchyDistributionResponse>('/analytics/hierarchies/distribution', params);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await apiService.get<HierarchyDistributionResponse>('/analytics/hierarchies/distribution', params);
+    return result;
   }
 
   async getExpenditureTimeline(
@@ -153,12 +142,8 @@ export class AnalyticsService {
       }
     }
     
-    try {
-      const result = await apiService.get<ExpenditureTimelineResponse>('/analytics/expenditure/timeline', params);
-      return result;
-    } catch (error) {
-      throw error;
-    }
+    const result = await apiService.get<ExpenditureTimelineResponse>('/analytics/expenditure/timeline', params);
+    return result;
   }
 }
 
