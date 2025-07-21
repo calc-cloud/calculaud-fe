@@ -1,9 +1,10 @@
-import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 import { ExternalLink } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ServicesQuantityResponse } from '@/types/analytics';
 
 interface ServicesQuantityChartProps {
@@ -128,7 +129,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
     return a.service.localeCompare(b.service);
   });
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, _label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

@@ -1,9 +1,9 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Hierarchy } from '@/types/hierarchies';
 
 interface HierarchyItem {
@@ -110,11 +110,15 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
     // Second pass: build parent-child relationships
     items.forEach(item => {
-      const itemWithChildren = itemMap.get(item.id)!;
+      const itemWithChildren = itemMap.get(item.id);
+      if (!itemWithChildren) return;
+      
       if (item.parentId && itemMap.has(item.parentId)) {
-        const parent = itemMap.get(item.parentId)!;
-        parent.children = parent.children || [];
-        parent.children.push(itemWithChildren);
+        const parent = itemMap.get(item.parentId);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(itemWithChildren);
+        }
       } else {
         roots.push(itemWithChildren);
       }
@@ -173,7 +177,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         
         {hasChildren && isExpanded && (
           <div>
-            {node.children!.map(child => renderTreeNode(child, level + 1))}
+            {node.children?.map(child => renderTreeNode(child, level + 1))}
           </div>
         )}
       </div>
@@ -193,7 +197,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
         align="start" 
         side="bottom"
         sideOffset={4}
-        avoidCollisions={true}
+        avoidCollisions
         collisionPadding={10}
       >
         <div className="py-2">

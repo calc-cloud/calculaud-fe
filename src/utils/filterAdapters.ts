@@ -1,6 +1,6 @@
 // Filter adapters to convert between different filter formats
-import { UnifiedFilters } from '@/types/filters';
 import { DashboardFilters } from '@/types/analytics';
+import { UnifiedFilters } from '@/types/filters';
 
 // Status mapping for dashboard API compatibility
 const STATUS_DISPLAY_TO_API: Record<string, string> = {

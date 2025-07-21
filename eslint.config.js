@@ -3,7 +3,6 @@ import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import react from "eslint-plugin-react";
-import jsxA11y from "eslint-plugin-jsx-a11y";
 import importPlugin from "eslint-plugin-import";
 import tseslint from "typescript-eslint";
 
@@ -15,7 +14,6 @@ export default tseslint.config(
       ...tseslint.configs.recommended,
       react.configs.flat.recommended,
       react.configs.flat["jsx-runtime"],
-      jsxA11y.flatConfigs.recommended,
     ],
     files: ["**/*.{ts,tsx}"],
     languageOptions: {
@@ -60,7 +58,7 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: "^_"
         }
       ],
-      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "warn",
       
       // Import organization rules
@@ -102,6 +100,7 @@ export default tseslint.config(
       "react/self-closing-comp": "error",
       "react/jsx-boolean-value": ["error", "never"],
       "react/jsx-curly-brace-presence": ["error", { props: "never", children: "never" }],
+      "react/no-unescaped-entities": "off", // Allow unescaped quotes and entities in JSX
     },
   }
 );

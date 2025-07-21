@@ -1,19 +1,21 @@
-import React, {useEffect, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
+import {X} from 'lucide-react';
+import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
+
+import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
+import {CostOverTimeChart} from '@/components/dashboard/CostOverTimeChart';
+import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
 import {ServicesQuantityChart} from '@/components/dashboard/ServicesQuantityChart';
 import {ServiceTypesDistributionChart} from '@/components/dashboard/ServiceTypesDistributionChart';
-import {HierarchyDistributionChart} from '@/components/dashboard/HierarchyDistributionChart';
-import {CostOverTimeChart} from '@/components/dashboard/CostOverTimeChart';
+import {Button} from '@/components/ui/button';
+import {useAdminData} from '@/contexts/AdminDataContext';
 import {analyticsService} from '@/services/analyticsService';
 import {DashboardFilters as DashboardFiltersType} from '@/types/analytics';
 import {dashboardFiltersToUnified, unifiedToDashboardFilters} from '@/utils/filterAdapters';
-import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
-import {useAdminData} from '@/contexts/AdminDataContext';
-import {Button} from '@/components/ui/button';
 import {clearFilters} from '@/utils/filterUtils';
-import {X} from 'lucide-react';
+
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

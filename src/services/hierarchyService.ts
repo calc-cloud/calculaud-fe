@@ -1,5 +1,4 @@
 
-import { apiService } from './apiService';
 import { API_CONFIG } from '@/config/api';
 import { 
   Hierarchy, 
@@ -8,6 +7,8 @@ import {
   HierarchyCreateRequest, 
   HierarchyUpdateRequest 
 } from '@/types/hierarchies';
+
+import { apiService } from './apiService';
 
 export class HierarchyService {
   private endpoint = API_CONFIG.ENDPOINTS.HIERARCHIES;

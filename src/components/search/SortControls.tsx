@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SortConfig, SortField, SortDirection } from '@/utils/sorting';
 
 interface SortControlsProps {
@@ -18,19 +19,6 @@ export const SortControls: React.FC<SortControlsProps> = ({ sortConfig, onSortCh
   const handleDirectionToggle = () => {
     const newDirection: SortDirection = sortConfig.direction === 'asc' ? 'desc' : 'asc';
     onSortChange({ field: sortConfig.field, direction: newDirection });
-  };
-
-  const getFieldDisplayName = (field: SortField) => {
-    switch (field) {
-      case 'creation_time':
-        return 'Creation Time';
-      case 'expected_delivery':
-        return 'Expected Delivery';
-      case 'last_modified':
-        return 'Last Modified';
-      default:
-        return field;
-    }
   };
 
   return (
