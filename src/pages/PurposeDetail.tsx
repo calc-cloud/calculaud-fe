@@ -79,6 +79,8 @@ const PurposeDetail: React.FC = () => {
     loadPurpose();
   }, [id, hierarchies, toast]);
 
+
+
   const getStatusDisplay = (status: string) => {
     switch (status) {
       case 'IN_PROGRESS':
@@ -99,12 +101,24 @@ const PurposeDetail: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleBackToSearch = () => {
+    const searchUrl = sessionStorage.getItem('searchUrl');
+    if (searchUrl) {
+      // Navigate to the stored search URL to preserve filters
+      window.location.href = searchUrl;
+    } else {
+      // Fallback to clean search page if no stored URL
+      navigate('/search');
+    }
+  };
+
   const handleDeletePurpose = async () => {
     if (!id) return;
     
     try {
       await deletePurpose.mutateAsync(id);
-      navigate('/search');
+      // Go back to search with stored filters
+      handleBackToSearch();
     } catch {
       // Error handling is done in the mutation
     }
@@ -394,7 +408,7 @@ const PurposeDetail: React.FC = () => {
           <p className="text-gray-600 mb-4">
             {error || "The purpose you're looking for doesn't exist."}
           </p>
-          <Button onClick={() => navigate('/search')}>
+          <Button onClick={handleBackToSearch}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Search
           </Button>
@@ -410,7 +424,7 @@ const PurposeDetail: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/search')}>
+          <Button variant="ghost" size="sm" onClick={handleBackToSearch}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Search
           </Button>

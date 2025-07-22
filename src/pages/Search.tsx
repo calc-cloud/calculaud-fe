@@ -179,6 +179,10 @@ const Search: React.FC = () => {
     }
 
     setSearchParams(params, { replace: true });
+
+    // Update stored search URL to match current filters
+    const currentUrl = `${window.location.origin}${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+    sessionStorage.setItem('searchUrl', currentUrl);
   }, [filters, sortConfig, currentPage, setSearchParams]);
 
   const itemsPerPage = 10;
