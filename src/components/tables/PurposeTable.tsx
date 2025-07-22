@@ -173,6 +173,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         return 'In Progress';
       case 'COMPLETED':
         return 'Completed';
+      case 'SIGNED':
+        return 'Signed';
+      case 'PARTIALLY_SUPPLIED':
+        return 'Partially Supplied';
       default:
         return status;
     }
@@ -291,7 +295,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
                 <TableCell className="text-center">
-                  { purpose.status === 'COMPLETED' ? (
+                  { purpose.status === 'COMPLETED' || purpose.status === 'SIGNED' ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-pointer">
@@ -339,7 +343,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       <TooltipTrigger asChild>
                         <div className="cursor-pointer">
                           <Badge 
-                            variant={purpose.status === 'IN_PROGRESS' ? 'secondary' : 'outline'}
+                            variant="secondary"
                             className="pointer-events-none"
                           >
                             {getStatusDisplay(purpose.status)}

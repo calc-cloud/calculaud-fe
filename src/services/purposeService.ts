@@ -396,6 +396,10 @@ class PurposeService {
         return 'IN_PROGRESS';
       case 'Completed':
         return 'COMPLETED';
+      case 'Signed':
+        return 'SIGNED';
+      case 'Partially Supplied':
+        return 'PARTIALLY_SUPPLIED';
       default:
         return status;
     }
@@ -590,6 +594,10 @@ class PurposeService {
         return 'IN_PROGRESS';
       case 'COMPLETED':
         return 'COMPLETED';
+      case 'SIGNED':
+        return 'SIGNED';
+      case 'PARTIALLY_SUPPLIED':
+        return 'PARTIALLY_SUPPLIED';
       default:
         return status;
     }

@@ -292,7 +292,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
                     <Checkbox
                       checked={(filters.status || []).includes(status)}
                     />
-                    <Badge variant={status.includes('COMPLETED') || status === 'Completed' ? 'default' : 'secondary'} className="text-xs">
+                    <Badge variant={status === 'Completed' || status === 'Signed' ? 'default' : 'secondary'} className="text-xs">
                       {status}
                     </Badge>
                   </div>

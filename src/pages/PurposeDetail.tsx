@@ -85,6 +85,10 @@ const PurposeDetail: React.FC = () => {
         return { label: 'In Progress', variant: 'secondary' as const };
       case 'COMPLETED':
         return { label: 'Completed', variant: 'default' as const };
+      case 'SIGNED':
+        return { label: 'Signed', variant: 'default' as const };
+      case 'PARTIALLY_SUPPLIED':
+        return { label: 'Partially Supplied', variant: 'secondary' as const };
       default:
         return { label: status, variant: 'outline' as const };
     }

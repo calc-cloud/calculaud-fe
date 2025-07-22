@@ -195,6 +195,10 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
         return 'In Progress';
       case 'COMPLETED':
         return 'Completed';
+      case 'SIGNED':
+        return 'Signed';
+      case 'PARTIALLY_SUPPLIED':
+        return 'Partially Supplied';
       default:
         return status;
     }
@@ -309,7 +313,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {['IN_PROGRESS', 'COMPLETED'].map((status) => (
+                  {['IN_PROGRESS', 'COMPLETED', 'SIGNED', 'PARTIALLY_SUPPLIED'].map((status) => (
                     <SelectItem key={status} value={status}>
                       {getStatusDisplay(status)}
                     </SelectItem>
