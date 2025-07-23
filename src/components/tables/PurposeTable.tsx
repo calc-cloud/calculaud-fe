@@ -182,6 +182,26 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     }
   };
 
+  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+    // Using outline variant as base, we'll override with custom classes
+    return 'outline';
+  };
+
+  const getStatusClassNames = (status: string): string => {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200';
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
+      case 'SIGNED':
+        return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
+      case 'PARTIALLY_SUPPLIED':
+        return 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200';
+    }
+  };
+
   const handleRowClick = (purpose: Purpose) => {
     navigate(`/purposes/${purpose.id}`);
   };
@@ -207,12 +227,13 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="text-center">Status</TableHead>
             <TableHead className="w-32 text-center">Description</TableHead>
             <TableHead className="w-32 text-center">Content</TableHead>
             <TableHead className="text-center">Supplier</TableHead>
             <TableHead className="text-center">Hierarchy</TableHead>
             <TableHead className="text-center">Service Type</TableHead>
-            <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-center">Purchases</TableHead>
             <TableHead className="text-center">EMF IDs</TableHead>
             <TableHead className="text-center">Total Cost</TableHead>
             <TableHead className="text-center">Expected Delivery</TableHead>
@@ -237,6 +258,23 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 onClick={() => handleRowClick(purpose)}
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
+                <TableCell className="text-center">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-pointer">
+                        <Badge 
+                          variant={getStatusVariant(purpose.status)}
+                          className={`pointer-events-none ${getStatusClassNames(purpose.status)}`}
+                        >
+                          {getStatusDisplay(purpose.status)}
+                        </Badge>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{purpose.comments || 'No status message'}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TableCell>
                 <TableCell className="font-medium w-32 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -295,20 +333,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
                 <TableCell className="text-center">
-                  { purpose.status === 'COMPLETED' || purpose.status === 'SIGNED' ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-pointer">
-                          <Badge variant="default" className="pointer-events-none">
-                            {getStatusDisplay(purpose.status)}
-                          </Badge>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{purpose.comments || 'No status message'}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : stagesTexts && stagesTexts.length > 0 ? (
+                  {stagesTexts && stagesTexts.length > 0 ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="cursor-pointer">
@@ -339,21 +364,9 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                       No purchases added
                     </div>
                   ) : (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="cursor-pointer">
-                          <Badge 
-                            variant="secondary"
-                            className="pointer-events-none"
-                          >
-                            {getStatusDisplay(purpose.status)}
-                          </Badge>
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{purpose.comments || 'No status message'}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="text-sm text-muted-foreground">
+                      No stage information
+                    </div>
                   )}
                 </TableCell>
                 <TableCell className="max-w-[150px] text-center">
