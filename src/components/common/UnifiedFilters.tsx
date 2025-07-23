@@ -15,6 +15,7 @@ import {useAdminData} from '@/contexts/AdminDataContext';
 import {cn} from '@/lib/utils';
 import {PURPOSE_STATUSES_DISPLAY, RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {createToggleFunction, handleDateChange, handleRelativeTimeChange} from '@/utils/filterUtils';
+import {getStatusDisplayFromLabel} from '@/utils/statusUtils';
 
 // UI Components
 
@@ -292,9 +293,17 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
                     <Checkbox
                       checked={(filters.status || []).includes(status)}
                     />
-                    <Badge variant={status === 'Completed' || status === 'Signed' ? 'default' : 'secondary'} className="text-xs">
-                      {status}
-                    </Badge>
+                    {(() => {
+                      const statusInfo = getStatusDisplayFromLabel(status);
+                      return (
+                        <Badge 
+                          variant={statusInfo.variant} 
+                          className={`text-xs ${statusInfo.className}`}
+                        >
+                          {status}
+                        </Badge>
+                      );
+                    })()}
                   </div>
                 ))}
               </CollapsibleContent>

@@ -18,6 +18,7 @@ import { stageService, UpdateStageRequest } from '@/services/stageService';
 import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { getStagesText, convertPurchaseToStages, calculateDaysSinceLastStageCompletion } from '@/utils/stageUtils';
+import { getStatusDisplay } from '@/utils/statusUtils';
 
 const PurposeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -78,23 +79,6 @@ const PurposeDetail: React.FC = () => {
 
     loadPurpose();
   }, [id, hierarchies, toast]);
-
-
-
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return { label: 'In Progress', variant: 'secondary' as const };
-      case 'COMPLETED':
-        return { label: 'Completed', variant: 'default' as const };
-      case 'SIGNED':
-        return { label: 'Signed', variant: 'default' as const };
-      case 'PARTIALLY_SUPPLIED':
-        return { label: 'Partially Supplied', variant: 'secondary' as const };
-      default:
-        return { label: status, variant: 'outline' as const };
-    }
-  };
 
   const handleEditGeneralData = () => {
     setSelectedPurpose(purpose);
@@ -228,10 +212,6 @@ const PurposeDetail: React.FC = () => {
     }
   };
 
-  // Timeline utility functions
-
-
-
   const handleStageClick = (stage: any) => {
     setSelectedStage(stage);
     // Automatically start editing when clicking on a stage
@@ -326,10 +306,6 @@ const PurposeDetail: React.FC = () => {
     });
   };
 
-
-
-
-
   const getStageDisplayDate = (stage: any) => {
     if (stage.completed && stage.date) {
       return formatDateForTimeline(stage.date);
@@ -382,7 +358,6 @@ const PurposeDetail: React.FC = () => {
   };
 
 
-
   if (isLoading) {
     return (
       <div>
@@ -417,7 +392,7 @@ const PurposeDetail: React.FC = () => {
     );
   }
 
-  const statusDisplay = getStatusDisplay(purpose.status);
+  const statusInfo = getStatusDisplay(purpose.status);
 
   return (
     <div className="space-y-6">
@@ -432,7 +407,7 @@ const PurposeDetail: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
             <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
           </div>
-          <Badge variant={statusDisplay.variant} className="cursor-default pointer-events-none">{statusDisplay.label}</Badge>
+          <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>{statusInfo.label}</Badge>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>

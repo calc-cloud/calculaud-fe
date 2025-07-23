@@ -8,6 +8,7 @@ import { useAdminData } from '@/contexts/AdminDataContext';
 import { Purpose, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { getStagesText } from '@/utils/stageUtils';
+import { getStatusDisplay } from '@/utils/statusUtils';
 
 
 interface PurposeTableProps {
@@ -167,37 +168,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     };
   };
 
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'COMPLETED':
-        return 'Completed';
-      case 'SIGNED':
-        return 'Signed';
-      case 'PARTIALLY_SUPPLIED':
-        return 'Partially Supplied';
-      default:
-        return status;
-    }
-  };
-
-
-  const getStatusClassNames = (status: string): string => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200';
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200';
-      case 'SIGNED':
-        return 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200';
-      case 'PARTIALLY_SUPPLIED':
-        return 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200';
-    }
-  };
-
   const handleRowClick = (purpose: Purpose) => {
     navigate(`/purposes/${purpose.id}`);
   };
@@ -248,6 +218,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
             const hierarchyInfo = getHierarchyInfo(purpose);
             const contentsInfo = getContentsDisplay(purpose);
             const stagesTexts = getStagesDisplay(purpose);
+            const statusInfo = getStatusDisplay(purpose.status);
             return (
               <TableRow 
                 key={purpose.id} 
@@ -259,10 +230,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     <TooltipTrigger asChild>
                       <div className="cursor-pointer">
                         <Badge 
-                          variant="outline"
-                          className={`pointer-events-none ${getStatusClassNames(purpose.status)}`}
+                          variant={statusInfo.variant}
+                          className={`pointer-events-none ${statusInfo.className}`}
                         >
-                          {getStatusDisplay(purpose.status)}
+                          {statusInfo.label}
                         </Badge>
                       </div>
                     </TooltipTrigger>
