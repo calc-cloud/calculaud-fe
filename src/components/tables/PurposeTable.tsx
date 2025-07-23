@@ -182,10 +182,6 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
     }
   };
 
-  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
-    // Using outline variant as base, we'll override with custom classes
-    return 'outline';
-  };
 
   const getStatusClassNames = (status: string): string => {
     switch (status) {
@@ -263,7 +259,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     <TooltipTrigger asChild>
                       <div className="cursor-pointer">
                         <Badge 
-                          variant={getStatusVariant(purpose.status)}
+                          variant="outline"
                           className={`pointer-events-none ${getStatusClassNames(purpose.status)}`}
                         >
                           {getStatusDisplay(purpose.status)}
