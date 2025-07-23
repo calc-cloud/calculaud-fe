@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { Purpose, PurposeContent } from '@/types';
 import { ServiceType } from '@/types/serviceTypes';
 import { Supplier } from '@/types/suppliers';
+import { getStatusLabel } from '@/utils/statusUtils';
 
 interface EditGeneralDataModalProps {
   isOpen: boolean;
@@ -189,16 +190,6 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
 
 
 
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return 'In Progress';
-      case 'COMPLETED':
-        return 'Completed';
-      default:
-        return status;
-    }
-  };
 
   if (isLoading) {
     return null;
@@ -309,9 +300,9 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {['IN_PROGRESS', 'COMPLETED'].map((status) => (
+                  {['IN_PROGRESS', 'COMPLETED', 'SIGNED', 'PARTIALLY_SUPPLIED'].map((status) => (
                     <SelectItem key={status} value={status}>
-                      {getStatusDisplay(status)}
+                      {getStatusLabel(status)}
                     </SelectItem>
                   ))}
                 </SelectContent>

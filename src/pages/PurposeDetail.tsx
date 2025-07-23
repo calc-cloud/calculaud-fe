@@ -18,6 +18,7 @@ import { stageService, UpdateStageRequest } from '@/services/stageService';
 import { Purpose, PurposeFile, CreatePurchaseRequest, getCurrencySymbol } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
 import { getStagesText, convertPurchaseToStages, calculateDaysSinceLastStageCompletion } from '@/utils/stageUtils';
+import { getStatusDisplay } from '@/utils/statusUtils';
 
 const PurposeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -79,20 +80,20 @@ const PurposeDetail: React.FC = () => {
     loadPurpose();
   }, [id, hierarchies, toast]);
 
-  const getStatusDisplay = (status: string) => {
-    switch (status) {
-      case 'IN_PROGRESS':
-        return { label: 'In Progress', variant: 'secondary' as const };
-      case 'COMPLETED':
-        return { label: 'Completed', variant: 'default' as const };
-      default:
-        return { label: status, variant: 'outline' as const };
-    }
-  };
-
   const handleEditGeneralData = () => {
     setSelectedPurpose(purpose);
     setIsEditModalOpen(true);
+  };
+
+  const handleBackToSearch = () => {
+    const searchUrl = sessionStorage.getItem('searchUrl');
+    if (searchUrl) {
+      // Navigate to the stored search URL to preserve filters
+      window.location.href = searchUrl;
+    } else {
+      // Fallback to clean search page if no stored URL
+      navigate('/search');
+    }
   };
 
   const handleDeletePurpose = async () => {
@@ -100,7 +101,8 @@ const PurposeDetail: React.FC = () => {
     
     try {
       await deletePurpose.mutateAsync(id);
-      navigate('/search');
+      // Go back to search with stored filters
+      handleBackToSearch();
     } catch {
       // Error handling is done in the mutation
     }
@@ -210,10 +212,6 @@ const PurposeDetail: React.FC = () => {
     }
   };
 
-  // Timeline utility functions
-
-
-
   const handleStageClick = (stage: any) => {
     setSelectedStage(stage);
     // Automatically start editing when clicking on a stage
@@ -308,10 +306,6 @@ const PurposeDetail: React.FC = () => {
     });
   };
 
-
-
-
-
   const getStageDisplayDate = (stage: any) => {
     if (stage.completed && stage.date) {
       return formatDateForTimeline(stage.date);
@@ -364,7 +358,6 @@ const PurposeDetail: React.FC = () => {
   };
 
 
-
   if (isLoading) {
     return (
       <div>
@@ -390,7 +383,7 @@ const PurposeDetail: React.FC = () => {
           <p className="text-gray-600 mb-4">
             {error || "The purpose you're looking for doesn't exist."}
           </p>
-          <Button onClick={() => navigate('/search')}>
+          <Button onClick={handleBackToSearch}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Search
           </Button>
@@ -399,14 +392,14 @@ const PurposeDetail: React.FC = () => {
     );
   }
 
-  const statusDisplay = getStatusDisplay(purpose.status);
+  const statusInfo = getStatusDisplay(purpose.status);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/search')}>
+          <Button variant="ghost" size="sm" onClick={handleBackToSearch}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Search
           </Button>
@@ -414,7 +407,7 @@ const PurposeDetail: React.FC = () => {
             <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
             <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
           </div>
-          <Badge variant={statusDisplay.variant} className="cursor-default pointer-events-none">{statusDisplay.label}</Badge>
+          <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>{statusInfo.label}</Badge>
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>

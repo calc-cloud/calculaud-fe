@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 
 .env.development.local
+
+# ClaudPoint checkpoint system
+.checkpoints/
+
+# Claude Code settings
+.claude/settings.local.json

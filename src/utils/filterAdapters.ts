@@ -5,12 +5,16 @@ import { UnifiedFilters } from '@/types/filters';
 // Status mapping for dashboard API compatibility
 const STATUS_DISPLAY_TO_API: Record<string, string> = {
   'In Progress': 'IN_PROGRESS',
-  'Completed': 'COMPLETED'
+  'Completed': 'COMPLETED',
+  'Signed': 'SIGNED',
+  'Partially Supplied': 'PARTIALLY_SUPPLIED'
 };
 
 const STATUS_API_TO_DISPLAY: Record<string, string> = {
   'IN_PROGRESS': 'In Progress',
-  'COMPLETED': 'Completed'
+  'COMPLETED': 'Completed',
+  'SIGNED': 'Signed',
+  'PARTIALLY_SUPPLIED': 'Partially Supplied'
 };
 
 // Convert DashboardFilters to UnifiedFilters (API format to display format)

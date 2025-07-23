@@ -8,6 +8,7 @@ import {Material} from '@/types/materials';
 import {ServiceType} from '@/types/serviceTypes';
 import {Supplier} from '@/types/suppliers';
 import {createToggleFunction} from '@/utils/filterUtils';
+import {getStatusDisplayFromLabel} from '@/utils/statusUtils';
 
 interface ActiveFiltersBadgesProps {
   filters: UnifiedFiltersType;
@@ -84,12 +85,21 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
           })}</>
         )}
         {filters.status && filters.status.length > 0 && (
-          <>{filters.status.map((status) => (
-            <Badge key={status} variant="secondary" className="flex items-center gap-1">
-              {status}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => toggleStatus(status)} />
-            </Badge>
-          ))}</>
+          <>
+          {filters.status.map((status) => {
+            const statusInfo = getStatusDisplayFromLabel(status);
+            return (
+              <Badge 
+                key={status} 
+                variant={statusInfo.variant} 
+                className={`flex items-center gap-1 ${statusInfo.className}`}
+              >
+                {status}
+                <X className="h-3 w-3 cursor-pointer" onClick={() => toggleStatus(status)} />
+              </Badge>
+            );
+          })}
+          </>
         )}
         {filters.supplier && filters.supplier.length > 0 && (
           <>{filters.supplier.map((supplierId) => {

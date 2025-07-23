@@ -87,6 +87,8 @@ export const usePurposeData = (
     const total = totalCount;
     const inProgress = purposes.filter(p => p.status === 'IN_PROGRESS').length;
     const completed = purposes.filter(p => p.status === 'COMPLETED').length;
+    const signed = purposes.filter(p => p.status === 'SIGNED').length;
+    const partiallySupplied = purposes.filter(p => p.status === 'PARTIALLY_SUPPLIED').length;
     const totalCost = purposes.reduce((sum, purpose) => {
       const purposeCost = purpose.purchases.reduce((purchaseSum, purchase) => 
         purchaseSum + purchase.costs.reduce((costSum, cost) => costSum + cost.amount, 0), 0
@@ -94,7 +96,7 @@ export const usePurposeData = (
       return sum + purposeCost;
     }, 0);
 
-    return { total, inProgress, completed, totalCost };
+    return { total, inProgress, completed, signed, partiallySupplied, totalCost };
   }, [purposes, totalCount]);
 
   // Reset to first page when filters or sorting change

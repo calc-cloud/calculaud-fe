@@ -126,7 +126,7 @@ export interface Hierarchy {
   name: string;
 }
 
-export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED';
+export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED' | 'SIGNED' | 'PARTIALLY_SUPPLIED';
 
 
 
