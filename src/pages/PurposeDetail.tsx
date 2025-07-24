@@ -308,7 +308,11 @@ const PurposeDetail: React.FC = () => {
 
   const getStageDisplayDate = (stage: any) => {
     if (stage.completed && stage.date) {
-      return formatDateForTimeline(stage.date);
+      const formattedDate = formatDateForTimeline(stage.date);
+      if (stage.days_since_previous_stage !== null && stage.days_since_previous_stage !== undefined) {
+        return `${formattedDate} (${stage.days_since_previous_stage} days)`;
+      }
+      return formattedDate;
     }
     
     return ''; // No text for incomplete stages

@@ -84,6 +84,7 @@ export interface Stage {
   priority: number;
   value: string | null;
   completion_date: string | null;
+  days_since_previous_stage: number | null;
   stage_type: StageType;
 }
 

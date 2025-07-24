@@ -12,6 +12,7 @@ export interface UpdateStageResponse {
   priority: number;
   value: string | null;
   completion_date: string | null; // Date format: "YYYY-MM-DD" (e.g., "2025-07-08")
+  days_since_previous_stage: number | null;
   stage_type: {
     id: number;
     name: string;
