@@ -79,6 +79,7 @@ export interface Stage {
   priority: number;
   value: string | null;
   completion_date: string | null;
+  days_since_previous_stage: number | null;
   stage_type: StageType;
 }
 
@@ -448,6 +449,7 @@ class PurposeService {
             priority: stage.priority || 0,
             value: stage.value || null,
             completion_date: stage.completion_date || null,
+            days_since_previous_stage: stage.days_since_previous_stage ?? null,
             stage_type: stage.stage_type || { id: '', name: '', value_required: false }
           })),
         current_pending_stages: (purchase.current_pending_stages || []).map((stage: any) => ({
@@ -457,6 +459,7 @@ class PurposeService {
           priority: stage.priority || 0,
           value: stage.value || null,
           completion_date: stage.completion_date || null,
+          days_since_previous_stage: stage.days_since_previous_stage ?? null,
           stage_type: stage.stage_type || { id: '', name: '', value_required: false }
         })),
         days_since_last_completion: purchase.days_since_last_completion ?? null,
@@ -539,6 +542,7 @@ class PurposeService {
                 priority: stage.priority || 0,
                 value: stage.value || null,
                 completion_date: stage.completion_date || null,
+                days_since_previous_stage: stage.days_since_previous_stage ?? null,
                 stage_type: stage.stage_type || { id: '', name: '', value_required: false }
               })),
             days_since_last_completion: purchase.days_since_last_completion ?? null,

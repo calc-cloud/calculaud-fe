@@ -18,6 +18,7 @@ export const convertPurchaseToStages = (purchase: any) => {
       date: stage.completion_date, // Only show completion date, no fallback to creation date
       value: stage.value || '',
       priority: stage.priority,
+      days_since_previous_stage: stage.days_since_previous_stage ?? null,
       stage_type: stage.stage_type
     }))
     .sort((a: any, b: any) => {
