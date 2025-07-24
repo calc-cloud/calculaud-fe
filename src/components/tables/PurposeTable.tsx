@@ -193,17 +193,17 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="text-center">Status</TableHead>
-            <TableHead className="w-32 text-center">Description</TableHead>
-            <TableHead className="w-32 text-center">Content</TableHead>
-            <TableHead className="text-center">Supplier</TableHead>
-            <TableHead className="text-center">Hierarchy</TableHead>
-            <TableHead className="text-center">Service Type</TableHead>
-            <TableHead className="text-center">Purchases</TableHead>
-            <TableHead className="text-center">EMF IDs</TableHead>
-            <TableHead className="text-center">Total Cost</TableHead>
-            <TableHead className="text-center">Expected Delivery</TableHead>
-            <TableHead className="text-center">
+            <TableHead className="w-20 text-center">Status</TableHead>
+            <TableHead className="w-64 text-center">Description</TableHead>
+            <TableHead className="w-40 text-center">Content</TableHead>
+            <TableHead className="w-24 text-center">Supplier</TableHead>
+            <TableHead className="w-20 text-center">Hierarchy</TableHead>
+            <TableHead className="w-28 text-center">Service Type</TableHead>
+            <TableHead className="w-60 text-center">Purchases</TableHead>
+            <TableHead className="w-24 text-center">EMF IDs</TableHead>
+            <TableHead className="w-28 text-center">Total Cost</TableHead>
+            <TableHead className="w-24 text-center">Expected Delivery</TableHead>
+            <TableHead className="w-24 text-center">
               <div className="flex flex-col items-center">
                 <div className="font-medium">Last Modified</div>
                 <div className="text-xs font-normal text-muted-foreground">Created</div>
@@ -225,7 +225,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 onClick={() => handleRowClick(purpose)}
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
-                <TableCell className="text-center">
+                <TableCell className="w-20 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="cursor-pointer">
@@ -242,7 +242,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell className="font-medium w-32 text-center">
+                <TableCell className="font-medium w-64 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="line-clamp-2 text-sm leading-tight">
@@ -254,7 +254,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell className="w-32 text-center">
+                <TableCell className="w-40 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex flex-col gap-0.5 items-center">
@@ -283,8 +283,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell className="text-center">{purpose.supplier}</TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-24 text-center">{purpose.supplier}</TableCell>
+                <TableCell className="w-20 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div>
@@ -296,10 +296,10 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-28 text-center">
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-60 text-center">
                   {stagesTexts && stagesTexts.length > 0 ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -336,7 +336,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </div>
                   )}
                 </TableCell>
-                <TableCell className="max-w-[150px] text-center">
+                <TableCell className="w-24 text-center">
                   {emfIds.ids.length > 0 ? (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -361,7 +361,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     <div className="text-sm text-muted-foreground">-</div>
                   )}
                 </TableCell>
-                <TableCell className="max-w-[150px] text-center">
+                <TableCell className="w-28 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="flex flex-col gap-0.5 items-center">
@@ -390,8 +390,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
-                <TableCell className="text-center">{formatDate(purpose.expected_delivery)}</TableCell>
-                <TableCell className="text-center">
+                <TableCell className="w-24 text-center">{formatDate(purpose.expected_delivery)}</TableCell>
+                <TableCell className="w-24 text-center">
                   <div className="flex flex-col items-center">
                     <div className="text-sm">{formatDate(purpose.last_modified)}</div>
                     <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
