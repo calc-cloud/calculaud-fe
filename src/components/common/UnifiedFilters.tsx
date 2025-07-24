@@ -50,6 +50,10 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
 }) => {
   // Data hooks
   const { hierarchies, suppliers, serviceTypes, materials, isLoading } = useAdminData();
+  
+  // State for controlling date picker popovers
+  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
+  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>('service_type', filters, onFiltersChange);
@@ -88,7 +92,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
           <div className="flex items-end gap-2">
             <div className="flex-1 space-y-2">
               <label className="text-sm font-medium">From:</label>
-              <Popover>
+              <Popover open={startDatePickerOpen} onOpenChange={setStartDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -107,7 +111,10 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
                   <Calendar
                     mode="single"
                     selected={filters.start_date ? new Date(filters.start_date) : undefined}
-                    onSelect={(date) => handleDateChange('start_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange)}
+                    onSelect={(date) => {
+                      handleDateChange('start_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange);
+                      setStartDatePickerOpen(false);
+                    }}
                     initialFocus
                     className="p-3 pointer-events-auto"
                   />
@@ -119,7 +126,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
             
             <div className="flex-1 space-y-2">
               <label className="text-sm font-medium">To:</label>
-              <Popover>
+              <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -138,7 +145,10 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
                   <Calendar
                     mode="single"
                     selected={filters.end_date ? new Date(filters.end_date) : undefined}
-                    onSelect={(date) => handleDateChange('end_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange)}
+                    onSelect={(date) => {
+                      handleDateChange('end_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange);
+                      setEndDatePickerOpen(false);
+                    }}
                     initialFocus
                     className="p-3 pointer-events-auto"
                   />
