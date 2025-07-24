@@ -3,6 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 
 import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
+import {ColumnControl, ColumnVisibility, DEFAULT_COLUMN_VISIBILITY} from '@/components/common/ColumnControl';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {PurposeTable} from '@/components/tables/PurposeTable';
@@ -115,6 +116,9 @@ const Search: React.FC = () => {
 
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
+
+  // Column visibility state
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(DEFAULT_COLUMN_VISIBILITY);
 
   // Get toast function
   const { toast } = useToast();
@@ -241,6 +245,10 @@ const Search: React.FC = () => {
           filters={filters}
           onFiltersChange={setFilters}
         />
+        <ColumnControl
+          columnVisibility={columnVisibility}
+          onColumnVisibilityChange={setColumnVisibility}
+        />
         {activeFiltersCount > 0 && (
           <Button variant="outline" onClick={() => clearFilters(setFilters, filters)} className="gap-2">
             <X className="h-4 w-4" />
@@ -296,6 +304,7 @@ const Search: React.FC = () => {
       <PurposeTable
         purposes={filteredPurposes}
         isLoading={isLoading}
+        columnVisibility={columnVisibility}
       />
 
     </div>
