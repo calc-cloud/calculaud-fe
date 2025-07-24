@@ -85,7 +85,7 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
   if (purchase.days_since_last_completion !== undefined && purchase.current_pending_stages && purchase.current_pending_stages.length > 0) {
     const days = purchase.days_since_last_completion;
     const stageNames = purchase.current_pending_stages.map((stage: any) => stage.stage_type.display_name || stage.stage_type.name).join(', ');
-    const baseText = `${days} days in ${stageNames}`;
+    const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
     return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
   }
   const pendingStages = getCurrentPendingStages(stages);
@@ -99,7 +99,7 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
     days = calculateDaysSinceLastStageCompletion(purchase);
   }
   const stageNames = pendingStages.map(stage => stage.name).join(', ');
-  const baseText = `${days} days in ${stageNames}`;
+  const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 }; 
 
