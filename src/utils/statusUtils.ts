@@ -15,7 +15,7 @@ export const getStatusDisplay = (status: string | PurposeStatus): StatusDisplayI
       return {
         label: 'In Progress',
         variant: 'outline',
-        className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200'
+        className: 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200'
       };
     case 'COMPLETED':
       return {
@@ -27,13 +27,13 @@ export const getStatusDisplay = (status: string | PurposeStatus): StatusDisplayI
       return {
         label: 'Signed',
         variant: 'outline',
-        className: 'bg-purple-100 text-purple-800 border-purple-200 hover:bg-purple-200'
+        className: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200'
       };
     case 'PARTIALLY_SUPPLIED':
       return {
         label: 'Partially Supplied',
         variant: 'outline',
-        className: 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200'
+        className: 'bg-orange-200 text-orange-800 border-orange-300 hover:bg-orange-300'
       };
     default:
       return {
