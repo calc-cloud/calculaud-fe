@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Essential Commands
 
-- `npm run dev` - Start development server on port 8080
+- `npm run dev` - Start development server on port 8080 (ALWAYS close with Ctrl+C after testing)
 - `npm run build` - Production build
 - `npm run build:dev` - Development build with dev optimizations
 - `npm run lint` - Run ESLint for code quality checks (ALWAYS run before commit)
