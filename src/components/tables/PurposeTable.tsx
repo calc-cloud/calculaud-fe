@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { ColumnVisibility, DEFAULT_COLUMN_VISIBILITY } from '@/components/common/ColumnControl';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,14 +15,19 @@ import { getStatusDisplay } from '@/utils/statusUtils';
 interface PurposeTableProps {
   purposes: Purpose[];
   isLoading?: boolean;
+  columnVisibility?: ColumnVisibility;
 }
 
 export const PurposeTable: React.FC<PurposeTableProps> = ({
   purposes,
-  isLoading = false
+  isLoading = false,
+  columnVisibility
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
+  
+  // Use default visibility if none provided
+  const columns = columnVisibility || DEFAULT_COLUMN_VISIBILITY;
 
   // Get stages display for all purchases in a purpose (pending and completed)
   const getStagesDisplay = (purpose: Purpose) => {
@@ -193,22 +199,24 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-20 text-center">Status</TableHead>
-            <TableHead className="w-64 text-center">Description</TableHead>
-            <TableHead className="w-40 text-center">Content</TableHead>
-            <TableHead className="w-24 text-center">Supplier</TableHead>
-            <TableHead className="w-20 text-center">Hierarchy</TableHead>
-            <TableHead className="w-28 text-center">Service Type</TableHead>
-            <TableHead className="w-60 text-center">Purchases</TableHead>
-            <TableHead className="w-24 text-center">EMF IDs</TableHead>
-            <TableHead className="w-28 text-center">Total Cost</TableHead>
-            <TableHead className="w-24 text-center">Expected Delivery</TableHead>
-            <TableHead className="w-24 text-center">
-              <div className="flex flex-col items-center">
-                <div className="font-medium">Last Modified</div>
-                <div className="text-xs font-normal text-muted-foreground">Created</div>
-              </div>
-            </TableHead>
+            {columns.status && <TableHead className="w-20 text-center">Status</TableHead>}
+            {columns.description && <TableHead className="w-64 text-center">Description</TableHead>}
+            {columns.content && <TableHead className="w-40 text-center">Content</TableHead>}
+            {columns.supplier && <TableHead className="w-24 text-center">Supplier</TableHead>}
+            {columns.hierarchy && <TableHead className="w-20 text-center">Hierarchy</TableHead>}
+            {columns.serviceType && <TableHead className="w-28 text-center">Service Type</TableHead>}
+            {columns.purchases && <TableHead className="w-60 text-center">Purchases</TableHead>}
+            {columns.emfIds && <TableHead className="w-24 text-center">EMF IDs</TableHead>}
+            {columns.totalCost && <TableHead className="w-28 text-center">Total Cost</TableHead>}
+            {columns.expectedDelivery && <TableHead className="w-24 text-center">Expected Delivery</TableHead>}
+            {columns.lastModified && (
+              <TableHead className="w-24 text-center">
+                <div className="flex flex-col items-center">
+                  <div className="font-medium">Last Modified</div>
+                  <div className="text-xs font-normal text-muted-foreground">Created</div>
+                </div>
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -225,6 +233,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                 onClick={() => handleRowClick(purpose)}
                 className="cursor-pointer hover:bg-muted/50 h-20"
               >
+                {columns.status && (
                 <TableCell className="w-20 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -242,6 +251,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.description && (
                 <TableCell className="font-medium w-64 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -254,6 +265,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.content && (
                 <TableCell className="w-40 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -283,7 +296,11 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.supplier && (
                 <TableCell className="w-24 text-center">{purpose.supplier}</TableCell>
+                )}
+                {columns.hierarchy && (
                 <TableCell className="w-20 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -296,9 +313,13 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.serviceType && (
                 <TableCell className="w-28 text-center">
                   <Badge variant="outline">{purpose.service_type}</Badge>
                 </TableCell>
+                )}
+                {columns.purchases && (
                 <TableCell className="w-60 text-center">
                   {stagesTexts && stagesTexts.length > 0 ? (
                     <Tooltip>
@@ -336,6 +357,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </div>
                   )}
                 </TableCell>
+                )}
+                {columns.emfIds && (
                 <TableCell className="w-24 text-center">
                   {emfIds.ids.length > 0 ? (
                     <Tooltip>
@@ -361,6 +384,8 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     <div className="text-sm text-muted-foreground">-</div>
                   )}
                 </TableCell>
+                )}
+                {columns.totalCost && (
                 <TableCell className="w-28 text-center">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -390,13 +415,18 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.expectedDelivery && (
                 <TableCell className="w-24 text-center">{formatDate(purpose.expected_delivery)}</TableCell>
+                )}
+                {columns.lastModified && (
                 <TableCell className="w-24 text-center">
                   <div className="flex flex-col items-center">
                     <div className="text-sm">{formatDate(purpose.last_modified)}</div>
                     <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
                   </div>
                 </TableCell>
+                )}
               </TableRow>
             );
           })}
