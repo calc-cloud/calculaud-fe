@@ -46,6 +46,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
 }) => {
   const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
   const { toast } = useToast();
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   
   const [formData, setFormData] = useState<GeneralDataForm>({
     description: '',
@@ -260,7 +261,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="expected-delivery">Expected Delivery</Label>
-              <Popover>
+              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -282,7 +283,10 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                   <Calendar
                     mode="single"
                     selected={formData.expected_delivery ? new Date(formData.expected_delivery) : undefined}
-                    onSelect={(date) => handleFieldChange('expected_delivery', date ? format(date, 'yyyy-MM-dd') : '')}
+                    onSelect={(date) => {
+                      handleFieldChange('expected_delivery', date ? format(date, 'yyyy-MM-dd') : '');
+                      setDatePickerOpen(false);
+                    }}
                     initialFocus
                     className="p-3 pointer-events-auto"
                   />

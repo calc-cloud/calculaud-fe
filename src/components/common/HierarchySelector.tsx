@@ -29,6 +29,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   singleSelect = false
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
+  const [open, setOpen] = React.useState(false);
 
   // Transform backend hierarchy data to the format expected by the component
   const transformedHierarchies: HierarchyItem[] = hierarchies.map((hierarchy: Hierarchy) => ({
@@ -60,6 +61,8 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
       } else {
         onSelectionChange([hierarchyId]); // Select only this item
       }
+      // Close the dropdown after selection in single select mode
+      setOpen(false);
     } else {
       // In multiple select mode, toggle selection
       if (isSelected) {
@@ -185,7 +188,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="w-full justify-between text-left">
           <span className="truncate">{getLabel()}</span>
