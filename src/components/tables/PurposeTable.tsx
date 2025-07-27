@@ -200,6 +200,7 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
         <TableHeader>
           <TableRow>
             {columns.status && <TableHead className="w-20 text-center">Status</TableHead>}
+            {columns.statusMessage && <TableHead className="w-40 text-center">Status Message</TableHead>}
             {columns.description && <TableHead className="w-64 text-center">Description</TableHead>}
             {columns.content && <TableHead className="w-40 text-center">Content</TableHead>}
             {columns.supplier && <TableHead className="w-24 text-center">Supplier</TableHead>}
@@ -251,6 +252,9 @@ export const PurposeTable: React.FC<PurposeTableProps> = ({
                     </TooltipContent>
                   </Tooltip>
                 </TableCell>
+                )}
+                {columns.statusMessage && (
+                <TableCell className="w-40 text-center">{purpose.comments || <span className="text-muted-foreground">No status message</span>}</TableCell>
                 )}
                 {columns.description && (
                 <TableCell className="font-medium w-64 text-center">

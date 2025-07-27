@@ -19,6 +19,7 @@ export interface ColumnVisibility {
   totalCost: boolean;
   expectedDelivery: boolean;
   lastModified: boolean;
+  statusMessage: boolean;
 }
 
 export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
@@ -33,6 +34,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   totalCost: true,
   expectedDelivery: true,
   lastModified: true,
+  statusMessage: false,
 };
 
 const COLUMN_LABELS = {
@@ -47,6 +49,7 @@ const COLUMN_LABELS = {
   totalCost: 'Total Cost',
   expectedDelivery: 'Expected Delivery',
   lastModified: 'Last Modified',
+  statusMessage: 'Status Message',
 };
 
 interface ColumnControlProps {
