@@ -6,8 +6,8 @@ import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
 import {ColumnControl, ColumnVisibility, DEFAULT_COLUMN_VISIBILITY} from '@/components/common/ColumnControl';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
-import {PurposeTable} from '@/components/tables/PurposeTable';
 import {TablePagination} from '@/components/tables/TablePagination';
+import {TanStackPurposeTable} from '@/components/tables/TanStackPurposeTable';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Separator} from '@/components/ui/separator';
@@ -301,10 +301,12 @@ const Search: React.FC = () => {
         </div>
       </div>
 
-      <PurposeTable
+      <TanStackPurposeTable
         purposes={filteredPurposes}
         isLoading={isLoading}
         columnVisibility={columnVisibility}
+        sortConfig={sortConfig}
+        onSortChange={setSortConfig}
       />
 
     </div>
