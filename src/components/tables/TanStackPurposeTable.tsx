@@ -54,6 +54,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
       emfIds: columnVisibility.emfIds,
       totalCost: columnVisibility.totalCost,
       expectedDelivery: columnVisibility.expectedDelivery,
+      createdAt: columnVisibility.createdAt,
       lastModified: columnVisibility.lastModified,
     };
   }, [columnVisibility]);

@@ -231,25 +231,18 @@ export const createColumns = (hierarchies: any[]): ColumnDef<Purpose>[] => [
   },
 
   {
+    id: 'createdAt',
+    accessorKey: 'creation_time',
+    header: () => <HeaderWrapper>Created At</HeaderWrapper>,
+    cell: ({ row }) => <CellWrapper>{formatDate(row.original.creation_time)}</CellWrapper>,
+    ...COLUMN_SIZES.createdAt,
+  },
+
+  {
     id: 'lastModified',
     accessorKey: 'last_modified',
-    header: () => (
-      <HeaderWrapper className="text-center">
-        <div className="flex flex-col items-center">
-          <div className="font-medium">Last Modified</div>
-          <div className="text-xs font-normal text-muted-foreground">Created</div>
-        </div>
-      </HeaderWrapper>
-    ),
-    cell: ({ row }) => {
-      const purpose = row.original;
-      return (
-        <CellWrapper className="flex-col">
-          <div className="text-sm">{formatDate(purpose.last_modified)}</div>
-          <div className="text-xs text-muted-foreground">{formatDate(purpose.creation_time)}</div>
-        </CellWrapper>
-      );
-    },
+    header: () => <HeaderWrapper>Last Modified</HeaderWrapper>,
+    cell: ({ row }) => <CellWrapper>{formatDate(row.original.last_modified)}</CellWrapper>,
     ...COLUMN_SIZES.lastModified,
   },
 ];
