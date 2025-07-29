@@ -3,11 +3,11 @@ import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 
 import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
-import {ColumnControl, ColumnVisibility, DEFAULT_COLUMN_VISIBILITY} from '@/components/common/ColumnControl';
+import {ColumnControl, ColumnVisibility} from '@/components/common/ColumnControl';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
-import {PurposeTable} from '@/components/tables/PurposeTable';
 import {TablePagination} from '@/components/tables/TablePagination';
+import {TanStackPurposeTable} from '@/components/tables/TanStackPurposeTable';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Separator} from '@/components/ui/separator';
@@ -15,6 +15,7 @@ import {useAdminData} from '@/contexts/AdminDataContext';
 import {useToast} from '@/hooks/use-toast';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
+import {loadColumnVisibility, saveColumnVisibility, loadColumnSizing, saveColumnSizing, ColumnSizing} from '@/utils/columnStorage';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
 import {SortConfig} from '@/utils/sorting';
@@ -117,14 +118,31 @@ const Search: React.FC = () => {
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
 
-  // Column visibility state
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(DEFAULT_COLUMN_VISIBILITY);
+  // Column visibility state - load from localStorage
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(() => 
+    loadColumnVisibility()
+  );
+
+  // Column sizing state - load from localStorage
+  const [columnSizing, setColumnSizing] = useState<ColumnSizing>(() => 
+    loadColumnSizing()
+  );
 
   // Get toast function
   const { toast } = useToast();
 
   // Export loading state
   const [isExportLoading, setIsExportLoading] = useState(false);
+
+  // Persist column visibility changes to localStorage
+  useEffect(() => {
+    saveColumnVisibility(columnVisibility);
+  }, [columnVisibility]);
+
+  // Persist column sizing changes to localStorage
+  useEffect(() => {
+    saveColumnSizing(columnSizing);
+  }, [columnSizing]);
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
@@ -301,10 +319,14 @@ const Search: React.FC = () => {
         </div>
       </div>
 
-      <PurposeTable
+      <TanStackPurposeTable
         purposes={filteredPurposes}
         isLoading={isLoading}
         columnVisibility={columnVisibility}
+        sortConfig={sortConfig}
+        onSortChange={setSortConfig}
+        columnSizing={columnSizing}
+        onColumnSizingChange={setColumnSizing}
       />
 
     </div>
