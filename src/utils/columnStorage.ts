@@ -26,11 +26,7 @@ export const DEFAULT_COLUMN_SIZING: ColumnSizing = {
  * Save column visibility settings to localStorage
  */
 export const saveColumnVisibility = (columnVisibility: ColumnVisibility): void => {
-  try {
-    localStorage.setItem(COLUMN_VISIBILITY_KEY, JSON.stringify(columnVisibility));
-  } catch (error) {
-    console.warn('Failed to save column visibility to localStorage:', error);
-  }
+  localStorage.setItem(COLUMN_VISIBILITY_KEY, JSON.stringify(columnVisibility));
 };
 
 /**
@@ -53,13 +49,11 @@ export const loadColumnVisibility = (): ColumnVisibility => {
     );
 
     if (!isValid) {
-      console.warn('Invalid column visibility data in localStorage, using defaults');
       return DEFAULT_COLUMN_VISIBILITY;
     }
 
     return parsed as ColumnVisibility;
-  } catch (error) {
-    console.warn('Failed to load column visibility from localStorage:', error);
+  } catch (_error) {
     return DEFAULT_COLUMN_VISIBILITY;
   }
 };
@@ -68,22 +62,14 @@ export const loadColumnVisibility = (): ColumnVisibility => {
  * Clear column visibility settings from localStorage
  */
 export const clearColumnVisibility = (): void => {
-  try {
-    localStorage.removeItem(COLUMN_VISIBILITY_KEY);
-  } catch (error) {
-    console.warn('Failed to clear column visibility from localStorage:', error);
-  }
+  localStorage.removeItem(COLUMN_VISIBILITY_KEY);
 };
 
 /**
  * Save column sizing settings to localStorage
  */
 export const saveColumnSizing = (columnSizing: ColumnSizing): void => {
-  try {
-    localStorage.setItem(COLUMN_SIZING_KEY, JSON.stringify(columnSizing));
-  } catch (error) {
-    console.warn('Failed to save column sizing to localStorage:', error);
-  }
+  localStorage.setItem(COLUMN_SIZING_KEY, JSON.stringify(columnSizing));
 };
 
 /**
@@ -101,7 +87,6 @@ export const loadColumnSizing = (): ColumnSizing => {
     
     // Validate that the parsed data is an object with numeric values
     if (typeof parsed !== 'object' || parsed === null) {
-      console.warn('Invalid column sizing data in localStorage, using defaults');
       return DEFAULT_COLUMN_SIZING;
     }
 
@@ -119,8 +104,7 @@ export const loadColumnSizing = (): ColumnSizing => {
     });
 
     return validSizing;
-  } catch (error) {
-    console.warn('Failed to load column sizing from localStorage:', error);
+  } catch (_error) {
     return DEFAULT_COLUMN_SIZING;
   }
 };
@@ -129,9 +113,5 @@ export const loadColumnSizing = (): ColumnSizing => {
  * Clear column sizing settings from localStorage
  */
 export const clearColumnSizing = (): void => {
-  try {
-    localStorage.removeItem(COLUMN_SIZING_KEY);
-  } catch (error) {
-    console.warn('Failed to clear column sizing from localStorage:', error);
-  }
+  localStorage.removeItem(COLUMN_SIZING_KEY);
 };

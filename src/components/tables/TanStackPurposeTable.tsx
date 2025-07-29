@@ -6,7 +6,7 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ColumnVisibility } from '@/components/common/ColumnControl';
@@ -32,8 +32,6 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   purposes,
   isLoading = false,
   columnVisibility,
-  sortConfig,
-  onSortChange,
   columnSizing,
   onColumnSizingChange
 }) => {

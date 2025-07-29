@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 
 import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
-import {ColumnControl, ColumnVisibility, DEFAULT_COLUMN_VISIBILITY} from '@/components/common/ColumnControl';
+import {ColumnControl, ColumnVisibility} from '@/components/common/ColumnControl';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
 import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
@@ -15,9 +15,9 @@ import {useAdminData} from '@/contexts/AdminDataContext';
 import {useToast} from '@/hooks/use-toast';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
+import {loadColumnVisibility, saveColumnVisibility, loadColumnSizing, saveColumnSizing, ColumnSizing} from '@/utils/columnStorage';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
-import {loadColumnVisibility, saveColumnVisibility, loadColumnSizing, saveColumnSizing, ColumnSizing} from '@/utils/columnStorage';
 import {SortConfig} from '@/utils/sorting';
 
 const Search: React.FC = () => {
