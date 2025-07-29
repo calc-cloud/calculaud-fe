@@ -17,7 +17,7 @@ import {usePurposeData} from '@/hooks/usePurposeData';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
-import {loadColumnVisibility, saveColumnVisibility} from '@/utils/columnStorage';
+import {loadColumnVisibility, saveColumnVisibility, loadColumnSizing, saveColumnSizing, ColumnSizing} from '@/utils/columnStorage';
 import {SortConfig} from '@/utils/sorting';
 
 const Search: React.FC = () => {
@@ -123,6 +123,11 @@ const Search: React.FC = () => {
     loadColumnVisibility()
   );
 
+  // Column sizing state - load from localStorage
+  const [columnSizing, setColumnSizing] = useState<ColumnSizing>(() => 
+    loadColumnSizing()
+  );
+
   // Get toast function
   const { toast } = useToast();
 
@@ -133,6 +138,11 @@ const Search: React.FC = () => {
   useEffect(() => {
     saveColumnVisibility(columnVisibility);
   }, [columnVisibility]);
+
+  // Persist column sizing changes to localStorage
+  useEffect(() => {
+    saveColumnSizing(columnSizing);
+  }, [columnSizing]);
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
@@ -315,6 +325,8 @@ const Search: React.FC = () => {
         columnVisibility={columnVisibility}
         sortConfig={sortConfig}
         onSortChange={setSortConfig}
+        columnSizing={columnSizing}
+        onColumnSizingChange={setColumnSizing}
       />
 
     </div>

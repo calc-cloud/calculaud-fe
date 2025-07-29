@@ -1,5 +1,6 @@
 import {
   ColumnDef,
+  ColumnSizingState,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -12,6 +13,7 @@ import { ColumnVisibility } from '@/components/common/ColumnControl';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAdminData } from '@/contexts/AdminDataContext';
 import { Purpose } from '@/types';
+import { ColumnSizing, loadColumnSizing, saveColumnSizing } from '@/utils/columnStorage';
 import { SortConfig } from '@/utils/sorting';
 
 import { createColumns } from './columns';
@@ -22,6 +24,8 @@ interface TanStackPurposeTableProps {
   columnVisibility?: ColumnVisibility;
   sortConfig?: SortConfig;
   onSortChange?: (config: SortConfig) => void;
+  columnSizing?: ColumnSizing;
+  onColumnSizingChange?: (sizing: ColumnSizing) => void;
 }
 
 export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
@@ -29,7 +33,9 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   isLoading = false,
   columnVisibility,
   sortConfig,
-  onSortChange
+  onSortChange,
+  columnSizing,
+  onColumnSizingChange
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
@@ -54,7 +60,10 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     };
   }, [columnVisibility]);
 
-
+  // Convert our ColumnSizing to TanStack's ColumnSizingState
+  const sizingState: ColumnSizingState = useMemo(() => {
+    return columnSizing || loadColumnSizing();
+  }, [columnSizing]);
 
   // Create columns with hierarchies
   const columns = useMemo<ColumnDef<Purpose>[]>(
@@ -62,13 +71,26 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     [hierarchies]
   );
 
+  const handleColumnSizingChange = useCallback((updater: any) => {
+    if (typeof updater === 'function') {
+      const newSizing = updater(sizingState);
+      onColumnSizingChange?.(newSizing);
+      saveColumnSizing(newSizing);
+    } else {
+      onColumnSizingChange?.(updater);
+      saveColumnSizing(updater);
+    }
+  }, [sizingState, onColumnSizingChange]);
+
   const table = useReactTable({
     data: purposes,
     columns,
     getCoreRowModel: getCoreRowModel(),
     state: {
       columnVisibility: visibilityState,
+      columnSizing: sizingState,
     },
+    onColumnSizingChange: handleColumnSizingChange,
     enableColumnResizing: true,
     columnResizeMode: 'onChange',
   });
