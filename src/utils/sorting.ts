@@ -9,4 +9,18 @@ export interface SortConfig {
   direction: SortDirection;
 }
 
+// Helper function to get display name for sort fields
+export const getSortFieldDisplayName = (field: SortField): string => {
+  switch (field) {
+    case 'creation_time':
+      return 'Created At';
+    case 'expected_delivery':
+      return 'Expected Delivery';
+    case 'last_modified':
+      return 'Last Modified';
+    default:
+      return field;
+  }
+};
+
 

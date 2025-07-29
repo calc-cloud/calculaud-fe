@@ -3,6 +3,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@/components/ui/badge';
 import { Purpose } from '@/types';
 import { formatDate } from '@/utils/dateUtils';
+import { SortConfig } from '@/utils/sorting';
 import { getStatusDisplay } from '@/utils/statusUtils';
 import { 
   COLUMN_SIZES,
@@ -17,7 +18,11 @@ import { CellWrapper } from './shared/CellWrapper';
 import { HeaderWrapper, SimpleHeaderWrapper } from './shared/HeaderWrapper';
 import { TooltipCell, MultiItemDisplay } from './shared/TooltipCell';
 
-export const createColumns = (hierarchies: any[]): ColumnDef<Purpose>[] => [
+export const createColumns = (
+  hierarchies: any[], 
+  sortConfig?: SortConfig, 
+  onSortChange?: (config: SortConfig) => void
+): ColumnDef<Purpose>[] => [
   {
     id: 'status',
     accessorKey: 'status',
@@ -225,7 +230,16 @@ export const createColumns = (hierarchies: any[]): ColumnDef<Purpose>[] => [
   {
     id: 'expectedDelivery',
     accessorKey: 'expected_delivery',
-    header: () => <HeaderWrapper>Expected Delivery</HeaderWrapper>,
+    header: () => (
+      <HeaderWrapper 
+        sortable 
+        sortField="expected_delivery" 
+        currentSort={sortConfig} 
+        onSortChange={onSortChange}
+      >
+        Expected Delivery
+      </HeaderWrapper>
+    ),
     cell: ({ row }) => <CellWrapper>{formatDate(row.original.expected_delivery)}</CellWrapper>,
     ...COLUMN_SIZES.expectedDelivery,
   },
@@ -233,7 +247,16 @@ export const createColumns = (hierarchies: any[]): ColumnDef<Purpose>[] => [
   {
     id: 'createdAt',
     accessorKey: 'creation_time',
-    header: () => <HeaderWrapper>Created At</HeaderWrapper>,
+    header: () => (
+      <HeaderWrapper 
+        sortable 
+        sortField="creation_time" 
+        currentSort={sortConfig} 
+        onSortChange={onSortChange}
+      >
+        Created At
+      </HeaderWrapper>
+    ),
     cell: ({ row }) => <CellWrapper>{formatDate(row.original.creation_time)}</CellWrapper>,
     ...COLUMN_SIZES.createdAt,
   },
@@ -241,7 +264,16 @@ export const createColumns = (hierarchies: any[]): ColumnDef<Purpose>[] => [
   {
     id: 'lastModified',
     accessorKey: 'last_modified',
-    header: () => <HeaderWrapper>Last Modified</HeaderWrapper>,
+    header: () => (
+      <HeaderWrapper 
+        sortable 
+        sortField="last_modified" 
+        currentSort={sortConfig} 
+        onSortChange={onSortChange}
+      >
+        Last Modified
+      </HeaderWrapper>
+    ),
     cell: ({ row }) => <CellWrapper>{formatDate(row.original.last_modified)}</CellWrapper>,
     ...COLUMN_SIZES.lastModified,
   },

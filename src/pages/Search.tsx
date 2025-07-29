@@ -5,7 +5,6 @@ import {useSearchParams} from 'react-router-dom';
 import {ActiveFiltersBadges} from '@/components/common/ActiveFiltersBadges';
 import {ColumnControl, ColumnVisibility} from '@/components/common/ColumnControl';
 import {FiltersDrawer} from '@/components/common/UnifiedFilters';
-import {SortControls} from '@/components/search/SortControls';
 import {TablePagination} from '@/components/tables/TablePagination';
 import {TanStackPurposeTable} from '@/components/tables/TanStackPurposeTable';
 import {Button} from '@/components/ui/button';
@@ -114,6 +113,12 @@ const Search: React.FC = () => {
     isLoading,
     error
   } = usePurposeData(getInitialFilters(), getInitialSortConfig(), getInitialPage());
+
+  // Create sort change handler that resets to page 1
+  const handleSortChange = (newSortConfig: SortConfig) => {
+    setSortConfig(newSortConfig);
+    setCurrentPage(1);
+  };
 
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
@@ -300,10 +305,6 @@ const Search: React.FC = () => {
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <SortControls
-              sortConfig={sortConfig}
-              onSortChange={setSortConfig}
-          />
           <p className="text-sm text-muted-foreground">
             Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of {totalCount} purposes
           </p>
@@ -324,7 +325,7 @@ const Search: React.FC = () => {
         isLoading={isLoading}
         columnVisibility={columnVisibility}
         sortConfig={sortConfig}
-        onSortChange={setSortConfig}
+        onSortChange={handleSortChange}
         columnSizing={columnSizing}
         onColumnSizingChange={setColumnSizing}
       />
