@@ -17,6 +17,7 @@ import {usePurposeData} from '@/hooks/usePurposeData';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
+import {loadColumnVisibility, saveColumnVisibility} from '@/utils/columnStorage';
 import {SortConfig} from '@/utils/sorting';
 
 const Search: React.FC = () => {
@@ -117,14 +118,21 @@ const Search: React.FC = () => {
   // Get admin data for filter badges
   const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
 
-  // Column visibility state
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(DEFAULT_COLUMN_VISIBILITY);
+  // Column visibility state - load from localStorage
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(() => 
+    loadColumnVisibility()
+  );
 
   // Get toast function
   const { toast } = useToast();
 
   // Export loading state
   const [isExportLoading, setIsExportLoading] = useState(false);
+
+  // Persist column visibility changes to localStorage
+  useEffect(() => {
+    saveColumnVisibility(columnVisibility);
+  }, [columnVisibility]);
 
   // Update URL when filters, sorting, or pagination changes
   useEffect(() => {
