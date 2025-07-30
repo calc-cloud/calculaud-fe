@@ -1,22 +1,23 @@
-import { ColumnDef } from '@tanstack/react-table';
+import {ColumnDef} from '@tanstack/react-table';
 
-import { Badge } from '@/components/ui/badge';
-import { Purpose } from '@/types';
-import { formatDate } from '@/utils/dateUtils';
-import { SortConfig } from '@/utils/sorting';
-import { getStatusDisplay } from '@/utils/statusUtils';
-import { 
+import {Badge} from '@/components/ui/badge';
+import {Purpose} from '@/types';
+import {formatDate} from '@/utils/dateUtils';
+import {SortConfig} from '@/utils/sorting';
+import {getStatusDisplay} from '@/utils/statusUtils';
+import {
   COLUMN_SIZES,
-  getTotalCostWithCurrencies,
-  getEMFIds,
   getContentsDisplay,
+  getEMFIds,
+  getHierarchyInfo,
+  getPendingAuthorityInfo,
   getStagesDisplay,
-  getHierarchyInfo
+  getTotalCostWithCurrencies
 } from '@/utils/tableUtils';
 
-import { CellWrapper } from './shared/CellWrapper';
-import { HeaderWrapper, SimpleHeaderWrapper } from './shared/HeaderWrapper';
-import { TooltipCell, MultiItemDisplay } from './shared/TooltipCell';
+import {CellWrapper} from './shared/CellWrapper';
+import {HeaderWrapper, SimpleHeaderWrapper} from './shared/HeaderWrapper';
+import {MultiItemDisplay, TooltipCell} from './shared/TooltipCell';
 
 export const createColumns = (
   hierarchies: any[], 
@@ -112,6 +113,23 @@ export const createColumns = (
     header: () => <HeaderWrapper>Supplier</HeaderWrapper>,
     cell: ({ row }) => <CellWrapper>{row.original.supplier}</CellWrapper>,
     ...COLUMN_SIZES.supplier,
+  },
+
+  {
+    id: 'pendingAuthority',
+    accessorFn: (row) => getPendingAuthorityInfo(row).accessorValue,
+    header: () => <SimpleHeaderWrapper>Pending Authority</SimpleHeaderWrapper>,
+    cell: ({row}) => {
+      const authorityInfo = getPendingAuthorityInfo(row.original);
+
+      return (
+          <TooltipCell
+              trigger={<div>{authorityInfo.displayName}</div>}
+              content={<p>{authorityInfo.description}</p>}
+          />
+      );
+    },
+    ...COLUMN_SIZES.pendingAuthority,
   },
 
   {

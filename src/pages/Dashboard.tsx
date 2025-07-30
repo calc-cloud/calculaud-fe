@@ -73,6 +73,14 @@ const Dashboard: React.FC = () => {
       }
     }
 
+    // Parse pending authority IDs
+    if (searchParams.get('pending_authority_id')) {
+      const pendingAuthorityIds = searchParams.get('pending_authority_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (pendingAuthorityIds && pendingAuthorityIds.length > 0) {
+        filters.pending_authority_id = pendingAuthorityIds;
+      }
+    }
+
     // Parse date/time filters
     if (searchParams.get('start_date')) {
       filters.start_date = searchParams.get('start_date') || undefined;
@@ -98,7 +106,7 @@ const Dashboard: React.FC = () => {
   const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
   const [expenditureGroupBy, setExpenditureGroupBy] = useState<'day' | 'week' | 'month' | 'year'>('month');
 
-  const { hierarchies, suppliers, serviceTypes, materials } = useAdminData();
+  const {hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities} = useAdminData();
 
   // Update URL when filters change
   useEffect(() => {
@@ -127,6 +135,11 @@ const Dashboard: React.FC = () => {
     // Add status array
     if (filters.status && filters.status.length > 0) {
       params.set('status', filters.status.join(','));
+    }
+
+    // Add pending authority IDs
+    if (filters.pending_authority_id && filters.pending_authority_id.length > 0) {
+      params.set('pending_authority_id', filters.pending_authority_id.join(','));
     }
 
     // Add date/time filters (always include these if they have values, including defaults)
@@ -184,6 +197,7 @@ const Dashboard: React.FC = () => {
     ...(unifiedFilters.status || []),
     ...(unifiedFilters.supplier || []),
     ...(unifiedFilters.material || []),
+    ...(unifiedFilters.pending_authority || []),
   ].length;
 
   return (
@@ -218,6 +232,7 @@ const Dashboard: React.FC = () => {
         serviceTypes={serviceTypes}
         suppliers={suppliers}
         materials={materials}
+        responsibleAuthorities={responsibleAuthorities}
       />
 
       {/* Charts Section */}

@@ -6,17 +6,17 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-import React, { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, {useCallback, useMemo} from 'react';
+import {useNavigate} from 'react-router-dom';
 
-import { ColumnVisibility } from '@/components/common/ColumnControl';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { Purpose } from '@/types';
-import { ColumnSizing, loadColumnSizing, saveColumnSizing } from '@/utils/columnStorage';
-import { SortConfig } from '@/utils/sorting';
+import {ColumnVisibility} from '@/components/common/ColumnControl';
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
+import {useAdminData} from '@/contexts/AdminDataContext';
+import {Purpose} from '@/types';
+import {ColumnSizing, loadColumnSizing, saveColumnSizing} from '@/utils/columnStorage';
+import {SortConfig} from '@/utils/sorting';
 
-import { createColumns } from './columns';
+import {createColumns} from './columns';
 
 interface TanStackPurposeTableProps {
   purposes: Purpose[];
@@ -50,6 +50,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
       description: columnVisibility.description,
       content: columnVisibility.content,
       supplier: columnVisibility.supplier,
+      pendingAuthority: columnVisibility.pendingAuthority,
       hierarchy: columnVisibility.hierarchy,
       serviceType: columnVisibility.serviceType,
       purchases: columnVisibility.purchases,

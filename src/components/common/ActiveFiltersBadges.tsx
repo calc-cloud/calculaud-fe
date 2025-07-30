@@ -5,6 +5,7 @@ import {Badge} from '@/components/ui/badge';
 import {RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {Hierarchy} from '@/types/hierarchies';
 import {Material} from '@/types/materials';
+import {ResponsibleAuthority} from '@/types/responsibleAuthorities';
 import {ServiceType} from '@/types/serviceTypes';
 import {Supplier} from '@/types/suppliers';
 import {createToggleFunction} from '@/utils/filterUtils';
@@ -17,6 +18,7 @@ interface ActiveFiltersBadgesProps {
   serviceTypes: ServiceType[];
   suppliers: Supplier[];
   materials: Material[];
+  responsibleAuthorities?: ResponsibleAuthority[];
 }
 
 export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
@@ -26,12 +28,14 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   serviceTypes,
   suppliers,
   materials,
+                                                                          responsibleAuthorities = [],
 }) => {
   const toggleServiceType = createToggleFunction<number>('service_type', filters, onFiltersChange);
   const toggleStatus = createToggleFunction<string>('status', filters, onFiltersChange);
   const toggleSupplier = createToggleFunction<number>('supplier', filters, onFiltersChange);
   const toggleMaterial = createToggleFunction<number>('material', filters, onFiltersChange);
   const toggleHierarchy = createToggleFunction<number>('hierarchy_id', filters, onFiltersChange);
+  const togglePendingAuthority = createToggleFunction<number>('pending_authority', filters, onFiltersChange);
 
   const clearRelativeTime = () => {
     onFiltersChange({
@@ -49,6 +53,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     ...(filters.status || []),
     ...(filters.supplier || []),
     ...(filters.material || []),
+    ...(filters.pending_authority || []),
   ].length;
 
   if (activeFiltersCount === 0) return null;
@@ -122,6 +127,17 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
               </Badge>
             ) : null;
           })}</>
+        )}
+        {filters.pending_authority && filters.pending_authority.length > 0 && (
+            <>{filters.pending_authority.map((authorityId) => {
+              const authority = responsibleAuthorities.find(a => a.id === authorityId);
+              return authority ? (
+                  <Badge key={authorityId} variant="secondary" className="flex items-center gap-1">
+                    {authority.name}
+                    <X className="h-3 w-3 cursor-pointer" onClick={() => togglePendingAuthority(authorityId)}/>
+                  </Badge>
+              ) : null;
+            })}</>
         )}
       </div>
     </div>
