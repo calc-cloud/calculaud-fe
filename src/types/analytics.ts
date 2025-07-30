@@ -8,6 +8,7 @@ export interface DashboardFilters {
   hierarchy_id?: number[];
   status?: string[];
   supplier_id?: number[];
+  pending_authority_id?: number[];
 }
 
 export interface ServiceItem {

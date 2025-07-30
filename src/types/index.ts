@@ -51,6 +51,12 @@ export interface Purpose {
   last_modified: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
+  pending_authority?: {
+    id: number;
+    name: string;
+    description: string;
+    created_at: string;
+  };
 }
 
 // New interface for purpose contents

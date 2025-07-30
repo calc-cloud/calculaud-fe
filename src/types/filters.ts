@@ -12,6 +12,7 @@ export interface UnifiedFilters {
   supplier?: number[];
   status?: string[];
   material?: number[];
+  pending_authority?: number[];
   
   // Search specific
   search_query?: string;

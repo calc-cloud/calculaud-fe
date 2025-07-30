@@ -1,19 +1,22 @@
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, {createContext, ReactNode, useContext} from 'react';
 
-import { useHierarchies } from '@/hooks/useHierarchies';
-import { useMaterials } from '@/hooks/useMaterials';
-import { useServiceTypes } from '@/hooks/useServiceTypes';
-import { useSuppliers } from '@/hooks/useSuppliers';
-import { Hierarchy } from '@/types/hierarchies';
-import { Material } from '@/types/materials';
-import { ServiceType } from '@/types/serviceTypes';
-import { Supplier } from '@/types/suppliers';
+import {useHierarchies} from '@/hooks/useHierarchies';
+import {useMaterials} from '@/hooks/useMaterials';
+import {useResponsibleAuthorities} from '@/hooks/useResponsibleAuthorities';
+import {useServiceTypes} from '@/hooks/useServiceTypes';
+import {useSuppliers} from '@/hooks/useSuppliers';
+import {Hierarchy} from '@/types/hierarchies';
+import {Material} from '@/types/materials';
+import {ResponsibleAuthority} from '@/types/responsibleAuthorities';
+import {ServiceType} from '@/types/serviceTypes';
+import {Supplier} from '@/types/suppliers';
 
 interface AdminDataContextType {
   hierarchies: Hierarchy[];
   suppliers: Supplier[];
   serviceTypes: ServiceType[];
   materials: Material[];
+  responsibleAuthorities: ResponsibleAuthority[];
   isLoading: boolean;
 }
 
@@ -28,19 +31,21 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({ children }
   const { data: suppliersData, isLoading: suppliersLoading } = useSuppliers();
   const { data: serviceTypesData, isLoading: serviceTypesLoading } = useServiceTypes();
   const { data: materialsData, isLoading: materialsLoading } = useMaterials();
+  const {responsibleAuthorities, isLoading: responsibleAuthoritiesLoading} = useResponsibleAuthorities();
 
   const hierarchies = hierarchiesData?.items || [];
   const suppliers = suppliersData?.items || [];
   const serviceTypes = serviceTypesData?.items || [];
   const materials = materialsData?.items || [];
 
-  const isLoading = hierarchiesLoading || suppliersLoading || serviceTypesLoading || materialsLoading;
+  const isLoading = hierarchiesLoading || suppliersLoading || serviceTypesLoading || materialsLoading || responsibleAuthoritiesLoading;
 
   const value: AdminDataContextType = {
     hierarchies,
     suppliers,
     serviceTypes,
     materials,
+    responsibleAuthorities,
     isLoading,
   };
 

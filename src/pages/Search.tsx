@@ -1,4 +1,4 @@
-import {Download, Search as SearchIcon, X, Loader2} from 'lucide-react';
+import {Download, Loader2, Search as SearchIcon, X} from 'lucide-react';
 import React, {useEffect, useState} from 'react';
 import {useSearchParams} from 'react-router-dom';
 
@@ -14,7 +14,13 @@ import {useAdminData} from '@/contexts/AdminDataContext';
 import {useToast} from '@/hooks/use-toast';
 import {usePurposeData} from '@/hooks/usePurposeData';
 import {UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
-import {loadColumnVisibility, saveColumnVisibility, loadColumnSizing, saveColumnSizing, ColumnSizing} from '@/utils/columnStorage';
+import {
+  ColumnSizing,
+  loadColumnSizing,
+  loadColumnVisibility,
+  saveColumnSizing,
+  saveColumnVisibility
+} from '@/utils/columnStorage';
 import {exportPurposesToCSV} from '@/utils/csvExport';
 import {clearFilters} from '@/utils/filterUtils';
 import {SortConfig} from '@/utils/sorting';
@@ -62,6 +68,14 @@ const Search: React.FC = () => {
       const materialIds = searchParams.get('material_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
       if (materialIds && materialIds.length > 0) {
         filters.material = materialIds;
+      }
+    }
+
+    // Parse pending authority IDs
+    if (searchParams.get('pending_authority_id')) {
+      const pendingAuthorityIds = searchParams.get('pending_authority_id')?.split(',').map(id => parseInt(id, 10)).filter(id => !isNaN(id));
+      if (pendingAuthorityIds && pendingAuthorityIds.length > 0) {
+        filters.pending_authority = pendingAuthorityIds;
       }
     }
     
@@ -121,7 +135,7 @@ const Search: React.FC = () => {
   };
 
   // Get admin data for filter badges
-  const {hierarchies, suppliers, serviceTypes, materials} = useAdminData();
+  const {hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities} = useAdminData();
 
   // Column visibility state - load from localStorage
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(() => 
@@ -183,6 +197,11 @@ const Search: React.FC = () => {
       params.set('material_id', filters.material.join(','));
     }
 
+    // Add pending authority IDs
+    if (filters.pending_authority && filters.pending_authority.length > 0) {
+      params.set('pending_authority_id', filters.pending_authority.join(','));
+    }
+
     // Add date/time filters (always include these if they have values, including defaults)
     if (filters.start_date) {
       params.set('start_date', filters.start_date);
@@ -230,6 +249,7 @@ const Search: React.FC = () => {
     ...(filters.status || []),
     ...(filters.supplier || []),
     ...(filters.material || []),
+    ...(filters.pending_authority || []),
   ].length;
 
   // Show error state
@@ -301,6 +321,7 @@ const Search: React.FC = () => {
         serviceTypes={serviceTypes}
         suppliers={suppliers}
         materials={materials}
+        responsibleAuthorities={responsibleAuthorities}
       />
 
       <div className="flex items-center justify-between">
