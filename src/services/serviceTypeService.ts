@@ -4,32 +4,36 @@ import {
   ServiceType, 
   ServiceTypesResponse, 
   ServiceTypeCreateRequest, 
-  ServiceTypeUpdateRequest 
+  ServiceTypeUpdateRequest,
+  ServiceTypeFilters
 } from '@/types/serviceTypes';
 
-import { apiService } from './apiService';
+import { BaseEntityService } from './baseEntityService';
 
-export class ServiceTypeService {
-  private endpoint = API_CONFIG.ENDPOINTS.SERVICE_TYPES;
+export class ServiceTypeService extends BaseEntityService<
+  ServiceType,
+  ServiceTypeCreateRequest,
+  ServiceTypeUpdateRequest,
+  ServiceTypeFilters
+> {
+  constructor() {
+    super(API_CONFIG.ENDPOINTS.SERVICE_TYPES);
+  }
 
-  async getServiceTypes(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }): Promise<ServiceTypesResponse> {
-    return apiService.get<ServiceTypesResponse>(this.endpoint, params);
+  async getServiceTypes(params?: ServiceTypeFilters): Promise<ServiceTypesResponse> {
+    return this.getAll(params);
   }
 
   async createServiceType(data: ServiceTypeCreateRequest): Promise<ServiceType> {
-    return apiService.post<ServiceType>(this.endpoint, data);
+    return this.create(data);
   }
 
   async updateServiceType(id: number, data: ServiceTypeUpdateRequest): Promise<ServiceType> {
-    return apiService.patch<ServiceType>(`${this.endpoint}${id}`, data);
+    return this.update(id, data);
   }
 
   async deleteServiceType(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}`);
+    return this.delete(id);
   }
 }
 

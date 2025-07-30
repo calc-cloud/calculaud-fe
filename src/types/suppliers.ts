@@ -1,25 +1,12 @@
 
-export interface Supplier {
-  id: number;
-  name: string;
-}
+import { BaseEntity, BaseResponse, BaseCreateRequest, BaseUpdateRequest, BaseFilters } from './base';
 
-export interface SupplierCreateRequest {
-  name: string;
-}
+export type Supplier = BaseEntity;
 
-export interface SupplierUpdateRequest {
-  name?: string;
-}
+export type SupplierCreateRequest = BaseCreateRequest;
 
-export interface SuppliersResponse {
-  items: Supplier[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+export type SupplierUpdateRequest = BaseUpdateRequest;
 
+export type SuppliersResponse = BaseResponse<Supplier>;
 
+export type SupplierFilters = BaseFilters;

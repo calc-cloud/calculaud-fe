@@ -1,41 +1,27 @@
+import { BaseEntity, BaseResponse, BaseCreateRequest, BaseUpdateRequest, BaseSortFilters } from './base';
+
 export type HierarchyType = 'UNIT' | 'CENTER' | 'ANAF' | 'TEAM' | 'MADOR';
 
-export interface Hierarchy {
-  id: number;
+export interface Hierarchy extends BaseEntity {
   type: HierarchyType;
-  name: string;
   parent_id: number | null;
   path: string;
 }
 
-export interface HierarchiesResponse {
-  items: Hierarchy[];
-  total: number;
-  page: number;
-  limit: number;
-  has_next: boolean;
-  has_prev: boolean;
-  pages: number;
-}
+export type HierarchiesResponse = BaseResponse<Hierarchy>;
 
-export interface HierarchyFilters {
-  page?: number;
-  limit?: number;
+export interface HierarchyFilters extends BaseSortFilters {
   type?: HierarchyType;
   parent_id?: number;
-  search?: string;
   sort_by?: 'name' | 'type';
-  sort_order?: 'asc' | 'desc';
 }
 
-export interface HierarchyCreateRequest {
+export interface HierarchyCreateRequest extends BaseCreateRequest {
   type: HierarchyType;
-  name: string;
   parent_id?: number | null;
 }
 
-export interface HierarchyUpdateRequest {
+export interface HierarchyUpdateRequest extends BaseUpdateRequest {
   type?: HierarchyType;
-  name?: string;
   parent_id?: number | null;
 }

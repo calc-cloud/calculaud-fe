@@ -3,33 +3,36 @@ import {
   Material, 
   MaterialsResponse, 
   MaterialCreateRequest, 
-  MaterialUpdateRequest 
+  MaterialUpdateRequest,
+  MaterialFilters
 } from '@/types/materials';
 
-import { apiService } from './apiService';
+import { BaseEntityService } from './baseEntityService';
 
-export class MaterialService {
-  private endpoint = API_CONFIG.ENDPOINTS.SERVICES;
+export class MaterialService extends BaseEntityService<
+  Material,
+  MaterialCreateRequest,
+  MaterialUpdateRequest,
+  MaterialFilters
+> {
+  constructor() {
+    super(API_CONFIG.ENDPOINTS.SERVICES);
+  }
 
-  async getMaterials(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    service_type_id?: number;
-  }): Promise<MaterialsResponse> {
-    return apiService.get<MaterialsResponse>(this.endpoint, params);
+  async getMaterials(params?: MaterialFilters): Promise<MaterialsResponse> {
+    return this.getAll(params);
   }
 
   async createMaterial(data: MaterialCreateRequest): Promise<Material> {
-    return apiService.post<Material>(this.endpoint, data);
+    return this.create(data);
   }
 
   async updateMaterial(id: number, data: MaterialUpdateRequest): Promise<Material> {
-    return apiService.patch<Material>(`${this.endpoint}${id}`, data);
+    return this.update(id, data);
   }
 
   async deleteMaterial(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}`);
+    return this.delete(id);
   }
 }
 

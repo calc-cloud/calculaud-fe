@@ -1,35 +1,23 @@
 
-export interface ServiceType {
-  id: number;
-  name: string;
+import { BaseEntityWithTimestamps, BaseResponse, BaseCreateRequest, BaseUpdateRequest, BaseFilters } from './base';
+
+export interface ServiceType extends BaseEntityWithTimestamps {
   type: string;
   parent_id?: number;
   path: string;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface ServiceTypeCreateRequest {
-  name: string;
+export interface ServiceTypeCreateRequest extends BaseCreateRequest {
   type?: string;
   parent_id?: number;
 }
 
-export interface ServiceTypeUpdateRequest {
-  name?: string;
+export interface ServiceTypeUpdateRequest extends BaseUpdateRequest {
   type?: string;
   parent_id?: number;
 }
 
 // Updated to match actual API response structure
-export interface ServiceTypesResponse {
-  items: ServiceType[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+export type ServiceTypesResponse = BaseResponse<ServiceType>;
 
-
+export type ServiceTypeFilters = BaseFilters;

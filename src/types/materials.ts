@@ -1,32 +1,22 @@
+import { BaseEntityWithTimestamps, BaseResponse, BaseCreateRequest, BaseUpdateRequest, BaseFilters } from './base';
+
 // Frontend interface for Material (maps to backend Service)
-export interface Material {
-  id: number;
-  name: string;
+export interface Material extends BaseEntityWithTimestamps {
   service_type_id: number; // Keep backend field name
-  created_at: string;
-  updated_at: string;
 }
 
 // Frontend request interfaces (maps to backend Service requests)
-export interface MaterialCreateRequest {
-  name: string;
+export interface MaterialCreateRequest extends BaseCreateRequest {
   service_type_id: number; // Keep backend field name
 }
 
-export interface MaterialUpdateRequest {
-  name?: string;
+export interface MaterialUpdateRequest extends BaseUpdateRequest {
   service_type_id?: number; // Keep backend field name
 }
 
 // Frontend response interface (maps to backend ServicesResponse)
-export interface MaterialsResponse {
-  items: Material[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+export type MaterialsResponse = BaseResponse<Material>;
 
- 
+export interface MaterialFilters extends BaseFilters {
+  service_type_id?: number;
+}
