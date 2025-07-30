@@ -1,17 +1,18 @@
-import { Columns, Check } from 'lucide-react';
-import React, { useState } from 'react';
+import {Check, Columns} from 'lucide-react';
+import React, {useState} from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
+import {Button} from '@/components/ui/button';
+import {Checkbox} from '@/components/ui/checkbox';
+import {Label} from '@/components/ui/label';
+import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
+import {Separator} from '@/components/ui/separator';
 
 export interface ColumnVisibility {
   status: boolean;
   description: boolean;
   content: boolean;
   supplier: boolean;
+  pendingAuthority: boolean;
   hierarchy: boolean;
   serviceType: boolean;
   purchases: boolean;
@@ -28,6 +29,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   description: true,
   content: true,
   supplier: true,
+  pendingAuthority: true,
   hierarchy: true,
   serviceType: true,
   purchases: true,
@@ -44,6 +46,7 @@ const COLUMN_LABELS = {
   description: 'Description',
   content: 'Content',
   supplier: 'Supplier',
+  pendingAuthority: 'Pending Authority',
   hierarchy: 'Hierarchy',
   serviceType: 'Service Type',
   purchases: 'Purchases',

@@ -9,6 +9,7 @@ export interface PurposeApiParams {
   supplier_id?: number | number[];
   service_type_id?: number | number[];
   service_id?: number | number[]; // Material filter (maps to service_id in API)
+  pending_authority_id?: number | number[];
   status?: string | string[];
   search?: string;
   sort_by?: string;
@@ -60,6 +61,12 @@ export interface Purpose {
     uploaded_at: string;
     file_url: string;
   }[];
+  pending_authority?: {
+    id: number;
+    name: string;
+    description: string;
+    created_at: string;
+  };
 }
 
 export interface Purchase {
@@ -247,6 +254,11 @@ class PurposeService {
       params.service_id = filters.material.length === 1 ? filters.material[0] : filters.material;
     }
 
+    // Pending authority filter - handle multiple pending authorities
+    if (filters.pending_authority && filters.pending_authority.length > 0) {
+      params.pending_authority_id = filters.pending_authority.length === 1 ? filters.pending_authority[0] : filters.pending_authority;
+    }
+
     // Date filters
     if (filters.start_date) {
       params.start_date = filters.start_date;
@@ -430,6 +442,7 @@ class PurposeService {
       service_type: apiPurpose.service_type,
       creation_time: apiPurpose.creation_time,
       last_modified: apiPurpose.last_modified,
+      pending_authority: apiPurpose.pending_authority || null,
       purchases: (apiPurpose.purchases || []).map(purchase => ({
         id: purchase.id?.toString() || '',
         purpose_id: apiPurpose.id?.toString() || '',
@@ -523,6 +536,7 @@ class PurposeService {
           service_type: purpose.service_type || '',
           creation_time: purpose.creation_time || '',
           last_modified: purpose.last_modified || '',
+          pending_authority: purpose.pending_authority || null,
           purchases: (purpose.purchases || []).map(purchase => ({
             id: purchase.id?.toString() || '',
             purpose_id: purpose.id?.toString() || '',
@@ -572,6 +586,7 @@ class PurposeService {
           service_type: '',
           creation_time: '',
           last_modified: '',
+          pending_authority: null,
           purchases: [],
           files: []
         };

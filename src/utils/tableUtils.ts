@@ -1,5 +1,5 @@
-import { Purpose, getCurrencySymbol } from '@/types';
-import { getStagesText } from '@/utils/stageUtils';
+import {getCurrencySymbol, Purpose} from '@/types';
+import {getStagesText} from '@/utils/stageUtils';
 
 // Column configuration constants
 export const COLUMN_SIZES = {
@@ -8,6 +8,7 @@ export const COLUMN_SIZES = {
   description: { size: 300, minSize: 256 },
   content: { size: 200, minSize: 180 },
   supplier: { size: 120, minSize: 96 },
+  pendingAuthority: {size: 160, minSize: 120},
   hierarchy: { size: 80, minSize: 60 },
   serviceType: { size: 140, minSize: 112 },
   purchases: { size: 280, minSize: 240 },
@@ -141,6 +142,22 @@ export const getHierarchyInfo = (purpose: Purpose, hierarchies: any[]) => {
   return {
     displayName: 'N/A',
     fullPath: 'No hierarchy assigned',
+    accessorValue: 'N/A'
+  };
+};
+
+export const getPendingAuthorityInfo = (purpose: Purpose) => {
+  if (purpose.pending_authority) {
+    return {
+      displayName: purpose.pending_authority.name,
+      description: purpose.pending_authority.description,
+      accessorValue: purpose.pending_authority.name
+    };
+  }
+
+  return {
+    displayName: 'N/A',
+    description: 'No pending authority assigned',
     accessorValue: 'N/A'
   };
 };

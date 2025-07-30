@@ -35,6 +35,8 @@ const countActiveFilters = (filters: UnifiedFiltersType) => {
     ...(filters.supplier || []),
     // Count each individual material selection
     ...(filters.material || []),
+    // Count each individual pending authority selection
+    ...(filters.pending_authority || []),
   ].length;
 };
 
@@ -49,7 +51,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
   onFiltersChange
 }) => {
   // Data hooks
-  const { hierarchies, suppliers, serviceTypes, materials, isLoading } = useAdminData();
+  const {hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities, isLoading} = useAdminData();
   
   // State for controlling date picker popovers
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
@@ -60,6 +62,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
   const toggleStatus = createToggleFunction<string>('status', filters, onFiltersChange);
   const toggleSupplier = createToggleFunction<number>('supplier', filters, onFiltersChange);
   const toggleMaterial = createToggleFunction<number>('material', filters, onFiltersChange);
+  const togglePendingAuthority = createToggleFunction<number>('pending_authority', filters, onFiltersChange);
 
   // Function to reset relative time filter to default
   const _clearRelativeTime = () => {
@@ -281,6 +284,32 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
                     />
                     <span className="text-sm truncate">{supplier.name}</span>
                   </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
+          {/* Pending Authority Multi-Select */}
+          <div className="border-b border-gray-200 pb-3">
+            <Collapsible>
+              <CollapsibleTrigger
+                  className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
+                  disabled={isLoading}>
+                <span>{isLoading ? 'Loading...' : 'Pending Authorities'}</span>
+                <ChevronDown className="h-4 w-4 flex-shrink-0"/>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
+                {responsibleAuthorities.map((authority) => (
+                    <div
+                        key={authority.id}
+                        className="flex items-center space-x-3 cursor-pointer py-1"
+                        onClick={() => togglePendingAuthority(authority.id)}
+                    >
+                      <Checkbox
+                          checked={(filters.pending_authority || []).includes(authority.id)}
+                      />
+                      <span className="text-sm truncate">{authority.name}</span>
+                    </div>
                 ))}
               </CollapsibleContent>
             </Collapsible>
