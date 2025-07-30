@@ -17,6 +17,7 @@ export interface ColumnVisibility {
   serviceType: boolean;
   purchases: boolean;
   emfIds: boolean;
+  demandIds: boolean;
   totalCost: boolean;
   expectedDelivery: boolean;
   createdAt: boolean;
@@ -33,7 +34,8 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   hierarchy: true,
   serviceType: true,
   purchases: true,
-  emfIds: true,
+  emfIds: false,
+  demandIds: true,
   totalCost: true,
   expectedDelivery: true,
   createdAt: false,
@@ -51,6 +53,7 @@ const COLUMN_LABELS = {
   serviceType: 'Service Type',
   purchases: 'Purchases',
   emfIds: 'EMF IDs',
+  demandIds: 'Demand IDs',
   totalCost: 'Total Cost',
   expectedDelivery: 'Expected Delivery',
   createdAt: 'Created At',

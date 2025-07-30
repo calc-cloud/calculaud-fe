@@ -13,6 +13,7 @@ export const COLUMN_SIZES = {
   serviceType: { size: 140, minSize: 112 },
   purchases: { size: 280, minSize: 240 },
   emfIds: { size: 120, minSize: 96 },
+  demandIds: { size: 120, minSize: 96 },
   totalCost: { size: 140, minSize: 112 },
   expectedDelivery: { size: 120, minSize: 96 },
   createdAt: { size: 120, minSize: 96 },
@@ -77,22 +78,26 @@ export const getTotalCostWithCurrencies = (purpose: Purpose) => {
   };
 };
 
-export const getEMFIds = (purpose: Purpose) => {
-  const emfIds: string[] = [];
+export const getStageTypeIds = (purpose: Purpose, stageTypeName: string) => {
+  const ids: string[] = [];
   
   purpose.purchases.forEach(purchase => {
     purchase.flow_stages.forEach(stage => {
-      if (stage.stage_type.name === 'emf_id' && stage.value && stage.value.trim()) {
-        emfIds.push(stage.value.trim());
+      if (stage.stage_type.name === stageTypeName && stage.value && stage.value.trim()) {
+        ids.push(stage.value.trim());
       }
     });
   });
   
   return {
-    ids: emfIds,
-    allIds: emfIds.length > 0 ? emfIds.join(', ') : '-'
+    ids,
+    allIds: ids.length > 0 ? ids.join(', ') : '-'
   };
 };
+
+// Convenience functions for specific stage types
+export const getEMFIds = (purpose: Purpose) => getStageTypeIds(purpose, 'emf_id');
+export const getDemandIds = (purpose: Purpose) => getStageTypeIds(purpose, 'demand_id');
 
 export const getContentsDisplay = (purpose: Purpose) => {
   if (!purpose.contents || !Array.isArray(purpose.contents) || purpose.contents.length === 0) {
