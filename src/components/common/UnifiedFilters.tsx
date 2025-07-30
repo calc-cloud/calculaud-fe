@@ -1,44 +1,18 @@
-import {format} from 'date-fns';
-import {CalendarIcon, ChevronDown, Filter} from 'lucide-react';
+import {Filter} from 'lucide-react';
 import React, {useState} from 'react';
 
 import {HierarchySelector} from '@/components/common/HierarchySelector';
+import {DateRangeFilter} from '@/components/filters/DateRangeFilter';
+import {FilterSection} from '@/components/filters/FilterSection';
+import {MultiSelectFilter} from '@/components/filters/MultiSelectFilter';
 import {Badge} from '@/components/ui/badge';
 import {Button} from '@/components/ui/button';
-import {Calendar} from '@/components/ui/calendar';
-import {Checkbox} from '@/components/ui/checkbox';
-import {Collapsible, CollapsibleContent, CollapsibleTrigger} from '@/components/ui/collapsible';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger} from '@/components/ui/sheet';
 import {useAdminData} from '@/contexts/AdminDataContext';
-import {cn} from '@/lib/utils';
-import {PURPOSE_STATUSES_DISPLAY, RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
-import {createToggleFunction, handleDateChange, handleRelativeTimeChange} from '@/utils/filterUtils';
+import {countActiveFilters, useFilterLogic} from '@/hooks/useFilterLogic';
+import {PURPOSE_STATUSES_DISPLAY, UnifiedFilters as UnifiedFiltersType} from '@/types/filters';
 import {getStatusDisplayFromLabel} from '@/utils/statusUtils';
 
-// UI Components
-
-
-// Helper function to count active filters
-const countActiveFilters = (filters: UnifiedFiltersType) => {
-  return [
-    // Count relative time only if it's not the default
-    ...(filters.relative_time && filters.relative_time !== 'all_time' ? [1] : []),
-    // Count each individual hierarchy selection
-    ...(filters.hierarchy_id || []),
-    // Count each individual service type selection
-    ...(filters.service_type || []),
-    // Count each individual status selection
-    ...(filters.status || []),
-    // Count each individual supplier selection
-    ...(filters.supplier || []),
-    // Count each individual material selection
-    ...(filters.material || []),
-    // Count each individual pending authority selection
-    ...(filters.pending_authority || []),
-  ].length;
-};
 
 interface UnifiedFiltersProps {
   filters: UnifiedFiltersType;
@@ -53,133 +27,35 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
   // Data hooks
   const {hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities, isLoading} = useAdminData();
   
-  // State for controlling date picker popovers
-  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
-  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
+  // Custom hook for filter logic
+  const {
+    toggleServiceType,
+    toggleStatus,
+    toggleSupplier,
+    toggleMaterial,
+    togglePendingAuthority,
+    filteredMaterials
+  } = useFilterLogic({ filters, onFiltersChange, materials });
 
-  // Create toggle functions using the generic helper
-  const toggleServiceType = createToggleFunction<number>('service_type', filters, onFiltersChange);
-  const toggleStatus = createToggleFunction<string>('status', filters, onFiltersChange);
-  const toggleSupplier = createToggleFunction<number>('supplier', filters, onFiltersChange);
-  const toggleMaterial = createToggleFunction<number>('material', filters, onFiltersChange);
-  const togglePendingAuthority = createToggleFunction<number>('pending_authority', filters, onFiltersChange);
-
-  // Function to reset relative time filter to default
-  const _clearRelativeTime = () => {
-    onFiltersChange({
-      ...filters,
-      relative_time: 'all_time',
-      start_date: undefined,
-      end_date: undefined
-    });
-  };
-
-  // Filter materials based on selected service types
-  const filteredMaterials = React.useMemo(() => {
-    if (!filters.service_type || filters.service_type.length === 0) {
-      // If no service types are selected, show all materials
-      return materials;
-    }
-    
-    // Filter materials to only show those related to selected service types
-    return materials.filter(material => 
-      filters.service_type?.includes(material.service_type_id) || false
-    );
-  }, [materials, filters.service_type]);
+  // Transform data for MultiSelectFilter components
+  const serviceTypeOptions = serviceTypes.map(type => ({ id: type.id, name: type.name }));
+  const supplierOptions = suppliers.map(supplier => ({ id: supplier.id, name: supplier.name }));
+  const materialOptions = filteredMaterials.map(material => ({ id: material.id, name: material.name }));
+  const pendingAuthorityOptions = responsibleAuthorities.map(authority => ({ id: authority.id, name: authority.name }));
+  const statusOptions = PURPOSE_STATUSES_DISPLAY.map(status => {
+    const statusInfo = getStatusDisplayFromLabel(status);
+    return {
+      id: status,
+      name: status,
+      variant: statusInfo.variant,
+      className: statusInfo.className
+    };
+  });
 
   return (
     <div className="space-y-4">
       {/* Date Range Controls */}
-      <div className="space-y-3">
-        <div className="space-y-2">
-          <div className="flex items-end gap-2">
-            <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium">From:</label>
-              <Popover open={startDatePickerOpen} onOpenChange={setStartDatePickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !filters.start_date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">
-                      {filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : "Start date"}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.start_date ? new Date(filters.start_date) : undefined}
-                    onSelect={(date) => {
-                      handleDateChange('start_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange);
-                      setStartDatePickerOpen(false);
-                    }}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <span className="text-muted-foreground px-1 pb-2">—</span>
-            
-            <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium">To:</label>
-              <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !filters.end_date && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">
-                      {filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : "End date"}
-                    </span>
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={filters.end_date ? new Date(filters.end_date) : undefined}
-                    onSelect={(date) => {
-                      handleDateChange('end_date', date ? format(date, 'yyyy-MM-dd') : undefined, filters, onFiltersChange);
-                      setEndDatePickerOpen(false);
-                    }}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Relative Time:</label>
-            <Select
-                value={filters.relative_time || 'all_time'}
-              onValueChange={(relativeTime) => handleRelativeTimeChange(relativeTime, filters, onFiltersChange)}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select time range" />
-              </SelectTrigger>
-              <SelectContent>
-                {RELATIVE_TIME_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+      <DateRangeFilter filters={filters} onFiltersChange={onFiltersChange} />
 
       {/* Filter Controls */}
       <div className="space-y-3">
@@ -200,154 +76,65 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({
           </div>
 
           {/* Service Type Multi-Select */}
-          <div className="border-t border-gray-200 pt-3 border-b border-gray-200 pb-3">
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1" disabled={isLoading}>
-                <span>{isLoading ? 'Loading...' : 'Service Types'}</span>
-                <ChevronDown className="h-4 w-4 flex-shrink-0" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-3 pl-1">
-                {serviceTypes.map((type) => (
-                  <div
-                    key={type.id}
-                    className="flex items-center space-x-3 cursor-pointer py-1"
-                    onClick={() => toggleServiceType(type.id)}
-                  >
-                    <Checkbox
-                      checked={(filters.service_type || []).includes(type.id)}
-                    />
-                    <span className="text-sm">{type.name}</span>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <FilterSection borderTop borderBottom>
+            <MultiSelectFilter
+              title="Service Types"
+              options={serviceTypeOptions}
+              selectedValues={filters.service_type || []}
+              onToggle={toggleServiceType}
+              isLoading={isLoading}
+            />
+          </FilterSection>
 
           {/* Material Multi-Select */}
-          <div className="border-b border-gray-200 pb-3">
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1" disabled={isLoading}>
-                <span>
-                  {isLoading ? 'Loading...' : 'Materials'}
-                  {filters.service_type && filters.service_type.length > 0 && (
-                    <span className="ml-2 text-xs text-blue-600 font-normal">
-                      (filtered by {filters.service_type.length} service type{filters.service_type.length > 1 ? 's' : ''})
-                    </span>
-                  )}
-                </span>
-                <ChevronDown className="h-4 w-4 flex-shrink-0" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
-                {filteredMaterials.length === 0 ? (
-                  <div className="text-sm text-gray-500 py-2 px-1">
-                    {filters.service_type && filters.service_type.length > 0 
-                      ? 'No materials found for selected service types'
-                      : 'No materials available'
-                    }
-                  </div>
-                ) : (
-                  <>
-                    {filteredMaterials.map((material) => (
-                      <div
-                        key={material.id}
-                        className="flex items-center space-x-3 cursor-pointer py-1"
-                        onClick={() => toggleMaterial(material.id)}
-                      >
-                        <Checkbox
-                          checked={(filters.material || []).includes(material.id)}
-                        />
-                        <span className="text-sm truncate">{material.name}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <FilterSection borderBottom>
+            <MultiSelectFilter
+              title="Materials"
+              options={materialOptions}
+              selectedValues={filters.material || []}
+              onToggle={toggleMaterial}
+              isLoading={isLoading}
+              subtitle={filters.service_type && filters.service_type.length > 0 
+                ? `(filtered by ${filters.service_type.length} service type${filters.service_type.length > 1 ? 's' : ''})`
+                : undefined}
+              emptyMessage={filters.service_type && filters.service_type.length > 0 
+                ? 'No materials found for selected service types'
+                : 'No materials available'}
+            />
+          </FilterSection>
 
           {/* Supplier Multi-Select */}
-          <div className="border-b border-gray-200 pb-3">
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1" disabled={isLoading}>
-                <span>{isLoading ? 'Loading...' : 'Suppliers'}</span>
-                <ChevronDown className="h-4 w-4 flex-shrink-0" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
-                {suppliers.map((supplier) => (
-                  <div
-                    key={supplier.id}
-                    className="flex items-center space-x-3 cursor-pointer py-1"
-                    onClick={() => toggleSupplier(supplier.id)}
-                  >
-                    <Checkbox
-                      checked={(filters.supplier || []).includes(supplier.id)}
-                    />
-                    <span className="text-sm truncate">{supplier.name}</span>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <FilterSection borderBottom>
+            <MultiSelectFilter
+              title="Suppliers"
+              options={supplierOptions}
+              selectedValues={filters.supplier || []}
+              onToggle={toggleSupplier}
+              isLoading={isLoading}
+            />
+          </FilterSection>
 
           {/* Pending Authority Multi-Select */}
-          <div className="border-b border-gray-200 pb-3">
-            <Collapsible>
-              <CollapsibleTrigger
-                  className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
-                  disabled={isLoading}>
-                <span>{isLoading ? 'Loading...' : 'Pending Authorities'}</span>
-                <ChevronDown className="h-4 w-4 flex-shrink-0"/>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
-                {responsibleAuthorities.map((authority) => (
-                    <div
-                        key={authority.id}
-                        className="flex items-center space-x-3 cursor-pointer py-1"
-                        onClick={() => togglePendingAuthority(authority.id)}
-                    >
-                      <Checkbox
-                          checked={(filters.pending_authority || []).includes(authority.id)}
-                      />
-                      <span className="text-sm truncate">{authority.name}</span>
-                    </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <FilterSection borderBottom>
+            <MultiSelectFilter
+              title="Pending Authorities"
+              options={pendingAuthorityOptions}
+              selectedValues={filters.pending_authority || []}
+              onToggle={togglePendingAuthority}
+              isLoading={isLoading}
+            />
+          </FilterSection>
 
           {/* Status Multi-Select */}
-          <div className="pb-3">
-            <Collapsible>
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1">
-                <span>Statuses</span>
-                <ChevronDown className="h-4 w-4 flex-shrink-0" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 mt-3 pl-1">
-                {PURPOSE_STATUSES_DISPLAY.map((status) => (
-                  <div
-                    key={status}
-                    className="flex items-center space-x-3 cursor-pointer py-1"
-                    onClick={() => toggleStatus(status)}
-                  >
-                    <Checkbox
-                      checked={(filters.status || []).includes(status)}
-                    />
-                    {(() => {
-                      const statusInfo = getStatusDisplayFromLabel(status);
-                      return (
-                        <Badge 
-                          variant={statusInfo.variant} 
-                          className={`text-xs ${statusInfo.className}`}
-                        >
-                          {status}
-                        </Badge>
-                      );
-                    })()}
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
+          <FilterSection showBorder={false}>
+            <MultiSelectFilter
+              title="Statuses"
+              options={statusOptions}
+              selectedValues={filters.status || []}
+              onToggle={toggleStatus}
+              maxHeight=""
+            />
+          </FilterSection>
         </div>
       </div>
     </div>
