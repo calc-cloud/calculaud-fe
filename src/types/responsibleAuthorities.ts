@@ -18,14 +18,3 @@ export interface ResponsibleAuthoritiesResponse {
     has_next: boolean;
     has_prev: boolean;
 }
-
-// Request types for CRUD operations
-export interface ResponsibleAuthorityCreateRequest {
-    name: string;
-    description: string;
-}
-
-export interface ResponsibleAuthorityUpdateRequest {
-    name?: string;
-    description?: string;
-}
