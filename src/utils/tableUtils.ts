@@ -14,6 +14,7 @@ export const COLUMN_SIZES = {
   emfIds: { size: 120, minSize: 96 },
   totalCost: { size: 140, minSize: 112 },
   expectedDelivery: { size: 120, minSize: 96 },
+  createdAt: { size: 120, minSize: 96 },
   lastModified: { size: 120, minSize: 96 },
 };
 

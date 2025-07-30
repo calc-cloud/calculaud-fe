@@ -18,6 +18,7 @@ export interface ColumnVisibility {
   emfIds: boolean;
   totalCost: boolean;
   expectedDelivery: boolean;
+  createdAt: boolean;
   lastModified: boolean;
   statusMessage: boolean;
 }
@@ -33,6 +34,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   emfIds: true,
   totalCost: true,
   expectedDelivery: true,
+  createdAt: false,
   lastModified: true,
   statusMessage: false,
 };
@@ -48,6 +50,7 @@ const COLUMN_LABELS = {
   emfIds: 'EMF IDs',
   totalCost: 'Total Cost',
   expectedDelivery: 'Expected Delivery',
+  createdAt: 'Created At',
   lastModified: 'Last Modified',
   statusMessage: 'Status Message',
 };

@@ -32,6 +32,8 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   purposes,
   isLoading = false,
   columnVisibility,
+  sortConfig,
+  onSortChange,
   columnSizing,
   onColumnSizingChange
 }) => {
@@ -54,6 +56,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
       emfIds: columnVisibility.emfIds,
       totalCost: columnVisibility.totalCost,
       expectedDelivery: columnVisibility.expectedDelivery,
+      createdAt: columnVisibility.createdAt,
       lastModified: columnVisibility.lastModified,
     };
   }, [columnVisibility]);
@@ -63,10 +66,10 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     return columnSizing || loadColumnSizing();
   }, [columnSizing]);
 
-  // Create columns with hierarchies
+  // Create columns with hierarchies and sort props
   const columns = useMemo<ColumnDef<Purpose>[]>(
-    () => createColumns(hierarchies),
-    [hierarchies]
+    () => createColumns(hierarchies, sortConfig, onSortChange),
+    [hierarchies, sortConfig, onSortChange]
   );
 
   const handleColumnSizingChange = useCallback((updater: any) => {

@@ -19,6 +19,7 @@ export const DEFAULT_COLUMN_SIZING: ColumnSizing = {
   emfIds: 120,
   totalCost: 140,
   expectedDelivery: 120,
+  createdAt: 120,
   lastModified: 120,
 };
 
