@@ -1,18 +1,19 @@
-import {API_CONFIG} from '@/config/api';
-import {ResponsibleAuthoritiesResponse,} from '@/types/responsibleAuthorities';
+import { API_CONFIG } from '@/config/api';
+import { ResponsibleAuthority, ResponsibleAuthoritiesResponse } from '@/types/responsibleAuthorities';
 
-import {apiService} from './apiService';
+import { BaseReadOnlyService, BaseQueryParams } from './BaseService';
 
-export class ResponsibleAuthorityService {
-    private endpoint = API_CONFIG.ENDPOINTS.RESPONSIBLE_AUTHORITIES;
+export class ResponsibleAuthorityService extends BaseReadOnlyService<
+  ResponsibleAuthority,
+  ResponsibleAuthoritiesResponse,
+  BaseQueryParams
+> {
+  protected endpoint = API_CONFIG.ENDPOINTS.RESPONSIBLE_AUTHORITIES;
 
-    async getResponsibleAuthorities(params?: {
-        page?: number;
-        limit?: number;
-        search?: string;
-    }): Promise<ResponsibleAuthoritiesResponse> {
-        return apiService.get<ResponsibleAuthoritiesResponse>(this.endpoint, params);
-    }
+  // Maintain backward compatibility with existing method names
+  async getResponsibleAuthorities(params?: BaseQueryParams): Promise<ResponsibleAuthoritiesResponse> {
+    return this.getEntities(params);
+  }
 }
 
 export const responsibleAuthorityService = new ResponsibleAuthorityService();

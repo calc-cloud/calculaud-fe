@@ -1,15 +1,13 @@
 
-import { useQuery } from '@tanstack/react-query';
-
+import { BaseQueryParams } from '@/services/BaseService';
 import { supplierService } from '@/services/supplierService';
 
-export const useSuppliers = () => {
-  return useQuery({
-    queryKey: ['suppliers'],
-    queryFn: async () => {
-      const data = await supplierService.getSuppliers();
-      return data;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
+import { useEntityData } from './useEntityData';
+
+export const useSuppliers = (params?: BaseQueryParams) => {
+  return useEntityData(
+    'suppliers',
+    supplierService.getSuppliers.bind(supplierService),
+    params
+  );
 };

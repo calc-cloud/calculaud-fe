@@ -1,12 +1,16 @@
 
-import { useQuery } from '@tanstack/react-query';
-
 import { hierarchyService } from '@/services/hierarchyService';
 import { HierarchyFilters } from '@/types/hierarchies';
 
+import { useEntityData } from './useEntityData';
+
 export const useHierarchies = (filters?: HierarchyFilters) => {
-  return useQuery({
-    queryKey: ['hierarchies', filters],
-    queryFn: () => hierarchyService.getHierarchies(filters),
-  });
+  return useEntityData(
+    'hierarchies',
+    hierarchyService.getHierarchies.bind(hierarchyService),
+    filters,
+    {
+      staleTime: 0 // Use default React Query staleTime (0)
+    }
+  );
 };

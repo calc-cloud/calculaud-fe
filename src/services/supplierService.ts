@@ -7,29 +7,32 @@ import {
   SupplierUpdateRequest 
 } from '@/types/suppliers';
 
-import { apiService } from './apiService';
+import { BaseService, BaseQueryParams } from './BaseService';
 
-export class SupplierService {
-  private endpoint = API_CONFIG.ENDPOINTS.SUPPLIERS;
+export class SupplierService extends BaseService<
+  Supplier,
+  SuppliersResponse,
+  SupplierCreateRequest,
+  SupplierUpdateRequest,
+  BaseQueryParams
+> {
+  protected endpoint = API_CONFIG.ENDPOINTS.SUPPLIERS;
 
-  async getSuppliers(params?: {
-    page?: number;
-    limit?: number;
-    search?: string;
-  }): Promise<SuppliersResponse> {
-    return apiService.get<SuppliersResponse>(this.endpoint, params);
+  // Maintain backward compatibility with existing method names
+  async getSuppliers(params?: BaseQueryParams): Promise<SuppliersResponse> {
+    return this.getEntities(params);
   }
 
   async createSupplier(data: SupplierCreateRequest): Promise<Supplier> {
-    return apiService.post<Supplier>(this.endpoint, data);
+    return this.createEntity(data);
   }
 
   async updateSupplier(id: number, data: SupplierUpdateRequest): Promise<Supplier> {
-    return apiService.patch<Supplier>(`${this.endpoint}${id}`, data);
+    return this.updateEntity(id, data);
   }
 
   async deleteSupplier(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}`);
+    return this.deleteEntity(id);
   }
 }
 

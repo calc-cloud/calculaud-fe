@@ -1,20 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
-
 import { materialService } from '@/services/materialService';
 
-export const useMaterials = (params?: {
+import { useEntityData } from './useEntityData';
+
+interface MaterialQueryParams {
   page?: number;
   limit?: number;
   search?: string;
   service_type_id?: number;
-}) => {
-  return useQuery({
-    queryKey: ['materials', params],
-    queryFn: async () => {
-      const data = await materialService.getMaterials(params);
-      return data;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    enabled: params?.service_type_id ? params.service_type_id > 0 : true,
-  });
+}
+
+export const useMaterials = (params?: MaterialQueryParams) => {
+  return useEntityData(
+    'materials',
+    materialService.getMaterials.bind(materialService),
+    params,
+    {
+      enabled: (p) => p?.service_type_id ? p.service_type_id > 0 : true
+    }
+  );
 };
