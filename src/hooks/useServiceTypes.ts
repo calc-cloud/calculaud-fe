@@ -1,15 +1,13 @@
 
-import { useQuery } from '@tanstack/react-query';
-
+import { BaseQueryParams } from '@/services/BaseService';
 import { serviceTypeService } from '@/services/serviceTypeService';
 
-export const useServiceTypes = () => {
-  return useQuery({
-    queryKey: ['service-types'],
-    queryFn: async () => {
-      const data = await serviceTypeService.getServiceTypes();
-      return data;
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes
-  });
+import { useEntityData } from './useEntityData';
+
+export const useServiceTypes = (params?: BaseQueryParams) => {
+  return useEntityData(
+    'service-types',
+    serviceTypeService.getServiceTypes.bind(serviceTypeService),
+    params
+  );
 };

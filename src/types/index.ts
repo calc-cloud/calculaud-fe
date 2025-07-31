@@ -1,5 +1,8 @@
 // Core entity types for the Procurement Management System
 
+// Export base types for reuse
+export * from './base';
+
 // Currency enum with API values
 export enum Currency {
   ILS = 'ILS',

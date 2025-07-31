@@ -81,25 +81,41 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   // Initialize form with edit data when editing
   useEffect(() => {
-    if (editItem && open) {
+    if (!open) return; // Don't run when modal is closed
+    
+    if (editItem) {
       setSelectedType(editItem.type);
       setHierarchyName(editItem.name);
       // Find parent info if exists
-      if (editItem.parent_id) {
-        const parent = availableHierarchies.find(h => h.id === editItem.parent_id);
+      if (editItem.parent_id && hierarchies.length > 0) {
+        const parent = hierarchies.find(h => h.id === editItem.parent_id);
         if (parent) {
           setParentType(parent.type);
           setParentId(parent.id);
         }
+      } else {
+        setParentType('');
+        setParentId(null);
       }
-    } else if (!editItem) {
+    } else {
       // Reset form when creating new
       setSelectedType('UNIT');
       setHierarchyName('');
       setParentType('');
       setParentId(null);
     }
-  }, [editItem, open, availableHierarchies]);
+  }, [editItem, open]); // Removed hierarchies dependency to prevent constant resets
+
+  // Separate effect to set parent data when hierarchies load (for edit mode only)
+  useEffect(() => {
+    if (editItem && open && editItem.parent_id && hierarchies.length > 0 && !parentId) {
+      const parent = hierarchies.find(h => h.id === editItem.parent_id);
+      if (parent) {
+        setParentType(parent.type);
+        setParentId(parent.id);
+      }
+    }
+  }, [hierarchies, editItem, open, parentId]);
 
   const handleTypeChange = (type: string) => {
     if (type) {

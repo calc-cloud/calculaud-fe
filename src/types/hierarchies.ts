@@ -1,22 +1,14 @@
+import { BaseEntity, PaginatedResponse } from './base';
+
 export type HierarchyType = 'UNIT' | 'CENTER' | 'ANAF' | 'TEAM' | 'MADOR';
 
-export interface Hierarchy {
-  id: number;
+export interface Hierarchy extends BaseEntity {
   type: HierarchyType;
-  name: string;
   parent_id: number | null;
   path: string;
 }
 
-export interface HierarchiesResponse {
-  items: Hierarchy[];
-  total: number;
-  page: number;
-  limit: number;
-  has_next: boolean;
-  has_prev: boolean;
-  pages: number;
-}
+export type HierarchiesResponse = PaginatedResponse<Hierarchy>;
 
 export interface HierarchyFilters {
   page?: number;

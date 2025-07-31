@@ -8,25 +8,32 @@ import {
   HierarchyUpdateRequest 
 } from '@/types/hierarchies';
 
-import { apiService } from './apiService';
+import { BaseService } from './BaseService';
 
-export class HierarchyService {
-  private endpoint = API_CONFIG.ENDPOINTS.HIERARCHIES;
+export class HierarchyService extends BaseService<
+  Hierarchy,
+  HierarchiesResponse,
+  HierarchyCreateRequest,
+  HierarchyUpdateRequest,
+  HierarchyFilters
+> {
+  protected endpoint = API_CONFIG.ENDPOINTS.HIERARCHIES;
 
+  // Maintain backward compatibility with existing method names
   async getHierarchies(params?: HierarchyFilters): Promise<HierarchiesResponse> {
-    return apiService.get<HierarchiesResponse>(this.endpoint, params);
+    return this.getEntities(params);
   }
 
   async createHierarchy(data: HierarchyCreateRequest): Promise<Hierarchy> {
-    return apiService.post<Hierarchy>(this.endpoint, data);
+    return this.createEntity(data);
   }
 
   async updateHierarchy(id: number, data: HierarchyUpdateRequest): Promise<Hierarchy> {
-    return apiService.patch<Hierarchy>(`${this.endpoint}${id}`, data);
+    return this.updateEntity(id, data);
   }
 
   async deleteHierarchy(id: number): Promise<void> {
-    return apiService.delete<void>(`${this.endpoint}${id}`);
+    return this.deleteEntity(id);
   }
 }
 

@@ -1,32 +1,20 @@
+import { TimestampedEntity, PaginatedResponse, EntityCreateRequest, EntityUpdateRequest } from './base';
+
 // Frontend interface for Material (maps to backend Service)
-export interface Material {
-  id: number;
-  name: string;
+export interface Material extends TimestampedEntity {
   service_type_id: number; // Keep backend field name
-  created_at: string;
-  updated_at: string;
 }
 
 // Frontend request interfaces (maps to backend Service requests)
-export interface MaterialCreateRequest {
-  name: string;
+export type MaterialCreateRequest = EntityCreateRequest<{
   service_type_id: number; // Keep backend field name
-}
+}>;
 
-export interface MaterialUpdateRequest {
-  name?: string;
+export type MaterialUpdateRequest = EntityUpdateRequest<{
   service_type_id?: number; // Keep backend field name
-}
+}>;
 
 // Frontend response interface (maps to backend ServicesResponse)
-export interface MaterialsResponse {
-  items: Material[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
+export type MaterialsResponse = PaginatedResponse<Material>;
 
  
