@@ -298,14 +298,31 @@ class PurposeService {
     });
   }
 
+  // Helper method to map purchases (eliminates duplication)
+  private mapPurchases(purchases: any[]): CreatePurchaseRequest[] {
+    return purchases.map((purchase: any) => ({
+      creation_date: purchase.creation_date || undefined,
+      costs: purchase.costs.map((cost: any) => ({
+        currency: cost.currency,
+        amount: cost.amount
+      })),
+      flow_stages: purchase.flow_stages.map((stage: any) => ({
+        stage_type_id: stage.stage_type_id,
+        priority: stage.priority,
+        value: stage.value,
+        completion_date: stage.completion_date
+      }))
+    }));
+  }
+
   // Simplified mapping - IDs are already provided from the modal
   mapPurposeToCreateRequest(purposeData: any): CreatePurposeRequest {
     const mapped: CreatePurposeRequest = {
       description: purposeData.description,
-      contents: this.filterValidContents(purposeData.contents || []), // Filter out invalid contents
+      contents: this.filterValidContents(purposeData.contents || []),
       supplier_id: purposeData.supplier_id,
       service_type_id: purposeData.service_type_id,
-      status: purposeData.status || 'IN_PROGRESS' // Fixed: changed from 'PENDING' to 'IN_PROGRESS'
+      status: purposeData.status || 'IN_PROGRESS'
     };
 
     // Optional fields
@@ -321,21 +338,9 @@ class PurposeService {
       mapped.comments = purposeData.comments.trim();
     }
 
-    // Map purchases if provided - Fixed field mapping to use creation_date
+    // Map purchases if provided
     if (purposeData.purchases && purposeData.purchases.length > 0) {
-      mapped.purchases = purposeData.purchases.map((purchase: any) => ({
-        creation_date: purchase.creation_date || undefined, // Use creation_date field
-        costs: purchase.costs.map((cost: any) => ({
-          currency: cost.currency,
-          amount: cost.amount
-        })),
-        flow_stages: purchase.flow_stages.map((stage: any) => ({
-          stage_type_id: stage.stage_type_id,
-          priority: stage.priority,
-          value: stage.value,
-          completion_date: stage.completion_date
-        }))
-      }));
+      mapped.purchases = this.mapPurchases(purposeData.purchases);
     }
 
     return mapped;
@@ -348,8 +353,8 @@ class PurposeService {
     if (purposeData.description !== undefined) {
       mapped.description = purposeData.description;
     }
-    if (purposeData.contents !== undefined) { // Changed from content to contents
-      mapped.contents = this.filterValidContents(purposeData.contents); // Filter out invalid contents
+    if (purposeData.contents !== undefined) {
+      mapped.contents = this.filterValidContents(purposeData.contents);
     }
     if (purposeData.supplier_id !== undefined) {
       mapped.supplier_id = purposeData.supplier_id;
@@ -370,21 +375,9 @@ class PurposeService {
       mapped.hierarchy_id = parseInt(purposeData.hierarchy_id);
     }
 
-    // Map purchases - Fixed field mapping to use creation_date
+    // Map purchases using consolidated helper
     if (purposeData.purchases !== undefined) {
-      mapped.purchases = purposeData.purchases.map((purchase: any) => ({
-        creation_date: purchase.creation_date || undefined, // Use creation_date field
-        costs: purchase.costs.map((cost: any) => ({
-          currency: cost.currency,
-          amount: cost.amount
-        })),
-        flow_stages: purchase.flow_stages.map((stage: any) => ({
-          stage_type_id: stage.stage_type_id,
-          priority: stage.priority,
-          value: stage.value,
-          completion_date: stage.completion_date
-        }))
-      }));
+      mapped.purchases = this.mapPurchases(purposeData.purchases);
     }
 
     return mapped;
@@ -418,75 +411,108 @@ class PurposeService {
     }
   }
 
-  // Transform API response to match frontend data structure
-  transformApiPurpose(apiPurpose: Purpose, hierarchies: any[] = []): any {
+  // Transform single purpose from API format to frontend format
+  private transformSinglePurpose(purpose: Purpose, hierarchies: any[] = []): any {
+    try {
+      return {
+        id: purpose.id?.toString() || '',
+        description: purpose.description || '',
+        contents: (purpose.contents || []).map(content => ({
+          material_id: content.service_id,
+          material_name: content.service_name,
+          material_type: content.service_type,
+          quantity: content.quantity,
+          // Keep API fields for compatibility
+          service_id: content.service_id,
+          service_name: content.service_name,
+          service_type: content.service_type
+        })),
+        supplier: purpose.supplier || '',
+        hierarchy_id: purpose.hierarchy?.id?.toString() || '',
+        hierarchy_name: purpose.hierarchy?.path || this.getHierarchyName(purpose.hierarchy?.id || null, hierarchies),
+        status: this.mapApiStatusToFrontend(purpose.status || ''),
+        expected_delivery: purpose.expected_delivery || '',
+        comments: purpose.comments || '',
+        service_type: purpose.service_type || '',
+        creation_time: purpose.creation_time || '',
+        last_modified: purpose.last_modified || '',
+        pending_authority: purpose.pending_authority || null,
+        purchases: (purpose.purchases || []).map(purchase => this.transformPurchase(purchase, purpose.id)),
+        files: (purpose.file_attachments || []).map(file => this.transformFileAttachment(file, purpose.id))
+      };
+    } catch (_error) {
+      // Return fallback object for malformed purpose data
+      return {
+        id: purpose.id?.toString() || '',
+        description: 'Error loading purpose',
+        contents: [],
+        supplier: '',
+        hierarchy_id: '',
+        hierarchy_name: '',
+        status: '',
+        expected_delivery: '',
+        comments: '',
+        service_type: '',
+        creation_time: '',
+        last_modified: '',
+        pending_authority: null,
+        purchases: [],
+        files: []
+      };
+    }
+  }
+
+  // Transform purchase object
+  private transformPurchase(purchase: any, purposeId: number): any {
     return {
-      id: apiPurpose.id.toString(),
-      description: apiPurpose.description,
-      contents: (apiPurpose.contents || []).map(content => ({
-        material_id: content.service_id,
-        material_name: content.service_name,
-        material_type: content.service_type,
-        quantity: content.quantity,
-        // Keep API fields for compatibility
-        service_id: content.service_id,
-        service_name: content.service_name,
-        service_type: content.service_type
+      id: purchase.id?.toString() || '',
+      purpose_id: purposeId?.toString() || '',
+      creation_date: purchase.creation_date || '',
+      costs: (purchase.costs || []).map(cost => ({
+        id: cost.id?.toString() || '',
+        purchase_id: cost.purchase_id?.toString() || '',
+        amount: cost.amount || 0,
+        currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
       })),
-      supplier: apiPurpose.supplier,
-      hierarchy_id: apiPurpose.hierarchy?.id?.toString() || '',
-      hierarchy_name: apiPurpose.hierarchy?.path || this.getHierarchyName(apiPurpose.hierarchy?.id || null, hierarchies),
-      status: this.mapApiStatusToFrontend(apiPurpose.status),
-      expected_delivery: apiPurpose.expected_delivery,
-      comments: apiPurpose.comments,
-      service_type: apiPurpose.service_type,
-      creation_time: apiPurpose.creation_time,
-      last_modified: apiPurpose.last_modified,
-      pending_authority: apiPurpose.pending_authority || null,
-      purchases: (apiPurpose.purchases || []).map(purchase => ({
-        id: purchase.id?.toString() || '',
-        purpose_id: apiPurpose.id?.toString() || '',
-        creation_date: purchase.creation_date || '',
-        costs: (purchase.costs || []).map(cost => ({
-          id: cost.id?.toString() || '',
-          purchase_id: cost.purchase_id?.toString() || '',
-          amount: cost.amount || 0,
-          currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
-        })),
-        flow_stages: (purchase.flow_stages || [])
-          .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
-          .map((stage: any) => ({
-            id: stage.id?.toString() || '',
-            purchase_id: purchase.id?.toString() || '',
-            stage_type_id: stage.stage_type_id || 0,
-            priority: stage.priority || 0,
-            value: stage.value || null,
-            completion_date: stage.completion_date || null,
-            days_since_previous_stage: stage.days_since_previous_stage ?? null,
-            stage_type: stage.stage_type || { id: '', name: '', value_required: false }
-          })),
-        current_pending_stages: (purchase.current_pending_stages || []).map((stage: any) => ({
-          id: stage.id?.toString() || '',
-          purchase_id: purchase.id?.toString() || '',
-          stage_type_id: stage.stage_type_id || 0,
-          priority: stage.priority || 0,
-          value: stage.value || null,
-          completion_date: stage.completion_date || null,
-          days_since_previous_stage: stage.days_since_previous_stage ?? null,
-          stage_type: stage.stage_type || { id: '', name: '', value_required: false }
-        })),
-        days_since_last_completion: purchase.days_since_last_completion ?? null,
-        files: [] // Files would come from a separate endpoint
-      })),
-      files: (apiPurpose.file_attachments || []).map(file => ({
-        id: file.id.toString(),
-        purpose_id: apiPurpose.id.toString(),
-        filename: file.original_filename,
-        file_url: file.file_url,
-        upload_date: file.uploaded_at,
-        file_size: file.file_size
-      }))
+      flow_stages: (purchase.flow_stages || [])
+        .flatMap((item: any) => Array.isArray(item) ? item : [item])
+        .map((stage: any) => this.transformStage(stage, purchase.id)),
+      current_pending_stages: (purchase.current_pending_stages || [])
+        .map((stage: any) => this.transformStage(stage, purchase.id)),
+      days_since_last_completion: purchase.days_since_last_completion ?? null,
+      files: []
     };
+  }
+
+  // Transform stage object
+  private transformStage(stage: any, purchaseId: number): any {
+    return {
+      id: stage.id?.toString() || '',
+      purchase_id: purchaseId?.toString() || '',
+      stage_type_id: stage.stage_type_id || 0,
+      priority: stage.priority || 0,
+      value: stage.value || null,
+      completion_date: stage.completion_date || null,
+      days_since_previous_stage: stage.days_since_previous_stage ?? null,
+      stage_type: stage.stage_type || { id: '', name: '', value_required: false }
+    };
+  }
+
+  // Transform file attachment object
+  private transformFileAttachment(file: any, purposeId: number): any {
+    return {
+      id: file.id?.toString() || '',
+      purpose_id: purposeId?.toString() || '',
+      filename: file.original_filename || '',
+      file_url: file.file_url || '',
+      upload_date: file.uploaded_at || '',
+      file_size: file.file_size || 0
+    };
+  }
+
+  // Public method for transforming single purpose (for backward compatibility)
+  transformApiPurpose(apiPurpose: Purpose, hierarchies: any[] = []): any {
+    return this.transformSinglePurpose(apiPurpose, hierarchies);
   }
 
   transformApiResponse(apiData: any): {
@@ -497,12 +523,7 @@ class PurposeService {
   } {
     // Handle case where apiData is null/undefined
     if (!apiData) {
-      return {
-        purposes: [],
-        total: 0,
-        page: 1,
-        pages: 1
-      };
+      return { purposes: [], total: 0, page: 1, pages: 1 };
     }
 
     // Handle different possible response formats
@@ -513,92 +534,13 @@ class PurposeService {
 
     // Check if items is an array
     if (!Array.isArray(items)) {
-      return {
-        purposes: [],
-        total: 0,
-        page: 1,
-        pages: 1
-      };
+      return { purposes: [], total: 0, page: 1, pages: 1 };
     }
 
-    const transformedPurposes = items.map(purpose => {
-      try {
-        return {
-          id: purpose.id?.toString() || '',
-          description: purpose.description || '',
-          contents: purpose.contents || purpose.content || [], // Support both field names
-          supplier: purpose.supplier || '',
-          hierarchy_id: purpose.hierarchy ? purpose.hierarchy.id.toString() : '',
-          hierarchy_name: purpose.hierarchy ? purpose.hierarchy.path : '',
-          status: this.mapApiStatusToFrontend(purpose.status || ''),
-          expected_delivery: purpose.expected_delivery || '',
-          comments: purpose.comments || '',
-          service_type: purpose.service_type || '',
-          creation_time: purpose.creation_time || '',
-          last_modified: purpose.last_modified || '',
-          pending_authority: purpose.pending_authority || null,
-          purchases: (purpose.purchases || []).map(purchase => ({
-            id: purchase.id?.toString() || '',
-            purpose_id: purpose.id?.toString() || '',
-            creation_date: purchase.creation_date || '',
-            costs: (purchase.costs || []).map(cost => ({
-              id: cost.id?.toString() || '',
-              purchase_id: cost.purchase_id?.toString() || '',
-              amount: cost.amount || 0,
-              currency: this.mapApiCurrencyToFrontend(cost.currency || ''),
-            })),
-            flow_stages: (purchase.flow_stages || [])
-              .flatMap((item: any) => Array.isArray(item) ? item : [item]) // Flatten nested stage arrays
-              .map((stage: any) => ({
-                id: stage.id?.toString() || '',
-                purchase_id: purchase.id?.toString() || '',
-                stage_type_id: stage.stage_type_id || 0,
-                priority: stage.priority || 0,
-                value: stage.value || null,
-                completion_date: stage.completion_date || null,
-                days_since_previous_stage: stage.days_since_previous_stage ?? null,
-                stage_type: stage.stage_type || { id: '', name: '', value_required: false }
-              })),
-            days_since_last_completion: purchase.days_since_last_completion ?? null,
-            files: [] // API doesn't return files yet
-          })),
-          files: (purpose.file_attachments || []).map((file: any) => ({
-            id: file.id?.toString() || '',
-            purpose_id: purpose.id?.toString() || '',
-            filename: file.original_filename || '',
-            file_url: file.file_url || '',
-            upload_date: file.uploaded_at || '',
-            file_size: file.file_size || 0
-          }))
-        };
-      } catch (_error) {
-        // Return fallback object for malformed purpose data
-        return {
-          id: purpose.id?.toString() || '',
-          description: 'Error loading purpose',
-          contents: [],
-          supplier: '',
-          hierarchy_id: '',
-          hierarchy_name: '',
-          status: '',
-          expected_delivery: '',
-          comments: '',
-          service_type: '',
-          creation_time: '',
-          last_modified: '',
-          pending_authority: null,
-          purchases: [],
-          files: []
-        };
-      }
-    });
+    // Use the consolidated transformation logic
+    const transformedPurposes = items.map(purpose => this.transformSinglePurpose(purpose));
 
-    return {
-      purposes: transformedPurposes,
-      total,
-      page,
-      pages
-    };
+    return { purposes: transformedPurposes, total, page, pages };
   }
 
   private getHierarchyName(hierarchyId: number | null, hierarchies: any[]): string {
