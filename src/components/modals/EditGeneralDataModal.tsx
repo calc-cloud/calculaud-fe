@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { Purpose, PurposeContent } from '@/types';
 import { ServiceType } from '@/types/serviceTypes';
 import { Supplier } from '@/types/suppliers';
-import { getStatusLabel } from '@/utils/statusUtils';
+import { getStatusDisplay } from '@/utils/statusUtils';
 
 interface EditGeneralDataModalProps {
   isOpen: boolean;
@@ -306,7 +306,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                 <SelectContent>
                   {['IN_PROGRESS', 'COMPLETED', 'SIGNED', 'PARTIALLY_SUPPLIED'].map((status) => (
                     <SelectItem key={status} value={status}>
-                      {getStatusLabel(status)}
+                      {getStatusDisplay(status).label}
                     </SelectItem>
                   ))}
                 </SelectContent>

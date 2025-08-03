@@ -57,13 +57,7 @@ const ServiceTypeManagement: React.FC = () => {
     searchPlaceholder: 'Search service types...',
     gridColumns: 3,
     
-    ModalComponent: ServiceTypeModalAdapter,
-    
-    buildQueryParams: (page, limit, search) => ({
-      page,
-      limit,
-      search
-    })
+    ModalComponent: ServiceTypeModalAdapter
   };
 
   return <EntityManagement config={config} />;

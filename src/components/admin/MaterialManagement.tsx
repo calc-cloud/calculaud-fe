@@ -77,13 +77,7 @@ const MaterialManagement: React.FC = () => {
     searchPlaceholder: 'Search materials...',
     gridColumns: 3,
     
-    ModalComponent: MaterialModalAdapter,
-    
-    buildQueryParams: (page, limit, search) => ({
-      page,
-      limit,
-      search
-    })
+    ModalComponent: MaterialModalAdapter
   };
 
   return <EntityManagement config={config} />;

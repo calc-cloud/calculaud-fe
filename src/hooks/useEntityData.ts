@@ -1,6 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
-import { BaseEntity, BaseListResponse, BaseQueryParams } from '@/services/BaseService';
+import { BaseEntity, BaseQueryParams } from '@/services/BaseService';
+import { PaginatedResponse } from '@/types/base';
 
 export interface UseEntityDataOptions<TParams extends BaseQueryParams, TResponse = any> {
   enabled?: boolean | ((params?: TParams) => boolean);
@@ -10,7 +11,7 @@ export interface UseEntityDataOptions<TParams extends BaseQueryParams, TResponse
 
 export function useEntityData<
   TEntity extends BaseEntity,
-  TResponse extends BaseListResponse<TEntity>,
+  TResponse extends PaginatedResponse<TEntity>,
   TParams extends BaseQueryParams = BaseQueryParams
 >(
   queryKey: string,
@@ -38,7 +39,7 @@ export function useEntityData<
 // Specialized hook for entity lists that returns items directly
 export function useEntityList<
   TEntity extends BaseEntity,
-  TResponse extends BaseListResponse<TEntity>,
+  TResponse extends PaginatedResponse<TEntity>,
   TParams extends BaseQueryParams = BaseQueryParams
 >(
   queryKey: string,
@@ -63,7 +64,7 @@ export function useEntityList<
 // Specialized hook for simple item arrays (like ResponsibleAuthorities)
 export function useEntityItems<
   TEntity extends BaseEntity,
-  TResponse extends BaseListResponse<TEntity>,
+  TResponse extends PaginatedResponse<TEntity>,
   TParams extends BaseQueryParams = BaseQueryParams
 >(
   queryKey: string,

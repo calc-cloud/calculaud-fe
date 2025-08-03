@@ -29,7 +29,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   description: true,
   content: true,
   supplier: true,
-  pendingAuthority: true,
+  pendingAuthority: false,
   hierarchy: true,
   serviceType: true,
   purchases: true,

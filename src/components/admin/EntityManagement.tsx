@@ -10,7 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Input } from '@/components/ui/input';
 import { API_CONFIG } from '@/config/api';
 import { useToast } from '@/hooks/use-toast';
-import { BaseEntity, BaseListResponse, BaseQueryParams } from '@/services/BaseService';
+import { BaseEntity, BaseQueryParams } from '@/services/BaseService';
+import { PaginatedResponse } from '@/types/base';
 
 export interface EntityField<T> {
   key: keyof T;
@@ -21,7 +22,7 @@ export interface EntityField<T> {
 
 export interface EntityManagementConfig<
   TEntity extends BaseEntity,
-  TResponse extends BaseListResponse<TEntity>,
+  TResponse extends PaginatedResponse<TEntity>,
   TCreateRequest,
   TUpdateRequest,
   TQueryParams extends BaseQueryParams = BaseQueryParams
@@ -59,7 +60,7 @@ export interface EntityManagementConfig<
 
 export function EntityManagement<
   TEntity extends BaseEntity,
-  TResponse extends BaseListResponse<TEntity>,
+  TResponse extends PaginatedResponse<TEntity>,
   TCreateRequest,
   TUpdateRequest,
   TQueryParams extends BaseQueryParams = BaseQueryParams

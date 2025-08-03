@@ -35,13 +35,7 @@ const SupplierManagement: React.FC = () => {
     searchPlaceholder: 'Search suppliers...',
     gridColumns: 3,
     
-    ModalComponent: SupplierModal,
-    
-    buildQueryParams: (page, limit, search) => ({
-      page,
-      limit,
-      search
-    })
+    ModalComponent: SupplierModal
   };
 
   return <EntityManagement config={config} />;

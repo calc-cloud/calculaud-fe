@@ -45,20 +45,6 @@ export const getStatusDisplay = (status: string | PurposeStatus): StatusDisplayI
 };
 
 /**
- * Get just the display label for a status (for backward compatibility)
- */
-export const getStatusLabel = (status: string | PurposeStatus): string => {
-  return getStatusDisplay(status).label;
-};
-
-/**
- * Get the CSS class names for status styling (for backward compatibility)
- */
-export const getStatusClassNames = (status: string | PurposeStatus): string => {
-  return getStatusDisplay(status).className;
-};
-
-/**
  * Get status display info from display format (used in filters)
  */
 export const getStatusDisplayFromLabel = (displayLabel: string): StatusDisplayInfo => {

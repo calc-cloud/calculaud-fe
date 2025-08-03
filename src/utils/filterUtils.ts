@@ -3,8 +3,6 @@ import {format, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subY
 
 import {UnifiedFilters} from '@/types/filters';
 
-// Cache the default date range to avoid recalculating
-const getDefaultDateRange = () => calculateDateRange('all_time');
 
 export const calculateDateRange = (relativeTime: string) => {
   const today = new Date();
@@ -99,7 +97,7 @@ export const handleDateChange = (
 export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void, currentFilters?: UnifiedFilters) => {
   // Reset to default state with "All Time" relative time and corresponding date range
   // but preserve the search_query if it exists
-  const defaultDateRange = getDefaultDateRange();
+  const defaultDateRange = calculateDateRange('all_time');
   const defaultFilters: UnifiedFilters = {
     relative_time: 'all_time',
     ...defaultDateRange,

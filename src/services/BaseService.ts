@@ -1,17 +1,9 @@
+import { PaginatedResponse } from '@/types/base';
+
 import { apiService } from './apiService';
 
 export interface BaseEntity {
   id: number;
-}
-
-export interface BaseListResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
 }
 
 export interface BaseQueryParams {
@@ -22,7 +14,7 @@ export interface BaseQueryParams {
 
 export abstract class BaseService<
   TEntity extends BaseEntity,
-  TListResponse extends BaseListResponse<TEntity>,
+  TListResponse extends PaginatedResponse<TEntity>,
   TCreateRequest = Partial<Omit<TEntity, 'id'>>,
   TUpdateRequest = Partial<Omit<TEntity, 'id'>>,
   TQueryParams extends BaseQueryParams = BaseQueryParams
@@ -48,7 +40,7 @@ export abstract class BaseService<
 
 export abstract class BaseReadOnlyService<
   TEntity extends BaseEntity,
-  TListResponse extends BaseListResponse<TEntity>,
+  TListResponse extends PaginatedResponse<TEntity>,
   TQueryParams extends BaseQueryParams = BaseQueryParams
 > {
   protected abstract endpoint: string;
