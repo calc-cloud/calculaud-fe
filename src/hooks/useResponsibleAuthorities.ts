@@ -1,22 +1,22 @@
-import {useQuery} from '@tanstack/react-query';
+import { BaseQueryParams } from '@/services/BaseService';
+import { responsibleAuthorityService } from '@/services/responsibleAuthorityService';
 
-import {responsibleAuthorityService} from '@/services/responsibleAuthorityService';
-import {ResponsibleAuthority} from '@/types/responsibleAuthorities';
+import { useEntityItems } from './useEntityData';
 
 // Hook for fetching pending authorities (called responsible_authority in API)
-export const useResponsibleAuthorities = () => {
-    const {data, isLoading, error} = useQuery({
-        queryKey: ['responsible-authorities'],
-        queryFn: async () => {
-            const response = await responsibleAuthorityService.getResponsibleAuthorities();
-            return response.items;
-        },
-        staleTime: 5 * 60 * 1000, // 5 minutes
-    });
+export const useResponsibleAuthorities = (params?: BaseQueryParams) => {
+  const query = useEntityItems(
+    'responsible-authorities',
+    responsibleAuthorityService.getResponsibleAuthorities.bind(responsibleAuthorityService),
+    params,
+    {
+      staleTime: 5 * 60 * 1000 // 5 minutes
+    }
+  );
 
-    return {
-        responsibleAuthorities: data || [] as ResponsibleAuthority[],
-        isLoading,
-        error
-    };
+  return {
+    responsibleAuthorities: query.data,
+    isLoading: query.isLoading,
+    error: query.error
+  };
 };

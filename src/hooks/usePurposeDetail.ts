@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { useAdminData } from '@/contexts/AdminDataContext';
@@ -33,6 +33,26 @@ export const usePurposeDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to refresh purpose data (eliminates duplication)
+  const refreshPurpose = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+      const apiPurpose = await purposeService.getPurpose(id);
+      const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
+      setPurpose(transformedPurpose);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load purpose';
+      setError(errorMessage);
+      setPurpose(null);
+      toast({
+        title: "Error loading purpose",
+        description: errorMessage,
+        variant: "destructive"
+      });
+    }
+  }, [id, hierarchies, toast]);
+
   // Data loading effect
   useEffect(() => {
     const loadPurpose = async () => {
@@ -46,29 +66,14 @@ export const usePurposeDetail = () => {
       setError(null);
       
       try {
-        // Fetch purpose from API
-        const apiPurpose = await purposeService.getPurpose(id);
-        
-        // Transform API data to frontend format
-        const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
-        
-        setPurpose(transformedPurpose);
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to load purpose';
-        setError(errorMessage);
-        setPurpose(null);
-        toast({
-          title: "Error loading purpose",
-          description: errorMessage,
-          variant: "destructive"
-        });
+        await refreshPurpose();
       } finally {
         setIsLoading(false);
       }
     };
 
     loadPurpose();
-  }, [id, hierarchies, toast]);
+  }, [id, hierarchies, toast, refreshPurpose]);
 
   // Handler functions
   const handleEditGeneralData = () => {
@@ -135,10 +140,7 @@ export const usePurposeDetail = () => {
       await updatePurpose.mutateAsync({ id, data: updateData });
       
       // Reload the purpose from API to get the latest data
-      const apiPurpose = await purposeService.getPurpose(id);
-      const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
-      
-      setPurpose(transformedPurpose);
+      await refreshPurpose();
       
       setIsEditModalOpen(false);
       setSelectedPurpose(null);
@@ -186,12 +188,7 @@ export const usePurposeDetail = () => {
       });
       
       // Refresh the purpose data to show updated purchases
-      if (id) {
-        const apiPurpose = await purposeService.getPurpose(id);
-        const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
-        
-        setPurpose(transformedPurpose);
-      }
+      await refreshPurpose();
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to delete purchase';
@@ -262,12 +259,7 @@ export const usePurposeDetail = () => {
       setSelectedStage(null);
       
       // Refresh the purpose data to show updated stage
-      if (id) {
-        const apiPurpose = await purposeService.getPurpose(id);
-        const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
-        
-        setPurpose(transformedPurpose);
-      }
+      await refreshPurpose();
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update stage';
