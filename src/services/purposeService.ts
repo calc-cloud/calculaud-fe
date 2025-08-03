@@ -1,5 +1,5 @@
 import {apiService} from '@/services/apiService';
-import {CreatePurchaseRequest as PurchaseCreateRequest, Currency} from '@/types';
+import {CreatePurchaseRequest as PurchaseCreateRequest, Currency, PendingAuthority} from '@/types';
 import {UnifiedFilters} from '@/types/filters';
 
 export interface PurposeApiParams {
@@ -61,12 +61,7 @@ export interface Purpose {
     uploaded_at: string;
     file_url: string;
   }[];
-  pending_authority?: {
-    id: number;
-    name: string;
-    description: string;
-    created_at: string;
-  };
+  pending_authority?: PendingAuthority;
 }
 
 export interface Purchase {
@@ -77,6 +72,7 @@ export interface Purchase {
   flow_stages: Stage[];
   current_pending_stages?: Stage[];
   days_since_last_completion?: number;
+  pending_authority?: PendingAuthority;
 }
 
 export interface Stage {
@@ -480,6 +476,7 @@ class PurposeService {
       current_pending_stages: (purchase.current_pending_stages || [])
         .map((stage: any) => this.transformStage(stage, purchase.id)),
       days_since_last_completion: purchase.days_since_last_completion ?? null,
+      pending_authority: purchase.pending_authority || null,
       files: []
     };
   }

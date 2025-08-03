@@ -228,6 +228,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 getStagesText(purchase) && (
                   <span className="text-sm text-orange-600 font-medium">
                     {getStagesText(purchase)}
+                    {purchase.pending_authority && ` (responsible: ${purchase.pending_authority.name})`}
                   </span>
                 )
               )}

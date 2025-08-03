@@ -37,6 +37,14 @@ export const getCurrencySymbol = (currency: Currency): string => {
   }
 };
 
+// Pending Authority interface - used across multiple entities
+export interface PendingAuthority {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+}
+
 
 
 export interface Purpose {
@@ -54,12 +62,7 @@ export interface Purpose {
   last_modified: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
-  pending_authority?: {
-    id: number;
-    name: string;
-    description: string;
-    created_at: string;
-  };
+  pending_authority?: PendingAuthority;
 }
 
 // New interface for purpose contents
@@ -84,6 +87,7 @@ export interface Purchase {
   flow_stages: Stage[];
   current_pending_stages?: Stage[];
   days_since_last_completion?: number;
+  pending_authority?: PendingAuthority;
 }
 
 export interface Stage {
