@@ -101,7 +101,16 @@ export interface StageType {
   id: string;
   name: string;
   display_name?: string;
+  description?: string;
   value_required: boolean;
+  responsible_authority_id?: number;
+  responsible_authority?: {
+    id: number;
+    name: string;
+    description: string;
+    created_at: string;
+  };
+  created_at?: string;
 }
 
 export interface Cost {
