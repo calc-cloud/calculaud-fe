@@ -12,12 +12,13 @@ const HierarchyModalAdapter: React.FC<{
   onOpenChange: (open: boolean) => void;
   editItem: Hierarchy | null;
   onSave: (data: HierarchyCreateRequest | HierarchyUpdateRequest, editId?: number) => Promise<void>;
-}> = ({ open, onOpenChange, editItem }) => {
+}> = ({ open, onOpenChange, editItem, onSave }) => {
   return (
     <CreateHierarchyModal
       open={open}
       onOpenChange={onOpenChange}
       editItem={editItem}
+      onSave={onSave}
     />
   );
 };

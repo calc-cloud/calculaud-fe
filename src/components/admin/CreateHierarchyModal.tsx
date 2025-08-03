@@ -1,6 +1,6 @@
 
 import { Building2, Building, Users, User, UserCheck, Loader2 } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -10,12 +10,13 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
 import { useHierarchies } from '@/hooks/useHierarchies';
 import { useCreateHierarchy, useUpdateHierarchy } from '@/hooks/useHierarchyMutations';
-import { Hierarchy, HierarchyType } from '@/types/hierarchies';
+import { Hierarchy, HierarchyType, HierarchyCreateRequest, HierarchyUpdateRequest } from '@/types/hierarchies';
 
 interface CreateHierarchyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem?: Hierarchy | null;
+  onSave?: (data: HierarchyCreateRequest | HierarchyUpdateRequest, editId?: number) => Promise<void>;
 }
 
 const hierarchyOrder: HierarchyType[] = ['UNIT', 'CENTER', 'ANAF', 'MADOR', 'TEAM'];
@@ -42,7 +43,8 @@ const formatTypeDisplay = (type: HierarchyType): string => {
 export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   open,
   onOpenChange,
-  editItem
+  editItem,
+  onSave
 }) => {
   const { toast } = useToast();
   const [selectedType, setSelectedType] = useState<HierarchyType>('UNIT');
@@ -58,7 +60,7 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
   // Fetch hierarchies for parent selection
   const { data: hierarchiesData } = useHierarchies();
-  const hierarchies = hierarchiesData?.items || [];
+  const hierarchies = useMemo(() => hierarchiesData?.items || [], [hierarchiesData?.items]);
 
   // Get available parent hierarchies based on selected type
   const availableHierarchies = hierarchies.filter(hierarchy => {
@@ -86,17 +88,9 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     if (editItem) {
       setSelectedType(editItem.type);
       setHierarchyName(editItem.name);
-      // Find parent info if exists
-      if (editItem.parent_id && hierarchies.length > 0) {
-        const parent = hierarchies.find(h => h.id === editItem.parent_id);
-        if (parent) {
-          setParentType(parent.type);
-          setParentId(parent.id);
-        }
-      } else {
-        setParentType('');
-        setParentId(null);
-      }
+      // Reset parent info - will be set by the separate effect below
+      setParentType('');
+      setParentId(null);
     } else {
       // Reset form when creating new
       setSelectedType('UNIT');
@@ -104,18 +98,18 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
       setParentType('');
       setParentId(null);
     }
-  }, [editItem, open]); // Removed hierarchies dependency to prevent constant resets
+  }, [editItem, open]);
 
   // Separate effect to set parent data when hierarchies load (for edit mode only)
   useEffect(() => {
-    if (editItem && open && editItem.parent_id && hierarchies.length > 0 && !parentId) {
+    if (editItem && open && editItem.parent_id && hierarchies.length > 0 && !parentType && !parentId) {
       const parent = hierarchies.find(h => h.id === editItem.parent_id);
       if (parent) {
         setParentType(parent.type);
         setParentId(parent.id);
       }
     }
-  }, [hierarchies, editItem, open, parentId]);
+  }, [hierarchies, editItem, open, parentType, parentId]);
 
   const handleTypeChange = (type: string) => {
     if (type) {
@@ -127,12 +121,12 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
   };
 
   const handleParentTypeChange = (type: string) => {
-    setParentType(type as HierarchyType);
+    setParentType(type === 'none' ? '' : type as HierarchyType);
     setParentId(null); // Reset parent hierarchy when parent type changes
   };
 
   const handleParentHierarchyChange = (value: string) => {
-    setParentId(value ? parseInt(value) : null);
+    setParentId(value === 'none' ? null : parseInt(value));
   };
 
   const handleSave = async () => {
@@ -146,28 +140,30 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
     }
 
     try {
-      if (isEditing && editItem) {
-        // Update existing hierarchy
-        await updateMutation.mutateAsync({
-          id: editItem.id,
-          data: {
-            type: selectedType,
-            name: hierarchyName.trim(),
-            parent_id: parentId,
-          }
-        });
+      const data = {
+        type: selectedType,
+        name: hierarchyName.trim(),
+        parent_id: parentId,
+      };
+
+      if (onSave) {
+        // Use external onSave (from EntityManagement) for proper cache invalidation
+        await onSave(data, isEditing && editItem ? editItem.id : undefined);
       } else {
-        // Create new hierarchy
-        await createMutation.mutateAsync({
-          type: selectedType,
-          name: hierarchyName.trim(),
-          parent_id: parentId,
-        });
+        // Fallback to internal mutations for backward compatibility
+        if (isEditing && editItem) {
+          await updateMutation.mutateAsync({
+            id: editItem.id,
+            data
+          });
+        } else {
+          await createMutation.mutateAsync(data);
+        }
       }
 
       handleCancel();
     } catch (_error) {
-      // Error handling is done in the mutation hooks
+      // Error handling is done in the mutation hooks or external onSave
 
     }
   };
@@ -228,15 +224,20 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
 
           {/* Parent Selection - Only show if there are available parent types */}
           {availableParentTypes.length > 0 && (
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-12 gap-4">
               {/* Parent Type Selection */}
-              <div className="col-span-2 space-y-2">
+              <div className="col-span-5 space-y-2">
                 <label className="text-sm font-medium">Parent Type (Optional)</label>
-                <Select value={parentType} onValueChange={handleParentTypeChange} disabled={isLoading}>
+                <Select value={parentType || 'none'} onValueChange={handleParentTypeChange} disabled={isLoading}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select parent type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-500">None (No parent)</span>
+                      </div>
+                    </SelectItem>
                     {availableParentTypes.map((type) => {
                       const Icon = getHierarchyIcon(type);
                       return (
@@ -253,12 +254,12 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
               </div>
 
               {/* Parent Hierarchy Selection */}
-              <div className="col-span-3 space-y-2">
+              <div className="col-span-7 space-y-2">
                 <label className="text-sm font-medium">
                   {parentType ? `Parent ${formatTypeDisplay(parentType)}` : 'Parent Hierarchy'}
                 </label>
                 <Select 
-                  value={parentId?.toString() || ''} 
+                  value={parentId?.toString() || 'none'} 
                   onValueChange={handleParentHierarchyChange} 
                   disabled={isLoading || !parentType}
                 >
@@ -270,6 +271,9 @@ export const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({
                     } />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">
+                      <span className="text-gray-500">None</span>
+                    </SelectItem>
                     {availableParentHierarchies.map((hierarchy) => (
                       <SelectItem key={hierarchy.id} value={hierarchy.id.toString()}>
                         {hierarchy.name}
