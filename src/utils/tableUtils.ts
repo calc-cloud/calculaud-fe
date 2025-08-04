@@ -13,6 +13,7 @@ export const COLUMN_SIZES = {
   serviceType: { size: 140, minSize: 112 },
   purchases: { size: 280, minSize: 240 },
   emfIds: { size: 120, minSize: 96 },
+  demandIds: { size: 120, minSize: 96 },
   totalCost: { size: 140, minSize: 112 },
   expectedDelivery: { size: 120, minSize: 96 },
   createdAt: { size: 120, minSize: 96 },
@@ -90,6 +91,23 @@ export const getEMFIds = (purpose: Purpose) => {
   return {
     ids: emfIds,
     allIds: emfIds.length > 0 ? emfIds.join(", ") : "-",
+  };
+};
+
+export const getDemandIds = (purpose: Purpose) => {
+  const demandIds: string[] = [];
+
+  purpose.purchases.forEach((purchase) => {
+    purchase.flow_stages.forEach((stage) => {
+      if (stage.stage_type.name === "demand_id" && stage.value && stage.value.trim()) {
+        demandIds.push(stage.value.trim());
+      }
+    });
+  });
+
+  return {
+    ids: demandIds,
+    allIds: demandIds.length > 0 ? demandIds.join(", ") : "-",
   };
 };
 
