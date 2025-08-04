@@ -146,7 +146,7 @@ export const getHierarchyInfo = (purpose: Purpose, hierarchies: any[]) => {
   };
 };
 
-export const getPendingAuthorityInfo = (purpose: Purpose) => {
+export const getAuthorityInfo = (purpose: Purpose) => {
   if (purpose.pending_authority) {
     return {
       displayName: purpose.pending_authority.name,
@@ -157,7 +157,7 @@ export const getPendingAuthorityInfo = (purpose: Purpose) => {
 
   return {
     displayName: 'N/A',
-    description: 'No pending authority assigned',
+    description: 'No authority assigned',
     accessorValue: 'N/A'
   };
 };

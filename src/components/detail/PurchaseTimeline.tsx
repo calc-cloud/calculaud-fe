@@ -117,12 +117,19 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
             {isExpanded && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center">
-                    <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
-                    {hasMultipleStagesWithSamePriority(stages, stage) && (
-                      <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
-                        <Workflow className="w-3 h-3" />
-                      </Badge>
+                  <div className="flex-1">
+                    <div className="flex items-center">
+                      <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                      {hasMultipleStagesWithSamePriority(stages, stage) && (
+                        <Badge variant={getPriorityVariant(stage.priority)} className="ml-2 text-xs px-1 py-0 h-4 flex items-center bg-blue-100 text-blue-800 border-blue-200">
+                          <Workflow className="w-3 h-3" />
+                        </Badge>
+                      )}
+                    </div>
+                    {stage.stage_type.responsible_authority && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Responsible: {stage.stage_type.responsible_authority.name}
+                      </p>
                     )}
                   </div>
                   <div className="flex items-center space-x-1">
@@ -221,6 +228,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 getStagesText(purchase) && (
                   <span className="text-sm text-orange-600 font-medium">
                     {getStagesText(purchase)}
+                    {purchase.pending_authority && ` (responsible: ${purchase.pending_authority.name})`}
                   </span>
                 )
               )}

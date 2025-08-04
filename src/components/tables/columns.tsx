@@ -10,7 +10,7 @@ import {
   getContentsDisplay,
   getEMFIds,
   getHierarchyInfo,
-  getPendingAuthorityInfo,
+  getAuthorityInfo,
   getStagesDisplay,
   getTotalCostWithCurrencies
 } from '@/utils/tableUtils';
@@ -117,10 +117,10 @@ export const createColumns = (
 
   {
     id: 'pendingAuthority',
-    accessorFn: (row) => getPendingAuthorityInfo(row).accessorValue,
+    accessorFn: (row) => getAuthorityInfo(row).accessorValue,
     header: () => <SimpleHeaderWrapper>Pending Authority</SimpleHeaderWrapper>,
     cell: ({row}) => {
-      const authorityInfo = getPendingAuthorityInfo(row.original);
+      const authorityInfo = getAuthorityInfo(row.original);
 
       return (
           <TooltipCell

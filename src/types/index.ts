@@ -37,6 +37,14 @@ export const getCurrencySymbol = (currency: Currency): string => {
   }
 };
 
+// Authority interface - used across multiple entities
+export interface Authority {
+  id: number;
+  name: string;
+  description: string;
+  created_at: string;
+}
+
 
 
 export interface Purpose {
@@ -54,12 +62,7 @@ export interface Purpose {
   last_modified: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
-  pending_authority?: {
-    id: number;
-    name: string;
-    description: string;
-    created_at: string;
-  };
+  pending_authority?: Authority;
 }
 
 // New interface for purpose contents
@@ -84,6 +87,7 @@ export interface Purchase {
   flow_stages: Stage[];
   current_pending_stages?: Stage[];
   days_since_last_completion?: number;
+  pending_authority?: Authority;
 }
 
 export interface Stage {
@@ -101,7 +105,11 @@ export interface StageType {
   id: string;
   name: string;
   display_name?: string;
+  description?: string;
   value_required: boolean;
+  responsible_authority_id?: number;
+  responsible_authority?: Authority;
+  created_at?: string;
 }
 
 export interface Cost {
