@@ -4,7 +4,9 @@ import React from "react";
 import { PurchaseTimeline } from "@/components/detail/PurchaseTimeline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
+import { StatusColorTooltip } from "@/utils/purchaseUtils";
 
 interface PurchasesTimelineCardProps {
   purpose: Purpose;
@@ -67,7 +69,11 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
     <Card className="flex-none">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Purchases</CardTitle>
+          <TooltipProvider>
+            <StatusColorTooltip>
+              <CardTitle className="text-lg font-semibold cursor-help">Purchases</CardTitle>
+            </StatusColorTooltip>
+          </TooltipProvider>
           {purpose.purchases.length > 0 && (
             <Button variant="outline" size="sm" onClick={onAddPurchase}>
               <Plus className="mr-2 h-4 w-4" />

@@ -1,3 +1,6 @@
+import React from "react";
+
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Purchase } from "@/types";
 
 export interface PurchaseStatus {
@@ -105,4 +108,78 @@ export const getPriorityIcon = (statusType: PurchaseStatus["type"]): string => {
     default:
       return "⚪";
   }
+};
+
+/**
+ * Get the text color class for a purchase status
+ */
+export const getStatusTextColor = (statusType: PurchaseStatus["type"]): string => {
+  switch (statusType) {
+    case "critical":
+      return "text-rose-600";
+    case "warning":
+      return "text-amber-600";
+    case "completed":
+      return "text-green-600";
+    case "recent":
+    default:
+      return "text-sky-600";
+  }
+};
+
+/**
+ * Get the border color class for a purchase status
+ */
+export const getStatusBorderColor = (statusType: PurchaseStatus["type"]): string => {
+  switch (statusType) {
+    case "critical":
+      return "border-rose-400";
+    case "warning":
+      return "border-amber-400";
+    case "completed":
+      return "border-green-400";
+    case "recent":
+    default:
+      return "border-sky-400";
+  }
+};
+
+interface StatusColorTooltipProps {
+  children: React.ReactNode;
+}
+
+/**
+ * Status color tooltip component for purchase status legend
+ */
+export const StatusColorTooltip: React.FC<StatusColorTooltipProps> = ({ children }) => {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {children}
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <div className="space-y-2">
+          <div className="font-medium text-sm">Purchase Status Colors:</div>
+          <div className="space-y-1.5 text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
+              <span>Recent (≤6 days)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+              <span>Warning (7-30 days)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-rose-400 flex-shrink-0" />
+              <span>Critical (&gt;30 days)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+              <span>Completed</span>
+            </div>
+          </div>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
 };

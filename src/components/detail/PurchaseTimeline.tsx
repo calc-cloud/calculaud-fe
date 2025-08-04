@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { getPurchaseStatus, getStatusTextColor, getStatusBorderColor } from "@/utils/purchaseUtils";
 import { convertPurchaseToStages, calculateDaysSinceLastStageCompletion, getStagesText } from "@/utils/stageUtils";
 
 interface PurchaseTimelineProps {
@@ -63,6 +64,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
   isPurchaseComplete,
 }) => {
   const stages = convertPurchaseToStages(purchase);
+  const purchaseStatus = getPurchaseStatus(purchase);
 
   const renderStageCard = (stage: any, index: number, isAboveTimeline: boolean) => {
     const position = calculateStagePosition(stages, index);
@@ -87,8 +89,8 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
             } ${
               isCurrentPendingStage(stage, purchase)
                 ? isExpanded
-                  ? "w-64 p-4 shadow-xl hover:shadow-2xl z-50 border-2 border-orange-400"
-                  : "min-w-32 max-w-40 p-3 hover:shadow-md z-10 border-2 border-orange-400"
+                  ? `w-64 p-4 shadow-xl hover:shadow-2xl z-50 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
+                  : `min-w-32 max-w-40 p-3 hover:shadow-md z-10 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
                 : isExpanded
                   ? "w-64 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200"
                   : "min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200"
@@ -224,18 +226,18 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
             <div className="flex items-center space-x-4">
-              <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">#{purchase.id}</h3>
               {isPurchaseComplete(purchase)
                 ? (() => {
                     const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
                     return (
-                      <span className="text-sm text-green-600 font-medium">
+                      <span className={`text-sm font-medium ${getStatusTextColor(purchaseStatus.type)}`}>
                         Purchase completed {daysAgo !== null ? `${daysAgo} days ago` : ""}
                       </span>
                     );
                   })()
                 : getStagesText(purchase) && (
-                    <span className="text-sm text-orange-600 font-medium">
+                    <span className={`text-sm font-medium ${getStatusTextColor(purchaseStatus.type)}`}>
                       {getStagesText(purchase)}
                       {purchase.pending_authority && ` (responsible: ${purchase.pending_authority.name})`}
                     </span>

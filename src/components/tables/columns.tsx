@@ -1,8 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Badge } from "@/components/ui/badge";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { StatusColorTooltip } from "@/utils/purchaseUtils";
 import { SortConfig } from "@/utils/sorting";
 import { getStatusDisplay } from "@/utils/statusUtils";
 import {
@@ -153,7 +155,11 @@ export const createColumns = (
     accessorFn: (row) => getStagesDisplay(row).join(", "),
     header: () => (
       <HeaderWrapper sortable sortField="days_since_last_completion" currentSort={sortConfig} onSortChange={onSortChange}>
-        Purchases
+        <TooltipProvider>
+          <StatusColorTooltip>
+            <span className="cursor-help">Purchases</span>
+          </StatusColorTooltip>
+        </TooltipProvider>
       </HeaderWrapper>
     ),
     cell: ({ row }) => {
