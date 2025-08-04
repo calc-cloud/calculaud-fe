@@ -1,11 +1,6 @@
 import { useServiceTypes } from "@/hooks/useServiceTypes";
 import { materialService } from "@/services/materialService";
-import {
-  Material,
-  MaterialsResponse,
-  MaterialCreateRequest,
-  MaterialUpdateRequest,
-} from "@/types/materials";
+import { Material, MaterialsResponse, MaterialCreateRequest, MaterialUpdateRequest } from "@/types/materials";
 
 import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
 import MaterialModal from "./MaterialModal";
@@ -15,28 +10,14 @@ const MaterialModalAdapter: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem: Material | null;
-  onSave: (
-    data: MaterialCreateRequest | MaterialUpdateRequest,
-    editId?: number
-  ) => Promise<void>;
+  onSave: (data: MaterialCreateRequest | MaterialUpdateRequest, editId?: number) => Promise<void>;
 }> = ({ open, onOpenChange, editItem, onSave }) => {
-  const handleSave = async (
-    name: string,
-    serviceTypeId: number,
-    editId?: number
-  ) => {
+  const handleSave = async (name: string, serviceTypeId: number, editId?: number) => {
     const data = { name, service_type_id: serviceTypeId };
     await onSave(data, editId);
   };
 
-  return (
-    <MaterialModal
-      open={open}
-      onOpenChange={onOpenChange}
-      editItem={editItem}
-      onSave={handleSave}
-    />
-  );
+  return <MaterialModal open={open} onOpenChange={onOpenChange} editItem={editItem} onSave={handleSave} />;
 };
 
 interface MaterialQueryParams {
@@ -50,9 +31,7 @@ const MaterialManagement: React.FC = () => {
   const { data: serviceTypesData } = useServiceTypes();
 
   const getServiceTypeName = (serviceTypeId: number) => {
-    const serviceType = serviceTypesData?.items?.find(
-      (st) => st.id === serviceTypeId
-    );
+    const serviceType = serviceTypesData?.items?.find((st) => st.id === serviceTypeId);
     return serviceType?.name || "Unknown";
   };
 
@@ -83,8 +62,7 @@ const MaterialManagement: React.FC = () => {
       {
         key: "service_type_id",
         label: "Type",
-        render: (serviceTypeId: number) =>
-          `Type: ${getServiceTypeName(serviceTypeId)}`,
+        render: (serviceTypeId: number) => `Type: ${getServiceTypeName(serviceTypeId)}`,
         className: "text-xs text-gray-500",
       },
     ],

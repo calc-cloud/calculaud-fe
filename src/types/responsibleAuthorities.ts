@@ -8,5 +8,4 @@ export interface ResponsibleAuthority extends CreatedEntity {
 }
 
 // API Response types
-export type ResponsibleAuthoritiesResponse =
-  PaginatedResponse<ResponsibleAuthority>;
+export type ResponsibleAuthoritiesResponse = PaginatedResponse<ResponsibleAuthority>;

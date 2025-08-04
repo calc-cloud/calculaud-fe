@@ -1,9 +1,4 @@
-import {
-  TimestampedEntity,
-  PaginatedResponse,
-  EntityCreateRequest,
-  EntityUpdateRequest,
-} from "./base";
+import { TimestampedEntity, PaginatedResponse, EntityCreateRequest, EntityUpdateRequest } from "./base";
 
 export interface ServiceType extends TimestampedEntity {
   type: string;

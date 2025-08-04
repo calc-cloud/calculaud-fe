@@ -40,14 +40,9 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
         </Button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
-          <p className="text-sm text-gray-500">
-            Created {formatDate(purpose.creation_time)}
-          </p>
+          <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
         </div>
-        <Badge
-          variant={statusInfo.variant}
-          className={`cursor-default pointer-events-none ${statusInfo.className}`}
-        >
+        <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>
           {statusInfo.label}
         </Badge>
       </div>
@@ -62,8 +57,7 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              purpose and remove all associated data.
+              This action cannot be undone. This will permanently delete the purpose and remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

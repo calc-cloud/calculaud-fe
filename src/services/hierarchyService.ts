@@ -19,9 +19,7 @@ export class HierarchyService extends BaseService<
   protected endpoint = API_CONFIG.ENDPOINTS.HIERARCHIES;
 
   // Maintain backward compatibility with existing method names
-  async getHierarchies(
-    params?: HierarchyFilters
-  ): Promise<HierarchiesResponse> {
+  async getHierarchies(params?: HierarchyFilters): Promise<HierarchiesResponse> {
     return this.getEntities(params);
   }
 
@@ -29,10 +27,7 @@ export class HierarchyService extends BaseService<
     return this.createEntity(data);
   }
 
-  async updateHierarchy(
-    id: number,
-    data: HierarchyUpdateRequest
-  ): Promise<Hierarchy> {
+  async updateHierarchy(id: number, data: HierarchyUpdateRequest): Promise<Hierarchy> {
     return this.updateEntity(id, data);
   }
 

@@ -3,10 +3,7 @@ import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { BaseEntity, BaseQueryParams } from "@/services/BaseService";
 import { PaginatedResponse } from "@/types/base";
 
-export interface UseEntityDataOptions<
-  TParams extends BaseQueryParams,
-  TResponse = any,
-> {
+export interface UseEntityDataOptions<TParams extends BaseQueryParams, TResponse = any> {
   enabled?: boolean | ((params?: TParams) => boolean);
   staleTime?: number;
   select?: (data: TResponse) => any;
@@ -28,8 +25,7 @@ export function useEntityData<
     select,
   } = options;
 
-  const enabledValue =
-    typeof enabled === "function" ? enabled(params) : enabled;
+  const enabledValue = typeof enabled === "function" ? enabled(params) : enabled;
 
   return useQuery({
     queryKey: [queryKey, params],
@@ -37,12 +33,7 @@ export function useEntityData<
     staleTime,
     enabled: enabledValue,
     select,
-  } as UseQueryOptions<
-    TResponse,
-    Error,
-    any,
-    (string | TParams | undefined)[]
-  >);
+  } as UseQueryOptions<TResponse, Error, any, (string | TParams | undefined)[]>);
 }
 
 // Specialized hook for entity lists that returns items directly

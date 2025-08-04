@@ -5,34 +5,16 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { HierarchySelector } from "@/components/common/HierarchySelector";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminData } from "@/contexts/AdminDataContext";
-import {
-  HierarchyDistributionResponse,
-  DashboardFilters,
-} from "@/types/analytics";
+import { HierarchyDistributionResponse, DashboardFilters } from "@/types/analytics";
 
 interface HierarchyDistributionChartProps {
   data: HierarchyDistributionResponse | undefined;
   isLoading: boolean;
   globalFilters: DashboardFilters;
-  onFiltersChange: (
-    level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null,
-    parent_id?: number | null
-  ) => void;
+  onFiltersChange: (level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null, parent_id?: number | null) => void;
 }
 
 // Colors for the pie chart segments
@@ -51,9 +33,11 @@ const COLORS = [
 
 const HIERARCHY_LEVELS = ["UNIT", "CENTER", "ANAF", "MADOR", "TEAM"] as const;
 
-export const HierarchyDistributionChart: React.FC<
-  HierarchyDistributionChartProps
-> = ({ data, isLoading, onFiltersChange }) => {
+export const HierarchyDistributionChart: React.FC<HierarchyDistributionChartProps> = ({
+  data,
+  isLoading,
+  onFiltersChange,
+}) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
 
@@ -61,17 +45,13 @@ export const HierarchyDistributionChart: React.FC<
     const currentParams = new URLSearchParams(window.location.search);
     navigate(`/search?${currentParams.toString()}`);
   };
-  const [selectedHierarchy, setSelectedHierarchy] = useState<
-    number | undefined
-  >();
-  const [selectedLevel, setSelectedLevel] = useState<
-    "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | "DIRECT_CHILDREN"
-  >("DIRECT_CHILDREN");
+  const [selectedHierarchy, setSelectedHierarchy] = useState<number | undefined>();
+  const [selectedLevel, setSelectedLevel] = useState<"UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | "DIRECT_CHILDREN">(
+    "DIRECT_CHILDREN"
+  );
 
   // Filter out TEAM type hierarchies for the selector
-  const filteredHierarchies = hierarchies.filter(
-    (hierarchy) => hierarchy.type !== "TEAM"
-  );
+  const filteredHierarchies = hierarchies.filter((hierarchy) => hierarchy.type !== "TEAM");
 
   // Get available drill-down levels based on selected hierarchy
   const getAvailableLevels = () => {
@@ -82,13 +62,9 @@ export const HierarchyDistributionChart: React.FC<
       // So drill-down options should be CENTER, ANAF, MADOR, TEAM
       levels.push("CENTER", "ANAF", "MADOR", "TEAM");
     } else {
-      const hierarchy = filteredHierarchies.find(
-        (h) => h.id === selectedHierarchy
-      );
+      const hierarchy = filteredHierarchies.find((h) => h.id === selectedHierarchy);
       if (hierarchy) {
-        const currentLevelIndex = HIERARCHY_LEVELS.indexOf(
-          hierarchy.type as any
-        );
+        const currentLevelIndex = HIERARCHY_LEVELS.indexOf(hierarchy.type as any);
         // Show hierarchy types that are two levels under the selected hierarchy type
         // For example: CENTER (index 1) -> MADOR (index 3), TEAM (index 4)
         const startIndex = currentLevelIndex + 2;
@@ -111,9 +87,7 @@ export const HierarchyDistributionChart: React.FC<
     const parentId = selectedHierarchy || null;
     // Send null as level when "Direct Children" is selected
     const level =
-      selectedLevel === "DIRECT_CHILDREN"
-        ? null
-        : (selectedLevel as "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM");
+      selectedLevel === "DIRECT_CHILDREN" ? null : (selectedLevel as "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM");
     onFiltersChange(level, parentId);
   }, [selectedLevel, selectedHierarchy, onFiltersChange]);
 
@@ -149,9 +123,7 @@ export const HierarchyDistributionChart: React.FC<
     }
 
     // Find the hierarchy by name from the admin context
-    const clickedHierarchy = filteredHierarchies.find(
-      (h) => h.name === data.name
-    );
+    const clickedHierarchy = filteredHierarchies.find((h) => h.name === data.name);
 
     if (clickedHierarchy) {
       // Set the selected hierarchy and reset drill-down level
@@ -167,9 +139,7 @@ export const HierarchyDistributionChart: React.FC<
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Purposes by Hierarchies</CardTitle>
-              <CardDescription>
-                Distribution of purposes across organizational hierarchy
-              </CardDescription>
+              <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -186,21 +156,13 @@ export const HierarchyDistributionChart: React.FC<
           <div className="space-y-4 mb-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Select Hierarchy
-                </label>
+                <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
                 <div className="w-full opacity-50 pointer-events-none">
-                  <HierarchySelector
-                    hierarchies={[]}
-                    selectedIds={[]}
-                    onSelectionChange={() => {}}
-                  />
+                  <HierarchySelector hierarchies={[]} selectedIds={[]} onSelectionChange={() => {}} />
                 </div>
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Drill-down Level
-                </label>
+                <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
                 <Select disabled>
                   <SelectTrigger>
                     <SelectValue placeholder="Loading..." />
@@ -227,9 +189,7 @@ export const HierarchyDistributionChart: React.FC<
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Purposes by Hierarchies</CardTitle>
-              <CardDescription>
-                Distribution of purposes across organizational hierarchy
-              </CardDescription>
+              <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -246,9 +206,7 @@ export const HierarchyDistributionChart: React.FC<
           <div className="space-y-4 mb-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Select Hierarchy
-                </label>
+                <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
                 <HierarchySelector
                   hierarchies={filteredHierarchies}
                   selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
@@ -256,24 +214,15 @@ export const HierarchyDistributionChart: React.FC<
                 />
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Drill-down Level
-                </label>
-                <Select
-                  value={selectedLevel}
-                  onValueChange={(value) =>
-                    value && setSelectedLevel(value as any)
-                  }
-                >
+                <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
+                <Select value={selectedLevel} onValueChange={(value) => value && setSelectedLevel(value as any)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select drill-down level" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableLevels.map((level) => (
                       <SelectItem key={level} value={level}>
-                        {level === "DIRECT_CHILDREN"
-                          ? "Direct Children"
-                          : level}
+                        {level === "DIRECT_CHILDREN" ? "Direct Children" : level}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -303,14 +252,7 @@ export const HierarchyDistributionChart: React.FC<
   // Check if all values are zero
   const hasData = chartData.some((item) => item.value > 0);
 
-  const renderCustomLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    value,
-  }: any) => {
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
     // Only show labels for non-zero values
     if (value === 0) return null;
 
@@ -345,11 +287,7 @@ export const HierarchyDistributionChart: React.FC<
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`${data.payload.fullPath}`}</p>
           <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
-          {isClickable && (
-            <p className="text-blue-600 text-sm mt-1 italic">
-              Click to view this hierarchy
-            </p>
-          )}
+          {isClickable && <p className="text-blue-600 text-sm mt-1 italic">Click to view this hierarchy</p>}
         </div>
       );
     }
@@ -362,17 +300,9 @@ export const HierarchyDistributionChart: React.FC<
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Purposes by Hierarchies</CardTitle>
-            <CardDescription>
-              Distribution of purposes across organizational hierarchy
-            </CardDescription>
+            <CardDescription>Distribution of purposes across organizational hierarchy</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -381,9 +311,7 @@ export const HierarchyDistributionChart: React.FC<
         <div className="space-y-4 mb-4">
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="text-sm font-medium mb-2 block">
-                Select Hierarchy
-              </label>
+              <label className="text-sm font-medium mb-2 block">Select Hierarchy</label>
               <HierarchySelector
                 hierarchies={filteredHierarchies}
                 selectedIds={selectedHierarchy ? [selectedHierarchy] : []}
@@ -391,15 +319,8 @@ export const HierarchyDistributionChart: React.FC<
               />
             </div>
             <div className="flex-1">
-              <label className="text-sm font-medium mb-2 block">
-                Drill-down Level
-              </label>
-              <Select
-                value={selectedLevel}
-                onValueChange={(value) =>
-                  value && setSelectedLevel(value as any)
-                }
-              >
+              <label className="text-sm font-medium mb-2 block">Drill-down Level</label>
+              <Select value={selectedLevel} onValueChange={(value) => value && setSelectedLevel(value as any)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select drill-down level" />
                 </SelectTrigger>
@@ -451,13 +372,8 @@ export const HierarchyDistributionChart: React.FC<
             ) : (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center text-muted-foreground">
-                  <div className="text-lg font-medium mb-2">
-                    No purposes found
-                  </div>
-                  <div className="text-sm">
-                    No data available for the selected filters and hierarchy
-                    level
-                  </div>
+                  <div className="text-lg font-medium mb-2">No purposes found</div>
+                  <div className="text-sm">No data available for the selected filters and hierarchy level</div>
                 </div>
               </div>
             )}
@@ -465,14 +381,8 @@ export const HierarchyDistributionChart: React.FC<
           <div className="flex-1 flex items-center">
             <div className="flex flex-col space-y-2 pl-4">
               {chartData.map((entry, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-2 text-sm"
-                >
-                  <div
-                    className="w-3 h-3 rounded-sm"
-                    style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                  />
+                <div key={index} className="flex items-center space-x-2 text-sm">
+                  <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                   <span className="text-gray-700">
                     {entry.name} ({entry.value})
                   </span>

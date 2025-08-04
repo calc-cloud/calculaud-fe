@@ -10,12 +10,7 @@ export const convertPurchaseToStages = (purchase: any) => {
   // Flatten nested arrays of stages - treat array items as independent stages
   const stages = (purchase.flow_stages || [])
     .flatMap((item: any) => (Array.isArray(item) ? item : [item])) // Flatten nested stage arrays
-    .filter(
-      (stage: any) =>
-        stage &&
-        stage.stage_type &&
-        (stage.stage_type.display_name || stage.stage_type.name)
-    ) // Filter out invalid stages
+    .filter((stage: any) => stage && stage.stage_type && (stage.stage_type.display_name || stage.stage_type.name)) // Filter out invalid stages
     .map((stage: any) => ({
       id: stage.id,
       name: stage.stage_type.display_name || stage.stage_type.name, // Using display_name from API response
@@ -66,9 +61,7 @@ export const getCurrentPendingStages = (stages: any[]) => {
   }
 
   // Find the lowest priority among incomplete stages
-  const lowestPriority = Math.min(
-    ...incompleteStages.map((stage) => stage.priority)
-  );
+  const lowestPriority = Math.min(...incompleteStages.map((stage) => stage.priority));
 
   // Return all incomplete stages with the lowest priority
   return incompleteStages.filter((stage) => stage.priority === lowestPriority);
@@ -80,19 +73,14 @@ export const getCurrentPendingStages = (stages: any[]) => {
  * @param purchase - The purchase object
  * @param showPurchasePrefix - Whether to include "Purchase {id}" prefix in the text
  */
-export const getStagesText = (
-  purchase: any,
-  showPurchasePrefix: boolean = false
-): string | null => {
+export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
   const stages = convertPurchaseToStages(purchase);
   const isCompleted = stages.every((stage) => stage.completed);
   if (isCompleted) {
     const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
     if (daysAgo !== null) {
       const baseText = `Completed ${daysAgo} days ago`;
-      return showPurchasePrefix
-        ? `Purchase ${purchase.id}: ${baseText}`
-        : baseText;
+      return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
     }
     return null;
   }
@@ -103,17 +91,10 @@ export const getStagesText = (
   ) {
     const days = purchase.days_since_last_completion;
     const stageNames = purchase.current_pending_stages
-      .map(
-        (stage: any) => stage.stage_type.display_name || stage.stage_type.name
-      )
+      .map((stage: any) => stage.stage_type.display_name || stage.stage_type.name)
       .join(", ");
-    const baseText =
-      days === null
-        ? `Waiting for ${stageNames}`
-        : `${days} days in ${stageNames}`;
-    return showPurchasePrefix
-      ? `Purchase ${purchase.id}: ${baseText}`
-      : baseText;
+    const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
+    return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
   }
   const pendingStages = getCurrentPendingStages(stages);
   if (pendingStages.length === 0) {
@@ -126,10 +107,7 @@ export const getStagesText = (
     days = calculateDaysSinceLastStageCompletion(purchase);
   }
   const stageNames = pendingStages.map((stage) => stage.name).join(", ");
-  const baseText =
-    days === null
-      ? `Waiting for ${stageNames}`
-      : `${days} days in ${stageNames}`;
+  const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 };
 
@@ -137,15 +115,11 @@ export const getStagesText = (
  * Calculate days since the last stage completion (highest priority completed stage)
  * Used for showing "Purchase is completed Y days ago"
  */
-export const calculateDaysSinceLastStageCompletion = (
-  purchase: any
-): number | null => {
+export const calculateDaysSinceLastStageCompletion = (purchase: any): number | null => {
   const stages = convertPurchaseToStages(purchase);
 
   // Find completed stages
-  const completedStages = stages.filter(
-    (stage) => stage.completed && stage.date
-  );
+  const completedStages = stages.filter((stage) => stage.completed && stage.date);
 
   if (completedStages.length === 0) {
     return null; // No completed stages

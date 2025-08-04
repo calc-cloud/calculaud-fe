@@ -19,9 +19,7 @@ export const COLUMN_SIZES = {
   lastModified: { size: 120, minSize: 96 },
 };
 
-export const getLastHierarchyLevel = (
-  hierarchyName: string | undefined | null
-): string => {
+export const getLastHierarchyLevel = (hierarchyName: string | undefined | null): string => {
   if (!hierarchyName) return "N/A";
   const parts = hierarchyName
     .split(/[>/\\-]/)
@@ -44,8 +42,7 @@ export const getTotalCostWithCurrencies = (purpose: Purpose) => {
   });
 
   const formatAmount = (amount: number) => {
-    const formattedNumber =
-      amount % 1 === 0 ? amount.toString() : amount.toFixed(2);
+    const formattedNumber = amount % 1 === 0 ? amount.toString() : amount.toFixed(2);
     return parseFloat(formattedNumber).toLocaleString();
   };
 
@@ -63,19 +60,14 @@ export const getTotalCostWithCurrencies = (purpose: Purpose) => {
     }
   });
 
-  const displayStrings = Object.entries(combinedCostsByCurrency).map(
-    ([currency, amount]) => {
-      const symbol =
-        currency === "USD" ? "$" : getCurrencySymbol(currency as any);
-      return `${symbol}${formatAmount(amount)}`;
-    }
-  );
+  const displayStrings = Object.entries(combinedCostsByCurrency).map(([currency, amount]) => {
+    const symbol = currency === "USD" ? "$" : getCurrencySymbol(currency as any);
+    return `${symbol}${formatAmount(amount)}`;
+  });
 
-  const costDetails = Object.entries(costsByCurrency).map(
-    ([currency, amount]) => {
-      return `${getCurrencySymbol(currency as any)}${formatAmount(amount)} ${currency}`;
-    }
-  );
+  const costDetails = Object.entries(costsByCurrency).map(([currency, amount]) => {
+    return `${getCurrencySymbol(currency as any)}${formatAmount(amount)} ${currency}`;
+  });
 
   return {
     display: displayStrings,
@@ -89,11 +81,7 @@ export const getEMFIds = (purpose: Purpose) => {
 
   purpose.purchases.forEach((purchase) => {
     purchase.flow_stages.forEach((stage) => {
-      if (
-        stage.stage_type.name === "emf_id" &&
-        stage.value &&
-        stage.value.trim()
-      ) {
+      if (stage.stage_type.name === "emf_id" && stage.value && stage.value.trim()) {
         emfIds.push(stage.value.trim());
       }
     });
@@ -106,11 +94,7 @@ export const getEMFIds = (purpose: Purpose) => {
 };
 
 export const getContentsDisplay = (purpose: Purpose) => {
-  if (
-    !purpose.contents ||
-    !Array.isArray(purpose.contents) ||
-    purpose.contents.length === 0
-  ) {
+  if (!purpose.contents || !Array.isArray(purpose.contents) || purpose.contents.length === 0) {
     return {
       display: ["No contents"],
       details: ["No contents specified"],
@@ -131,15 +115,11 @@ export const getContentsDisplay = (purpose: Purpose) => {
 };
 
 export const getStagesDisplay = (purpose: Purpose) => {
-  return purpose.purchases
-    .map((purchase) => getStagesText(purchase, true))
-    .filter((text) => text !== null);
+  return purpose.purchases.map((purchase) => getStagesText(purchase, true)).filter((text) => text !== null);
 };
 
 export const getHierarchyInfo = (purpose: Purpose, hierarchies: any[]) => {
-  const hierarchy = hierarchies.find(
-    (h) => h.id === parseInt(purpose.hierarchy_id?.toString() || "0")
-  );
+  const hierarchy = hierarchies.find((h) => h.id === parseInt(purpose.hierarchy_id?.toString() || "0"));
 
   if (hierarchy) {
     return {

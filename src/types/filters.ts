@@ -33,9 +33,4 @@ export const RELATIVE_TIME_OPTIONS = [
 ];
 
 // Purpose statuses - using display format consistently
-export const PURPOSE_STATUSES_DISPLAY = [
-  "In Progress",
-  "Completed",
-  "Signed",
-  "Partially Supplied",
-];
+export const PURPOSE_STATUSES_DISPLAY = ["In Progress", "Completed", "Signed", "Partially Supplied"];

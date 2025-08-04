@@ -57,10 +57,7 @@ class ApiService {
     });
   }
 
-  async downloadBlob(
-    endpoint: string,
-    params?: Record<string, any>
-  ): Promise<Response> {
+  async downloadBlob(endpoint: string, params?: Record<string, any>): Promise<Response> {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -122,10 +119,7 @@ class ApiService {
     return await response.json();
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {
@@ -163,10 +157,7 @@ class ApiService {
     return await response.json();
   }
 
-  private async requestBlob(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<Response> {
+  private async requestBlob(endpoint: string, options: RequestInit = {}): Promise<Response> {
     const url = `${this.baseUrl}${endpoint}`;
 
     const headers: Record<string, string> = {

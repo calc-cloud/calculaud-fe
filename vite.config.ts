@@ -10,9 +10,7 @@ export default defineConfig(({ mode }) => ({
     host: process.env.VITE_DEV_SERVER_HOST || "::",
     port: parseInt(process.env.VITE_DEV_SERVER_PORT || "8080", 10),
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(
-    Boolean
-  ),
+  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

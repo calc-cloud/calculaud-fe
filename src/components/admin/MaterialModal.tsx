@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useServiceTypes } from "@/hooks/useServiceTypes";
 import { Material } from "@/types/materials";
@@ -24,22 +13,12 @@ interface MaterialModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem?: Material | null;
-  onSave: (
-    name: string,
-    serviceTypeId: number,
-    editId?: number
-  ) => Promise<void>;
+  onSave: (name: string, serviceTypeId: number, editId?: number) => Promise<void>;
 }
 
-const MaterialModal: React.FC<MaterialModalProps> = ({
-  open,
-  onOpenChange,
-  editItem,
-  onSave,
-}) => {
+const MaterialModal: React.FC<MaterialModalProps> = ({ open, onOpenChange, editItem, onSave }) => {
   const [materialName, setMaterialName] = useState("");
-  const [selectedServiceTypeId, setSelectedServiceTypeId] =
-    useState<string>("");
+  const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: serviceTypesData } = useServiceTypes();
@@ -75,11 +54,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
 
     setIsLoading(true);
     try {
-      await onSave(
-        materialName.trim(),
-        parseInt(selectedServiceTypeId),
-        editItem?.id
-      );
+      await onSave(materialName.trim(), parseInt(selectedServiceTypeId), editItem?.id);
       onOpenChange(false);
     } catch (_error) {
       // Error handling could be added here if needed
@@ -98,9 +73,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editItem ? "Edit Material" : "Create New Material"}
-          </DialogTitle>
+          <DialogTitle>{editItem ? "Edit Material" : "Create New Material"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
@@ -116,29 +89,20 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
               disabled={isLoading}
               maxLength={200}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {materialName.length}/200 characters
-            </p>
+            <p className="text-xs text-gray-500 mt-1">{materialName.length}/200 characters</p>
           </div>
 
           <div>
             <Label htmlFor="serviceType" className="text-sm mb-2 block">
               Service Type
             </Label>
-            <Select
-              value={selectedServiceTypeId}
-              onValueChange={setSelectedServiceTypeId}
-              disabled={isLoading}
-            >
+            <Select value={selectedServiceTypeId} onValueChange={setSelectedServiceTypeId} disabled={isLoading}>
               <SelectTrigger className="h-8">
                 <SelectValue placeholder="Select a service type" />
               </SelectTrigger>
               <SelectContent>
                 {serviceTypesData?.items?.map((serviceType) => (
-                  <SelectItem
-                    key={serviceType.id}
-                    value={serviceType.id.toString()}
-                  >
+                  <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
                     {serviceType.name}
                   </SelectItem>
                 ))}
@@ -147,12 +111,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
           </div>
 
           <div className="flex justify-end space-x-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              size="sm"
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={handleClose} size="sm" disabled={isLoading}>
               Cancel
             </Button>
             <Button onClick={handleSave} size="sm" disabled={isLoading}>

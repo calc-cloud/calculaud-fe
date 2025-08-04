@@ -9,19 +9,11 @@ interface AttachedFilesCardProps {
   onFilesChange: (newFiles: PurposeFile[]) => void;
 }
 
-export const AttachedFilesCard: React.FC<AttachedFilesCardProps> = ({
-  purpose,
-  onFilesChange,
-}) => {
+export const AttachedFilesCard: React.FC<AttachedFilesCardProps> = ({ purpose, onFilesChange }) => {
   return (
     <Card className="flex-none">
       <CardContent className="p-6">
-        <FileUpload
-          files={purpose.files}
-          onFilesChange={onFilesChange}
-          isReadOnly={false}
-          purposeId={purpose.id}
-        />
+        <FileUpload files={purpose.files} onFilesChange={onFilesChange} isReadOnly={false} purposeId={purpose.id} />
       </CardContent>
     </Card>
   );

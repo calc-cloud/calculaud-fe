@@ -35,10 +35,7 @@ export const createColumns = (
       return (
         <TooltipCell
           trigger={
-            <Badge
-              variant={statusInfo.variant}
-              className={`pointer-events-none ${statusInfo.className}`}
-            >
+            <Badge variant={statusInfo.variant} className={`pointer-events-none ${statusInfo.className}`}>
               {statusInfo.label}
             </Badge>
           }
@@ -55,9 +52,7 @@ export const createColumns = (
     header: () => <SimpleHeaderWrapper>Status Message</SimpleHeaderWrapper>,
     cell: ({ row }) => (
       <CellWrapper>
-        {row.original.comments || (
-          <span className="text-muted-foreground">No status message</span>
-        )}
+        {row.original.comments || <span className="text-muted-foreground">No status message</span>}
       </CellWrapper>
     ),
     ...COLUMN_SIZES.statusMessage,
@@ -69,11 +64,7 @@ export const createColumns = (
     header: () => <HeaderWrapper>Description</HeaderWrapper>,
     cell: ({ row }) => (
       <TooltipCell
-        trigger={
-          <div className="line-clamp-2 text-sm leading-tight font-medium">
-            {row.original.description}
-          </div>
-        }
+        trigger={<div className="line-clamp-2 text-sm leading-tight font-medium">{row.original.description}</div>}
         content={<p>{row.original.description}</p>}
       />
     ),
@@ -125,10 +116,7 @@ export const createColumns = (
       const authorityInfo = getAuthorityInfo(row.original);
 
       return (
-        <TooltipCell
-          trigger={<div>{authorityInfo.displayName}</div>}
-          content={<p>{authorityInfo.description}</p>}
-        />
+        <TooltipCell trigger={<div>{authorityInfo.displayName}</div>} content={<p>{authorityInfo.description}</p>} />
       );
     },
     ...COLUMN_SIZES.pendingAuthority,
@@ -141,12 +129,7 @@ export const createColumns = (
     cell: ({ row }) => {
       const hierarchyInfo = getHierarchyInfo(row.original, hierarchies);
 
-      return (
-        <TooltipCell
-          trigger={<div>{hierarchyInfo.displayName}</div>}
-          content={<p>{hierarchyInfo.fullPath}</p>}
-        />
-      );
+      return <TooltipCell trigger={<div>{hierarchyInfo.displayName}</div>} content={<p>{hierarchyInfo.fullPath}</p>} />;
     },
     ...COLUMN_SIZES.hierarchy,
   },
@@ -175,9 +158,7 @@ export const createColumns = (
         return (
           <CellWrapper>
             <div className="text-sm text-muted-foreground">
-              {purpose.purchases.length === 0
-                ? "No purchases added"
-                : "No stage information"}
+              {purpose.purchases.length === 0 ? "No purchases added" : "No stage information"}
             </div>
           </CellWrapper>
         );
@@ -207,10 +188,7 @@ export const createColumns = (
       const emfIds = getEMFIds(row.original);
 
       return emfIds.ids.length > 0 ? (
-        <TooltipCell
-          trigger={<MultiItemDisplay items={emfIds.ids} />}
-          content={<p>{emfIds.allIds}</p>}
-        />
+        <TooltipCell trigger={<MultiItemDisplay items={emfIds.ids} />} content={<p>{emfIds.allIds}</p>} />
       ) : (
         <CellWrapper>
           <div className="text-sm text-muted-foreground">-</div>
@@ -253,18 +231,11 @@ export const createColumns = (
     id: "expectedDelivery",
     accessorKey: "expected_delivery",
     header: () => (
-      <HeaderWrapper
-        sortable
-        sortField="expected_delivery"
-        currentSort={sortConfig}
-        onSortChange={onSortChange}
-      >
+      <HeaderWrapper sortable sortField="expected_delivery" currentSort={sortConfig} onSortChange={onSortChange}>
         Expected Delivery
       </HeaderWrapper>
     ),
-    cell: ({ row }) => (
-      <CellWrapper>{formatDate(row.original.expected_delivery)}</CellWrapper>
-    ),
+    cell: ({ row }) => <CellWrapper>{formatDate(row.original.expected_delivery)}</CellWrapper>,
     ...COLUMN_SIZES.expectedDelivery,
   },
 
@@ -272,18 +243,11 @@ export const createColumns = (
     id: "createdAt",
     accessorKey: "creation_time",
     header: () => (
-      <HeaderWrapper
-        sortable
-        sortField="creation_time"
-        currentSort={sortConfig}
-        onSortChange={onSortChange}
-      >
+      <HeaderWrapper sortable sortField="creation_time" currentSort={sortConfig} onSortChange={onSortChange}>
         Created At
       </HeaderWrapper>
     ),
-    cell: ({ row }) => (
-      <CellWrapper>{formatDate(row.original.creation_time)}</CellWrapper>
-    ),
+    cell: ({ row }) => <CellWrapper>{formatDate(row.original.creation_time)}</CellWrapper>,
     ...COLUMN_SIZES.createdAt,
   },
 
@@ -291,18 +255,11 @@ export const createColumns = (
     id: "lastModified",
     accessorKey: "last_modified",
     header: () => (
-      <HeaderWrapper
-        sortable
-        sortField="last_modified"
-        currentSort={sortConfig}
-        onSortChange={onSortChange}
-      >
+      <HeaderWrapper sortable sortField="last_modified" currentSort={sortConfig} onSortChange={onSortChange}>
         Last Modified
       </HeaderWrapper>
     ),
-    cell: ({ row }) => (
-      <CellWrapper>{formatDate(row.original.last_modified)}</CellWrapper>
-    ),
+    cell: ({ row }) => <CellWrapper>{formatDate(row.original.last_modified)}</CellWrapper>,
     ...COLUMN_SIZES.lastModified,
   },
 ];

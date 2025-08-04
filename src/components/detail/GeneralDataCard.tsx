@@ -1,11 +1,4 @@
-import {
-  Building,
-  Calendar,
-  Edit,
-  Layers,
-  MessageSquare,
-  Target,
-} from "lucide-react";
+import { Building, Calendar, Edit, Layers, MessageSquare, Target } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,10 +13,7 @@ interface GeneralDataCardProps {
   onEdit: () => void;
 }
 
-export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
-  purpose,
-  onEdit,
-}) => {
+export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdit }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -62,12 +52,8 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <div className="flex items-center space-x-2 col-span-2">
             <Calendar className="h-4 w-4 text-gray-500" />
             <div>
-              <p className="text-sm font-medium text-gray-900">
-                Expected Delivery
-              </p>
-              <p className="text-sm text-gray-600">
-                {formatDate(purpose.expected_delivery)}
-              </p>
+              <p className="text-sm font-medium text-gray-900">Expected Delivery</p>
+              <p className="text-sm text-gray-600">{formatDate(purpose.expected_delivery)}</p>
             </div>
           </div>
 
@@ -75,9 +61,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
             <Layers className="h-4 w-4 text-gray-500" />
             <div>
               <p className="text-sm font-medium text-gray-900">Hierarchy</p>
-              <p className="text-sm text-gray-600 text-xs">
-                {purpose.hierarchy_name}
-              </p>
+              <p className="text-sm text-gray-600 text-xs">{purpose.hierarchy_name}</p>
             </div>
           </div>
         </div>
@@ -87,9 +71,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <MessageSquare className="h-4 w-4 text-gray-500 mt-1" />
           <div>
             <p className="text-sm font-medium text-gray-900">Status Message</p>
-            <p className="text-sm text-gray-600">
-              {purpose.comments || "No status message"}
-            </p>
+            <p className="text-sm text-gray-600">{purpose.comments || "No status message"}</p>
           </div>
         </div>
 
@@ -99,10 +81,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <h4 className="font-medium text-gray-900 mb-3">Content</h4>
           <div className="space-y-2">
             {purpose.contents.map((content, index) => (
-              <div
-                key={index}
-                className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded"
-              >
+              <div key={index} className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
                 <div>
                   <p className="text-sm font-medium">{content.material_name}</p>
                 </div>

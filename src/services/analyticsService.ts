@@ -40,24 +40,14 @@ export class AnalyticsService {
     return params;
   }
 
-  async getServicesQuantities(
-    filters?: DashboardFilters
-  ): Promise<ServicesQuantityResponse> {
+  async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
     const params = this.buildFilterParams(filters);
-    return apiService.get<ServicesQuantityResponse>(
-      "/analytics/services/quantities",
-      params
-    );
+    return apiService.get<ServicesQuantityResponse>("/analytics/services/quantities", params);
   }
 
-  async getServiceTypesDistribution(
-    filters?: DashboardFilters
-  ): Promise<ServiceTypesDistributionResponse> {
+  async getServiceTypesDistribution(filters?: DashboardFilters): Promise<ServiceTypesDistributionResponse> {
     const params = this.buildFilterParams(filters);
-    return apiService.get<ServiceTypesDistributionResponse>(
-      "/analytics/service-types/distribution",
-      params
-    );
+    return apiService.get<ServiceTypesDistributionResponse>("/analytics/service-types/distribution", params);
   }
 
   async getHierarchyDistribution(
@@ -75,10 +65,7 @@ export class AnalyticsService {
       params.parent_id = parent_id;
     }
 
-    return apiService.get<HierarchyDistributionResponse>(
-      "/analytics/hierarchies/distribution",
-      params
-    );
+    return apiService.get<HierarchyDistributionResponse>("/analytics/hierarchies/distribution", params);
   }
 
   async getExpenditureTimeline(
@@ -88,10 +75,7 @@ export class AnalyticsService {
     const params = this.buildFilterParams(filters);
     params.group_by = groupBy;
 
-    return apiService.get<ExpenditureTimelineResponse>(
-      "/analytics/expenditure/timeline",
-      params
-    );
+    return apiService.get<ExpenditureTimelineResponse>("/analytics/expenditure/timeline", params);
   }
 }
 

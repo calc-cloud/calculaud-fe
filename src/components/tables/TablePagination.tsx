@@ -36,11 +36,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
     for (let i = startPage; i <= endPage; i++) {
       items.push(
         <PaginationItem key={i}>
-          <PaginationLink
-            onClick={() => onPageChange(i)}
-            isActive={currentPage === i}
-            className="cursor-pointer"
-          >
+          <PaginationLink onClick={() => onPageChange(i)} isActive={currentPage === i} className="cursor-pointer">
             {i}
           </PaginationLink>
         </PaginationItem>
@@ -61,13 +57,9 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
         <PaginationContent className={isLoading ? "opacity-75" : ""}>
           <PaginationItem>
             <PaginationPrevious
-              onClick={() =>
-                !isLoading && onPageChange(Math.max(1, currentPage - 1))
-              }
+              onClick={() => !isLoading && onPageChange(Math.max(1, currentPage - 1))}
               className={
-                currentPage === 1 || isLoading
-                  ? "pointer-events-none opacity-50 cursor-not-allowed"
-                  : "cursor-pointer"
+                currentPage === 1 || isLoading ? "pointer-events-none opacity-50 cursor-not-allowed" : "cursor-pointer"
               }
             />
           </PaginationItem>
@@ -76,10 +68,7 @@ export const TablePagination: React.FC<TablePaginationProps> = ({
 
           <PaginationItem>
             <PaginationNext
-              onClick={() =>
-                !isLoading &&
-                onPageChange(Math.min(totalPages, currentPage + 1))
-              }
+              onClick={() => !isLoading && onPageChange(Math.min(totalPages, currentPage + 1))}
               className={
                 currentPage === totalPages || isLoading
                   ? "pointer-events-none opacity-50 cursor-not-allowed"

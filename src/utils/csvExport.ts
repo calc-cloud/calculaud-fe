@@ -12,12 +12,7 @@ export const exportPurposesToCSV = async (
 
   try {
     // Convert filters to API parameters (same as regular purposes request but without pagination)
-    const apiParams = purposeService.mapFiltersToApiParams(
-      filters,
-      sortConfig,
-      1,
-      999999
-    );
+    const apiParams = purposeService.mapFiltersToApiParams(filters, sortConfig, 1, 999999);
 
     // Remove pagination params for export
     delete apiParams.page;
@@ -56,10 +51,7 @@ export const exportPurposesToCSV = async (
   } catch (error) {
     toast({
       title: "Export failed",
-      description:
-        error instanceof Error
-          ? error.message
-          : "An error occurred while exporting data.",
+      description: error instanceof Error ? error.message : "An error occurred while exporting data.",
       variant: "destructive",
     });
   } finally {

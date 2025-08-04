@@ -1,7 +1,4 @@
-import {
-  ColumnVisibility,
-  DEFAULT_COLUMN_VISIBILITY,
-} from "@/components/common/ColumnControl";
+import { ColumnVisibility, DEFAULT_COLUMN_VISIBILITY } from "@/components/common/ColumnControl";
 
 const COLUMN_VISIBILITY_KEY = "search-column-visibility";
 const COLUMN_SIZING_KEY = "search-column-sizing";
@@ -29,9 +26,7 @@ export const DEFAULT_COLUMN_SIZING: ColumnSizing = {
 /**
  * Save column visibility settings to localStorage
  */
-export const saveColumnVisibility = (
-  columnVisibility: ColumnVisibility
-): void => {
+export const saveColumnVisibility = (columnVisibility: ColumnVisibility): void => {
   localStorage.setItem(COLUMN_VISIBILITY_KEY, JSON.stringify(columnVisibility));
 };
 
@@ -49,12 +44,8 @@ export const loadColumnVisibility = (): ColumnVisibility => {
     const parsed = JSON.parse(stored);
 
     // Validate that all expected keys exist and are booleans
-    const expectedKeys = Object.keys(
-      DEFAULT_COLUMN_VISIBILITY
-    ) as (keyof ColumnVisibility)[];
-    const isValid = expectedKeys.every(
-      (key) => key in parsed && typeof parsed[key] === "boolean"
-    );
+    const expectedKeys = Object.keys(DEFAULT_COLUMN_VISIBILITY) as (keyof ColumnVisibility)[];
+    const isValid = expectedKeys.every((key) => key in parsed && typeof parsed[key] === "boolean");
 
     if (!isValid) {
       return DEFAULT_COLUMN_VISIBILITY;
@@ -106,11 +97,7 @@ export const loadColumnSizing = (): ColumnSizing => {
 
     // Override with valid stored values
     Object.entries(parsed).forEach(([columnId, width]) => {
-      if (
-        typeof width === "number" &&
-        width > 0 &&
-        columnId in DEFAULT_COLUMN_SIZING
-      ) {
+      if (typeof width === "number" && width > 0 && columnId in DEFAULT_COLUMN_SIZING) {
         validSizing[columnId] = width;
       }
     });

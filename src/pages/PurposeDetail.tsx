@@ -75,13 +75,8 @@ const PurposeDetail: React.FC = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             {error ? "Error Loading Purpose" : "Purpose not found"}
           </h2>
-          <p className="text-gray-600 mb-4">
-            {error || "The purpose you're looking for doesn't exist."}
-          </p>
-          <button
-            onClick={handleBackToSearch}
-            className="text-blue-600 hover:text-blue-800"
-          >
+          <p className="text-gray-600 mb-4">{error || "The purpose you're looking for doesn't exist."}</p>
+          <button onClick={handleBackToSearch} className="text-blue-600 hover:text-blue-800">
             ← Back to Search
           </button>
         </div>
@@ -104,10 +99,7 @@ const PurposeDetail: React.FC = () => {
         <div className="lg:col-span-1 space-y-4">
           <GeneralDataCard purpose={purpose} onEdit={handleEditGeneralData} />
 
-          <AttachedFilesCard
-            purpose={purpose}
-            onFilesChange={handleFilesChange}
-          />
+          <AttachedFilesCard purpose={purpose} onFilesChange={handleFilesChange} />
         </div>
 
         {/* Right Column: Purchases Timeline */}
@@ -126,9 +118,7 @@ const PurposeDetail: React.FC = () => {
             onSaveStage={handleSaveStage}
             setEditForm={setEditForm}
             getStageDisplayDate={getStageDisplayDate}
-            hasMultipleStagesWithSamePriority={
-              hasMultipleStagesWithSamePriority
-            }
+            hasMultipleStagesWithSamePriority={hasMultipleStagesWithSamePriority}
             getPriorityVariant={getPriorityVariant}
             isCurrentPendingStage={isCurrentPendingStage}
             calculateStagePosition={calculateStagePosition}
@@ -162,12 +152,7 @@ const PurposeDetail: React.FC = () => {
       )}
 
       {/* Full-screen overlay when stage is expanded */}
-      {selectedStage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-20 z-40"
-          onClick={handleCloseStagePopup}
-        />
-      )}
+      {selectedStage && <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={handleCloseStagePopup} />}
     </div>
   );
 };

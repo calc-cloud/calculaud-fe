@@ -16,11 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-import {
-  convertPurchaseToStages,
-  calculateDaysSinceLastStageCompletion,
-  getStagesText,
-} from "@/utils/stageUtils";
+import { convertPurchaseToStages, calculateDaysSinceLastStageCompletion, getStagesText } from "@/utils/stageUtils";
 
 interface PurchaseTimelineProps {
   purchase: any;
@@ -68,11 +64,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
 }) => {
   const stages = convertPurchaseToStages(purchase);
 
-  const renderStageCard = (
-    stage: any,
-    index: number,
-    isAboveTimeline: boolean
-  ) => {
+  const renderStageCard = (stage: any, index: number, isAboveTimeline: boolean) => {
     const position = calculateStagePosition(stages, index);
     const isExpanded = selectedStage?.id === stage.id;
     const positioningClass = isAboveTimeline
@@ -125,18 +117,11 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     </Badge>
                   )}
                 </div>
-                {stage.completed &&
-                  stage.stage_type.value_required &&
-                  stage.value &&
-                  stage.value.trim() !== "" && (
-                    <div className="text-xs text-gray-900 font-medium mb-1 break-words">
-                      {stage.value}
-                    </div>
-                  )}
+                {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== "" && (
+                  <div className="text-xs text-gray-900 font-medium mb-1 break-words">{stage.value}</div>
+                )}
                 {getStageDisplayDate(stage) && (
-                  <div className="text-xs text-gray-500">
-                    {getStageDisplayDate(stage)}
-                  </div>
+                  <div className="text-xs text-gray-500">{getStageDisplayDate(stage)}</div>
                 )}
               </div>
             )}
@@ -147,9 +132,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <h4 className="font-medium text-gray-800 text-sm">
-                        {stage.name}
-                      </h4>
+                      <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
                       {hasMultipleStagesWithSamePriority(stages, stage) && (
                         <Badge
                           variant={getPriorityVariant(stage.priority)}
@@ -161,17 +144,12 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     </div>
                     {stage.stage_type.responsible_authority && (
                       <p className="text-xs text-gray-600 mt-1">
-                        Responsible:{" "}
-                        {stage.stage_type.responsible_authority.name}
+                        Responsible: {stage.stage_type.responsible_authority.name}
                       </p>
                     )}
                   </div>
                   <div className="flex items-center space-x-1">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        stage.completed ? "bg-green-500" : "bg-gray-300"
-                      }`}
-                    />
+                    <div className={`w-3 h-3 rounded-full ${stage.completed ? "bg-green-500" : "bg-gray-300"}`} />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -185,34 +163,23 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 </div>
 
                 {editingStage === stage.id && (
-                  <div
-                    className="space-y-3"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="space-y-3" onClick={(e) => e.stopPropagation()}>
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
-                        Completion Date
-                      </label>
+                      <label className="text-xs text-gray-500 mb-1 block">Completion Date</label>
                       <input
                         type="date"
                         value={editForm.date}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, date: e.target.value })
-                        }
+                        onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
                         className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                     {stage.stage_type.value_required && (
                       <div>
-                        <label className="text-xs text-gray-500 mb-1 block">
-                          Value
-                        </label>
+                        <label className="text-xs text-gray-500 mb-1 block">Value</label>
                         <input
                           type="text"
                           value={editForm.text}
-                          onChange={(e) =>
-                            setEditForm({ ...editForm, text: e.target.value })
-                          }
+                          onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -257,39 +224,28 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
             <div className="flex items-center space-x-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Purchase #{purchase.id}
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-800">Purchase #{purchase.id}</h3>
               {isPurchaseComplete(purchase)
                 ? (() => {
-                    const daysAgo =
-                      calculateDaysSinceLastStageCompletion(purchase);
+                    const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
                     return (
                       <span className="text-sm text-green-600 font-medium">
-                        Purchase completed{" "}
-                        {daysAgo !== null ? `${daysAgo} days ago` : ""}
+                        Purchase completed {daysAgo !== null ? `${daysAgo} days ago` : ""}
                       </span>
                     );
                   })()
                 : getStagesText(purchase) && (
                     <span className="text-sm text-orange-600 font-medium">
                       {getStagesText(purchase)}
-                      {purchase.pending_authority &&
-                        ` (responsible: ${purchase.pending_authority.name})`}
+                      {purchase.pending_authority && ` (responsible: ${purchase.pending_authority.name})`}
                     </span>
                   )}
             </div>
-            <div className="text-xs text-gray-500">
-              Created: {formatDate(purchase.creation_date)}
-            </div>
+            <div className="text-xs text-gray-500">Created: {formatDate(purchase.creation_date)}</div>
           </div>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
+              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
                 <Trash2 className="h-4 w-4" />
               </Button>
             </AlertDialogTrigger>
@@ -297,8 +253,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete Purchase #{purchase.id}? This
-                  action cannot be undone.
+                  Are you sure you want to delete Purchase #{purchase.id}? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -332,10 +287,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
             <div className="relative h-1">
               {(() => {
                 const firstStagePosition = calculateStagePosition(stages, 0);
-                const lastStagePosition = calculateStagePosition(
-                  stages,
-                  stages.length - 1
-                );
+                const lastStagePosition = calculateStagePosition(stages, stages.length - 1);
                 return (
                   <div
                     className="absolute top-1/2 h-0.5 bg-gray-300 -translate-y-1/2"
@@ -375,14 +327,10 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     {/* Stage Dot */}
                     <div
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center relative z-10 ${
-                        stage.completed
-                          ? "bg-green-500 border-green-500"
-                          : "bg-white border-gray-300"
+                        stage.completed ? "bg-green-500 border-green-500" : "bg-white border-gray-300"
                       }`}
                     >
-                      {stage.completed && (
-                        <Check className="w-2 h-2 text-white" />
-                      )}
+                      {stage.completed && <Check className="w-2 h-2 text-white" />}
                     </div>
                   </div>
                 );

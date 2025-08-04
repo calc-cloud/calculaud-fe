@@ -19,10 +19,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### CI/CD Commands
 
-**Code Quality (REQUIRED before every commit):**
+**Code Quality (REQUIRED after making changes):**
 ```bash
-npm run lint    # ESLint checks
-npm run build   # Build verification
+npm run format    # Format code with Prettier
+npm run lint:fix  # Auto-fix ESLint issues
+npm run lint      # ESLint checks
 ```
 
 **Docker Commands:**

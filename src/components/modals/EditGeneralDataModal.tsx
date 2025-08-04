@@ -6,26 +6,10 @@ import { HierarchySelector } from "@/components/common/HierarchySelector";
 import { ContentsSection } from "@/components/sections/ContentsSection";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
@@ -54,12 +38,7 @@ interface GeneralDataForm {
   contents: PurposeContent[];
 }
 
-export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
-  isOpen,
-  onClose,
-  purpose,
-  onSave,
-}) => {
+export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({ isOpen, onClose, purpose, onSave }) => {
   const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
   const { toast } = useToast();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -76,17 +55,13 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     contents: [],
   });
 
-  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>(
-    []
-  );
+  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>([]);
 
   // Initialize form data when purpose changes
   useEffect(() => {
     if (purpose && isOpen) {
-      const selectedSupplier =
-        suppliers.find((s) => s.name === purpose.supplier) || null;
-      const selectedServiceType =
-        serviceTypes.find((st) => st.name === purpose.service_type) || null;
+      const selectedSupplier = suppliers.find((s) => s.name === purpose.supplier) || null;
+      const selectedServiceType = serviceTypes.find((st) => st.name === purpose.service_type) || null;
 
       setFormData({
         description: purpose.description || "",
@@ -151,8 +126,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
       ...purpose,
       description: formData.description.trim(),
       supplier: formData.selectedSupplier?.name || "",
-      service_type: formData.selectedServiceType
-        ?.name as Purpose["service_type"],
+      service_type: formData.selectedServiceType?.name as Purpose["service_type"],
       expected_delivery: formData.expected_delivery,
       status: formData.status as Purpose["status"],
       hierarchy_id: formData.hierarchy_id,
@@ -168,10 +142,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     onClose();
   };
 
-  const handleFieldChange = <K extends keyof GeneralDataForm>(
-    field: K,
-    value: GeneralDataForm[K]
-  ) => {
+  const handleFieldChange = <K extends keyof GeneralDataForm>(field: K, value: GeneralDataForm[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -181,9 +152,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
   };
 
   const handleServiceTypeChange = (serviceTypeId: string) => {
-    const serviceType = serviceTypes.find(
-      (st) => st.id === parseInt(serviceTypeId)
-    );
+    const serviceType = serviceTypes.find((st) => st.id === parseInt(serviceTypeId));
     setFormData((prev) => ({
       ...prev,
       selectedServiceType: serviceType || null,
@@ -196,9 +165,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     setSelectedHierarchyIds(selectedIds);
 
     if (selectedIds.length > 0) {
-      const selectedHierarchy = hierarchies.find(
-        (h) => h.id === selectedIds[0]
-      );
+      const selectedHierarchy = hierarchies.find((h) => h.id === selectedIds[0]);
       if (selectedHierarchy) {
         setFormData((prev) => ({
           ...prev,
@@ -243,19 +210,13 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier *</Label>
-              <Select
-                value={formData.selectedSupplier?.id.toString() || ""}
-                onValueChange={handleSupplierChange}
-              >
+              <Select value={formData.selectedSupplier?.id.toString() || ""} onValueChange={handleSupplierChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select supplier" />
                 </SelectTrigger>
                 <SelectContent>
                   {suppliers.map((supplier) => (
-                    <SelectItem
-                      key={supplier.id}
-                      value={supplier.id.toString()}
-                    >
+                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
                       {supplier.name}
                     </SelectItem>
                   ))}
@@ -265,19 +226,13 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="service-type">Service Type *</Label>
-              <Select
-                value={formData.selectedServiceType?.id.toString() || ""}
-                onValueChange={handleServiceTypeChange}
-              >
+              <Select value={formData.selectedServiceType?.id.toString() || ""} onValueChange={handleServiceTypeChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select service type" />
                 </SelectTrigger>
                 <SelectContent>
                   {serviceTypes.map((serviceType) => (
-                    <SelectItem
-                      key={serviceType.id}
-                      value={serviceType.id.toString()}
-                    >
+                    <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
                       {serviceType.name}
                     </SelectItem>
                   ))}
@@ -302,10 +257,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                     <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="truncate">
                       {formData.expected_delivery
-                        ? format(
-                            new Date(formData.expected_delivery),
-                            "dd/MM/yyyy"
-                          )
+                        ? format(new Date(formData.expected_delivery), "dd/MM/yyyy")
                         : "Select delivery date"}
                     </span>
                   </Button>
@@ -313,16 +265,9 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={
-                      formData.expected_delivery
-                        ? new Date(formData.expected_delivery)
-                        : undefined
-                    }
+                    selected={formData.expected_delivery ? new Date(formData.expected_delivery) : undefined}
                     onSelect={(date) => {
-                      handleFieldChange(
-                        "expected_delivery",
-                        date ? format(date, "yyyy-MM-dd") : ""
-                      );
+                      handleFieldChange("expected_delivery", date ? format(date, "yyyy-MM-dd") : "");
                       setDatePickerOpen(false);
                     }}
                     initialFocus
@@ -334,20 +279,12 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => handleFieldChange("status", value)}
-              >
+              <Select value={formData.status} onValueChange={(value) => handleFieldChange("status", value)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[
-                    "IN_PROGRESS",
-                    "COMPLETED",
-                    "SIGNED",
-                    "PARTIALLY_SUPPLIED",
-                  ].map((status) => (
+                  {["IN_PROGRESS", "COMPLETED", "SIGNED", "PARTIALLY_SUPPLIED"].map((status) => (
                     <SelectItem key={status} value={status}>
                       {getStatusDisplay(status).label}
                     </SelectItem>
@@ -383,9 +320,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
           {/* Contents */}
           <ContentsSection
             contents={formData.contents}
-            onContentsChange={(contents) =>
-              handleFieldChange("contents", contents)
-            }
+            onContentsChange={(contents) => handleFieldChange("contents", contents)}
             selectedServiceTypeId={formData.selectedServiceType?.id}
             showServiceTypeWarning={!formData.selectedServiceType}
           />

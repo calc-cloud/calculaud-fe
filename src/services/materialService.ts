@@ -1,10 +1,5 @@
 import { API_CONFIG } from "@/config/api";
-import {
-  Material,
-  MaterialsResponse,
-  MaterialCreateRequest,
-  MaterialUpdateRequest,
-} from "@/types/materials";
+import { Material, MaterialsResponse, MaterialCreateRequest, MaterialUpdateRequest } from "@/types/materials";
 
 import { BaseService } from "./BaseService";
 
@@ -33,10 +28,7 @@ export class MaterialService extends BaseService<
     return this.createEntity(data);
   }
 
-  async updateMaterial(
-    id: number,
-    data: MaterialUpdateRequest
-  ): Promise<Material> {
+  async updateMaterial(id: number, data: MaterialUpdateRequest): Promise<Material> {
     return this.updateEntity(id, data);
   }
 

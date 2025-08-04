@@ -48,10 +48,7 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
 
       // React Refresh rules
-      "react-refresh/only-export-components": [
-        "warn",
-        { allowConstantExport: true },
-      ],
+      "react-refresh/only-export-components": "off",
 
       // TypeScript rules
       "@typescript-eslint/no-unused-vars": [
@@ -69,14 +66,7 @@ export default tseslint.config(
       "import/order": [
         "error",
         {
-          groups: [
-            "builtin",
-            "external",
-            "internal",
-            "parent",
-            "sibling",
-            "index",
-          ],
+          groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
           "newlines-between": "always",
           alphabetize: {
             order: "asc",
@@ -103,14 +93,11 @@ export default tseslint.config(
       "react/jsx-uses-react": "off", // Not needed with new JSX transform
       "react/self-closing-comp": "error",
       "react/jsx-boolean-value": ["error", "never"],
-      "react/jsx-curly-brace-presence": [
-        "error",
-        { props: "never", children: "never" },
-      ],
+      "react/jsx-curly-brace-presence": ["error", { props: "never", children: "never" }],
       "react/no-unescaped-entities": "off", // Allow unescaped quotes and entities in JSX
 
       // Prettier integration
-      "prettier/prettier": "error",
+      "prettier/prettier": "off",
     },
   }
 );

@@ -17,19 +17,9 @@ const HierarchyModalAdapter: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem: Hierarchy | null;
-  onSave: (
-    data: HierarchyCreateRequest | HierarchyUpdateRequest,
-    editId?: number
-  ) => Promise<void>;
+  onSave: (data: HierarchyCreateRequest | HierarchyUpdateRequest, editId?: number) => Promise<void>;
 }> = ({ open, onOpenChange, editItem, onSave }) => {
-  return (
-    <CreateHierarchyModal
-      open={open}
-      onOpenChange={onOpenChange}
-      editItem={editItem}
-      onSave={onSave}
-    />
-  );
+  return <CreateHierarchyModal open={open} onOpenChange={onOpenChange} editItem={editItem} onSave={onSave} />;
 };
 
 const formatTypeDisplay = (type: string): string => {

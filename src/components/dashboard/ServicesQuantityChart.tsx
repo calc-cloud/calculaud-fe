@@ -1,26 +1,10 @@
 import { ExternalLink } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServicesQuantityResponse } from "@/types/analytics";
 
 interface ServicesQuantityChartProps {
@@ -42,10 +26,7 @@ const SERVICE_TYPE_COLORS = [
   "#6b7280", // gray
 ];
 
-export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
-  data,
-  isLoading,
-}) => {
+export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ data, isLoading }) => {
   const navigate = useNavigate();
 
   const handleViewInSearch = () => {
@@ -59,9 +40,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Quantities by Material</CardTitle>
-              <CardDescription>
-                Total quantities for each material grouped by service type
-              </CardDescription>
+              <CardDescription>Total quantities for each material grouped by service type</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -90,9 +69,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Quantities by Material</CardTitle>
-              <CardDescription>
-                Total quantities for each material grouped by service type
-              </CardDescription>
+              <CardDescription>Total quantities for each material grouped by service type</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -134,8 +111,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
 
   // Assign colors to service types and create chart data
   Object.keys(groupedData).forEach((serviceTypeName) => {
-    serviceTypeColorMap[serviceTypeName] =
-      SERVICE_TYPE_COLORS[colorIndex % SERVICE_TYPE_COLORS.length];
+    serviceTypeColorMap[serviceTypeName] = SERVICE_TYPE_COLORS[colorIndex % SERVICE_TYPE_COLORS.length];
     colorIndex++;
 
     groupedData[serviceTypeName].forEach((service) => {
@@ -183,17 +159,9 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Quantities by Material</CardTitle>
-            <CardDescription>
-              Total quantities for each material grouped by service type
-            </CardDescription>
+            <CardDescription>Total quantities for each material grouped by service type</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -201,25 +169,12 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({
       <CardContent>
         <div className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 80 }}
-            >
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="service"
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                interval={0}
-                fontSize={12}
-              />
+              <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} interval={0} fontSize={12} />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
-              <Legend
-                payload={legendData}
-                wrapperStyle={{ paddingTop: "20px" }}
-              />
+              <Legend payload={legendData} wrapperStyle={{ paddingTop: "20px" }} />
               <Bar dataKey="quantity" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />

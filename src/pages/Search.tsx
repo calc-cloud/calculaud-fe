@@ -3,10 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { ActiveFiltersBadges } from "@/components/common/ActiveFiltersBadges";
-import {
-  ColumnControl,
-  ColumnVisibility,
-} from "@/components/common/ColumnControl";
+import { ColumnControl, ColumnVisibility } from "@/components/common/ColumnControl";
 import { FiltersDrawer } from "@/components/common/UnifiedFilters";
 import { TablePagination } from "@/components/tables/TablePagination";
 import { TanStackPurposeTable } from "@/components/tables/TanStackPurposeTable";
@@ -114,9 +111,7 @@ const Search: React.FC = () => {
 
     // If no date/time filters are provided in URL, set default "All Time" values
     const hasDateTimeParams =
-      searchParams.get("start_date") ||
-      searchParams.get("end_date") ||
-      searchParams.get("relative_time");
+      searchParams.get("start_date") || searchParams.get("end_date") || searchParams.get("relative_time");
     if (!hasDateTimeParams) {
       // For "All Time", don't set start_date or end_date
       filters.relative_time = "all_time";
@@ -152,11 +147,7 @@ const Search: React.FC = () => {
     totalCount,
     isLoading,
     error,
-  } = usePurposeData(
-    getInitialFilters(),
-    getInitialSortConfig(),
-    getInitialPage()
-  );
+  } = usePurposeData(getInitialFilters(), getInitialSortConfig(), getInitialPage());
 
   // Create sort change handler that resets to page 1
   const handleSortChange = (newSortConfig: SortConfig) => {
@@ -165,23 +156,13 @@ const Search: React.FC = () => {
   };
 
   // Get admin data for filter badges
-  const {
-    hierarchies,
-    suppliers,
-    serviceTypes,
-    materials,
-    responsibleAuthorities,
-  } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities } = useAdminData();
 
   // Column visibility state - load from localStorage
-  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(
-    () => loadColumnVisibility()
-  );
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(() => loadColumnVisibility());
 
   // Column sizing state - load from localStorage
-  const [columnSizing, setColumnSizing] = useState<ColumnSizing>(() =>
-    loadColumnSizing()
-  );
+  const [columnSizing, setColumnSizing] = useState<ColumnSizing>(() => loadColumnSizing());
 
   // Get toast function
   const { toast } = useToast();
@@ -250,10 +231,7 @@ const Search: React.FC = () => {
     }
 
     // Add sorting
-    if (
-      sortConfig.field !== "creation_time" ||
-      sortConfig.direction !== "desc"
-    ) {
+    if (sortConfig.field !== "creation_time" || sortConfig.direction !== "desc") {
       params.set("sort_field", sortConfig.field);
       params.set("sort_direction", sortConfig.direction);
     }
@@ -282,9 +260,7 @@ const Search: React.FC = () => {
 
   // Count active filters
   const activeFiltersCount = [
-    ...(filters.relative_time && filters.relative_time !== "all_time"
-      ? [1]
-      : []),
+    ...(filters.relative_time && filters.relative_time !== "all_time" ? [1] : []),
     ...(filters.hierarchy_id || []),
     ...(filters.service_type || []),
     ...(filters.status || []),
@@ -310,9 +286,7 @@ const Search: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 flex-shrink-0">
-          Search Purposes
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900 flex-shrink-0">Search Purposes</h1>
       </div>
 
       <div className="flex items-center gap-4">
@@ -321,23 +295,14 @@ const Search: React.FC = () => {
           <Input
             placeholder="Search by description, content, or EMF ID..."
             value={filters.search_query || ""}
-            onChange={(e) =>
-              setFilters({ ...filters, search_query: e.target.value })
-            }
+            onChange={(e) => setFilters({ ...filters, search_query: e.target.value })}
             className="pl-10 focus-visible:outline-none"
           />
         </div>
         <FiltersDrawer filters={filters} onFiltersChange={setFilters} />
-        <ColumnControl
-          columnVisibility={columnVisibility}
-          onColumnVisibilityChange={setColumnVisibility}
-        />
+        <ColumnControl columnVisibility={columnVisibility} onColumnVisibilityChange={setColumnVisibility} />
         {activeFiltersCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={() => clearFilters(setFilters, filters)}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={() => clearFilters(setFilters, filters)} className="gap-2">
             <X className="h-4 w-4" />
             Clear Filters
           </Button>
@@ -349,11 +314,7 @@ const Search: React.FC = () => {
           disabled={isExportLoading}
           className="gap-2 bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-blue-600 hover:border-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isExportLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
+          {isExportLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
           {isExportLoading ? "Exporting..." : "Export"}
         </Button>
       </div>
@@ -371,8 +332,7 @@ const Search: React.FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of{" "}
-            {totalCount} purposes
+            Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of {totalCount} purposes
           </p>
         </div>
 

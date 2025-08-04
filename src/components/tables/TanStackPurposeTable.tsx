@@ -10,21 +10,10 @@ import React, { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ColumnVisibility } from "@/components/common/ColumnControl";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { Purpose } from "@/types";
-import {
-  ColumnSizing,
-  loadColumnSizing,
-  saveColumnSizing,
-} from "@/utils/columnStorage";
+import { ColumnSizing, loadColumnSizing, saveColumnSizing } from "@/utils/columnStorage";
 import { SortConfig } from "@/utils/sorting";
 
 import { createColumns } from "./columns";
@@ -151,12 +140,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
                   }}
                   className="text-center relative before:content-[''] before:absolute before:right-0 before:top-3 before:bottom-3 before:w-px before:bg-border"
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
 
                   {/* Resize handle */}
                   {header.column.getCanResize() && (

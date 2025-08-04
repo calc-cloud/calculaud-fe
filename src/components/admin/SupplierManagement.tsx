@@ -1,11 +1,6 @@
 import { BaseQueryParams } from "@/services/BaseService";
 import { supplierService } from "@/services/supplierService";
-import {
-  Supplier,
-  SuppliersResponse,
-  SupplierCreateRequest,
-  SupplierUpdateRequest,
-} from "@/types/suppliers";
+import { Supplier, SuppliersResponse, SupplierCreateRequest, SupplierUpdateRequest } from "@/types/suppliers";
 
 import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
 import SupplierModal from "./SupplierModal";

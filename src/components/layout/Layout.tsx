@@ -71,21 +71,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 className="text-xl font-semibold text-blue-700 hover:opacity-80 transition-opacity flex items-center space-x-3"
               >
                 <div className="relative flex items-center justify-center w-10 h-8">
-                  <svg
-                    width="40"
-                    height="32"
-                    viewBox="0 0 40 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                      <linearGradient
-                        id="cloudGradient"
-                        x1="0"
-                        y1="0"
-                        x2="1"
-                        y2="1"
-                      >
+                      <linearGradient id="cloudGradient" x1="0" y1="0" x2="1" y2="1">
                         <stop offset="0%" stopColor="#4F46E5" />
                         <stop offset="100%" stopColor="#3B82F6" />
                       </linearGradient>
@@ -124,55 +112,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Button>
               <div className="flex items-center space-x-2 border-l pl-4">
                 <Link to="/dashboard">
-                  <Button
-                    variant={
-                      location.pathname === "/dashboard" ? "default" : "ghost"
-                    }
-                  >
-                    Dashboard
-                  </Button>
+                  <Button variant={location.pathname === "/dashboard" ? "default" : "ghost"}>Dashboard</Button>
                 </Link>
                 <Link to="/search">
-                  <Button
-                    variant={
-                      location.pathname === "/search" ? "default" : "ghost"
-                    }
-                  >
-                    Search
-                  </Button>
+                  <Button variant={location.pathname === "/search" ? "default" : "ghost"}>Search</Button>
                 </Link>
                 <Link to="/admin">
-                  <Button
-                    variant={
-                      location.pathname === "/admin" ? "default" : "ghost"
-                    }
-                  >
-                    Admin
-                  </Button>
+                  <Button variant={location.pathname === "/admin" ? "default" : "ghost"}>Admin</Button>
                 </Link>
               </div>
 
               {/* User Avatar Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="relative h-8 w-8 rounded-full"
-                  >
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src="" alt={getDisplayName()} />
-                      <AvatarFallback className="bg-blue-600 text-white">
-                        {getUserInitials()}
-                      </AvatarFallback>
+                      <AvatarFallback className="bg-blue-600 text-white">{getUserInitials()}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {getDisplayName()}
-                      </p>
+                      <p className="text-sm font-medium leading-none">{getDisplayName()}</p>
                       <p className="text-xs leading-none text-muted-foreground">
                         {(auth.user?.profile?.upn as string) ||
                           (auth.user?.profile?.email as string) ||
@@ -192,15 +155,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
 
-      <main className="mx-auto py-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
-        {children}
-      </main>
+      <main className="mx-auto py-6 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">{children}</main>
 
       {/* Global Create Purpose Modal */}
-      <CreatePurposeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      <CreatePurposeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

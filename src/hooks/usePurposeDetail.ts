@@ -39,14 +39,10 @@ export const usePurposeDetail = () => {
 
     try {
       const apiPurpose = await purposeService.getPurpose(id);
-      const transformedPurpose = purposeService.transformApiPurpose(
-        apiPurpose,
-        hierarchies
-      );
+      const transformedPurpose = purposeService.transformApiPurpose(apiPurpose, hierarchies);
       setPurpose(transformedPurpose);
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to load purpose";
+      const errorMessage = err instanceof Error ? err.message : "Failed to load purpose";
       setError(errorMessage);
       setPurpose(null);
       toast({
@@ -124,22 +120,15 @@ export const usePurposeDetail = () => {
       // Transform the edited purpose data to API format
       const updateData = {
         description: editedPurpose.description,
-        supplier_id: suppliers.find((s) => s.name === editedPurpose.supplier)
-          ?.id,
-        service_type_id: serviceTypes.find(
-          (st) => st.name === editedPurpose.service_type
-        )?.id,
+        supplier_id: suppliers.find((s) => s.name === editedPurpose.supplier)?.id,
+        service_type_id: serviceTypes.find((st) => st.name === editedPurpose.service_type)?.id,
         expected_delivery:
-          editedPurpose.expected_delivery &&
-          editedPurpose.expected_delivery.trim()
+          editedPurpose.expected_delivery && editedPurpose.expected_delivery.trim()
             ? editedPurpose.expected_delivery
             : null,
         status: editedPurpose.status,
         hierarchy_id: editedPurpose.hierarchy_id,
-        comments:
-          editedPurpose.comments && editedPurpose.comments.trim()
-            ? editedPurpose.comments
-            : null,
+        comments: editedPurpose.comments && editedPurpose.comments.trim() ? editedPurpose.comments : null,
         contents:
           editedPurpose.contents?.map((content) => ({
             service_id: content.material_id,
@@ -176,8 +165,7 @@ export const usePurposeDetail = () => {
       // Refresh the page to get the updated purpose with the new purchase
       window.location.reload();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to create purchase";
+      const errorMessage = error instanceof Error ? error.message : "Failed to create purchase";
       toast({
         title: "Error creating purchase",
         description: errorMessage,
@@ -201,8 +189,7 @@ export const usePurposeDetail = () => {
       // Refresh the purpose data to show updated purchases
       await refreshPurpose();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to delete purchase";
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete purchase";
       toast({
         title: "Error deleting purchase",
         description: errorMessage,
@@ -220,9 +207,7 @@ export const usePurposeDetail = () => {
   const handleEditStart = (stageId: string, date: string, value: string) => {
     setEditingStage(stageId);
     // For incomplete stages (no date), use today's date as default
-    const formDate = date
-      ? formatDateForInput(date)
-      : new Date().toISOString().split("T")[0];
+    const formDate = date ? formatDateForInput(date) : new Date().toISOString().split("T")[0];
     setEditForm({ date: formDate, text: value });
   };
 
@@ -274,8 +259,7 @@ export const usePurposeDetail = () => {
       // Refresh the purpose data to show updated stage
       await refreshPurpose();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to update stage";
+      const errorMessage = error instanceof Error ? error.message : "Failed to update stage";
       toast({
         title: "Error updating stage",
         description: errorMessage,
@@ -306,10 +290,7 @@ export const usePurposeDetail = () => {
   const getStageDisplayDate = (stage: any) => {
     if (stage.completed && stage.date) {
       const formattedDate = formatDateForTimeline(stage.date);
-      if (
-        stage.days_since_previous_stage !== null &&
-        stage.days_since_previous_stage !== undefined
-      ) {
+      if (stage.days_since_previous_stage !== null && stage.days_since_previous_stage !== undefined) {
         return `${formattedDate} (${stage.days_since_previous_stage} days)`;
       }
       return formattedDate;
@@ -328,22 +309,14 @@ export const usePurposeDetail = () => {
       "outline", // teal-ish
       "default", // blue-ish
     ];
-    return variants[(priority - 1) % variants.length] as
-      | "secondary"
-      | "outline"
-      | "default";
+    return variants[(priority - 1) % variants.length] as "secondary" | "outline" | "default";
   };
 
   const isCurrentPendingStage = (stage: any, purchase: any) => {
-    if (
-      !purchase.current_pending_stages ||
-      purchase.current_pending_stages.length === 0
-    ) {
+    if (!purchase.current_pending_stages || purchase.current_pending_stages.length === 0) {
       return false;
     }
-    return purchase.current_pending_stages.some(
-      (pendingStage: any) => pendingStage.id === stage.id
-    );
+    return purchase.current_pending_stages.some((pendingStage: any) => pendingStage.id === stage.id);
   };
 
   const calculateStagePosition = (stages: any[], stageIndex: number) => {
@@ -353,8 +326,7 @@ export const usePurposeDetail = () => {
     // Use minimal padding (5% on each side) to maximize use of available space
     const padding = 5;
     const availableWidth = 100 - padding * 2;
-    const position =
-      padding + (stageIndex / (stages.length - 1)) * availableWidth;
+    const position = padding + (stageIndex / (stages.length - 1)) * availableWidth;
 
     return position;
   };

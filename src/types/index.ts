@@ -142,11 +142,7 @@ export interface Hierarchy {
   name: string;
 }
 
-export type PurposeStatus =
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "SIGNED"
-  | "PARTIALLY_SUPPLIED";
+export type PurposeStatus = "IN_PROGRESS" | "COMPLETED" | "SIGNED" | "PARTIALLY_SUPPLIED";
 
 // Add specific API response type for purposes
 export interface PurposesApiResponse {

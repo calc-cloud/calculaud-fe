@@ -1,36 +1,12 @@
 import { ExternalLink } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ExpenditureTimelineResponse,
-  DashboardFilters,
-} from "@/types/analytics";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ExpenditureTimelineResponse, DashboardFilters } from "@/types/analytics";
 
 interface CostOverTimeChartProps {
   data: ExpenditureTimelineResponse | undefined;
@@ -60,11 +36,7 @@ const GROUP_BY_OPTIONS = [
   { value: "year", label: "Yearly" },
 ];
 
-export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
-  data,
-  isLoading,
-  onGroupByChange,
-}) => {
+export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({ data, isLoading, onGroupByChange }) => {
   const [currency, setCurrency] = useState<"ILS" | "USD">("ILS");
   const navigate = useNavigate();
 
@@ -80,9 +52,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Cost Over Time</CardTitle>
-              <CardDescription>
-                Expenditure analysis over time with service type breakdown
-              </CardDescription>
+              <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -99,9 +69,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
           <div className="space-y-4 mb-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Group By
-                </label>
+                <label className="text-sm font-medium mb-2 block">Group By</label>
                 <Select disabled>
                   <SelectTrigger>
                     <SelectValue placeholder="Loading..." />
@@ -112,9 +80,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
                 </Select>
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Currency
-                </label>
+                <label className="text-sm font-medium mb-2 block">Currency</label>
                 <Select disabled>
                   <SelectTrigger>
                     <SelectValue placeholder="Loading..." />
@@ -141,9 +107,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Cost Over Time</CardTitle>
-              <CardDescription>
-                Expenditure analysis over time with service type breakdown
-              </CardDescription>
+              <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
             </div>
             <Button
               variant="ghost"
@@ -160,14 +124,10 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
           <div className="space-y-4 mb-4">
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Group By
-                </label>
+                <label className="text-sm font-medium mb-2 block">Group By</label>
                 <Select
                   value={data?.group_by || "month"}
-                  onValueChange={(value) =>
-                    onGroupByChange(value as "day" | "week" | "month" | "year")
-                  }
+                  onValueChange={(value) => onGroupByChange(value as "day" | "week" | "month" | "year")}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select time grouping" />
@@ -182,13 +142,8 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
                 </Select>
               </div>
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">
-                  Currency
-                </label>
-                <Select
-                  value={currency}
-                  onValueChange={(value) => setCurrency(value as "ILS" | "USD")}
-                >
+                <label className="text-sm font-medium mb-2 block">Currency</label>
+                <Select value={currency} onValueChange={(value) => setCurrency(value as "ILS" | "USD")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select currency" />
                   </SelectTrigger>
@@ -217,8 +172,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
 
     // Add each service type as a separate property for stacking
     item.data.forEach((serviceType) => {
-      const value =
-        currency === "ILS" ? serviceType.total_ils : serviceType.total_usd;
+      const value = currency === "ILS" ? serviceType.total_ils : serviceType.total_usd;
       transformedItem[serviceType.name] = value;
     });
 
@@ -226,17 +180,12 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
   });
 
   // Get all unique service type names for the bars
-  const serviceTypeNames = Array.from(
-    new Set(data.items.flatMap((item) => item.data.map((st) => st.name)))
-  );
+  const serviceTypeNames = Array.from(new Set(data.items.flatMap((item) => item.data.map((st) => st.name))));
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
-      const total = payload.reduce(
-        (sum: number, entry: any) => sum + (entry.value || 0),
-        0
-      );
+      const total = payload.reduce((sum: number, entry: any) => sum + (entry.value || 0), 0);
 
       // Sort payload to match the order of service types in the stacked bar (bottom to top)
       const sortedPayload = payload.sort((a: any, b: any) => {
@@ -268,17 +217,9 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Cost Over Time</CardTitle>
-            <CardDescription>
-              Expenditure analysis over time with service type breakdown
-            </CardDescription>
+            <CardDescription>Expenditure analysis over time with service type breakdown</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -290,9 +231,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
               <label className="text-sm font-medium mb-2 block">Group By</label>
               <Select
                 value={data.group_by}
-                onValueChange={(value) =>
-                  onGroupByChange(value as "day" | "week" | "month" | "year")
-                }
+                onValueChange={(value) => onGroupByChange(value as "day" | "week" | "month" | "year")}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select time grouping" />
@@ -308,10 +247,7 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
             </div>
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Currency</label>
-              <Select
-                value={currency}
-                onValueChange={(value) => setCurrency(value as "ILS" | "USD")}
-              >
+              <Select value={currency} onValueChange={(value) => setCurrency(value as "ILS" | "USD")}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
@@ -336,18 +272,10 @@ export const CostOverTimeChart: React.FC<CostOverTimeChartProps> = ({
               }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="time_period"
-                tick={{ fontSize: 12 }}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
+              <XAxis dataKey="time_period" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
               <YAxis
                 tick={{ fontSize: 12 }}
-                tickFormatter={(value) =>
-                  `${currency === "ILS" ? "₪" : "$"}${value.toLocaleString()}`
-                }
+                tickFormatter={(value) => `${currency === "ILS" ? "₪" : "$"}${value.toLocaleString()}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />

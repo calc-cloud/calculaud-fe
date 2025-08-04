@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -19,12 +14,7 @@ interface ServiceTypeModalProps {
   onSave: (name: string, editId?: number) => Promise<void>;
 }
 
-const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
-  open,
-  onOpenChange,
-  editItem,
-  onSave,
-}) => {
+const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({ open, onOpenChange, editItem, onSave }) => {
   const [serviceTypeName, setServiceTypeName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -75,9 +65,7 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editItem ? "Edit Service Type" : "Create New Service Type"}
-          </DialogTitle>
+          <DialogTitle>{editItem ? "Edit Service Type" : "Create New Service Type"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
@@ -93,17 +81,10 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
               disabled={isLoading}
               maxLength={200}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {serviceTypeName.length}/200 characters
-            </p>
+            <p className="text-xs text-gray-500 mt-1">{serviceTypeName.length}/200 characters</p>
           </div>
           <div className="flex justify-end space-x-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              size="sm"
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={handleClose} size="sm" disabled={isLoading}>
               Cancel
             </Button>
             <Button onClick={handleSave} size="sm" disabled={isLoading}>

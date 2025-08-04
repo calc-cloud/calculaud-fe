@@ -1,9 +1,5 @@
 import { apiService } from "@/services/apiService";
-import {
-  CreatePurchaseRequest as PurchaseCreateRequest,
-  Currency,
-  Authority,
-} from "@/types";
+import { CreatePurchaseRequest as PurchaseCreateRequest, Currency, Authority } from "@/types";
 import { UnifiedFilters } from "@/types/filters";
 
 export interface PurposeApiParams {
@@ -165,10 +161,7 @@ class PurposeService {
     return apiService.post<Purpose>("/purposes/", data);
   }
 
-  async updatePurpose(
-    id: string,
-    data: UpdatePurposeRequest
-  ): Promise<Purpose> {
+  async updatePurpose(id: string, data: UpdatePurposeRequest): Promise<Purpose> {
     return apiService.patch<Purpose>(`/purposes/${id}`, data);
   }
 
@@ -184,9 +177,7 @@ class PurposeService {
     return apiService.delete<void>(`/purchases/${purchaseId}`);
   }
 
-  async exportPurposesCSV(
-    params: Omit<PurposeApiParams, "page" | "limit">
-  ): Promise<Response> {
+  async exportPurposesCSV(params: Omit<PurposeApiParams, "page" | "limit">): Promise<Response> {
     return apiService.downloadBlob("/purposes/export_csv", params);
   }
 
@@ -233,45 +224,33 @@ class PurposeService {
 
     // Status filter - handle multiple statuses
     if (filters.status && filters.status.length > 0) {
-      params.status = filters.status.map((status) =>
-        this.mapStatusToApi(status)
-      );
+      params.status = filters.status.map((status) => this.mapStatusToApi(status));
     }
 
     // Hierarchy filter - handle multiple hierarchies
     if (filters.hierarchy_id && filters.hierarchy_id.length > 0) {
-      params.hierarchy_id =
-        filters.hierarchy_id.length === 1
-          ? filters.hierarchy_id[0]
-          : filters.hierarchy_id;
+      params.hierarchy_id = filters.hierarchy_id.length === 1 ? filters.hierarchy_id[0] : filters.hierarchy_id;
     }
 
     // Supplier filter - handle multiple suppliers
     if (filters.supplier && filters.supplier.length > 0) {
-      params.supplier_id =
-        filters.supplier.length === 1 ? filters.supplier[0] : filters.supplier;
+      params.supplier_id = filters.supplier.length === 1 ? filters.supplier[0] : filters.supplier;
     }
 
     // Service type filter - handle multiple service types
     if (filters.service_type && filters.service_type.length > 0) {
-      params.service_type_id =
-        filters.service_type.length === 1
-          ? filters.service_type[0]
-          : filters.service_type;
+      params.service_type_id = filters.service_type.length === 1 ? filters.service_type[0] : filters.service_type;
     }
 
     // Material filter - handle multiple materials (maps to service_id in API)
     if (filters.material && filters.material.length > 0) {
-      params.service_id =
-        filters.material.length === 1 ? filters.material[0] : filters.material;
+      params.service_id = filters.material.length === 1 ? filters.material[0] : filters.material;
     }
 
     // Pending authority filter - handle multiple pending authorities
     if (filters.pending_authority && filters.pending_authority.length > 0) {
       params.pending_authority_id =
-        filters.pending_authority.length === 1
-          ? filters.pending_authority[0]
-          : filters.pending_authority;
+        filters.pending_authority.length === 1 ? filters.pending_authority[0] : filters.pending_authority;
     }
 
     // Date filters
@@ -296,9 +275,7 @@ class PurposeService {
       .filter((content) => {
         // Check for both material_id (frontend) and service_id (backend) for compatibility
         const serviceId = content.service_id || content.material_id;
-        return (
-          serviceId && serviceId > 0 && content.quantity && content.quantity > 0
-        );
+        return serviceId && serviceId > 0 && content.quantity && content.quantity > 0;
       })
       .map((content) => {
         // Ensure the content has the correct field mapping for the API
@@ -429,10 +406,7 @@ class PurposeService {
   }
 
   // Transform single purpose from API format to frontend format
-  private transformSinglePurpose(
-    purpose: Purpose,
-    hierarchies: any[] = []
-  ): any {
+  private transformSinglePurpose(purpose: Purpose, hierarchies: any[] = []): any {
     try {
       return {
         id: purpose.id?.toString() || "",
@@ -449,9 +423,7 @@ class PurposeService {
         })),
         supplier: purpose.supplier || "",
         hierarchy_id: purpose.hierarchy?.id?.toString() || "",
-        hierarchy_name:
-          purpose.hierarchy?.path ||
-          this.getHierarchyName(purpose.hierarchy?.id || null, hierarchies),
+        hierarchy_name: purpose.hierarchy?.path || this.getHierarchyName(purpose.hierarchy?.id || null, hierarchies),
         status: this.mapApiStatusToFrontend(purpose.status || ""),
         expected_delivery: purpose.expected_delivery || "",
         comments: purpose.comments || "",
@@ -459,12 +431,8 @@ class PurposeService {
         creation_time: purpose.creation_time || "",
         last_modified: purpose.last_modified || "",
         pending_authority: purpose.pending_authority || null,
-        purchases: (purpose.purchases || []).map((purchase) =>
-          this.transformPurchase(purchase, purpose.id)
-        ),
-        files: (purpose.file_attachments || []).map((file) =>
-          this.transformFileAttachment(file, purpose.id)
-        ),
+        purchases: (purpose.purchases || []).map((purchase) => this.transformPurchase(purchase, purpose.id)),
+        files: (purpose.file_attachments || []).map((file) => this.transformFileAttachment(file, purpose.id)),
       };
     } catch (_error) {
       // Return fallback object for malformed purpose data
@@ -503,8 +471,8 @@ class PurposeService {
       flow_stages: (purchase.flow_stages || [])
         .flatMap((item: any) => (Array.isArray(item) ? item : [item]))
         .map((stage: any) => this.transformStage(stage, purchase.id)),
-      current_pending_stages: (purchase.current_pending_stages || []).map(
-        (stage: any) => this.transformStage(stage, purchase.id)
+      current_pending_stages: (purchase.current_pending_stages || []).map((stage: any) =>
+        this.transformStage(stage, purchase.id)
       ),
       days_since_last_completion: purchase.days_since_last_completion ?? null,
       pending_authority: purchase.pending_authority || null,
@@ -570,17 +538,12 @@ class PurposeService {
     }
 
     // Use the consolidated transformation logic
-    const transformedPurposes = items.map((purpose) =>
-      this.transformSinglePurpose(purpose)
-    );
+    const transformedPurposes = items.map((purpose) => this.transformSinglePurpose(purpose));
 
     return { purposes: transformedPurposes, total, page, pages };
   }
 
-  private getHierarchyName(
-    hierarchyId: number | null,
-    hierarchies: any[]
-  ): string {
+  private getHierarchyName(hierarchyId: number | null, hierarchies: any[]): string {
     if (!hierarchyId) return "";
     const hierarchy = hierarchies.find((h) => parseInt(h.id) === hierarchyId);
     return hierarchy ? hierarchy.name : `Hierarchy ${hierarchyId}`;

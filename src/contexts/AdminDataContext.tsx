@@ -20,25 +20,18 @@ interface AdminDataContextType {
   isLoading: boolean;
 }
 
-const AdminDataContext = createContext<AdminDataContextType | undefined>(
-  undefined
-);
+const AdminDataContext = createContext<AdminDataContextType | undefined>(undefined);
 
 interface AdminDataProviderProps {
   children: ReactNode;
 }
 
-export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
-  children,
-}) => {
-  const { data: hierarchiesData, isLoading: hierarchiesLoading } =
-    useHierarchies();
+export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({ children }) => {
+  const { data: hierarchiesData, isLoading: hierarchiesLoading } = useHierarchies();
   const { data: suppliersData, isLoading: suppliersLoading } = useSuppliers();
-  const { data: serviceTypesData, isLoading: serviceTypesLoading } =
-    useServiceTypes();
+  const { data: serviceTypesData, isLoading: serviceTypesLoading } = useServiceTypes();
   const { data: materialsData, isLoading: materialsLoading } = useMaterials();
-  const { responsibleAuthorities, isLoading: responsibleAuthoritiesLoading } =
-    useResponsibleAuthorities();
+  const { responsibleAuthorities, isLoading: responsibleAuthoritiesLoading } = useResponsibleAuthorities();
 
   const hierarchies = hierarchiesData?.items || [];
   const suppliers = suppliersData?.items || [];
@@ -46,11 +39,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
   const materials = materialsData?.items || [];
 
   const isLoading =
-    hierarchiesLoading ||
-    suppliersLoading ||
-    serviceTypesLoading ||
-    materialsLoading ||
-    responsibleAuthoritiesLoading;
+    hierarchiesLoading || suppliersLoading || serviceTypesLoading || materialsLoading || responsibleAuthoritiesLoading;
 
   const value: AdminDataContextType = {
     hierarchies,
@@ -61,11 +50,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     isLoading,
   };
 
-  return (
-    <AdminDataContext.Provider value={value}>
-      {children}
-    </AdminDataContext.Provider>
-  );
+  return <AdminDataContext.Provider value={value}>{children}</AdminDataContext.Provider>;
 };
 
 export const useAdminData = () => {

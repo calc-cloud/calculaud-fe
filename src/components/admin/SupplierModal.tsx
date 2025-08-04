@@ -1,37 +1,20 @@
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Supplier,
-  SupplierCreateRequest,
-  SupplierUpdateRequest,
-} from "@/types/suppliers";
+import { Supplier, SupplierCreateRequest, SupplierUpdateRequest } from "@/types/suppliers";
 
 interface SupplierModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem: Supplier | null;
-  onSave: (
-    data: SupplierCreateRequest | SupplierUpdateRequest,
-    editId?: number
-  ) => Promise<void>;
+  onSave: (data: SupplierCreateRequest | SupplierUpdateRequest, editId?: number) => Promise<void>;
 }
 
-const SupplierModal: React.FC<SupplierModalProps> = ({
-  open,
-  onOpenChange,
-  editItem,
-  onSave,
-}) => {
+const SupplierModal: React.FC<SupplierModalProps> = ({ open, onOpenChange, editItem, onSave }) => {
   const [supplierName, setSupplierName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
@@ -73,9 +56,7 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {editItem ? "Edit Supplier" : "Create New Supplier"}
-          </DialogTitle>
+          <DialogTitle>{editItem ? "Edit Supplier" : "Create New Supplier"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>

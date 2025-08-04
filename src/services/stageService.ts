@@ -21,10 +21,7 @@ export interface UpdateStageResponse {
 }
 
 class StageService {
-  async updateStage(
-    stageId: string,
-    data: UpdateStageRequest
-  ): Promise<UpdateStageResponse> {
+  async updateStage(stageId: string, data: UpdateStageRequest): Promise<UpdateStageResponse> {
     return apiService.patch<UpdateStageResponse>(`/stages/${stageId}`, data);
   }
 }

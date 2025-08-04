@@ -23,10 +23,7 @@ export const HeaderWrapper = ({
   const handleSortClick = () => {
     if (!sortable || !sortField || !onSortChange) return;
 
-    const newDirection =
-      currentSort?.field === sortField && currentSort?.direction === "desc"
-        ? "asc"
-        : "desc";
+    const newDirection = currentSort?.field === sortField && currentSort?.direction === "desc" ? "asc" : "desc";
 
     onSortChange({ field: sortField, direction: newDirection });
   };
@@ -38,9 +35,7 @@ export const HeaderWrapper = ({
     const direction = currentSort?.direction;
 
     if (!isActive) {
-      return (
-        <ArrowUpDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-      );
+      return <ArrowUpDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />;
     }
 
     return direction === "desc" ? (

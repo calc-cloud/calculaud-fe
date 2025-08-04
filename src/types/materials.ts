@@ -1,9 +1,4 @@
-import {
-  TimestampedEntity,
-  PaginatedResponse,
-  EntityCreateRequest,
-  EntityUpdateRequest,
-} from "./base";
+import { TimestampedEntity, PaginatedResponse, EntityCreateRequest, EntityUpdateRequest } from "./base";
 
 // Frontend interface for Material (maps to backend Service)
 export interface Material extends TimestampedEntity {

@@ -2,10 +2,7 @@ import { X } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  RELATIVE_TIME_OPTIONS,
-  UnifiedFilters as UnifiedFiltersType,
-} from "@/types/filters";
+import { RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import { Hierarchy } from "@/types/hierarchies";
 import { Material } from "@/types/materials";
 import { ResponsibleAuthority } from "@/types/responsibleAuthorities";
@@ -33,36 +30,12 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   materials,
   responsibleAuthorities = [],
 }) => {
-  const toggleServiceType = createToggleFunction<number>(
-    "service_type",
-    filters,
-    onFiltersChange
-  );
-  const toggleStatus = createToggleFunction<string>(
-    "status",
-    filters,
-    onFiltersChange
-  );
-  const toggleSupplier = createToggleFunction<number>(
-    "supplier",
-    filters,
-    onFiltersChange
-  );
-  const toggleMaterial = createToggleFunction<number>(
-    "material",
-    filters,
-    onFiltersChange
-  );
-  const toggleHierarchy = createToggleFunction<number>(
-    "hierarchy_id",
-    filters,
-    onFiltersChange
-  );
-  const togglePendingAuthority = createToggleFunction<number>(
-    "pending_authority",
-    filters,
-    onFiltersChange
-  );
+  const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
+  const toggleStatus = createToggleFunction<string>("status", filters, onFiltersChange);
+  const toggleSupplier = createToggleFunction<number>("supplier", filters, onFiltersChange);
+  const toggleMaterial = createToggleFunction<number>("material", filters, onFiltersChange);
+  const toggleHierarchy = createToggleFunction<number>("hierarchy_id", filters, onFiltersChange);
+  const togglePendingAuthority = createToggleFunction<number>("pending_authority", filters, onFiltersChange);
 
   const clearRelativeTime = () => {
     onFiltersChange({
@@ -74,9 +47,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   };
 
   const activeFiltersCount = [
-    ...(filters.relative_time && filters.relative_time !== "all_time"
-      ? [1]
-      : []),
+    ...(filters.relative_time && filters.relative_time !== "all_time" ? [1] : []),
     ...(filters.hierarchy_id || []),
     ...(filters.service_type || []),
     ...(filters.status || []),
@@ -92,9 +63,8 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
       <div className="flex flex-wrap gap-2">
         {filters.relative_time && filters.relative_time !== "all_time" && (
           <Badge variant="secondary" className="flex items-center gap-1">
-            {RELATIVE_TIME_OPTIONS.find(
-              (option) => option.value === filters.relative_time
-            )?.label || filters.relative_time}
+            {RELATIVE_TIME_OPTIONS.find((option) => option.value === filters.relative_time)?.label ||
+              filters.relative_time}
             <X className="h-3 w-3 cursor-pointer" onClick={clearRelativeTime} />
           </Badge>
         )}
@@ -103,16 +73,9 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             {filters.hierarchy_id.map((hierarchyId) => {
               const hierarchy = hierarchies.find((h) => h.id === hierarchyId);
               return hierarchy ? (
-                <Badge
-                  key={hierarchyId}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge key={hierarchyId} variant="secondary" className="flex items-center gap-1">
                   {hierarchy.name}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => toggleHierarchy(hierarchyId)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleHierarchy(hierarchyId)} />
                 </Badge>
               ) : null;
             })}
@@ -123,16 +86,9 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             {filters.service_type.map((typeId) => {
               const type = serviceTypes.find((st) => st.id === typeId);
               return type ? (
-                <Badge
-                  key={typeId}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
                   {type.name}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => toggleServiceType(typeId)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleServiceType(typeId)} />
                 </Badge>
               ) : null;
             })}
@@ -149,10 +105,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
                   className={`flex items-center gap-1 ${statusInfo.className}`}
                 >
                   {status}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => toggleStatus(status)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleStatus(status)} />
                 </Badge>
               );
             })}
@@ -163,16 +116,9 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             {filters.supplier.map((supplierId) => {
               const supplier = suppliers.find((s) => s.id === supplierId);
               return supplier ? (
-                <Badge
-                  key={supplierId}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
                   {supplier.name}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => toggleSupplier(supplierId)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleSupplier(supplierId)} />
                 </Badge>
               ) : null;
             })}
@@ -183,16 +129,9 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             {filters.material.map((materialId) => {
               const material = materials.find((m) => m.id === materialId);
               return material ? (
-                <Badge
-                  key={materialId}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
                   {material.name}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => toggleMaterial(materialId)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleMaterial(materialId)} />
                 </Badge>
               ) : null;
             })}
@@ -201,20 +140,11 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
         {filters.pending_authority && filters.pending_authority.length > 0 && (
           <>
             {filters.pending_authority.map((authorityId) => {
-              const authority = responsibleAuthorities.find(
-                (a) => a.id === authorityId
-              );
+              const authority = responsibleAuthorities.find((a) => a.id === authorityId);
               return authority ? (
-                <Badge
-                  key={authorityId}
-                  variant="secondary"
-                  className="flex items-center gap-1"
-                >
+                <Badge key={authorityId} variant="secondary" className="flex items-center gap-1">
                   {authority.name}
-                  <X
-                    className="h-3 w-3 cursor-pointer"
-                    onClick={() => togglePendingAuthority(authorityId)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => togglePendingAuthority(authorityId)} />
                 </Badge>
               ) : null;
             })}

@@ -1,10 +1,6 @@
 import { ReactNode } from "react";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TooltipCellProps {
   trigger: ReactNode;
@@ -12,11 +8,7 @@ interface TooltipCellProps {
   className?: string;
 }
 
-export const TooltipCell = ({
-  trigger,
-  content,
-  className = "",
-}: TooltipCellProps) => {
+export const TooltipCell = ({ trigger, content, className = "" }: TooltipCellProps) => {
   return (
     <div className="text-center">
       <Tooltip>
@@ -35,11 +27,7 @@ interface MultiItemDisplayProps {
   className?: string;
 }
 
-export const MultiItemDisplay = ({
-  items,
-  maxVisible = 2,
-  className = "",
-}: MultiItemDisplayProps) => {
+export const MultiItemDisplay = ({ items, maxVisible = 2, className = "" }: MultiItemDisplayProps) => {
   const visibleItems = items.slice(0, maxVisible);
   const remainingCount = items.length - maxVisible;
 
@@ -50,11 +38,7 @@ export const MultiItemDisplay = ({
           {item}
         </div>
       ))}
-      {remainingCount > 0 && (
-        <div className="text-xs text-muted-foreground">
-          +{remainingCount} more
-        </div>
-      )}
+      {remainingCount > 0 && <div className="text-xs text-muted-foreground">+{remainingCount} more</div>}
     </div>
   );
 };

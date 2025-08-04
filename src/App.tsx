@@ -37,9 +37,7 @@ const App = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Authentication Error
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
           <p className="text-gray-600 mb-4">{auth.error.message}</p>
           <button
             onClick={() => window.location.reload()}

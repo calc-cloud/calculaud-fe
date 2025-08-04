@@ -18,9 +18,7 @@ const STATUS_API_TO_DISPLAY: Record<string, string> = {
 };
 
 // Convert DashboardFilters to UnifiedFilters (API format to display format)
-export const dashboardFiltersToUnified = (
-  filters: DashboardFilters
-): UnifiedFilters => {
+export const dashboardFiltersToUnified = (filters: DashboardFilters): UnifiedFilters => {
   return {
     start_date: filters.start_date,
     end_date: filters.end_date,
@@ -28,18 +26,14 @@ export const dashboardFiltersToUnified = (
     hierarchy_id: filters.hierarchy_id,
     service_type: filters.service_type_id,
     supplier: filters.supplier_id,
-    status: filters.status?.map(
-      (status) => STATUS_API_TO_DISPLAY[status] || status
-    ),
+    status: filters.status?.map((status) => STATUS_API_TO_DISPLAY[status] || status),
     material: filters.service_id, // service_id maps to material in dashboard context
     pending_authority: filters.pending_authority_id,
   };
 };
 
 // Convert UnifiedFilters to DashboardFilters (display format to API format)
-export const unifiedToDashboardFilters = (
-  filters: UnifiedFilters
-): DashboardFilters => {
+export const unifiedToDashboardFilters = (filters: UnifiedFilters): DashboardFilters => {
   return {
     start_date: filters.start_date,
     end_date: filters.end_date,
@@ -47,9 +41,7 @@ export const unifiedToDashboardFilters = (
     hierarchy_id: filters.hierarchy_id,
     service_type_id: filters.service_type,
     supplier_id: filters.supplier,
-    status: filters.status?.map(
-      (status) => STATUS_DISPLAY_TO_API[status] || status
-    ),
+    status: filters.status?.map((status) => STATUS_DISPLAY_TO_API[status] || status),
     service_id: filters.material, // material maps to service_id in dashboard context
     pending_authority_id: filters.pending_authority,
   };

@@ -1,23 +1,10 @@
 import { ExternalLink } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServiceTypesDistributionResponse } from "@/types/analytics";
 
 interface ServiceTypesDistributionChartProps {
@@ -39,9 +26,7 @@ const COLORS = [
   "#6b7280", // gray
 ];
 
-export const ServiceTypesDistributionChart: React.FC<
-  ServiceTypesDistributionChartProps
-> = ({ data, isLoading }) => {
+export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({ data, isLoading }) => {
   const navigate = useNavigate();
 
   const handleViewInSearch = () => {
@@ -112,14 +97,7 @@ export const ServiceTypesDistributionChart: React.FC<
     value: item.count,
   }));
 
-  const renderCustomLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    value,
-  }: any) => {
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -161,13 +139,7 @@ export const ServiceTypesDistributionChart: React.FC<
             <CardTitle>Service Types Distribution</CardTitle>
             <CardDescription>Purpose count by service type</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -187,10 +159,7 @@ export const ServiceTypesDistributionChart: React.FC<
                 dataKey="value"
               >
                 {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />

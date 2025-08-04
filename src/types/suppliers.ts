@@ -1,9 +1,4 @@
-import {
-  BaseEntity,
-  PaginatedResponse,
-  BaseCreateRequest,
-  BaseUpdateRequest,
-} from "./base";
+import { BaseEntity, PaginatedResponse, BaseCreateRequest, BaseUpdateRequest } from "./base";
 
 export type Supplier = BaseEntity;
 

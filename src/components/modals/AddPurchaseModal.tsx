@@ -2,27 +2,11 @@ import { Plus, Trash2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Currency,
-  getCurrencyDisplayName,
-  CreatePurchaseRequest,
-} from "@/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Currency, getCurrencyDisplayName, CreatePurchaseRequest } from "@/types";
 
 interface AddPurchaseModalProps {
   isOpen: boolean;
@@ -44,9 +28,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
   purposeId,
   isLoading = false,
 }) => {
-  const [costs, setCosts] = useState<CostFormData[]>([
-    { amount: 0, currency: Currency.ILS },
-  ]);
+  const [costs, setCosts] = useState<CostFormData[]>([{ amount: 0, currency: Currency.ILS }]);
 
   const addCost = () => {
     // Determine the appropriate default currency for the new cost
@@ -79,10 +61,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
       // If first cost is ILS, can't add more
       if (firstCurrency === Currency.ILS) return false;
       // If first cost is USD, can add one more
-      return (
-        firstCurrency === Currency.SUPPORT_USD ||
-        firstCurrency === Currency.AVAILABLE_USD
-      );
+      return firstCurrency === Currency.SUPPORT_USD || firstCurrency === Currency.AVAILABLE_USD;
     }
 
     return true; // Can always add first cost
@@ -119,11 +98,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
     return Object.values(Currency);
   };
 
-  const updateCost = (
-    index: number,
-    field: keyof CostFormData,
-    value: number | Currency
-  ) => {
+  const updateCost = (index: number, field: keyof CostFormData, value: number | Currency) => {
     const updatedCosts = [...costs];
     updatedCosts[index] = { ...updatedCosts[index], [field]: value };
 
@@ -210,13 +185,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
               <Label className="text-sm font-medium">
                 Costs <span className="text-red-500">*</span>
               </Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addCost}
-                disabled={!canAddMoreCosts()}
-              >
+              <Button type="button" variant="outline" size="sm" onClick={addCost} disabled={!canAddMoreCosts()}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Cost
               </Button>
@@ -224,19 +193,14 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
 
             <div className="space-y-3">
               {costs.map((cost, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 p-3 border rounded-lg"
-                >
+                <div key={index} className="flex items-center gap-3 p-3 border rounded-lg">
                   <div className="flex-1">
                     <Label className="text-xs text-gray-500">Amount</Label>
                     <Input
                       type="number"
                       placeholder="0"
                       value={cost.amount || ""}
-                      onChange={(e) =>
-                        updateCost(index, "amount", Number(e.target.value))
-                      }
+                      onChange={(e) => updateCost(index, "amount", Number(e.target.value))}
                       min="0"
                       step="0.01"
                       className="mt-1"
@@ -248,9 +212,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
                     <Select
                       key={`cost-${index}-currency-${costs.map((c) => c.currency).join("-")}`}
                       value={cost.currency}
-                      onValueChange={(value) =>
-                        updateCost(index, "currency", value as Currency)
-                      }
+                      onValueChange={(value) => updateCost(index, "currency", value as Currency)}
                     >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select currency" />
@@ -282,9 +244,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
             </div>
 
             {!isFormValid && (
-              <p className="text-sm text-red-500">
-                Please add at least one cost with an amount greater than 0.
-              </p>
+              <p className="text-sm text-red-500">Please add at least one cost with an amount greater than 0.</p>
             )}
 
             <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
@@ -294,8 +254,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
                   • <strong>ILS:</strong> Only one cost allowed
                 </li>
                 <li>
-                  • <strong>USD:</strong> You can add both USD Support and USD
-                  Available (max 2 costs)
+                  • <strong>USD:</strong> You can add both USD Support and USD Available (max 2 costs)
                 </li>
                 <li>• You cannot mix ILS with USD currencies</li>
               </ul>

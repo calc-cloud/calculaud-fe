@@ -1,21 +1,9 @@
-import {
-  ChevronDown,
-  ChevronRight,
-  Building2,
-  Users,
-  Target,
-  Briefcase,
-  UserCheck,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from "lucide-react";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Hierarchy } from "@/types/hierarchies";
 
 interface HierarchyItem {
@@ -40,35 +28,25 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   onSelectionChange,
   singleSelect = false,
 }) => {
-  const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(
-    new Set()
-  );
+  const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
   const [open, setOpen] = React.useState(false);
 
   // Transform backend hierarchy data to the format expected by the component
-  const transformedHierarchies: HierarchyItem[] = hierarchies.map(
-    (hierarchy: Hierarchy) => ({
-      id: hierarchy.id,
-      type: hierarchy.type as "Unit" | "Center" | "Anaf" | "Mador" | "Team",
-      name: hierarchy.name,
-      parentId: hierarchy.parent_id || undefined,
-      fullPath: hierarchy.path,
-    })
-  );
+  const transformedHierarchies: HierarchyItem[] = hierarchies.map((hierarchy: Hierarchy) => ({
+    id: hierarchy.id,
+    type: hierarchy.type as "Unit" | "Center" | "Anaf" | "Mador" | "Team",
+    name: hierarchy.name,
+    parentId: hierarchy.parent_id || undefined,
+    fullPath: hierarchy.path,
+  }));
 
   const getLabel = () => {
     if (selectedIds.length === 0) {
       return singleSelect ? "Select hierarchy" : "Hierarchy";
     }
     if (selectedIds.length === 1) {
-      const selected = transformedHierarchies.find(
-        (h) => h.id === selectedIds[0]
-      );
-      return selected
-        ? selected.name
-        : singleSelect
-          ? "Select hierarchy"
-          : "Hierarchy";
+      const selected = transformedHierarchies.find((h) => h.id === selectedIds[0]);
+      return selected ? selected.name : singleSelect ? "Select hierarchy" : "Hierarchy";
     }
     return `${selectedIds.length} selected`;
   };
@@ -167,10 +145,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           onClick={() => handleSelect(node.id)}
         >
           {hasChildren ? (
-            <div
-              className="flex items-center mr-2"
-              onClick={(e) => toggleExpanded(node.id, e)}
-            >
+            <div className="flex items-center mr-2" onClick={(e) => toggleExpanded(node.id, e)}>
               {isExpanded ? (
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               ) : (
@@ -188,9 +163,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <div className="flex-1 ml-2">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-900">
-                  {node.name}
-                </span>
+                <span className="text-sm font-medium text-gray-900">{node.name}</span>
               </div>
               <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded ml-2 flex-shrink-0">
                 {node.type.toLowerCase()}
@@ -199,11 +172,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           </div>
         </div>
 
-        {hasChildren && isExpanded && (
-          <div>
-            {node.children?.map((child) => renderTreeNode(child, level + 1))}
-          </div>
-        )}
+        {hasChildren && isExpanded && <div>{node.children?.map((child) => renderTreeNode(child, level + 1))}</div>}
       </div>
     );
   };
@@ -228,9 +197,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           {treeStructure.length > 0 ? (
             treeStructure.map((node) => renderTreeNode(node))
           ) : (
-            <div className="px-4 py-8 text-sm text-gray-500 text-center">
-              No organizational units available
-            </div>
+            <div className="px-4 py-8 text-sm text-gray-500 text-center">No organizational units available</div>
           )}
         </div>
       </DropdownMenuContent>

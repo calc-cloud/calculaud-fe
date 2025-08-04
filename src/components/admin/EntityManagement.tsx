@@ -1,13 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Search,
-  MoreHorizontal,
-  Loader,
-  AlertTriangle,
-} from "lucide-react";
+import { Plus, Edit, Trash2, Search, MoreHorizontal, Loader, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useCallback, ReactNode } from "react";
 
 import { TablePagination } from "@/components/tables/TablePagination";
@@ -76,11 +68,7 @@ export interface EntityManagementConfig<
   }>;
 
   // Optional customizations
-  buildQueryParams?: (
-    page: number,
-    limit: number,
-    search?: string
-  ) => TQueryParams;
+  buildQueryParams?: (page: number, limit: number, search?: string) => TQueryParams;
   customActions?: (item: TEntity) => ReactNode;
 }
 
@@ -90,17 +78,7 @@ export function EntityManagement<
   TCreateRequest,
   TUpdateRequest,
   TQueryParams extends BaseQueryParams = BaseQueryParams,
->({
-  config,
-}: {
-  config: EntityManagementConfig<
-    TEntity,
-    TResponse,
-    TCreateRequest,
-    TUpdateRequest,
-    TQueryParams
-  >;
-}) {
+>({ config }: { config: EntityManagementConfig<TEntity, TResponse, TCreateRequest, TUpdateRequest, TQueryParams> }) {
   // State management
   const [entities, setEntities] = useState<TEntity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -140,11 +118,7 @@ export function EntityManagement<
     setApiError(null);
     try {
       const params = config.buildQueryParams
-        ? config.buildQueryParams(
-            currentPage,
-            itemsPerPage,
-            debouncedSearch || undefined
-          )
+        ? config.buildQueryParams(currentPage, itemsPerPage, debouncedSearch || undefined)
         : ({
             page: currentPage,
             limit: itemsPerPage,
@@ -156,13 +130,10 @@ export function EntityManagement<
       setTotalPages(response.pages || 1);
       setTotalCount(response.total || 0);
     } catch (error) {
-      setApiError(
-        error instanceof Error ? error.message : "Failed to connect to API"
-      );
+      setApiError(error instanceof Error ? error.message : "Failed to connect to API");
       toast({
         title: "API Connection Error",
-        description:
-          "Unable to connect to the backend API. The interface will work with limited functionality.",
+        description: "Unable to connect to the backend API. The interface will work with limited functionality.",
         variant: "destructive",
       });
     } finally {
@@ -200,10 +171,7 @@ export function EntityManagement<
     setIsModalOpen(true);
   };
 
-  const handleSave = async (
-    data: TCreateRequest | TUpdateRequest,
-    editId?: number
-  ) => {
+  const handleSave = async (data: TCreateRequest | TUpdateRequest, editId?: number) => {
     try {
       if (editId) {
         await config.service.update(editId, data as TUpdateRequest);
@@ -220,8 +188,7 @@ export function EntityManagement<
     } catch (error) {
       toast({
         title: `Error saving ${config.entityName.toLowerCase()}`,
-        description:
-          error instanceof Error ? error.message : "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       });
       throw error;
@@ -258,8 +225,7 @@ export function EntityManagement<
     } catch (error) {
       toast({
         title: `Error deleting ${config.entityName.toLowerCase()}`,
-        description:
-          error instanceof Error ? error.message : "Please try again later.",
+        description: error instanceof Error ? error.message : "Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -272,10 +238,7 @@ export function EntityManagement<
   };
 
   const renderEntityCard = (entity: TEntity) => (
-    <div
-      key={entity.id}
-      className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors"
-    >
+    <div key={entity.id} className="p-6 border rounded-lg text-sm bg-gray-50 hover:bg-gray-100 transition-colors">
       <div className="flex items-center justify-between mb-2">
         <div className="flex-1 mr-3">
           {config.displayFields.map((field, index) => (
@@ -283,9 +246,7 @@ export function EntityManagement<
               key={field.key as string}
               className={`${index === 0 ? "font-medium truncate" : "text-xs text-gray-500 mt-1"} ${field.className || ""}`}
             >
-              {field.render
-                ? field.render(entity[field.key], entity)
-                : String(entity[field.key] || "")}
+              {field.render ? field.render(entity[field.key], entity) : String(entity[field.key] || "")}
             </div>
           ))}
         </div>
@@ -302,10 +263,7 @@ export function EntityManagement<
                 <Edit className="h-3 w-3 mr-2" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => handleDeleteClick(entity)}
-                className="text-red-600"
-              >
+              <DropdownMenuItem onClick={() => handleDeleteClick(entity)} className="text-red-600">
                 <Trash2 className="h-3 w-3 mr-2" />
                 Delete
               </DropdownMenuItem>
@@ -319,20 +277,14 @@ export function EntityManagement<
   return (
     <Card className="h-full flex flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between pb-4 flex-shrink-0">
-        <CardTitle className="text-lg">
-          {config.entityName} Management
-        </CardTitle>
+        <CardTitle className="text-lg">{config.entityName} Management</CardTitle>
         <div className="flex items-center gap-2">
           {apiError && (
             <Button onClick={handleRetryConnection} variant="outline" size="sm">
               Retry Connection
             </Button>
           )}
-          <Button
-            onClick={handleCreate}
-            size="sm"
-            disabled={isLoading || !!apiError}
-          >
+          <Button onClick={handleCreate} size="sm" disabled={isLoading || !!apiError}>
             <Plus className="h-4 w-4 mr-1" />
             Add {config.entityName}
           </Button>
@@ -344,9 +296,7 @@ export function EntityManagement<
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-red-600" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-800">
-                  API Connection Error
-                </p>
+                <p className="text-sm font-medium text-red-800">API Connection Error</p>
                 <p className="text-xs text-red-600 mt-1">{apiError}</p>
               </div>
             </div>
@@ -355,10 +305,7 @@ export function EntityManagement<
           <div className="relative flex-shrink-0 mb-4 mt-2">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder={
-                config.searchPlaceholder ||
-                `Search ${config.entityNamePlural.toLowerCase()}...`
-              }
+              placeholder={config.searchPlaceholder || `Search ${config.entityNamePlural.toLowerCase()}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-9 focus-visible:ring-1"
@@ -382,15 +329,8 @@ export function EntityManagement<
                   <p className="text-red-500 text-lg font-medium">
                     Unable to load {config.entityNamePlural.toLowerCase()}
                   </p>
-                  <p className="text-red-400 text-sm mt-1">
-                    Check console for detailed error information
-                  </p>
-                  <Button
-                    onClick={handleRetryConnection}
-                    variant="outline"
-                    size="sm"
-                    className="mt-3"
-                  >
+                  <p className="text-red-400 text-sm mt-1">Check console for detailed error information</p>
+                  <Button onClick={handleRetryConnection} variant="outline" size="sm" className="mt-3">
                     Try Again
                   </Button>
                 </div>
@@ -413,9 +353,7 @@ export function EntityManagement<
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center my-4">
                   <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg font-medium">
-                    No {config.entityNamePlural.toLowerCase()} found
-                  </p>
+                  <p className="text-gray-500 text-lg font-medium">No {config.entityNamePlural.toLowerCase()} found</p>
                   <p className="text-gray-400 text-sm mt-1">
                     {debouncedSearch
                       ? `No ${config.entityNamePlural.toLowerCase()} match "${debouncedSearch}"`
@@ -428,11 +366,7 @@ export function EntityManagement<
 
           {!isLoading && !apiError && totalCount > 0 && (
             <div className="flex-shrink-0 mt-4">
-              <TablePagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
+              <TablePagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
             </div>
           )}
         </div>
@@ -450,8 +384,7 @@ export function EntityManagement<
           <AlertDialogHeader>
             <AlertDialogTitle>Delete {config.entityName}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this{" "}
-              {config.entityName.toLowerCase()}? This action cannot be undone.
+              Are you sure you want to delete this {config.entityName.toLowerCase()}? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

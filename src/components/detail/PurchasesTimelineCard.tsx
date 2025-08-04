@@ -96,9 +96,7 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
                 onDeletePurchase={onDeletePurchase}
                 setEditForm={setEditForm}
                 getStageDisplayDate={getStageDisplayDate}
-                hasMultipleStagesWithSamePriority={
-                  hasMultipleStagesWithSamePriority
-                }
+                hasMultipleStagesWithSamePriority={hasMultipleStagesWithSamePriority}
                 getPriorityVariant={getPriorityVariant}
                 isCurrentPendingStage={isCurrentPendingStage}
                 calculateStagePosition={calculateStagePosition}

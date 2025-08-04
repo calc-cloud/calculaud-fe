@@ -32,12 +32,7 @@ interface FileUploadProps {
   purposeId: string;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({
-  files,
-  onFilesChange,
-  isReadOnly,
-  purposeId,
-}) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, isReadOnly, purposeId }) => {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
@@ -47,19 +42,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     if (!selectedFiles) return;
 
     const fileArray = Array.from(selectedFiles);
 
     // Track which files are being uploaded
-    const uploadIds = Array.from(
-      { length: fileArray.length },
-      () => `upload-${Date.now()}-${Math.random()}`
-    );
+    const uploadIds = Array.from({ length: fileArray.length }, () => `upload-${Date.now()}-${Math.random()}`);
     setUploadingFiles(new Set(uploadIds));
 
     try {
@@ -76,8 +66,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             file_size: response.file_size,
           };
         } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Unknown error occurred";
+          const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
           toast({
             title: "Upload failed",
             description: `Failed to upload ${file.name}: ${errorMessage}`,
@@ -88,9 +77,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       });
 
       const uploadedFiles = await Promise.all(uploadPromises);
-      const validFiles = uploadedFiles.filter(
-        (file): file is PurposeFile => file !== null
-      );
+      const validFiles = uploadedFiles.filter((file): file is PurposeFile => file !== null);
 
       if (validFiles.length > 0) {
         onFilesChange([...files, ...validFiles]);
@@ -100,8 +87,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         });
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast({
         title: "Upload failed",
         description: `Failed to upload files: ${errorMessage}`,
@@ -125,8 +111,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         description: "File deleted successfully.",
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast({
         title: "Delete failed",
         description: `Failed to delete file: ${errorMessage}`,
@@ -232,12 +217,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             />
 
             {/* Upload button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleButtonClick}
-              disabled={uploadingFiles.size > 0}
-            >
+            <Button variant="outline" size="sm" onClick={handleButtonClick} disabled={uploadingFiles.size > 0}>
               {uploadingFiles.size > 0 ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -254,13 +234,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
           <CardContent className="flex items-center justify-center py-6">
             <div className="text-center">
               <FileText className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-              <p className="text-muted-foreground text-sm">
-                No files uploaded yet.
-              </p>
+              <p className="text-muted-foreground text-sm">No files uploaded yet.</p>
               {!isReadOnly && (
-                <p className="text-muted-foreground text-xs mt-1">
-                  Click "Upload Files" to add attachments.
-                </p>
+                <p className="text-muted-foreground text-xs mt-1">Click "Upload Files" to add attachments.</p>
               )}
             </div>
           </CardContent>
@@ -275,10 +251,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <FilePreview file={file} />
                   <div className="min-w-0 flex-1">
-                    <p
-                      className="font-medium text-sm truncate max-w-[200px]"
-                      title={file.filename || "Unknown file"}
-                    >
+                    <p className="font-medium text-sm truncate max-w-[200px]" title={file.filename || "Unknown file"}>
                       {file.filename || "Unknown file"}
                     </p>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
