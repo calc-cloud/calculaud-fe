@@ -133,7 +133,14 @@ export const getContentsDisplay = (purpose: Purpose) => {
 };
 
 export const getStagesDisplay = (purpose: Purpose) => {
-  return purpose.purchases.map((purchase) => getStagesText(purchase, true)).filter((text) => text !== null);
+  // Sort purchases by days_since_last_completion in descending order (highest pending days first)
+  const sortedPurchases = [...purpose.purchases].sort((a, b) => {
+    const daysA = a.days_since_last_completion ?? -1;
+    const daysB = b.days_since_last_completion ?? -1;
+    return daysB - daysA;
+  });
+
+  return sortedPurchases.map((purchase) => getStagesText(purchase, true)).filter((text) => text !== null);
 };
 
 export const getHierarchyInfo = (purpose: Purpose, hierarchies: any[]) => {
