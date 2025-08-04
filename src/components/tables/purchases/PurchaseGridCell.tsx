@@ -12,12 +12,9 @@ interface PurchaseGridCellProps {
   maxVisible?: number;
 }
 
-export const PurchaseGridCell: React.FC<PurchaseGridCellProps> = ({ 
-  purpose, 
-  maxVisible = 4 
-}) => {
+export const PurchaseGridCell: React.FC<PurchaseGridCellProps> = ({ purpose, maxVisible = 4 }) => {
   const [showAll, setShowAll] = useState(false);
-  
+
   // Sort purchases by days_since_last_completion in descending order (already done in getStagesDisplay)
   const sortedPurchases = [...purpose.purchases].sort((a, b) => {
     const daysA = a.days_since_last_completion ?? -1;
@@ -56,16 +53,12 @@ export const PurchaseGridCell: React.FC<PurchaseGridCellProps> = ({
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="w-full">
-          <div className={`grid gap-2 ${sortedPurchases.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+          <div className={`grid gap-2 ${sortedPurchases.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
             {visiblePurchases.map((purchase) => (
-              <PurchaseCard 
-                key={purchase.id} 
-                purchase={purchase} 
-                compact
-              />
+              <PurchaseCard key={purchase.id} purchase={purchase} compact />
             ))}
           </div>
-          
+
           {/* Show more/less toggle */}
           {hasMore && (
             <div className="mt-2 text-center">

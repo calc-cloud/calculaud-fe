@@ -154,7 +154,12 @@ export const createColumns = (
     id: "purchases",
     accessorFn: (row) => getStagesDisplay(row).join(", "),
     header: () => (
-      <HeaderWrapper sortable sortField="days_since_last_completion" currentSort={sortConfig} onSortChange={onSortChange}>
+      <HeaderWrapper
+        sortable
+        sortField="days_since_last_completion"
+        currentSort={sortConfig}
+        onSortChange={onSortChange}
+      >
         <TooltipProvider>
           <StatusColorTooltip>
             <span className="cursor-help">Purchases</span>

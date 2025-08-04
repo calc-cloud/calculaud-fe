@@ -35,7 +35,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
         <span className="text-sm font-bold">{purchaseId}</span>
         <StatusIndicator status={status} variant="compact" />
       </div>
-      
+
       {/* Main content */}
       <div className="space-y-1">
         {status.days !== null && (
@@ -47,14 +47,13 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
           {status.stageName}
         </div>
       </div>
-      
+
       {/* Progress indicator for pending items */}
       {status.type !== "completed" && (
         <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
-          <div 
+          <div
             className={`h-1 rounded-full transition-all duration-300 ${
-              status.type === "critical" ? "bg-rose-400" :
-              status.type === "warning" ? "bg-amber-400" : "bg-sky-400"
+              status.type === "critical" ? "bg-rose-400" : status.type === "warning" ? "bg-amber-400" : "bg-sky-400"
             }`}
           />
         </div>

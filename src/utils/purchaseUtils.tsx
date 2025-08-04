@@ -18,10 +18,10 @@ export interface PurchaseStatus {
  */
 export const getPurchaseStatus = (purchase: Purchase): PurchaseStatus => {
   const days = purchase.days_since_last_completion;
-  
+
   // Check if purchase is completed
-  const isCompleted = purchase.flow_stages?.every(stage => stage.completion_date) ?? false;
-  
+  const isCompleted = purchase.flow_stages?.every((stage) => stage.completion_date) ?? false;
+
   if (isCompleted) {
     return {
       type: "completed",
@@ -36,9 +36,10 @@ export const getPurchaseStatus = (purchase: Purchase): PurchaseStatus => {
 
   // Get current pending stage name
   const pendingStages = purchase.current_pending_stages || [];
-  const stageName = pendingStages.length > 0 
-    ? pendingStages.map(stage => stage.stage_type?.display_name || stage.stage_type?.name).join(", ")
-    : "Pending";
+  const stageName =
+    pendingStages.length > 0
+      ? pendingStages.map((stage) => stage.stage_type?.display_name || stage.stage_type?.name).join(", ")
+      : "Pending";
 
   if (days === null) {
     return {
@@ -154,9 +155,7 @@ interface StatusColorTooltipProps {
 export const StatusColorTooltip: React.FC<StatusColorTooltipProps> = ({ children }) => {
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
-        {children}
-      </TooltipTrigger>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent className="max-w-xs">
         <div className="space-y-2">
           <div className="font-medium text-sm">Purchase Status Colors:</div>
