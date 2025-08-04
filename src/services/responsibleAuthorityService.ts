@@ -1,7 +1,7 @@
-import { API_CONFIG } from '@/config/api';
-import { ResponsibleAuthority, ResponsibleAuthoritiesResponse } from '@/types/responsibleAuthorities';
+import { API_CONFIG } from "@/config/api";
+import { ResponsibleAuthority, ResponsibleAuthoritiesResponse } from "@/types/responsibleAuthorities";
 
-import { BaseReadOnlyService, BaseQueryParams } from './BaseService';
+import { BaseReadOnlyService, BaseQueryParams } from "./BaseService";
 
 export class ResponsibleAuthorityService extends BaseReadOnlyService<
   ResponsibleAuthority,

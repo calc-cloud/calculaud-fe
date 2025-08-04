@@ -1,11 +1,11 @@
-import { ExternalLink } from 'lucide-react';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from 'recharts';
+import { ExternalLink } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ServicesQuantityResponse } from '@/types/analytics';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ServicesQuantityResponse } from "@/types/analytics";
 
 interface ServicesQuantityChartProps {
   data: ServicesQuantityResponse | undefined;
@@ -14,16 +14,16 @@ interface ServicesQuantityChartProps {
 
 // Colors for different service types
 const SERVICE_TYPE_COLORS = [
-  '#3b82f6', // blue
-  '#ef4444', // red
-  '#10b981', // green
-  '#f59e0b', // yellow
-  '#8b5cf6', // purple
-  '#f97316', // orange
-  '#06b6d4', // cyan
-  '#84cc16', // lime
-  '#ec4899', // pink
-  '#6b7280', // gray
+  "#3b82f6", // blue
+  "#ef4444", // red
+  "#10b981", // green
+  "#f59e0b", // yellow
+  "#8b5cf6", // purple
+  "#f97316", // orange
+  "#06b6d4", // cyan
+  "#84cc16", // lime
+  "#ec4899", // pink
+  "#6b7280", // gray
 ];
 
 export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ data, isLoading }) => {
@@ -92,14 +92,17 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
   }
 
   // Group services by service type and sort them
-  const groupedData = data.data.reduce((acc, item) => {
-    const serviceType = item.service_type_name;
-    if (!acc[serviceType]) {
-      acc[serviceType] = [];
-    }
-    acc[serviceType].push(item);
-    return acc;
-  }, {} as Record<string, typeof data.data>);
+  const groupedData = data.data.reduce(
+    (acc, item) => {
+      const serviceType = item.service_type_name;
+      if (!acc[serviceType]) {
+        acc[serviceType] = [];
+      }
+      acc[serviceType].push(item);
+      return acc;
+    },
+    {} as Record<string, typeof data.data>
+  );
 
   // Create chart data with grouped services
   const chartData: any[] = [];
@@ -116,7 +119,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
         service: service.name,
         quantity: service.quantity,
         serviceType: service.service_type_name,
-        color: serviceTypeColorMap[serviceTypeName]
+        color: serviceTypeColorMap[serviceTypeName],
       });
     });
   });
@@ -144,10 +147,10 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
   };
 
   // Create legend data
-  const legendData = Object.keys(serviceTypeColorMap).map(serviceType => ({
+  const legendData = Object.keys(serviceTypeColorMap).map((serviceType) => ({
     value: serviceType,
-    type: 'rect' as const,
-    color: serviceTypeColorMap[serviceType]
+    type: "rect" as const,
+    color: serviceTypeColorMap[serviceType],
   }));
 
   return (
@@ -158,13 +161,7 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
             <CardTitle>Quantities by Material</CardTitle>
             <CardDescription>Total quantities for each material grouped by service type</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -174,20 +171,10 @@ export const ServicesQuantityChart: React.FC<ServicesQuantityChartProps> = ({ da
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 80 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="service" 
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                interval={0}
-                fontSize={12}
-              />
+              <XAxis dataKey="service" angle={-45} textAnchor="end" height={80} interval={0} fontSize={12} />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
-              <Legend 
-                payload={legendData}
-                wrapperStyle={{ paddingTop: '20px' }}
-              />
+              <Legend payload={legendData} wrapperStyle={{ paddingTop: "20px" }} />
               <Bar dataKey="quantity" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />

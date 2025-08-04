@@ -1,22 +1,19 @@
-import { Building, Calendar, Edit, Layers, MessageSquare, Target } from 'lucide-react';
-import React from 'react';
+import { Building, Calendar, Edit, Layers, MessageSquare, Target } from "lucide-react";
+import React from "react";
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Purpose } from '@/types';
-import { formatDate } from '@/utils/dateUtils';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Purpose } from "@/types";
+import { formatDate } from "@/utils/dateUtils";
 
 interface GeneralDataCardProps {
   purpose: Purpose;
   onEdit: () => void;
 }
 
-export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
-  purpose,
-  onEdit,
-}) => {
+export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdit }) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -31,9 +28,9 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <h3 className="font-medium text-gray-900 mb-2">Description</h3>
           <p className="text-gray-700">{purpose.description}</p>
         </div>
-        
+
         <Separator />
-        
+
         {/* 2-column grid for other fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center space-x-2">
@@ -43,7 +40,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
               <p className="text-sm text-gray-600">{purpose.supplier}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Target className="h-4 w-4 text-gray-500" />
             <div>
@@ -51,7 +48,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
               <p className="text-sm text-gray-600">{purpose.service_type}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2 col-span-2">
             <Calendar className="h-4 w-4 text-gray-500" />
             <div>
@@ -59,7 +56,7 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
               <p className="text-sm text-gray-600">{formatDate(purpose.expected_delivery)}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2 col-span-2">
             <Layers className="h-4 w-4 text-gray-500" />
             <div>
@@ -68,18 +65,18 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
             </div>
           </div>
         </div>
-        
+
         <Separator />
         <div className="flex items-start space-x-2">
           <MessageSquare className="h-4 w-4 text-gray-500 mt-1" />
           <div>
             <p className="text-sm font-medium text-gray-900">Status Message</p>
-            <p className="text-sm text-gray-600">{purpose.comments || 'No status message'}</p>
+            <p className="text-sm text-gray-600">{purpose.comments || "No status message"}</p>
           </div>
         </div>
-        
+
         <Separator />
-        
+
         <div>
           <h4 className="font-medium text-gray-900 mb-3">Content</h4>
           <div className="space-y-2">

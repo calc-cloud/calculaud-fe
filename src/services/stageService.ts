@@ -1,4 +1,4 @@
-import { apiService } from '@/services/apiService';
+import { apiService } from "@/services/apiService";
 
 export interface UpdateStageRequest {
   value?: string;
@@ -26,4 +26,4 @@ class StageService {
   }
 }
 
-export const stageService = new StageService(); 
+export const stageService = new StageService();

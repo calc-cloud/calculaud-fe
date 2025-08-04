@@ -1,8 +1,7 @@
 // Shared filter utilities
-import {format, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subYears} from 'date-fns';
+import { format, startOfMonth, startOfWeek, startOfYear, subDays, subMonths, subYears } from "date-fns";
 
-import {UnifiedFilters} from '@/types/filters';
-
+import { UnifiedFilters } from "@/types/filters";
 
 export const calculateDateRange = (relativeTime: string) => {
   const today = new Date();
@@ -10,31 +9,31 @@ export const calculateDateRange = (relativeTime: string) => {
   const endDate: Date = today;
 
   switch (relativeTime) {
-    case 'last_7_days':
+    case "last_7_days":
       startDate = subDays(today, 7);
       break;
-    case 'last_30_days':
+    case "last_30_days":
       startDate = subDays(today, 30);
       break;
-    case 'last_3_months':
+    case "last_3_months":
       startDate = subMonths(today, 3);
       break;
-    case 'last_6_months':
+    case "last_6_months":
       startDate = subMonths(today, 6);
       break;
-    case 'last_year':
+    case "last_year":
       startDate = subYears(today, 1);
       break;
-    case 'this_week':
+    case "this_week":
       startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
       break;
-    case 'this_month':
+    case "this_month":
       startDate = startOfMonth(today);
       break;
-    case 'this_year':
+    case "this_year":
       startDate = startOfYear(today);
       break;
-    case 'all_time':
+    case "all_time":
       // For "All Time", clear the date filters by returning undefined
       return undefined;
     default:
@@ -42,8 +41,8 @@ export const calculateDateRange = (relativeTime: string) => {
   }
 
   return {
-    start_date: format(startDate, 'yyyy-MM-dd'),
-    end_date: format(endDate, 'yyyy-MM-dd')
+    start_date: format(startDate, "yyyy-MM-dd"),
+    end_date: format(endDate, "yyyy-MM-dd"),
   };
 };
 
@@ -53,34 +52,34 @@ export const handleRelativeTimeChange = (
   onFiltersChange: (filters: UnifiedFilters) => void
 ) => {
   const dateRange = calculateDateRange(relativeTime);
-  
+
   let newFilters = {
     ...currentFilters,
-    relative_time: relativeTime
+    relative_time: relativeTime,
   };
 
-  if (relativeTime === 'all_time') {
+  if (relativeTime === "all_time") {
     // For "All Time", remove date constraints
     newFilters = {
       ...currentFilters,
       relative_time: relativeTime,
       start_date: undefined,
-      end_date: undefined
+      end_date: undefined,
     };
   } else if (dateRange) {
     // For other relative times, update with calculated dates
     newFilters = {
       ...currentFilters,
       relative_time: relativeTime,
-      ...dateRange
+      ...dateRange,
     };
   }
-  
+
   onFiltersChange(newFilters);
 };
 
 export const handleDateChange = (
-  key: 'start_date' | 'end_date',
+  key: "start_date" | "end_date",
   value: string | undefined,
   currentFilters: UnifiedFilters,
   onFiltersChange: (filters: UnifiedFilters) => void
@@ -88,21 +87,23 @@ export const handleDateChange = (
   const newFilters = {
     ...currentFilters,
     [key]: value,
-    relative_time: 'custom' // Set to custom when manually changing dates
+    relative_time: "custom", // Set to custom when manually changing dates
   };
-  
+
   onFiltersChange(newFilters);
 };
 
 export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void, currentFilters?: UnifiedFilters) => {
   // Reset to default state with "All Time" relative time and corresponding date range
   // but preserve the search_query if it exists
-  const defaultDateRange = calculateDateRange('all_time');
+  const defaultDateRange = calculateDateRange("all_time");
   const defaultFilters: UnifiedFilters = {
-    relative_time: 'all_time',
+    relative_time: "all_time",
     ...defaultDateRange,
     // Preserve search_query if it exists in current filters
-    ...(currentFilters?.search_query && { search_query: currentFilters.search_query })
+    ...(currentFilters?.search_query && {
+      search_query: currentFilters.search_query,
+    }),
   };
   onFiltersChange(defaultFilters);
 };
@@ -118,7 +119,7 @@ export const createToggleFunction = <T>(
     const newArray = toggleArrayItem(currentArray, item);
     onFiltersChange({
       ...filters,
-      [filterKey]: newArray.length > 0 ? newArray : undefined
+      [filterKey]: newArray.length > 0 ? newArray : undefined,
     });
   };
 };
@@ -127,10 +128,10 @@ export const createToggleFunction = <T>(
 const toggleArrayItem = <T>(array: T[] | undefined, item: T): T[] => {
   const currentArray = array || [];
   const index = currentArray.indexOf(item);
-  
+
   if (index === -1) {
     return [...currentArray, item];
   } else {
     return currentArray.filter((_, i) => i !== index);
   }
-}; 
+};

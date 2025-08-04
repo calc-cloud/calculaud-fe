@@ -1,4 +1,3 @@
-
 export interface DashboardFilters {
   start_date?: string;
   end_date?: string;
@@ -37,14 +36,14 @@ export interface HierarchyDistributionItem {
   id: number;
   name: string;
   path: string;
-  type: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+  type: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM";
   count: number;
   parent_id: number | null;
 }
 
 export interface HierarchyDistributionResponse {
   items: HierarchyDistributionItem[];
-  level: 'UNIT' | 'CENTER' | 'ANAF' | 'MADOR' | 'TEAM';
+  level: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM";
   parent_name: string | null;
 }
 
@@ -64,5 +63,5 @@ export interface ExpenditureTimelineItem {
 
 export interface ExpenditureTimelineResponse {
   items: ExpenditureTimelineItem[];
-  group_by: 'day' | 'week' | 'month' | 'year';
+  group_by: "day" | "week" | "month" | "year";
 }

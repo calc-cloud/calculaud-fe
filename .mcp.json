@@ -2,10 +2,7 @@
   "mcpServers": {
     "puppeteer": {
       "command": "npx",
-      "args": [
-        "-y",
-        "puppeteer-mcp-server"
-      ],
+      "args": ["-y", "puppeteer-mcp-server"],
       "env": {}
     }
   }

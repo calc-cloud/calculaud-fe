@@ -1,14 +1,13 @@
-
-import { API_CONFIG } from '@/config/api';
-import { 
-  Hierarchy, 
-  HierarchiesResponse, 
+import { API_CONFIG } from "@/config/api";
+import {
+  Hierarchy,
+  HierarchiesResponse,
   HierarchyFilters,
-  HierarchyCreateRequest, 
-  HierarchyUpdateRequest 
-} from '@/types/hierarchies';
+  HierarchyCreateRequest,
+  HierarchyUpdateRequest,
+} from "@/types/hierarchies";
 
-import { BaseService } from './BaseService';
+import { BaseService } from "./BaseService";
 
 export class HierarchyService extends BaseService<
   Hierarchy,

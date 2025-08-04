@@ -1,12 +1,11 @@
+import { ExternalLink } from "lucide-react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
-import { ExternalLink } from 'lucide-react';
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ServiceTypesDistributionResponse } from '@/types/analytics';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ServiceTypesDistributionResponse } from "@/types/analytics";
 
 interface ServiceTypesDistributionChartProps {
   data: ServiceTypesDistributionResponse | undefined;
@@ -15,22 +14,19 @@ interface ServiceTypesDistributionChartProps {
 
 // Colors for the pie chart segments
 const COLORS = [
-  '#3b82f6', // blue
-  '#ef4444', // red
-  '#10b981', // green
-  '#f59e0b', // yellow
-  '#8b5cf6', // purple
-  '#f97316', // orange
-  '#06b6d4', // cyan
-  '#84cc16', // lime
-  '#ec4899', // pink
-  '#6b7280', // gray
+  "#3b82f6", // blue
+  "#ef4444", // red
+  "#10b981", // green
+  "#f59e0b", // yellow
+  "#8b5cf6", // purple
+  "#f97316", // orange
+  "#06b6d4", // cyan
+  "#84cc16", // lime
+  "#ec4899", // pink
+  "#6b7280", // gray
 ];
 
-export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({ 
-  data, 
-  isLoading 
-}) => {
+export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({ data, isLoading }) => {
   const navigate = useNavigate();
 
   const handleViewInSearch = () => {
@@ -98,7 +94,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
   // Transform data for recharts - data is now an array of objects with count instead of value
   const chartData = data.data.map((item) => ({
     name: item.name,
-    value: item.count
+    value: item.count,
   }));
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
@@ -108,11 +104,11 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? "start" : "end"}
         dominantBaseline="central"
         fontSize="12"
         fontWeight="bold"
@@ -143,13 +139,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
             <CardTitle>Service Types Distribution</CardTitle>
             <CardDescription>Purpose count by service type</CardDescription>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleViewInSearch}
-            className="h-8 w-8 p-0"
-            title="View in Search"
-          >
+          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>

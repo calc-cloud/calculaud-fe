@@ -1,14 +1,14 @@
-import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from 'lucide-react';
-import React from 'react';
+import { ChevronDown, ChevronRight, Building2, Users, Target, Briefcase, UserCheck } from "lucide-react";
+import React from "react";
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Hierarchy } from '@/types/hierarchies';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Hierarchy } from "@/types/hierarchies";
 
 interface HierarchyItem {
   id: number;
-  type: 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team';
+  type: "Unit" | "Center" | "Anaf" | "Mador" | "Team";
   name: string;
   parentId?: number;
   fullPath: string;
@@ -26,7 +26,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   hierarchies,
   selectedIds,
   onSelectionChange,
-  singleSelect = false
+  singleSelect = false,
 }) => {
   const [expandedNodes, setExpandedNodes] = React.useState<Set<number>>(new Set());
   const [open, setOpen] = React.useState(false);
@@ -34,26 +34,26 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
   // Transform backend hierarchy data to the format expected by the component
   const transformedHierarchies: HierarchyItem[] = hierarchies.map((hierarchy: Hierarchy) => ({
     id: hierarchy.id,
-    type: hierarchy.type as 'Unit' | 'Center' | 'Anaf' | 'Mador' | 'Team',
+    type: hierarchy.type as "Unit" | "Center" | "Anaf" | "Mador" | "Team",
     name: hierarchy.name,
     parentId: hierarchy.parent_id || undefined,
-    fullPath: hierarchy.path
+    fullPath: hierarchy.path,
   }));
 
   const getLabel = () => {
     if (selectedIds.length === 0) {
-      return singleSelect ? 'Select hierarchy' : 'Hierarchy';
+      return singleSelect ? "Select hierarchy" : "Hierarchy";
     }
     if (selectedIds.length === 1) {
-      const selected = transformedHierarchies.find(h => h.id === selectedIds[0]);
-      return selected ? selected.name : (singleSelect ? 'Select hierarchy' : 'Hierarchy');
+      const selected = transformedHierarchies.find((h) => h.id === selectedIds[0]);
+      return selected ? selected.name : singleSelect ? "Select hierarchy" : "Hierarchy";
     }
     return `${selectedIds.length} selected`;
   };
 
   const handleSelect = (hierarchyId: number) => {
     const isSelected = selectedIds.includes(hierarchyId);
-    
+
     if (singleSelect) {
       // In single select mode, either select this item or deselect it
       if (isSelected) {
@@ -66,7 +66,7 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     } else {
       // In multiple select mode, toggle selection
       if (isSelected) {
-        onSelectionChange(selectedIds.filter(id => id !== hierarchyId));
+        onSelectionChange(selectedIds.filter((id) => id !== hierarchyId));
       } else {
         onSelectionChange([...selectedIds, hierarchyId]);
       }
@@ -86,15 +86,15 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'Unit':
+      case "Unit":
         return <Building2 className="h-4 w-4" />;
-      case 'Center':
+      case "Center":
         return <Users className="h-4 w-4" />;
-      case 'Anaf':
+      case "Anaf":
         return <Target className="h-4 w-4" />;
-      case 'Mador':
+      case "Mador":
         return <Briefcase className="h-4 w-4" />;
-      case 'Team':
+      case "Team":
         return <UserCheck className="h-4 w-4" />;
       default:
         return <Building2 className="h-4 w-4" />;
@@ -107,15 +107,15 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
     const roots: HierarchyItem[] = [];
 
     // First pass: create map of all items
-    items.forEach(item => {
+    items.forEach((item) => {
       itemMap.set(item.id, { ...item, children: [] });
     });
 
     // Second pass: build parent-child relationships
-    items.forEach(item => {
+    items.forEach((item) => {
       const itemWithChildren = itemMap.get(item.id);
       if (!itemWithChildren) return;
-      
+
       if (item.parentId && itemMap.has(item.parentId)) {
         const parent = itemMap.get(item.parentId);
         if (parent) {
@@ -139,16 +139,13 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
 
     return (
       <div key={node.id}>
-        <div 
+        <div
           className="flex items-center py-1 px-2 hover:bg-gray-50 cursor-pointer"
           style={{ paddingLeft: `${paddingLeft + 8}px` }}
           onClick={() => handleSelect(node.id)}
         >
           {hasChildren ? (
-            <div 
-              className="flex items-center mr-2"
-              onClick={(e) => toggleExpanded(node.id, e)}
-            >
+            <div className="flex items-center mr-2" onClick={(e) => toggleExpanded(node.id, e)}>
               {isExpanded ? (
                 <ChevronDown className="h-4 w-4 text-gray-400" />
               ) : (
@@ -158,14 +155,11 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           ) : (
             <div className="w-6" />
           )}
-          
-          <Checkbox
-            checked={selectedIds.includes(node.id)}
-            className="mr-2"
-          />
-          
+
+          <Checkbox checked={selectedIds.includes(node.id)} className="mr-2" />
+
           {getTypeIcon(node.type)}
-          
+
           <div className="flex-1 ml-2">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
@@ -177,12 +171,8 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
             </div>
           </div>
         </div>
-        
-        {hasChildren && isExpanded && (
-          <div>
-            {node.children?.map(child => renderTreeNode(child, level + 1))}
-          </div>
-        )}
+
+        {hasChildren && isExpanded && <div>{node.children?.map((child) => renderTreeNode(child, level + 1))}</div>}
       </div>
     );
   };
@@ -195,9 +185,9 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
+      <DropdownMenuContent
         className="w-[420px] max-h-[300px] overflow-y-auto bg-white border shadow-lg z-50 p-0"
-        align="start" 
+        align="start"
         side="bottom"
         sideOffset={4}
         avoidCollisions
@@ -205,11 +195,9 @@ export const HierarchySelector: React.FC<HierarchySelectorProps> = ({
       >
         <div className="py-2">
           {treeStructure.length > 0 ? (
-            treeStructure.map(node => renderTreeNode(node))
+            treeStructure.map((node) => renderTreeNode(node))
           ) : (
-            <div className="px-4 py-8 text-sm text-gray-500 text-center">
-              No organizational units available
-            </div>
+            <div className="px-4 py-8 text-sm text-gray-500 text-center">No organizational units available</div>
           )}
         </div>
       </DropdownMenuContent>

@@ -1,13 +1,12 @@
+import { API_CONFIG } from "@/config/api";
+import {
+  ServiceType,
+  ServiceTypesResponse,
+  ServiceTypeCreateRequest,
+  ServiceTypeUpdateRequest,
+} from "@/types/serviceTypes";
 
-import { API_CONFIG } from '@/config/api';
-import { 
-  ServiceType, 
-  ServiceTypesResponse, 
-  ServiceTypeCreateRequest, 
-  ServiceTypeUpdateRequest 
-} from '@/types/serviceTypes';
-
-import { BaseService, BaseQueryParams } from './BaseService';
+import { BaseService, BaseQueryParams } from "./BaseService";
 
 export class ServiceTypeService extends BaseService<
   ServiceType,

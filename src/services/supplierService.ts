@@ -1,13 +1,7 @@
+import { API_CONFIG } from "@/config/api";
+import { Supplier, SuppliersResponse, SupplierCreateRequest, SupplierUpdateRequest } from "@/types/suppliers";
 
-import { API_CONFIG } from '@/config/api';
-import { 
-  Supplier, 
-  SuppliersResponse, 
-  SupplierCreateRequest, 
-  SupplierUpdateRequest 
-} from '@/types/suppliers';
-
-import { BaseService, BaseQueryParams } from './BaseService';
+import { BaseService, BaseQueryParams } from "./BaseService";
 
 export class SupplierService extends BaseService<
   Supplier,

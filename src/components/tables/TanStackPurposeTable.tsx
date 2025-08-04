@@ -5,18 +5,18 @@ import {
   getCoreRowModel,
   useReactTable,
   VisibilityState,
-} from '@tanstack/react-table';
-import React, {useCallback, useMemo} from 'react';
-import {useNavigate} from 'react-router-dom';
+} from "@tanstack/react-table";
+import React, { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 
-import {ColumnVisibility} from '@/components/common/ColumnControl';
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
-import {useAdminData} from '@/contexts/AdminDataContext';
-import {Purpose} from '@/types';
-import {ColumnSizing, loadColumnSizing, saveColumnSizing} from '@/utils/columnStorage';
-import {SortConfig} from '@/utils/sorting';
+import { ColumnVisibility } from "@/components/common/ColumnControl";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useAdminData } from "@/contexts/AdminDataContext";
+import { Purpose } from "@/types";
+import { ColumnSizing, loadColumnSizing, saveColumnSizing } from "@/utils/columnStorage";
+import { SortConfig } from "@/utils/sorting";
 
-import {createColumns} from './columns';
+import { createColumns } from "./columns";
 
 interface TanStackPurposeTableProps {
   purposes: Purpose[];
@@ -35,7 +35,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   sortConfig,
   onSortChange,
   columnSizing,
-  onColumnSizingChange
+  onColumnSizingChange,
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   // Convert our ColumnVisibility to TanStack's VisibilityState
   const visibilityState: VisibilityState = useMemo(() => {
     if (!columnVisibility) return {};
-    
+
     return {
       status: columnVisibility.status,
       statusMessage: columnVisibility.statusMessage,
@@ -73,16 +73,19 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     [hierarchies, sortConfig, onSortChange]
   );
 
-  const handleColumnSizingChange = useCallback((updater: any) => {
-    if (typeof updater === 'function') {
-      const newSizing = updater(sizingState);
-      onColumnSizingChange?.(newSizing);
-      saveColumnSizing(newSizing);
-    } else {
-      onColumnSizingChange?.(updater);
-      saveColumnSizing(updater);
-    }
-  }, [sizingState, onColumnSizingChange]);
+  const handleColumnSizingChange = useCallback(
+    (updater: any) => {
+      if (typeof updater === "function") {
+        const newSizing = updater(sizingState);
+        onColumnSizingChange?.(newSizing);
+        saveColumnSizing(newSizing);
+      } else {
+        onColumnSizingChange?.(updater);
+        saveColumnSizing(updater);
+      }
+    },
+    [sizingState, onColumnSizingChange]
+  );
 
   const table = useReactTable({
     data: purposes,
@@ -94,7 +97,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     },
     onColumnSizingChange: handleColumnSizingChange,
     enableColumnResizing: true,
-    columnResizeMode: 'onChange',
+    columnResizeMode: "onChange",
   });
 
   const handleRowClick = (purpose: Purpose) => {
@@ -119,10 +122,10 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
 
   return (
     <div className="rounded-md border">
-      <Table 
-        style={{ 
+      <Table
+        style={{
           width: table.getCenterTotalSize(),
-          minWidth: '100%'
+          minWidth: "100%",
         }}
       >
         <TableHeader>
@@ -133,24 +136,19 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
                   key={header.id}
                   style={{
                     width: header.getSize(),
-                    position: 'relative',
+                    position: "relative",
                   }}
                   className="text-center relative before:content-[''] before:absolute before:right-0 before:top-3 before:bottom-3 before:w-px before:bg-border"
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                  
+                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+
                   {/* Resize handle */}
                   {header.column.getCanResize() && (
                     <div
                       onMouseDown={header.getResizeHandler()}
                       onTouchStart={header.getResizeHandler()}
                       className={`absolute right-0 top-0 h-full w-1 cursor-col-resize hover:bg-primary/50 transition-colors ${
-                        header.column.getIsResizing() ? 'bg-primary' : ''
+                        header.column.getIsResizing() ? "bg-primary" : ""
                       }`}
                     />
                   )}
@@ -174,10 +172,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
                   }}
                   className="text-center"
                 >
-                  {flexRender(
-                    cell.column.columnDef.cell,
-                    cell.getContext()
-                  )}
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
             </TableRow>

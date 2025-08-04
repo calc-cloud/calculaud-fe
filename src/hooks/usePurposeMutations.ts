@@ -1,9 +1,7 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { useToast } from '@/hooks/use-toast';
-import { purposeService } from '@/services/purposeService';
-
+import { useToast } from "@/hooks/use-toast";
+import { purposeService } from "@/services/purposeService";
 
 export const usePurposeMutations = () => {
   const queryClient = useQueryClient();
@@ -16,10 +14,10 @@ export const usePurposeMutations = () => {
     },
     onSuccess: () => {
       // More aggressive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['purposes'] });
-      queryClient.refetchQueries({ queryKey: ['purposes'] });
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+      queryClient.refetchQueries({ queryKey: ["purposes"] });
       // Also clear any cached purpose detail pages
-      queryClient.invalidateQueries({ queryKey: ['purpose'] });
+      queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose created",
         description: "The purpose has been successfully created.",
@@ -29,9 +27,9 @@ export const usePurposeMutations = () => {
       toast({
         title: "Error creating purpose",
         description: error.message || "Failed to create purpose",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const updatePurpose = useMutation({
@@ -41,9 +39,9 @@ export const usePurposeMutations = () => {
     },
     onSuccess: () => {
       // More aggressive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['purposes'] });
-      queryClient.refetchQueries({ queryKey: ['purposes'] });
-      queryClient.invalidateQueries({ queryKey: ['purpose'] });
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+      queryClient.refetchQueries({ queryKey: ["purposes"] });
+      queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose updated",
         description: "The purpose has been successfully updated.",
@@ -53,9 +51,9 @@ export const usePurposeMutations = () => {
       toast({
         title: "Error updating purpose",
         description: error.message || "Failed to update purpose",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   const deletePurpose = useMutation({
@@ -64,9 +62,9 @@ export const usePurposeMutations = () => {
     },
     onSuccess: () => {
       // More aggressive cache invalidation
-      queryClient.invalidateQueries({ queryKey: ['purposes'] });
-      queryClient.refetchQueries({ queryKey: ['purposes'] });
-      queryClient.invalidateQueries({ queryKey: ['purpose'] });
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+      queryClient.refetchQueries({ queryKey: ["purposes"] });
+      queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose deleted",
         description: "The purpose has been successfully deleted.",
@@ -76,14 +74,14 @@ export const usePurposeMutations = () => {
       toast({
         title: "Error deleting purpose",
         description: error.message || "Failed to delete purpose",
-        variant: "destructive"
+        variant: "destructive",
       });
-    }
+    },
   });
 
   return {
     createPurpose,
     updatePurpose,
-    deletePurpose
+    deletePurpose,
   };
 };

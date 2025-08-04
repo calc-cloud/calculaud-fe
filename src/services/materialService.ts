@@ -1,12 +1,7 @@
-import { API_CONFIG } from '@/config/api';
-import { 
-  Material, 
-  MaterialsResponse, 
-  MaterialCreateRequest, 
-  MaterialUpdateRequest 
-} from '@/types/materials';
+import { API_CONFIG } from "@/config/api";
+import { Material, MaterialsResponse, MaterialCreateRequest, MaterialUpdateRequest } from "@/types/materials";
 
-import { BaseService } from './BaseService';
+import { BaseService } from "./BaseService";
 
 interface MaterialQueryParams {
   page?: number;

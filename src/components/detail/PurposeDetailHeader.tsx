@@ -1,12 +1,22 @@
-import { ArrowLeft, Trash2 } from 'lucide-react';
-import React from 'react';
+import { ArrowLeft, Trash2 } from "lucide-react";
+import React from "react";
 
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Purpose } from '@/types';
-import { formatDate } from '@/utils/dateUtils';
-import { getStatusDisplay } from '@/utils/statusUtils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Purpose } from "@/types";
+import { formatDate } from "@/utils/dateUtils";
+import { getStatusDisplay } from "@/utils/statusUtils";
 
 interface PurposeDetailHeaderProps {
   purpose: Purpose;
@@ -32,10 +42,7 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
           <h1 className="text-2xl font-bold text-gray-900">Purpose Details</h1>
           <p className="text-sm text-gray-500">Created {formatDate(purpose.creation_time)}</p>
         </div>
-        <Badge 
-          variant={statusInfo.variant} 
-          className={`cursor-default pointer-events-none ${statusInfo.className}`}
-        >
+        <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>
           {statusInfo.label}
         </Badge>
       </div>
@@ -50,13 +57,12 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the purpose
-              and remove all associated data.
+              This action cannot be undone. This will permanently delete the purpose and remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={onDeletePurpose}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

@@ -1,24 +1,24 @@
 // Core entity types for the Procurement Management System
 
 // Export base types for reuse
-export * from './base';
+export * from "./base";
 
 // Currency enum with API values
 export enum Currency {
-  ILS = 'ILS',
-  SUPPORT_USD = 'SUPPORT_USD',
-  AVAILABLE_USD = 'AVAILABLE_USD'
+  ILS = "ILS",
+  SUPPORT_USD = "SUPPORT_USD",
+  AVAILABLE_USD = "AVAILABLE_USD",
 }
 
 // Helper to get display name for currency
 export const getCurrencyDisplayName = (currency: Currency): string => {
   switch (currency) {
     case Currency.ILS:
-      return 'ILS';
+      return "ILS";
     case Currency.SUPPORT_USD:
-      return 'USD Support';
+      return "USD Support";
     case Currency.AVAILABLE_USD:
-      return 'USD Available';
+      return "USD Available";
     default:
       return currency;
   }
@@ -28,12 +28,12 @@ export const getCurrencyDisplayName = (currency: Currency): string => {
 export const getCurrencySymbol = (currency: Currency): string => {
   switch (currency) {
     case Currency.ILS:
-      return '₪';
+      return "₪";
     case Currency.SUPPORT_USD:
     case Currency.AVAILABLE_USD:
-      return '$';
+      return "$";
     default:
-      return '';
+      return "";
   }
 };
 
@@ -44,8 +44,6 @@ export interface Authority {
   description: string;
   created_at: string;
 }
-
-
 
 export interface Purpose {
   id: string;
@@ -144,9 +142,7 @@ export interface Hierarchy {
   name: string;
 }
 
-export type PurposeStatus = 'IN_PROGRESS' | 'COMPLETED' | 'SIGNED' | 'PARTIALLY_SUPPLIED';
-
-
+export type PurposeStatus = "IN_PROGRESS" | "COMPLETED" | "SIGNED" | "PARTIALLY_SUPPLIED";
 
 // Add specific API response type for purposes
 export interface PurposesApiResponse {

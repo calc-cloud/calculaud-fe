@@ -1,9 +1,8 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { useToast } from '@/hooks/use-toast';
-import { hierarchyService } from '@/services/hierarchyService';
-import { HierarchyCreateRequest, HierarchyUpdateRequest, Hierarchy } from '@/types/hierarchies';
+import { useToast } from "@/hooks/use-toast";
+import { hierarchyService } from "@/services/hierarchyService";
+import { HierarchyCreateRequest, HierarchyUpdateRequest, Hierarchy } from "@/types/hierarchies";
 
 export const useCreateHierarchy = () => {
   const queryClient = useQueryClient();
@@ -13,7 +12,7 @@ export const useCreateHierarchy = () => {
     mutationFn: (data: HierarchyCreateRequest) => hierarchyService.createHierarchy(data),
     onSuccess: (newHierarchy: Hierarchy) => {
       // Invalidate and refetch hierarchies
-      queryClient.invalidateQueries({ queryKey: ['hierarchies'] });
+      queryClient.invalidateQueries({ queryKey: ["hierarchies"] });
       toast({
         title: "Hierarchy created",
         description: `${newHierarchy.name} has been created successfully.`,
@@ -34,11 +33,11 @@ export const useUpdateHierarchy = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: HierarchyUpdateRequest }) => 
+    mutationFn: ({ id, data }: { id: number; data: HierarchyUpdateRequest }) =>
       hierarchyService.updateHierarchy(id, data),
     onSuccess: (updatedHierarchy: Hierarchy) => {
       // Invalidate and refetch hierarchies
-      queryClient.invalidateQueries({ queryKey: ['hierarchies'] });
+      queryClient.invalidateQueries({ queryKey: ["hierarchies"] });
       toast({
         title: "Hierarchy updated",
         description: `${updatedHierarchy.name} has been updated successfully.`,
@@ -62,7 +61,7 @@ export const useDeleteHierarchy = () => {
     mutationFn: (id: number) => hierarchyService.deleteHierarchy(id),
     onSuccess: () => {
       // Invalidate and refetch hierarchies
-      queryClient.invalidateQueries({ queryKey: ['hierarchies'] });
+      queryClient.invalidateQueries({ queryKey: ["hierarchies"] });
       toast({
         title: "Hierarchy deleted",
         description: "The hierarchy has been deleted successfully.",

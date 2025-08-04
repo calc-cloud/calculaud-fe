@@ -1,9 +1,14 @@
-import { BaseQueryParams } from '@/services/BaseService';
-import { serviceTypeService } from '@/services/serviceTypeService';
-import { ServiceType, ServiceTypesResponse, ServiceTypeCreateRequest, ServiceTypeUpdateRequest } from '@/types/serviceTypes';
+import { BaseQueryParams } from "@/services/BaseService";
+import { serviceTypeService } from "@/services/serviceTypeService";
+import {
+  ServiceType,
+  ServiceTypesResponse,
+  ServiceTypeCreateRequest,
+  ServiceTypeUpdateRequest,
+} from "@/types/serviceTypes";
 
-import { EntityManagement, EntityManagementConfig } from './EntityManagement';
-import ServiceTypeModal from './ServiceTypeModal';
+import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
+import ServiceTypeModal from "./ServiceTypeModal";
 
 // Adapter component to bridge ServiceTypeModal interface with EntityManagement
 const ServiceTypeModalAdapter: React.FC<{
@@ -17,14 +22,7 @@ const ServiceTypeModalAdapter: React.FC<{
     await onSave(data, editId);
   };
 
-  return (
-    <ServiceTypeModal
-      open={open}
-      onOpenChange={onOpenChange}
-      editItem={editItem}
-      onSave={handleSave}
-    />
-  );
+  return <ServiceTypeModal open={open} onOpenChange={onOpenChange} editItem={editItem} onSave={handleSave} />;
 };
 
 const ServiceTypeManagement: React.FC = () => {
@@ -35,29 +33,29 @@ const ServiceTypeManagement: React.FC = () => {
     ServiceTypeUpdateRequest,
     BaseQueryParams
   > = {
-    entityName: 'Service Type',
-    entityNamePlural: 'Service Types',
-    queryKey: 'service-types',
-    
+    entityName: "Service Type",
+    entityNamePlural: "Service Types",
+    queryKey: "service-types",
+
     service: {
       get: serviceTypeService.getServiceTypes.bind(serviceTypeService),
       create: serviceTypeService.createServiceType.bind(serviceTypeService),
       update: serviceTypeService.updateServiceType.bind(serviceTypeService),
       delete: serviceTypeService.deleteServiceType.bind(serviceTypeService),
     },
-    
+
     displayFields: [
       {
-        key: 'name',
-        label: 'Name',
-        className: 'font-medium truncate'
-      }
+        key: "name",
+        label: "Name",
+        className: "font-medium truncate",
+      },
     ],
-    
-    searchPlaceholder: 'Search service types...',
+
+    searchPlaceholder: "Search service types...",
     gridColumns: 3,
-    
-    ModalComponent: ServiceTypeModalAdapter
+
+    ModalComponent: ServiceTypeModalAdapter,
   };
 
   return <EntityManagement config={config} />;

@@ -1,12 +1,12 @@
-import React from 'react';
+import React from "react";
 
-import { AttachedFilesCard } from '@/components/detail/AttachedFilesCard';
-import { GeneralDataCard } from '@/components/detail/GeneralDataCard';
-import { PurchasesTimelineCard } from '@/components/detail/PurchasesTimelineCard';
-import { PurposeDetailHeader } from '@/components/detail/PurposeDetailHeader';
-import { AddPurchaseModal } from '@/components/modals/AddPurchaseModal';
-import { EditGeneralDataModal } from '@/components/modals/EditGeneralDataModal';
-import { usePurposeDetail } from '@/hooks/usePurposeDetail';
+import { AttachedFilesCard } from "@/components/detail/AttachedFilesCard";
+import { GeneralDataCard } from "@/components/detail/GeneralDataCard";
+import { PurchasesTimelineCard } from "@/components/detail/PurchasesTimelineCard";
+import { PurposeDetailHeader } from "@/components/detail/PurposeDetailHeader";
+import { AddPurchaseModal } from "@/components/modals/AddPurchaseModal";
+import { EditGeneralDataModal } from "@/components/modals/EditGeneralDataModal";
+import { usePurposeDetail } from "@/hooks/usePurposeDetail";
 
 const PurposeDetail: React.FC = () => {
   const {
@@ -14,7 +14,7 @@ const PurposeDetail: React.FC = () => {
     purpose,
     isLoading,
     error,
-    
+
     // Modal states
     isEditModalOpen,
     setIsEditModalOpen,
@@ -23,14 +23,14 @@ const PurposeDetail: React.FC = () => {
     isAddPurchaseModalOpen,
     setIsAddPurchaseModalOpen,
     isCreatingPurchase,
-    
+
     // Stage editing states
     editingStage,
     selectedStage,
     editForm,
     setEditForm,
     isUpdatingStage,
-    
+
     // Handlers
     handleEditGeneralData,
     handleBackToSearch,
@@ -43,7 +43,7 @@ const PurposeDetail: React.FC = () => {
     handleEditCancel,
     handleCloseStagePopup,
     handleSaveStage,
-    
+
     // Utilities
     getStageDisplayDate,
     hasMultipleStagesWithSamePriority,
@@ -52,9 +52,6 @@ const PurposeDetail: React.FC = () => {
     calculateStagePosition,
     isPurchaseComplete,
   } = usePurposeDetail();
-
-
-
 
   if (isLoading) {
     return (
@@ -76,11 +73,9 @@ const PurposeDetail: React.FC = () => {
       <div>
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {error ? 'Error Loading Purpose' : 'Purpose not found'}
+            {error ? "Error Loading Purpose" : "Purpose not found"}
           </h2>
-          <p className="text-gray-600 mb-4">
-            {error || "The purpose you're looking for doesn't exist."}
-          </p>
+          <p className="text-gray-600 mb-4">{error || "The purpose you're looking for doesn't exist."}</p>
           <button onClick={handleBackToSearch} className="text-blue-600 hover:text-blue-800">
             ← Back to Search
           </button>
@@ -102,15 +97,9 @@ const PurposeDetail: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column: General Data + Attached Files */}
         <div className="lg:col-span-1 space-y-4">
-          <GeneralDataCard
-            purpose={purpose}
-            onEdit={handleEditGeneralData}
-          />
-          
-          <AttachedFilesCard
-            purpose={purpose}
-            onFilesChange={handleFilesChange}
-          />
+          <GeneralDataCard purpose={purpose} onEdit={handleEditGeneralData} />
+
+          <AttachedFilesCard purpose={purpose} onFilesChange={handleFilesChange} />
         </div>
 
         {/* Right Column: Purchases Timeline */}
@@ -163,13 +152,7 @@ const PurposeDetail: React.FC = () => {
       )}
 
       {/* Full-screen overlay when stage is expanded */}
-      {selectedStage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-20 z-40"
-          onClick={handleCloseStagePopup}
-        />
-      )}
-
+      {selectedStage && <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={handleCloseStagePopup} />}
     </div>
   );
 };

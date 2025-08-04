@@ -1,7 +1,7 @@
-import { ColumnVisibility, DEFAULT_COLUMN_VISIBILITY } from '@/components/common/ColumnControl';
+import { ColumnVisibility, DEFAULT_COLUMN_VISIBILITY } from "@/components/common/ColumnControl";
 
-const COLUMN_VISIBILITY_KEY = 'search-column-visibility';
-const COLUMN_SIZING_KEY = 'search-column-sizing';
+const COLUMN_VISIBILITY_KEY = "search-column-visibility";
+const COLUMN_SIZING_KEY = "search-column-sizing";
 
 // Column sizing type - maps column IDs to their widths
 export type ColumnSizing = Record<string, number>;
@@ -42,12 +42,10 @@ export const loadColumnVisibility = (): ColumnVisibility => {
     }
 
     const parsed = JSON.parse(stored);
-    
+
     // Validate that all expected keys exist and are booleans
     const expectedKeys = Object.keys(DEFAULT_COLUMN_VISIBILITY) as (keyof ColumnVisibility)[];
-    const isValid = expectedKeys.every(key => 
-      key in parsed && typeof parsed[key] === 'boolean'
-    );
+    const isValid = expectedKeys.every((key) => key in parsed && typeof parsed[key] === "boolean");
 
     if (!isValid) {
       return DEFAULT_COLUMN_VISIBILITY;
@@ -85,21 +83,21 @@ export const loadColumnSizing = (): ColumnSizing => {
     }
 
     const parsed = JSON.parse(stored);
-    
+
     // Validate that the parsed data is an object with numeric values
-    if (typeof parsed !== 'object' || parsed === null) {
+    if (typeof parsed !== "object" || parsed === null) {
       return DEFAULT_COLUMN_SIZING;
     }
 
     // Filter out invalid entries and merge with defaults
     const validSizing: ColumnSizing = {};
-    
+
     // Start with defaults to ensure all columns have sizes
     Object.assign(validSizing, DEFAULT_COLUMN_SIZING);
-    
+
     // Override with valid stored values
     Object.entries(parsed).forEach(([columnId, width]) => {
-      if (typeof width === 'number' && width > 0 && columnId in DEFAULT_COLUMN_SIZING) {
+      if (typeof width === "number" && width > 0 && columnId in DEFAULT_COLUMN_SIZING) {
         validSizing[columnId] = width;
       }
     });

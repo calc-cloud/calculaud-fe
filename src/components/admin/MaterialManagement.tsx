@@ -1,9 +1,9 @@
-import { useServiceTypes } from '@/hooks/useServiceTypes';
-import { materialService } from '@/services/materialService';
-import { Material, MaterialsResponse, MaterialCreateRequest, MaterialUpdateRequest } from '@/types/materials';
+import { useServiceTypes } from "@/hooks/useServiceTypes";
+import { materialService } from "@/services/materialService";
+import { Material, MaterialsResponse, MaterialCreateRequest, MaterialUpdateRequest } from "@/types/materials";
 
-import { EntityManagement, EntityManagementConfig } from './EntityManagement';
-import MaterialModal from './MaterialModal';
+import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
+import MaterialModal from "./MaterialModal";
 
 // Adapter component to bridge MaterialModal interface with EntityManagement
 const MaterialModalAdapter: React.FC<{
@@ -17,14 +17,7 @@ const MaterialModalAdapter: React.FC<{
     await onSave(data, editId);
   };
 
-  return (
-    <MaterialModal
-      open={open}
-      onOpenChange={onOpenChange}
-      editItem={editItem}
-      onSave={handleSave}
-    />
-  );
+  return <MaterialModal open={open} onOpenChange={onOpenChange} editItem={editItem} onSave={handleSave} />;
 };
 
 interface MaterialQueryParams {
@@ -38,8 +31,8 @@ const MaterialManagement: React.FC = () => {
   const { data: serviceTypesData } = useServiceTypes();
 
   const getServiceTypeName = (serviceTypeId: number) => {
-    const serviceType = serviceTypesData?.items?.find(st => st.id === serviceTypeId);
-    return serviceType?.name || 'Unknown';
+    const serviceType = serviceTypesData?.items?.find((st) => st.id === serviceTypeId);
+    return serviceType?.name || "Unknown";
   };
 
   const config: EntityManagementConfig<
@@ -49,35 +42,35 @@ const MaterialManagement: React.FC = () => {
     MaterialUpdateRequest,
     MaterialQueryParams
   > = {
-    entityName: 'Material',
-    entityNamePlural: 'Materials',
-    queryKey: 'materials',
-    
+    entityName: "Material",
+    entityNamePlural: "Materials",
+    queryKey: "materials",
+
     service: {
       get: materialService.getMaterials.bind(materialService),
       create: materialService.createMaterial.bind(materialService),
       update: materialService.updateMaterial.bind(materialService),
       delete: materialService.deleteMaterial.bind(materialService),
     },
-    
+
     displayFields: [
       {
-        key: 'name',
-        label: 'Name',
-        className: 'font-medium truncate'
+        key: "name",
+        label: "Name",
+        className: "font-medium truncate",
       },
       {
-        key: 'service_type_id',
-        label: 'Type',
+        key: "service_type_id",
+        label: "Type",
         render: (serviceTypeId: number) => `Type: ${getServiceTypeName(serviceTypeId)}`,
-        className: 'text-xs text-gray-500'
-      }
+        className: "text-xs text-gray-500",
+      },
     ],
-    
-    searchPlaceholder: 'Search materials...',
+
+    searchPlaceholder: "Search materials...",
     gridColumns: 3,
-    
-    ModalComponent: MaterialModalAdapter
+
+    ModalComponent: MaterialModalAdapter,
   };
 
   return <EntityManagement config={config} />;
