@@ -1,13 +1,12 @@
+import { API_CONFIG } from "@/config/api";
+import {
+  ServiceType,
+  ServiceTypesResponse,
+  ServiceTypeCreateRequest,
+  ServiceTypeUpdateRequest,
+} from "@/types/serviceTypes";
 
-import { API_CONFIG } from '@/config/api';
-import { 
-  ServiceType, 
-  ServiceTypesResponse, 
-  ServiceTypeCreateRequest, 
-  ServiceTypeUpdateRequest 
-} from '@/types/serviceTypes';
-
-import { BaseService, BaseQueryParams } from './BaseService';
+import { BaseService, BaseQueryParams } from "./BaseService";
 
 export class ServiceTypeService extends BaseService<
   ServiceType,
@@ -19,15 +18,22 @@ export class ServiceTypeService extends BaseService<
   protected endpoint = API_CONFIG.ENDPOINTS.SERVICE_TYPES;
 
   // Maintain backward compatibility with existing method names
-  async getServiceTypes(params?: BaseQueryParams): Promise<ServiceTypesResponse> {
+  async getServiceTypes(
+    params?: BaseQueryParams
+  ): Promise<ServiceTypesResponse> {
     return this.getEntities(params);
   }
 
-  async createServiceType(data: ServiceTypeCreateRequest): Promise<ServiceType> {
+  async createServiceType(
+    data: ServiceTypeCreateRequest
+  ): Promise<ServiceType> {
     return this.createEntity(data);
   }
 
-  async updateServiceType(id: number, data: ServiceTypeUpdateRequest): Promise<ServiceType> {
+  async updateServiceType(
+    id: number,
+    data: ServiceTypeUpdateRequest
+  ): Promise<ServiceType> {
     return this.updateEntity(id, data);
   }
 

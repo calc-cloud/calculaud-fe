@@ -1,23 +1,39 @@
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import React, { useState, useEffect } from "react";
 
-import { HierarchySelector } from '@/components/common/HierarchySelector';
-import { ContentsSection } from '@/components/sections/ContentsSection';
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
-import { Purpose, PurposeContent } from '@/types';
-import { ServiceType } from '@/types/serviceTypes';
-import { Supplier } from '@/types/suppliers';
-import { getStatusDisplay } from '@/utils/statusUtils';
+import { HierarchySelector } from "@/components/common/HierarchySelector";
+import { ContentsSection } from "@/components/sections/ContentsSection";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAdminData } from "@/contexts/AdminDataContext";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+import { Purpose, PurposeContent } from "@/types";
+import { ServiceType } from "@/types/serviceTypes";
+import { Supplier } from "@/types/suppliers";
+import { getStatusDisplay } from "@/utils/statusUtils";
 
 interface EditGeneralDataModalProps {
   isOpen: boolean;
@@ -42,42 +58,46 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
   isOpen,
   onClose,
   purpose,
-  onSave
+  onSave,
 }) => {
   const { hierarchies, suppliers, serviceTypes, isLoading } = useAdminData();
   const { toast } = useToast();
   const [datePickerOpen, setDatePickerOpen] = useState(false);
-  
+
   const [formData, setFormData] = useState<GeneralDataForm>({
-    description: '',
+    description: "",
     selectedSupplier: null,
     selectedServiceType: null,
-    expected_delivery: '',
-    status: 'IN_PROGRESS',
-    hierarchy_id: '',
-    hierarchy_name: '',
-    comments: '',
-    contents: []
+    expected_delivery: "",
+    status: "IN_PROGRESS",
+    hierarchy_id: "",
+    hierarchy_name: "",
+    comments: "",
+    contents: [],
   });
-  
-  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>([]);
+
+  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>(
+    []
+  );
 
   // Initialize form data when purpose changes
   useEffect(() => {
     if (purpose && isOpen) {
-      const selectedSupplier = suppliers.find(s => s.name === purpose.supplier) || null;
-      const selectedServiceType = serviceTypes.find(st => st.name === purpose.service_type) || null;
-      
+      const selectedSupplier =
+        suppliers.find((s) => s.name === purpose.supplier) || null;
+      const selectedServiceType =
+        serviceTypes.find((st) => st.name === purpose.service_type) || null;
+
       setFormData({
-        description: purpose.description || '',
+        description: purpose.description || "",
         selectedSupplier,
         selectedServiceType,
-        expected_delivery: purpose.expected_delivery || '',
-        status: purpose.status || 'IN_PROGRESS',
-        hierarchy_id: purpose.hierarchy_id || '',
-        hierarchy_name: purpose.hierarchy_name || '',
-        comments: purpose.comments || '',
-        contents: purpose.contents || []
+        expected_delivery: purpose.expected_delivery || "",
+        status: purpose.status || "IN_PROGRESS",
+        hierarchy_id: purpose.hierarchy_id || "",
+        hierarchy_name: purpose.hierarchy_name || "",
+        comments: purpose.comments || "",
+        contents: purpose.contents || [],
       });
 
       // Set selected hierarchy for tree selector
@@ -86,24 +106,22 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
       } else {
         setSelectedHierarchyIds([]);
       }
-
-
     }
   }, [purpose, isOpen, suppliers, serviceTypes]);
 
   const validateForm = () => {
     const errors: string[] = [];
     if (!formData.description?.trim()) {
-      errors.push('Description is required');
+      errors.push("Description is required");
     }
     if (!formData.selectedSupplier) {
-      errors.push('Supplier is required');
+      errors.push("Supplier is required");
     }
     if (!formData.selectedServiceType) {
-      errors.push('Service type is required');
+      errors.push("Service type is required");
     }
     if (!formData.contents || formData.contents.length === 0) {
-      errors.push('At least one content item is required');
+      errors.push("At least one content item is required");
     } else {
       formData.contents.forEach((content, index) => {
         if (!content.material_id || content.material_id === 0) {
@@ -122,8 +140,8 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     if (errors.length > 0) {
       toast({
         title: "Validation Error",
-        description: errors.join('. '),
-        variant: "destructive"
+        description: errors.join(". "),
+        variant: "destructive",
       });
       return;
     }
@@ -132,14 +150,15 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     const updatedPurpose: Purpose = {
       ...purpose,
       description: formData.description.trim(),
-      supplier: formData.selectedSupplier?.name || '',
-      service_type: formData.selectedServiceType?.name as Purpose['service_type'],
+      supplier: formData.selectedSupplier?.name || "",
+      service_type: formData.selectedServiceType
+        ?.name as Purpose["service_type"],
       expected_delivery: formData.expected_delivery,
-      status: formData.status as Purpose['status'],
+      status: formData.status as Purpose["status"],
       hierarchy_id: formData.hierarchy_id,
       hierarchy_name: formData.hierarchy_name,
       comments: formData.comments.trim() || undefined,
-      contents: formData.contents
+      contents: formData.contents,
     };
 
     onSave(updatedPurpose);
@@ -149,48 +168,52 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
     onClose();
   };
 
-  const handleFieldChange = <K extends keyof GeneralDataForm>(field: K, value: GeneralDataForm[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleFieldChange = <K extends keyof GeneralDataForm>(
+    field: K,
+    value: GeneralDataForm[K]
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSupplierChange = (supplierId: string) => {
-    const supplier = suppliers.find(s => s.id === parseInt(supplierId));
-    setFormData(prev => ({ ...prev, selectedSupplier: supplier || null }));
+    const supplier = suppliers.find((s) => s.id === parseInt(supplierId));
+    setFormData((prev) => ({ ...prev, selectedSupplier: supplier || null }));
   };
 
   const handleServiceTypeChange = (serviceTypeId: string) => {
-    const serviceType = serviceTypes.find(st => st.id === parseInt(serviceTypeId));
-    setFormData(prev => ({ 
-      ...prev, 
+    const serviceType = serviceTypes.find(
+      (st) => st.id === parseInt(serviceTypeId)
+    );
+    setFormData((prev) => ({
+      ...prev,
       selectedServiceType: serviceType || null,
       // Reset contents when service type changes since materials will be different
-      contents: []
+      contents: [],
     }));
   };
 
   const handleHierarchyChange = (selectedIds: number[]) => {
     setSelectedHierarchyIds(selectedIds);
-    
+
     if (selectedIds.length > 0) {
-      const selectedHierarchy = hierarchies.find(h => h.id === selectedIds[0]);
+      const selectedHierarchy = hierarchies.find(
+        (h) => h.id === selectedIds[0]
+      );
       if (selectedHierarchy) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           hierarchy_id: selectedHierarchy.id.toString(),
-          hierarchy_name: selectedHierarchy.name
+          hierarchy_name: selectedHierarchy.name,
         }));
       }
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        hierarchy_id: '',
-        hierarchy_name: ''
+        hierarchy_id: "",
+        hierarchy_name: "",
       }));
     }
   };
-
-
-
 
   if (isLoading) {
     return null;
@@ -210,7 +233,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => handleFieldChange('description', e.target.value)}
+              onChange={(e) => handleFieldChange("description", e.target.value)}
               placeholder="Enter purpose description..."
               rows={3}
             />
@@ -221,7 +244,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier *</Label>
               <Select
-                value={formData.selectedSupplier?.id.toString() || ''}
+                value={formData.selectedSupplier?.id.toString() || ""}
                 onValueChange={handleSupplierChange}
               >
                 <SelectTrigger>
@@ -229,7 +252,10 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {suppliers.map((supplier) => (
-                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                    <SelectItem
+                      key={supplier.id}
+                      value={supplier.id.toString()}
+                    >
                       {supplier.name}
                     </SelectItem>
                   ))}
@@ -240,7 +266,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
             <div className="space-y-2">
               <Label htmlFor="service-type">Service Type *</Label>
               <Select
-                value={formData.selectedServiceType?.id.toString() || ''}
+                value={formData.selectedServiceType?.id.toString() || ""}
                 onValueChange={handleServiceTypeChange}
               >
                 <SelectTrigger>
@@ -248,7 +274,10 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   {serviceTypes.map((serviceType) => (
-                    <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
+                    <SelectItem
+                      key={serviceType.id}
+                      value={serviceType.id.toString()}
+                    >
                       {serviceType.name}
                     </SelectItem>
                   ))}
@@ -272,19 +301,28 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
                     <span className="truncate">
-                      {formData.expected_delivery 
-                        ? format(new Date(formData.expected_delivery), "dd/MM/yyyy") 
-                        : "Select delivery date"
-                      }
+                      {formData.expected_delivery
+                        ? format(
+                            new Date(formData.expected_delivery),
+                            "dd/MM/yyyy"
+                          )
+                        : "Select delivery date"}
                     </span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={formData.expected_delivery ? new Date(formData.expected_delivery) : undefined}
+                    selected={
+                      formData.expected_delivery
+                        ? new Date(formData.expected_delivery)
+                        : undefined
+                    }
                     onSelect={(date) => {
-                      handleFieldChange('expected_delivery', date ? format(date, 'yyyy-MM-dd') : '');
+                      handleFieldChange(
+                        "expected_delivery",
+                        date ? format(date, "yyyy-MM-dd") : ""
+                      );
                       setDatePickerOpen(false);
                     }}
                     initialFocus
@@ -298,13 +336,18 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
               <Label htmlFor="status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => handleFieldChange('status', value)}
+                onValueChange={(value) => handleFieldChange("status", value)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {['IN_PROGRESS', 'COMPLETED', 'SIGNED', 'PARTIALLY_SUPPLIED'].map((status) => (
+                  {[
+                    "IN_PROGRESS",
+                    "COMPLETED",
+                    "SIGNED",
+                    "PARTIALLY_SUPPLIED",
+                  ].map((status) => (
                     <SelectItem key={status} value={status}>
                       {getStatusDisplay(status).label}
                     </SelectItem>
@@ -331,7 +374,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
             <Textarea
               id="comments"
               value={formData.comments}
-              onChange={(e) => handleFieldChange('comments', e.target.value)}
+              onChange={(e) => handleFieldChange("comments", e.target.value)}
               placeholder="Enter status message..."
               rows={2}
             />
@@ -340,7 +383,9 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
           {/* Contents */}
           <ContentsSection
             contents={formData.contents}
-            onContentsChange={(contents) => handleFieldChange('contents', contents)}
+            onContentsChange={(contents) =>
+              handleFieldChange("contents", contents)
+            }
             selectedServiceTypeId={formData.selectedServiceType?.id}
             showServiceTypeWarning={!formData.selectedServiceType}
           />
@@ -350,11 +395,9 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            Save Changes
-          </Button>
+          <Button onClick={handleSave}>Save Changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}; 
+};

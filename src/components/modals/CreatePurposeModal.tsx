@@ -1,19 +1,30 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { HierarchySelector } from '@/components/common/HierarchySelector';
-import { ContentsSection } from '@/components/sections/ContentsSection';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { useAdminData } from '@/contexts/AdminDataContext';
-import { useToast } from '@/hooks/use-toast';
-import { usePurposeMutations } from '@/hooks/usePurposeMutations';
-import { PurposeContent } from '@/types';
-import { ServiceType } from '@/types/serviceTypes';
+import { HierarchySelector } from "@/components/common/HierarchySelector";
+import { ContentsSection } from "@/components/sections/ContentsSection";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useAdminData } from "@/contexts/AdminDataContext";
+import { useToast } from "@/hooks/use-toast";
+import { usePurposeMutations } from "@/hooks/usePurposeMutations";
+import { PurposeContent } from "@/types";
+import { ServiceType } from "@/types/serviceTypes";
 
 interface CreatePurposeModalProps {
   isOpen: boolean;
@@ -31,108 +42,118 @@ interface CreateFormData {
 
 export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
   isOpen,
-  onClose
+  onClose,
 }) => {
   const navigate = useNavigate();
   const { suppliers, serviceTypes, hierarchies } = useAdminData();
   const { toast } = useToast();
   const { createPurpose } = usePurposeMutations();
-  
+
   const [formData, setFormData] = useState<CreateFormData>({
-    description: '',
-    supplier_id: '',
+    description: "",
+    supplier_id: "",
     selectedServiceType: null,
     contents: [],
-    hierarchy_id: '',
-    hierarchy_name: ''
+    hierarchy_id: "",
+    hierarchy_name: "",
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>([]);
+  const [selectedHierarchyIds, setSelectedHierarchyIds] = useState<number[]>(
+    []
+  );
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        description: '',
-        supplier_id: '',
+        description: "",
+        supplier_id: "",
         selectedServiceType: null,
         contents: [],
-        hierarchy_id: '',
-        hierarchy_name: ''
+        hierarchy_id: "",
+        hierarchy_name: "",
       });
       setSelectedHierarchyIds([]);
     }
   }, [isOpen]);
 
-  const handleFieldChange = <K extends keyof CreateFormData>(field: K, value: CreateFormData[K]) => {
-    setFormData(prev => ({
+  const handleFieldChange = <K extends keyof CreateFormData>(
+    field: K,
+    value: CreateFormData[K]
+  ) => {
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleContentsChange = (contents: PurposeContent[]) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      contents
+      contents,
     }));
   };
 
   const handleHierarchyChange = (selectedIds: number[]) => {
     // Enforce single selection - only keep the most recently selected item
-    const newSelectedIds = selectedIds.length > 0 ? [selectedIds[selectedIds.length - 1]] : [];
+    const newSelectedIds =
+      selectedIds.length > 0 ? [selectedIds[selectedIds.length - 1]] : [];
     setSelectedHierarchyIds(newSelectedIds);
-    
+
     if (newSelectedIds.length > 0) {
-      const selectedHierarchy = hierarchies.find(h => h.id === newSelectedIds[0]);
+      const selectedHierarchy = hierarchies.find(
+        (h) => h.id === newSelectedIds[0]
+      );
       if (selectedHierarchy) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           hierarchy_id: selectedHierarchy.id.toString(),
-          hierarchy_name: selectedHierarchy.name
+          hierarchy_name: selectedHierarchy.name,
         }));
       }
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        hierarchy_id: '',
-        hierarchy_name: ''
+        hierarchy_id: "",
+        hierarchy_name: "",
       }));
     }
   };
 
   const handleServiceTypeChange = (serviceTypeId: string) => {
-    const serviceType = serviceTypes.find(st => st.id === parseInt(serviceTypeId));
-    setFormData(prev => ({
+    const serviceType = serviceTypes.find(
+      (st) => st.id === parseInt(serviceTypeId)
+    );
+    setFormData((prev) => ({
       ...prev,
       selectedServiceType: serviceType || null,
       // Reset contents when service type changes since materials will be different
-      contents: []
+      contents: [],
     }));
   };
 
   const validateForm = () => {
     const errors: string[] = [];
-    
+
     if (!formData.description?.trim()) {
-      errors.push('Description is required');
+      errors.push("Description is required");
     }
-    
+
     if (!formData.supplier_id) {
-      errors.push('Supplier is required');
+      errors.push("Supplier is required");
     }
-    
+
     if (!formData.selectedServiceType) {
-      errors.push('Service type is required');
+      errors.push("Service type is required");
     }
-    
+
     if (!formData.hierarchy_id) {
-      errors.push('Hierarchy is required');
+      errors.push("Hierarchy is required");
     }
-    
+
     if (!formData.contents || formData.contents.length === 0) {
-      errors.push('At least one content item is required');
+      errors.push("At least one content item is required");
     } else {
       formData.contents.forEach((content, index) => {
         if (!content.material_id || content.material_id === 0) {
@@ -143,7 +164,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
         }
       });
     }
-    
+
     return errors;
   };
 
@@ -154,13 +175,25 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
     const hasServiceType = !!formData.selectedServiceType;
     const hasHierarchy = !!formData.hierarchy_id;
     const hasContents = formData.contents && formData.contents.length > 0;
-    
+
     // Check that all content items are valid
-    const areContentsValid = hasContents && formData.contents.every(content => 
-      content.material_id && content.material_id > 0 && content.quantity && content.quantity > 0
+    const areContentsValid =
+      hasContents &&
+      formData.contents.every(
+        (content) =>
+          content.material_id &&
+          content.material_id > 0 &&
+          content.quantity &&
+          content.quantity > 0
+      );
+
+    return (
+      hasDescription &&
+      hasSupplier &&
+      hasServiceType &&
+      hasHierarchy &&
+      areContentsValid
     );
-    
-    return hasDescription && hasSupplier && hasServiceType && hasHierarchy && areContentsValid;
   };
 
   const handleCreate = async () => {
@@ -168,33 +201,33 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
     if (validationErrors.length > 0) {
       toast({
         title: "Validation Error",
-        description: validationErrors.join('. '),
-        variant: "destructive"
+        description: validationErrors.join(". "),
+        variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Prepare the purpose data
       const purposeData = {
         description: formData.description.trim(),
         supplier_id: formData.supplier_id,
         service_type_id: formData.selectedServiceType?.id.toString(),
-        contents: formData.contents.map(content => ({
+        contents: formData.contents.map((content) => ({
           material_id: content.material_id,
-          quantity: content.quantity
+          quantity: content.quantity,
         })),
         hierarchy_id: formData.hierarchy_id || undefined,
         hierarchy_name: formData.hierarchy_name || undefined,
-        status: 'IN_PROGRESS' as const
+        status: "IN_PROGRESS" as const,
       };
 
       // Create the purpose (this would be the actual API call)
       // For now, we'll simulate it
       const newPurpose = await createPurpose.mutateAsync(purposeData);
-      
+
       toast({
         title: "Purpose created",
         description: "Your new purpose has been created successfully.",
@@ -203,12 +236,11 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
       // Close modal and navigate to the new purpose page
       onClose();
       navigate(`/purposes/${newPurpose.id}`);
-      
     } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to create purpose. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -225,7 +257,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
         <DialogHeader>
           <DialogTitle>Create New Purpose</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-6">
           {/* Description */}
           <div className="space-y-2">
@@ -234,7 +266,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
               id="description"
               placeholder="Enter purpose description..."
               value={formData.description}
-              onChange={(e) => handleFieldChange('description', e.target.value)}
+              onChange={(e) => handleFieldChange("description", e.target.value)}
               rows={3}
             />
           </div>
@@ -255,7 +287,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
             <Label htmlFor="supplier">Supplier *</Label>
             <Select
               value={formData.supplier_id}
-              onValueChange={(value) => handleFieldChange('supplier_id', value)}
+              onValueChange={(value) => handleFieldChange("supplier_id", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select supplier" />
@@ -274,7 +306,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
           <div className="space-y-2">
             <Label htmlFor="serviceType">Service Type *</Label>
             <Select
-              value={formData.selectedServiceType?.id.toString() || ''}
+              value={formData.selectedServiceType?.id.toString() || ""}
               onValueChange={handleServiceTypeChange}
             >
               <SelectTrigger>
@@ -282,7 +314,10 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {serviceTypes.map((serviceType) => (
-                  <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
+                  <SelectItem
+                    key={serviceType.id}
+                    value={serviceType.id.toString()}
+                  >
                     {serviceType.name}
                   </SelectItem>
                 ))}
@@ -300,14 +335,21 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleCancel} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={isSubmitting || !isFormValid()}>
-            {isSubmitting ? 'Creating...' : 'Create Purpose'}
+          <Button
+            onClick={handleCreate}
+            disabled={isSubmitting || !isFormValid()}
+          >
+            {isSubmitting ? "Creating..." : "Create Purpose"}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}; 
+};

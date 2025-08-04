@@ -1,6 +1,6 @@
-import { BaseEntity, PaginatedResponse } from './base';
+import { BaseEntity, PaginatedResponse } from "./base";
 
-export type HierarchyType = 'UNIT' | 'CENTER' | 'ANAF' | 'TEAM' | 'MADOR';
+export type HierarchyType = "UNIT" | "CENTER" | "ANAF" | "TEAM" | "MADOR";
 
 export interface Hierarchy extends BaseEntity {
   type: HierarchyType;
@@ -16,8 +16,8 @@ export interface HierarchyFilters {
   type?: HierarchyType;
   parent_id?: number;
   search?: string;
-  sort_by?: 'name' | 'type';
-  sort_order?: 'asc' | 'desc';
+  sort_by?: "name" | "type";
+  sort_order?: "asc" | "desc";
 }
 
 export interface HierarchyCreateRequest {

@@ -1,26 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Supplier, SupplierCreateRequest, SupplierUpdateRequest } from '@/types/suppliers';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Supplier,
+  SupplierCreateRequest,
+  SupplierUpdateRequest,
+} from "@/types/suppliers";
 
 interface SupplierModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem: Supplier | null;
-  onSave: (data: SupplierCreateRequest | SupplierUpdateRequest, editId?: number) => Promise<void>;
+  onSave: (
+    data: SupplierCreateRequest | SupplierUpdateRequest,
+    editId?: number
+  ) => Promise<void>;
 }
 
 const SupplierModal: React.FC<SupplierModalProps> = ({
   open,
   onOpenChange,
   editItem,
-  onSave
+  onSave,
 }) => {
-  const [supplierName, setSupplierName] = useState('');
+  const [supplierName, setSupplierName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
@@ -28,7 +40,7 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
     if (editItem) {
       setSupplierName(editItem.name);
     } else {
-      setSupplierName('');
+      setSupplierName("");
     }
   }, [editItem]);
 
@@ -42,9 +54,9 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
     try {
       const data = { name: supplierName.trim() };
       await onSave(data, editItem?.id);
-      
+
       onOpenChange(false);
-      setSupplierName('');
+      setSupplierName("");
     } catch (_error) {
       // Error handling is done in the parent component
     } finally {
@@ -54,7 +66,7 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
 
   const handleCancel = () => {
     onOpenChange(false);
-    setSupplierName('');
+    setSupplierName("");
   };
 
   return (
@@ -62,12 +74,14 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editItem ? 'Edit Supplier' : 'Create New Supplier'}
+            {editItem ? "Edit Supplier" : "Create New Supplier"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="supplierName" className="text-sm mb-2 block">Supplier Name</Label>
+            <Label htmlFor="supplierName" className="text-sm mb-2 block">
+              Supplier Name
+            </Label>
             <Input
               id="supplierName"
               value={supplierName}
@@ -80,12 +94,8 @@ const SupplierModal: React.FC<SupplierModalProps> = ({
             <Button variant="outline" onClick={handleCancel} size="sm">
               Cancel
             </Button>
-            <Button 
-              onClick={handleSave} 
-              size="sm"
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving...' : (editItem ? 'Update' : 'Create')}
+            <Button onClick={handleSave} size="sm" disabled={isSaving}>
+              {isSaving ? "Saving..." : editItem ? "Update" : "Create"}
             </Button>
           </div>
         </div>

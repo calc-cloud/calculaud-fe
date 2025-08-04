@@ -1,4 +1,4 @@
-import { apiService } from '@/services/apiService';
+import { apiService } from "@/services/apiService";
 
 export interface UpdateStageRequest {
   value?: string;
@@ -21,9 +21,12 @@ export interface UpdateStageResponse {
 }
 
 class StageService {
-  async updateStage(stageId: string, data: UpdateStageRequest): Promise<UpdateStageResponse> {
+  async updateStage(
+    stageId: string,
+    data: UpdateStageRequest
+  ): Promise<UpdateStageResponse> {
     return apiService.patch<UpdateStageResponse>(`/stages/${stageId}`, data);
   }
 }
 
-export const stageService = new StageService(); 
+export const stageService = new StageService();

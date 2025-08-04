@@ -1,11 +1,15 @@
-import {Check, Columns} from 'lucide-react';
-import React, {useState} from 'react';
+import { Check, Columns } from "lucide-react";
+import React, { useState } from "react";
 
-import {Button} from '@/components/ui/button';
-import {Checkbox} from '@/components/ui/checkbox';
-import {Label} from '@/components/ui/label';
-import {Popover, PopoverContent, PopoverTrigger} from '@/components/ui/popover';
-import {Separator} from '@/components/ui/separator';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 
 export interface ColumnVisibility {
   status: boolean;
@@ -42,20 +46,20 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
 };
 
 const COLUMN_LABELS = {
-  status: 'Status',
-  description: 'Description',
-  content: 'Content',
-  supplier: 'Supplier',
-  pendingAuthority: 'Pending Authority',
-  hierarchy: 'Hierarchy',
-  serviceType: 'Service Type',
-  purchases: 'Purchases',
-  emfIds: 'EMF IDs',
-  totalCost: 'Total Cost',
-  expectedDelivery: 'Expected Delivery',
-  createdAt: 'Created At',
-  lastModified: 'Last Modified',
-  statusMessage: 'Status Message',
+  status: "Status",
+  description: "Description",
+  content: "Content",
+  supplier: "Supplier",
+  pendingAuthority: "Pending Authority",
+  hierarchy: "Hierarchy",
+  serviceType: "Service Type",
+  purchases: "Purchases",
+  emfIds: "EMF IDs",
+  totalCost: "Total Cost",
+  expectedDelivery: "Expected Delivery",
+  createdAt: "Created At",
+  lastModified: "Last Modified",
+  statusMessage: "Status Message",
 };
 
 interface ColumnControlProps {
@@ -67,17 +71,18 @@ interface ColumnControlProps {
 export const ColumnControl: React.FC<ColumnControlProps> = ({
   columnVisibility,
   onColumnVisibilityChange,
-  triggerText = "Columns"
+  triggerText = "Columns",
 }) => {
   const [open, setOpen] = useState(false);
 
-  const visibleColumnsCount = Object.values(columnVisibility).filter(Boolean).length;
+  const visibleColumnsCount =
+    Object.values(columnVisibility).filter(Boolean).length;
   const totalColumnsCount = Object.keys(columnVisibility).length;
 
   const handleColumnToggle = (columnKey: keyof ColumnVisibility) => {
     onColumnVisibilityChange({
       ...columnVisibility,
-      [columnKey]: !columnVisibility[columnKey]
+      [columnKey]: !columnVisibility[columnKey],
     });
   };
 
@@ -87,10 +92,13 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
 
   const handleHideAll = () => {
     // Keep at least one column visible (description as it's essential)
-    const allHidden = Object.keys(columnVisibility).reduce((acc, key) => ({
-      ...acc,
-      [key]: key === 'description'
-    }), {} as ColumnVisibility);
+    const allHidden = Object.keys(columnVisibility).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: key === "description",
+      }),
+      {} as ColumnVisibility
+    );
     onColumnVisibilityChange(allHidden);
   };
 
@@ -109,7 +117,7 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
         <div className="space-y-2">
           <h4 className="font-medium leading-none">Column Visibility</h4>
         </div>
-        
+
         <div className="mt-4 space-y-4">
           <div className="flex gap-2">
             <Button
@@ -130,27 +138,30 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
               Hide All
             </Button>
           </div>
-          
+
           <Separator />
-          
+
           <div className="space-y-3">
             {Object.entries(COLUMN_LABELS).map(([key, label]) => {
               const columnKey = key as keyof ColumnVisibility;
               const isChecked = columnVisibility[columnKey];
-              const isDisabled = key === 'description' && visibleColumnsCount === 1;
-              
+              const isDisabled =
+                key === "description" && visibleColumnsCount === 1;
+
               return (
                 <div key={key} className="flex items-center space-x-2">
                   <Checkbox
                     id={key}
                     checked={isChecked}
-                    onCheckedChange={() => !isDisabled && handleColumnToggle(columnKey)}
+                    onCheckedChange={() =>
+                      !isDisabled && handleColumnToggle(columnKey)
+                    }
                     disabled={isDisabled}
                   />
                   <Label
                     htmlFor={key}
                     className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                      isDisabled ? 'text-muted-foreground' : 'cursor-pointer'
+                      isDisabled ? "text-muted-foreground" : "cursor-pointer"
                     }`}
                   >
                     {label}
@@ -164,15 +175,16 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
               );
             })}
           </div>
-          
+
           <Separator />
-          
+
           <div className="text-xs text-muted-foreground">
             <p>
               {visibleColumnsCount} of {totalColumnsCount} columns visible
             </p>
             <p className="mt-1">
-              Description column is always required and cannot be hidden when it's the only visible column.
+              Description column is always required and cannot be hidden when
+              it's the only visible column.
             </p>
           </div>
         </div>

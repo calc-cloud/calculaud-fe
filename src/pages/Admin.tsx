@@ -1,10 +1,8 @@
-
-
-import HierarchyManagement from '@/components/admin/HierarchyManagement';
-import MaterialManagement from '@/components/admin/MaterialManagement';
-import ServiceTypeManagement from '@/components/admin/ServiceTypeManagement';
-import SupplierManagement from '@/components/admin/SupplierManagement';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import HierarchyManagement from "@/components/admin/HierarchyManagement";
+import MaterialManagement from "@/components/admin/MaterialManagement";
+import ServiceTypeManagement from "@/components/admin/ServiceTypeManagement";
+import SupplierManagement from "@/components/admin/SupplierManagement";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Admin = () => {
   return (
@@ -15,24 +13,32 @@ const Admin = () => {
 
       <Tabs defaultValue="hierarchies" className="flex-1 flex flex-col min-h-0">
         <TabsList className="grid w-full grid-cols-4 flex-shrink-0">
-          <TabsTrigger value="hierarchies" className="text-sm">Hierarchies</TabsTrigger>
-          <TabsTrigger value="suppliers" className="text-sm">Suppliers</TabsTrigger>
-          <TabsTrigger value="service-types" className="text-sm">Service Types</TabsTrigger>
-          <TabsTrigger value="materials" className="text-sm">Materials</TabsTrigger>
+          <TabsTrigger value="hierarchies" className="text-sm">
+            Hierarchies
+          </TabsTrigger>
+          <TabsTrigger value="suppliers" className="text-sm">
+            Suppliers
+          </TabsTrigger>
+          <TabsTrigger value="service-types" className="text-sm">
+            Service Types
+          </TabsTrigger>
+          <TabsTrigger value="materials" className="text-sm">
+            Materials
+          </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="hierarchies" className="flex-1 mt-4 min-h-0">
           <HierarchyManagement />
         </TabsContent>
-        
+
         <TabsContent value="suppliers" className="flex-1 mt-4 min-h-0">
           <SupplierManagement />
         </TabsContent>
-        
+
         <TabsContent value="service-types" className="flex-1 mt-4 min-h-0">
           <ServiceTypeManagement />
         </TabsContent>
-        
+
         <TabsContent value="materials" className="flex-1 mt-4 min-h-0">
           <MaterialManagement />
         </TabsContent>

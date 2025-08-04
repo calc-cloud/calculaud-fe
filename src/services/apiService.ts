@@ -1,200 +1,202 @@
-import {API_CONFIG} from '@/config/api';
+import { API_CONFIG } from "@/config/api";
 
 class ApiService {
-    private readonly baseUrl: string;
-    private getToken: (() => string | undefined) | null = null;
+  private readonly baseUrl: string;
+  private getToken: (() => string | undefined) | null = null;
 
-    constructor() {
-        this.baseUrl = API_CONFIG.BASE_URL;
-    }
+  constructor() {
+    this.baseUrl = API_CONFIG.BASE_URL;
+  }
 
-    setTokenProvider(getToken: () => string | undefined) {
-        this.getToken = getToken;
-    }
+  setTokenProvider(getToken: () => string | undefined) {
+    this.getToken = getToken;
+  }
 
-    async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-        const searchParams = new URLSearchParams();
-        if (params) {
-            Object.entries(params).forEach(([key, value]) => {
-                if (value !== undefined && value !== null && value !== '') {
-                    // Handle array values by adding multiple parameters with the same name
-                    if (Array.isArray(value)) {
-                        value.forEach(item => {
-                            if (item !== undefined && item !== null && item !== '') {
-                                searchParams.append(key, String(item));
-                            }
-                        });
-                    } else {
-                        searchParams.append(key, String(value));
-                    }
-                }
+  async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Handle array values by adding multiple parameters with the same name
+          if (Array.isArray(value)) {
+            value.forEach((item) => {
+              if (item !== undefined && item !== null && item !== "") {
+                searchParams.append(key, String(item));
+              }
             });
+          } else {
+            searchParams.append(key, String(value));
+          }
         }
-
-        const queryString = searchParams.toString();
-        const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-
-        return this.request<T>(url);
+      });
     }
 
-    async post<T>(endpoint: string, data: any): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'POST',
-            body: JSON.stringify(data),
-        });
-    }
+    const queryString = searchParams.toString();
+    const url = queryString ? `${endpoint}?${queryString}` : endpoint;
 
-    async patch<T>(endpoint: string, data: any): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'PATCH',
-            body: JSON.stringify(data),
-        });
-    }
+    return this.request<T>(url);
+  }
 
-    async delete<T>(endpoint: string): Promise<T> {
-        return this.request<T>(endpoint, {
-            method: 'DELETE',
-        });
-    }
+  async post<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
 
-    async downloadBlob(endpoint: string, params?: Record<string, any>): Promise<Response> {
-        const searchParams = new URLSearchParams();
-        if (params) {
-            Object.entries(params).forEach(([key, value]) => {
-                if (value !== undefined && value !== null && value !== '') {
-                    // Handle array values by adding multiple parameters with the same name
-                    if (Array.isArray(value)) {
-                        value.forEach(item => {
-                            if (item !== undefined && item !== null && item !== '') {
-                                searchParams.append(key, String(item));
-                            }
-                        });
-                    } else {
-                        searchParams.append(key, String(value));
-                    }
-                }
+  async patch<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async delete<T>(endpoint: string): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: "DELETE",
+    });
+  }
+
+  async downloadBlob(
+    endpoint: string,
+    params?: Record<string, any>
+  ): Promise<Response> {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Handle array values by adding multiple parameters with the same name
+          if (Array.isArray(value)) {
+            value.forEach((item) => {
+              if (item !== undefined && item !== null && item !== "") {
+                searchParams.append(key, String(item));
+              }
             });
+          } else {
+            searchParams.append(key, String(value));
+          }
         }
-
-        const queryString = searchParams.toString();
-        const url = queryString ? `${endpoint}?${queryString}` : endpoint;
-
-        return this.requestBlob(url);
+      });
     }
 
-    async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
-        const url = `${this.baseUrl}${endpoint}`;
+    const queryString = searchParams.toString();
+    const url = queryString ? `${endpoint}?${queryString}` : endpoint;
 
-        const headers: Record<string, string> = {};
+    return this.requestBlob(url);
+  }
 
-        // Add Authorization header if token is available
-        if (this.getToken) {
-            const token = this.getToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-        }
+  async uploadFile<T>(endpoint: string, formData: FormData): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
 
-        // Don't set Content-Type for FormData, let the browser set it with boundary
-        const config: RequestInit = {
-            method: 'POST',
-            headers,
-            body: formData,
-        };
+    const headers: Record<string, string> = {};
 
-        const response = await fetch(url, config);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                message: 'An error occurred'
-            }));
-            throw new Error(errorData.message || `HTTP ${response.status}`);
-        }
-
-        // Handle 204 No Content responses
-        if (response.status === 204) {
-            return undefined as T;
-        }
-
-        return await response.json();
+    // Add Authorization header if token is available
+    if (this.getToken) {
+      const token = this.getToken();
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
     }
 
-    private async request<T>(
-        endpoint: string,
-        options: RequestInit = {}
-    ): Promise<T> {
-        const url = `${this.baseUrl}${endpoint}`;
+    // Don't set Content-Type for FormData, let the browser set it with boundary
+    const config: RequestInit = {
+      method: "POST",
+      headers,
+      body: formData,
+    };
 
-        const headers: Record<string, string> = {
-            'Content-Type': 'application/json',
-            ...(options.headers as Record<string, string> || {}),
-        };
+    const response = await fetch(url, config);
 
-        // Add Authorization header if token is available
-        if (this.getToken) {
-            const token = this.getToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-        }
-
-        const config: RequestInit = {
-            headers,
-            ...options,
-        };
-
-        const response = await fetch(url, config);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                message: 'An error occurred'
-            }));
-            throw new Error(errorData.message || `HTTP ${response.status}`);
-        }
-
-        // Handle 204 No Content responses
-        if (response.status === 204) {
-            return undefined as T;
-        }
-
-        return await response.json();
-
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: "An error occurred",
+      }));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
     }
 
-    private async requestBlob(
-        endpoint: string,
-        options: RequestInit = {}
-    ): Promise<Response> {
-        const url = `${this.baseUrl}${endpoint}`;
-
-        const headers: Record<string, string> = {
-            ...(options.headers as Record<string, string> || {}),
-        };
-
-        // Add Authorization header if token is available
-        if (this.getToken) {
-            const token = this.getToken();
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
-        }
-
-        const config: RequestInit = {
-            headers,
-            ...options,
-        };
-
-        const response = await fetch(url, config);
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({
-                message: 'An error occurred'
-            }));
-            throw new Error(errorData.message || `HTTP ${response.status}`);
-        }
-
-        return response;
+    // Handle 204 No Content responses
+    if (response.status === 204) {
+      return undefined as T;
     }
+
+    return await response.json();
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    // Add Authorization header if token is available
+    if (this.getToken) {
+      const token = this.getToken();
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
+    const config: RequestInit = {
+      headers,
+      ...options,
+    };
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: "An error occurred",
+      }));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    // Handle 204 No Content responses
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    return await response.json();
+  }
+
+  private async requestBlob(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<Response> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const headers: Record<string, string> = {
+      ...((options.headers as Record<string, string>) || {}),
+    };
+
+    // Add Authorization header if token is available
+    if (this.getToken) {
+      const token = this.getToken();
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+
+    const config: RequestInit = {
+      headers,
+      ...options,
+    };
+
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: "An error occurred",
+      }));
+      throw new Error(errorData.message || `HTTP ${response.status}`);
+    }
+
+    return response;
+  }
 }
 
 export const apiService = new ApiService();

@@ -1,13 +1,12 @@
+import { API_CONFIG } from "@/config/api";
+import {
+  Supplier,
+  SuppliersResponse,
+  SupplierCreateRequest,
+  SupplierUpdateRequest,
+} from "@/types/suppliers";
 
-import { API_CONFIG } from '@/config/api';
-import { 
-  Supplier, 
-  SuppliersResponse, 
-  SupplierCreateRequest, 
-  SupplierUpdateRequest 
-} from '@/types/suppliers';
-
-import { BaseService, BaseQueryParams } from './BaseService';
+import { BaseService, BaseQueryParams } from "./BaseService";
 
 export class SupplierService extends BaseService<
   Supplier,
@@ -27,7 +26,10 @@ export class SupplierService extends BaseService<
     return this.createEntity(data);
   }
 
-  async updateSupplier(id: number, data: SupplierUpdateRequest): Promise<Supplier> {
+  async updateSupplier(
+    id: number,
+    data: SupplierUpdateRequest
+  ): Promise<Supplier> {
     return this.updateEntity(id, data);
   }
 

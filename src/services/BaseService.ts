@@ -1,6 +1,6 @@
-import { PaginatedResponse } from '@/types/base';
+import { PaginatedResponse } from "@/types/base";
 
-import { apiService } from './apiService';
+import { apiService } from "./apiService";
 
 export interface BaseEntity {
   id: number;
@@ -15,9 +15,9 @@ export interface BaseQueryParams {
 export abstract class BaseService<
   TEntity extends BaseEntity,
   TListResponse extends PaginatedResponse<TEntity>,
-  TCreateRequest = Partial<Omit<TEntity, 'id'>>,
-  TUpdateRequest = Partial<Omit<TEntity, 'id'>>,
-  TQueryParams extends BaseQueryParams = BaseQueryParams
+  TCreateRequest = Partial<Omit<TEntity, "id">>,
+  TUpdateRequest = Partial<Omit<TEntity, "id">>,
+  TQueryParams extends BaseQueryParams = BaseQueryParams,
 > {
   protected abstract endpoint: string;
 
@@ -41,7 +41,7 @@ export abstract class BaseService<
 export abstract class BaseReadOnlyService<
   TEntity extends BaseEntity,
   TListResponse extends PaginatedResponse<TEntity>,
-  TQueryParams extends BaseQueryParams = BaseQueryParams
+  TQueryParams extends BaseQueryParams = BaseQueryParams,
 > {
   protected abstract endpoint: string;
 

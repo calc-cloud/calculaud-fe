@@ -1,14 +1,13 @@
-
-import { API_CONFIG } from '@/config/api';
-import { 
-  Hierarchy, 
-  HierarchiesResponse, 
+import { API_CONFIG } from "@/config/api";
+import {
+  Hierarchy,
+  HierarchiesResponse,
   HierarchyFilters,
-  HierarchyCreateRequest, 
-  HierarchyUpdateRequest 
-} from '@/types/hierarchies';
+  HierarchyCreateRequest,
+  HierarchyUpdateRequest,
+} from "@/types/hierarchies";
 
-import { BaseService } from './BaseService';
+import { BaseService } from "./BaseService";
 
 export class HierarchyService extends BaseService<
   Hierarchy,
@@ -20,7 +19,9 @@ export class HierarchyService extends BaseService<
   protected endpoint = API_CONFIG.ENDPOINTS.HIERARCHIES;
 
   // Maintain backward compatibility with existing method names
-  async getHierarchies(params?: HierarchyFilters): Promise<HierarchiesResponse> {
+  async getHierarchies(
+    params?: HierarchyFilters
+  ): Promise<HierarchiesResponse> {
     return this.getEntities(params);
   }
 
@@ -28,7 +29,10 @@ export class HierarchyService extends BaseService<
     return this.createEntity(data);
   }
 
-  async updateHierarchy(id: number, data: HierarchyUpdateRequest): Promise<Hierarchy> {
+  async updateHierarchy(
+    id: number,
+    data: HierarchyUpdateRequest
+  ): Promise<Hierarchy> {
     return this.updateEntity(id, data);
   }
 

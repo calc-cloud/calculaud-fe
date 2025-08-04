@@ -1,12 +1,16 @@
+import React, { useState, useEffect } from "react";
 
-import React, { useState, useEffect } from 'react';
-
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { ServiceType } from '@/types/serviceTypes';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { ServiceType } from "@/types/serviceTypes";
 
 interface ServiceTypeModalProps {
   open: boolean;
@@ -19,9 +23,9 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
   open,
   onOpenChange,
   editItem,
-  onSave
+  onSave,
 }) => {
-  const [serviceTypeName, setServiceTypeName] = useState('');
+  const [serviceTypeName, setServiceTypeName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -29,18 +33,24 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
     if (editItem) {
       setServiceTypeName(editItem.name);
     } else {
-      setServiceTypeName('');
+      setServiceTypeName("");
     }
   }, [editItem]);
 
   const handleSave = async () => {
     if (!serviceTypeName.trim()) {
-      toast({ title: "Please enter a service type name", variant: "destructive" });
+      toast({
+        title: "Please enter a service type name",
+        variant: "destructive",
+      });
       return;
     }
 
     if (serviceTypeName.length > 200) {
-      toast({ title: "Service type name must be 200 characters or less", variant: "destructive" });
+      toast({
+        title: "Service type name must be 200 characters or less",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -66,7 +76,7 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editItem ? 'Edit Service Type' : 'Create New Service Type'}
+            {editItem ? "Edit Service Type" : "Create New Service Type"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
@@ -88,20 +98,16 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({
             </p>
           </div>
           <div className="flex justify-end space-x-2 pt-2">
-            <Button 
-              variant="outline" 
-              onClick={handleClose} 
+            <Button
+              variant="outline"
+              onClick={handleClose}
               size="sm"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleSave} 
-              size="sm"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : (editItem ? 'Update' : 'Create')}
+            <Button onClick={handleSave} size="sm" disabled={isLoading}>
+              {isLoading ? "Saving..." : editItem ? "Update" : "Create"}
             </Button>
           </div>
         </div>

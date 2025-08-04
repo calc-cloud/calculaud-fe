@@ -1,5 +1,9 @@
-
-import { TimestampedEntity, PaginatedResponse, EntityCreateRequest, EntityUpdateRequest } from './base';
+import {
+  TimestampedEntity,
+  PaginatedResponse,
+  EntityCreateRequest,
+  EntityUpdateRequest,
+} from "./base";
 
 export interface ServiceType extends TimestampedEntity {
   type: string;
@@ -19,5 +23,3 @@ export type ServiceTypeUpdateRequest = EntityUpdateRequest<{
 
 // Updated to match actual API response structure
 export type ServiceTypesResponse = PaginatedResponse<ServiceType>;
-
-

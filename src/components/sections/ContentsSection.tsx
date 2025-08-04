@@ -1,13 +1,24 @@
-import { Trash2, Plus } from 'lucide-react';
-import React from 'react';
+import { Trash2, Plus } from "lucide-react";
+import React from "react";
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useMaterials } from '@/hooks/useMaterials';
-import { PurposeContent } from '@/types';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useMaterials } from "@/hooks/useMaterials";
+import { PurposeContent } from "@/types";
 
 interface ContentsSectionProps {
   contents: PurposeContent[];
@@ -22,25 +33,26 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   onContentsChange,
   isReadOnly = false,
   selectedServiceTypeId,
-  showServiceTypeWarning = false
+  showServiceTypeWarning = false,
 }) => {
   const { data: materialsData, isLoading: materialsLoading } = useMaterials({
-    service_type_id: selectedServiceTypeId
+    service_type_id: selectedServiceTypeId,
   });
   const materials = materialsData?.items || [];
 
   // Get list of already selected material IDs
   const selectedMaterialIds = contents
-    .map(content => content.material_id)
-    .filter(id => id && id > 0);
+    .map((content) => content.material_id)
+    .filter((id) => id && id > 0);
 
   // Check if all materials are already selected
-  const allMaterialsUsed = materials.length > 0 && selectedMaterialIds.length >= materials.length;
+  const allMaterialsUsed =
+    materials.length > 0 && selectedMaterialIds.length >= materials.length;
 
   const handleAddContent = () => {
     const newContent: PurposeContent = {
       material_id: 0,
-      quantity: 1
+      quantity: 1,
     };
     onContentsChange([...contents, newContent]);
   };
@@ -50,7 +62,11 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
     onContentsChange(updatedContents);
   };
 
-  const handleContentChange = (index: number, field: keyof PurposeContent, value: any) => {
+  const handleContentChange = (
+    index: number,
+    field: keyof PurposeContent,
+    value: any
+  ) => {
     const updatedContents = contents.map((content, i) => {
       if (i === index) {
         return { ...content, [field]: value };
@@ -62,29 +78,28 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
 
   // Check if a material is available for selection (not already selected by other contents)
   const isMaterialAvailable = (materialId: number, currentIndex: number) => {
-    return !selectedMaterialIds.some((selectedId, index) => 
-      selectedId === materialId && index !== currentIndex
+    return !selectedMaterialIds.some(
+      (selectedId, index) => selectedId === materialId && index !== currentIndex
     );
   };
 
   // Get available materials for a specific content index
   const getAvailableMaterials = (currentIndex: number) => {
-    return materials.filter(material => 
+    return materials.filter((material) =>
       isMaterialAvailable(material.id, currentIndex)
     );
   };
 
   if (isReadOnly && (!contents || contents.length === 0)) {
     return (
-      <div className="text-sm text-muted-foreground">
-        No contents specified
-      </div>
+      <div className="text-sm text-muted-foreground">No contents specified</div>
     );
   }
 
   const renderAddContentButton = () => {
-    const isDisabled = !selectedServiceTypeId || showServiceTypeWarning || allMaterialsUsed;
-    
+    const isDisabled =
+      !selectedServiceTypeId || showServiceTypeWarning || allMaterialsUsed;
+
     const button = (
       <Button
         type="button"
@@ -103,12 +118,10 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div>
-                {button}
-              </div>
+              <div>{button}</div>
             </TooltipTrigger>
-            <TooltipContent 
-              side="left" 
+            <TooltipContent
+              side="left"
               align="center"
               className="bg-popover text-popover-foreground border shadow-md max-w-xs z-50"
               sideOffset={5}
@@ -140,8 +153,10 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
 
       {contents.map((content, index) => {
         const availableMaterials = getAvailableMaterials(index);
-        const currentMaterial = materials.find(m => m.id === content.material_id);
-        
+        const currentMaterial = materials.find(
+          (m) => m.id === content.material_id
+        );
+
         return (
           <div key={index} className="border rounded-lg p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -164,44 +179,67 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
                 <Label>Material</Label>
                 {isReadOnly ? (
                   <Input
-                    value={content.service_name || content.material_name || `Material ${content.material_id || content.service_id}`}
+                    value={
+                      content.service_name ||
+                      content.material_name ||
+                      `Material ${content.material_id || content.service_id}`
+                    }
                     disabled
                   />
                 ) : (
                   <>
                     <Select
-                      value={content.material_id?.toString() || ''}
-                      onValueChange={(value) => handleContentChange(index, 'material_id', parseInt(value))}
+                      value={content.material_id?.toString() || ""}
+                      onValueChange={(value) =>
+                        handleContentChange(
+                          index,
+                          "material_id",
+                          parseInt(value)
+                        )
+                      }
                       disabled={materialsLoading || !selectedServiceTypeId}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder={
-                          !selectedServiceTypeId 
-                            ? "Select service type first" 
-                            : materialsLoading 
-                              ? "Loading materials..." 
-                              : "Select material"
-                        } />
+                        <SelectValue
+                          placeholder={
+                            !selectedServiceTypeId
+                              ? "Select service type first"
+                              : materialsLoading
+                                ? "Loading materials..."
+                                : "Select material"
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {/* Show currently selected material even if it would normally be disabled */}
-                        {currentMaterial && !availableMaterials.find(m => m.id === currentMaterial.id) && (
-                          <SelectItem key={currentMaterial.id} value={currentMaterial.id.toString()}>
-                            {currentMaterial.name} (current)
-                          </SelectItem>
-                        )}
-                        {availableMaterials.map(material => (
-                          <SelectItem key={material.id} value={material.id.toString()}>
+                        {currentMaterial &&
+                          !availableMaterials.find(
+                            (m) => m.id === currentMaterial.id
+                          ) && (
+                            <SelectItem
+                              key={currentMaterial.id}
+                              value={currentMaterial.id.toString()}
+                            >
+                              {currentMaterial.name} (current)
+                            </SelectItem>
+                          )}
+                        {availableMaterials.map((material) => (
+                          <SelectItem
+                            key={material.id}
+                            value={material.id.toString()}
+                          >
                             {material.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {selectedServiceTypeId && availableMaterials.length === 0 && !currentMaterial && (
-                      <p className="text-xs text-orange-600">
-                        No materials available for this service type
-                      </p>
-                    )}
+                    {selectedServiceTypeId &&
+                      availableMaterials.length === 0 &&
+                      !currentMaterial && (
+                        <p className="text-xs text-orange-600">
+                          No materials available for this service type
+                        </p>
+                      )}
                   </>
                 )}
               </div>
@@ -212,7 +250,13 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
                   type="number"
                   min="1"
                   value={content.quantity || 1}
-                  onChange={(e) => handleContentChange(index, 'quantity', parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    handleContentChange(
+                      index,
+                      "quantity",
+                      parseInt(e.target.value) || 1
+                    )
+                  }
                   disabled={isReadOnly}
                 />
               </div>

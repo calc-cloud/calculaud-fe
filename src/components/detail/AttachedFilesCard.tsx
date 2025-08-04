@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { FileUpload } from '@/components/common/FileUpload';
-import { Card, CardContent } from '@/components/ui/card';
-import { Purpose, PurposeFile } from '@/types';
+import { FileUpload } from "@/components/common/FileUpload";
+import { Card, CardContent } from "@/components/ui/card";
+import { Purpose, PurposeFile } from "@/types";
 
 interface AttachedFilesCardProps {
   purpose: Purpose;

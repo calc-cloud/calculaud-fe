@@ -1,29 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
-import { useServiceTypes } from '@/hooks/useServiceTypes';
-import { Material } from '@/types/materials';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useServiceTypes } from "@/hooks/useServiceTypes";
+import { Material } from "@/types/materials";
 
 interface MaterialModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem?: Material | null;
-  onSave: (name: string, serviceTypeId: number, editId?: number) => Promise<void>;
+  onSave: (
+    name: string,
+    serviceTypeId: number,
+    editId?: number
+  ) => Promise<void>;
 }
 
 const MaterialModal: React.FC<MaterialModalProps> = ({
   open,
   onOpenChange,
   editItem,
-  onSave
+  onSave,
 }) => {
-  const [materialName, setMaterialName] = useState('');
-  const [selectedServiceTypeId, setSelectedServiceTypeId] = useState<string>('');
+  const [materialName, setMaterialName] = useState("");
+  const [selectedServiceTypeId, setSelectedServiceTypeId] =
+    useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { data: serviceTypesData } = useServiceTypes();
@@ -33,8 +49,8 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
       setMaterialName(editItem.name);
       setSelectedServiceTypeId(editItem.service_type_id.toString());
     } else {
-      setMaterialName('');
-      setSelectedServiceTypeId('');
+      setMaterialName("");
+      setSelectedServiceTypeId("");
     }
   }, [editItem]);
 
@@ -50,13 +66,20 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
     }
 
     if (materialName.length > 200) {
-      toast({ title: "Material name must be 200 characters or less", variant: "destructive" });
+      toast({
+        title: "Material name must be 200 characters or less",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsLoading(true);
     try {
-      await onSave(materialName.trim(), parseInt(selectedServiceTypeId), editItem?.id);
+      await onSave(
+        materialName.trim(),
+        parseInt(selectedServiceTypeId),
+        editItem?.id
+      );
       onOpenChange(false);
     } catch (_error) {
       // Error handling could be added here if needed
@@ -76,7 +99,7 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {editItem ? 'Edit Material' : 'Create New Material'}
+            {editItem ? "Edit Material" : "Create New Material"}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
@@ -97,13 +120,13 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
               {materialName.length}/200 characters
             </p>
           </div>
-          
+
           <div>
             <Label htmlFor="serviceType" className="text-sm mb-2 block">
               Service Type
             </Label>
-            <Select 
-              value={selectedServiceTypeId} 
+            <Select
+              value={selectedServiceTypeId}
               onValueChange={setSelectedServiceTypeId}
               disabled={isLoading}
             >
@@ -112,7 +135,10 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {serviceTypesData?.items?.map((serviceType) => (
-                  <SelectItem key={serviceType.id} value={serviceType.id.toString()}>
+                  <SelectItem
+                    key={serviceType.id}
+                    value={serviceType.id.toString()}
+                  >
                     {serviceType.name}
                   </SelectItem>
                 ))}
@@ -121,20 +147,16 @@ const MaterialModal: React.FC<MaterialModalProps> = ({
           </div>
 
           <div className="flex justify-end space-x-2 pt-2">
-            <Button 
-              variant="outline" 
-              onClick={handleClose} 
+            <Button
+              variant="outline"
+              onClick={handleClose}
               size="sm"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleSave} 
-              size="sm"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Saving...' : (editItem ? 'Update' : 'Create')}
+            <Button onClick={handleSave} size="sm" disabled={isLoading}>
+              {isLoading ? "Saving..." : editItem ? "Update" : "Create"}
             </Button>
           </div>
         </div>
