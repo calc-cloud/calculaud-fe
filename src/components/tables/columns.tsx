@@ -9,6 +9,7 @@ import {
   COLUMN_SIZES,
   getContentsDisplay,
   getEMFIds,
+  getDemandIds,
   getHierarchyInfo,
   getAuthorityInfo,
   getStagesDisplay,
@@ -196,6 +197,24 @@ export const createColumns = (
       );
     },
     ...COLUMN_SIZES.emfIds,
+  },
+
+  {
+    id: "demandIds",
+    accessorFn: (row) => getDemandIds(row).allIds,
+    header: () => <SimpleHeaderWrapper>Demand IDs</SimpleHeaderWrapper>,
+    cell: ({ row }) => {
+      const demandIds = getDemandIds(row.original);
+
+      return demandIds.ids.length > 0 ? (
+        <TooltipCell trigger={<MultiItemDisplay items={demandIds.ids} />} content={<p>{demandIds.allIds}</p>} />
+      ) : (
+        <CellWrapper>
+          <div className="text-sm text-muted-foreground">-</div>
+        </CellWrapper>
+      );
+    },
+    ...COLUMN_SIZES.demandIds,
   },
 
   {
