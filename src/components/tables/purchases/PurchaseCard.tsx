@@ -1,7 +1,7 @@
 import React from "react";
 
 import { Purchase } from "@/types";
-import { formatPurchaseId, getPurchaseStatus } from "@/utils/purchaseUtils";
+import { formatPurchaseId, getPurchaseStatus, getStatusTextColor, getStatusBgColor } from "@/utils/purchaseUtils";
 
 import { StatusIndicator } from "./StatusIndicator";
 
@@ -39,7 +39,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
       {/* Main content */}
       <div className="space-y-1">
         {status.days !== null && (
-          <div className="text-lg font-bold">
+          <div className={`text-lg font-bold ${getStatusTextColor(status.type)}`}>
             {status.days} day{status.days !== 1 ? "s" : ""}
           </div>
         )}
@@ -52,9 +52,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
       {status.type !== "completed" && (
         <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
           <div
-            className={`h-1 rounded-full transition-all duration-300 ${
-              status.type === "critical" ? "bg-rose-400" : status.type === "warning" ? "bg-amber-400" : "bg-sky-400"
-            }`}
+            className={`h-1 rounded-full transition-all duration-300 ${getStatusBgColor(status.type)}`}
           />
         </div>
       )}

@@ -3,6 +3,30 @@ import React from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Purchase } from "@/types";
 
+// Centralized color mapping for purchase status
+export const STATUS_COLORS = {
+  critical: {
+    bg: "bg-rose-400",
+    text: "text-rose-600",
+    border: "border-rose-400",
+  },
+  warning: {
+    bg: "bg-amber-400", 
+    text: "text-amber-600",
+    border: "border-amber-400",
+  },
+  completed: {
+    bg: "bg-green-400",
+    text: "text-green-600", 
+    border: "border-green-400",
+  },
+  recent: {
+    bg: "bg-sky-400",
+    text: "text-sky-600",
+    border: "border-sky-400",
+  },
+} as const;
+
 export interface PurchaseStatus {
   type: "critical" | "warning" | "completed" | "recent";
   label: string;
@@ -115,34 +139,21 @@ export const getPriorityIcon = (statusType: PurchaseStatus["type"]): string => {
  * Get the text color class for a purchase status
  */
 export const getStatusTextColor = (statusType: PurchaseStatus["type"]): string => {
-  switch (statusType) {
-    case "critical":
-      return "text-rose-600";
-    case "warning":
-      return "text-amber-600";
-    case "completed":
-      return "text-green-600";
-    case "recent":
-    default:
-      return "text-sky-600";
-  }
+  return STATUS_COLORS[statusType]?.text || STATUS_COLORS.recent.text;
 };
 
 /**
  * Get the border color class for a purchase status
  */
 export const getStatusBorderColor = (statusType: PurchaseStatus["type"]): string => {
-  switch (statusType) {
-    case "critical":
-      return "border-rose-400";
-    case "warning":
-      return "border-amber-400";
-    case "completed":
-      return "border-green-400";
-    case "recent":
-    default:
-      return "border-sky-400";
-  }
+  return STATUS_COLORS[statusType]?.border || STATUS_COLORS.recent.border;
+};
+
+/**
+ * Get the background color class for progress indicators
+ */
+export const getStatusBgColor = (statusType: PurchaseStatus["type"]): string => {
+  return STATUS_COLORS[statusType]?.bg || STATUS_COLORS.recent.bg;
 };
 
 interface StatusColorTooltipProps {
@@ -161,19 +172,19 @@ export const StatusColorTooltip: React.FC<StatusColorTooltipProps> = ({ children
           <div className="font-medium text-sm">Purchase Status Colors:</div>
           <div className="space-y-1.5 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />
+              <div className={`w-2 h-2 rounded-full ${STATUS_COLORS.recent.bg} flex-shrink-0`} />
               <span>Recent (≤6 days)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+              <div className={`w-2 h-2 rounded-full ${STATUS_COLORS.warning.bg} flex-shrink-0`} />
               <span>Warning (7-30 days)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-rose-400 flex-shrink-0" />
+              <div className={`w-2 h-2 rounded-full ${STATUS_COLORS.critical.bg} flex-shrink-0`} />
               <span>Critical (&gt;30 days)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+              <div className={`w-2 h-2 rounded-full ${STATUS_COLORS.completed.bg} flex-shrink-0`} />
               <span>Completed</span>
             </div>
           </div>

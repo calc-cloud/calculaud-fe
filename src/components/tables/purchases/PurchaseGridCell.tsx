@@ -25,17 +25,12 @@ export const PurchaseGridCell: React.FC<PurchaseGridCellProps> = ({ purpose, max
   const visiblePurchases = showAll ? sortedPurchases : sortedPurchases.slice(0, maxVisible);
   const hasMore = sortedPurchases.length > maxVisible;
 
-  // Generate tooltip content with full stage information
+  // Generate tooltip content with purchase card style
   const tooltipContent = (
-    <div className="flex flex-col space-y-2 max-w-xs">
-      {sortedPurchases.map((purchase) => {
-        const stageText = getStagesText(purchase, true);
-        return stageText ? (
-          <div key={purchase.id} className="text-sm">
-            {stageText}
-          </div>
-        ) : null;
-      })}
+    <div className="flex flex-col space-y-2 min-w-64">
+      {sortedPurchases.map((purchase) => (
+        <PurchaseCard key={purchase.id} purchase={purchase} compact />
+      ))}
     </div>
   );
 

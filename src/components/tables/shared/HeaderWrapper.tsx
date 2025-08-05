@@ -10,6 +10,7 @@ interface HeaderWrapperProps {
   sortField?: SortField;
   currentSort?: SortConfig;
   onSortChange?: (config: SortConfig) => void;
+  sortLabel?: string; // Optional label for sort tooltip, falls back to converting children to string
 }
 
 export const HeaderWrapper = ({
@@ -19,6 +20,7 @@ export const HeaderWrapper = ({
   sortField,
   currentSort,
   onSortChange,
+  sortLabel,
 }: HeaderWrapperProps) => {
   const handleSortClick = () => {
     if (!sortable || !sortField || !onSortChange) return;
@@ -50,7 +52,7 @@ export const HeaderWrapper = ({
       <div
         className={`text-center cursor-pointer hover:bg-muted/50 transition-colors ${className}`}
         onClick={handleSortClick}
-        title={`Sort by ${children}`}
+        title={`Sort by ${sortLabel || children}`}
       >
         <div className="h-auto p-2 font-medium flex items-center justify-center gap-2">
           {children}

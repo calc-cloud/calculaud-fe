@@ -159,10 +159,11 @@ export const createColumns = (
         sortField="days_since_last_completion"
         currentSort={sortConfig}
         onSortChange={onSortChange}
+        sortLabel="Purchases"
       >
         <TooltipProvider>
           <StatusColorTooltip>
-            <span className="cursor-help">Purchases</span>
+            <span>Purchases</span>
           </StatusColorTooltip>
         </TooltipProvider>
       </HeaderWrapper>

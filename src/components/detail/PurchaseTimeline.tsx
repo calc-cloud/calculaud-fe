@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-import { getPurchaseStatus, getStatusTextColor, getStatusBorderColor } from "@/utils/purchaseUtils";
+import { formatPurchaseId, getPurchaseStatus, getStatusTextColor, getStatusBorderColor } from "@/utils/purchaseUtils";
 import { convertPurchaseToStages, calculateDaysSinceLastStageCompletion, getStagesText } from "@/utils/stageUtils";
 
 interface PurchaseTimelineProps {
@@ -65,6 +65,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
 }) => {
   const stages = convertPurchaseToStages(purchase);
   const purchaseStatus = getPurchaseStatus(purchase);
+  const purchaseId = formatPurchaseId(purchase.id);
 
   const renderStageCard = (stage: any, index: number, isAboveTimeline: boolean) => {
     const position = calculateStagePosition(stages, index);
@@ -226,7 +227,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col">
             <div className="flex items-center space-x-4">
-              <h3 className="text-lg font-semibold text-gray-800">#{purchase.id}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">{purchaseId}</h3>
               {isPurchaseComplete(purchase)
                 ? (() => {
                     const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
@@ -255,7 +256,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to delete Purchase #{purchase.id}? This action cannot be undone.
+                  Are you sure you want to delete {purchaseId}? This action cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
