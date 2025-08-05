@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
-import { getStagesText } from "@/utils/stageUtils";
 
 import { PurchaseCard } from "./PurchaseCard";
 

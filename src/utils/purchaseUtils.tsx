@@ -11,13 +11,13 @@ export const STATUS_COLORS = {
     border: "border-rose-400",
   },
   warning: {
-    bg: "bg-amber-400", 
+    bg: "bg-amber-400",
     text: "text-amber-600",
     border: "border-amber-400",
   },
   completed: {
     bg: "bg-green-400",
-    text: "text-green-600", 
+    text: "text-green-600",
     border: "border-green-400",
   },
   recent: {

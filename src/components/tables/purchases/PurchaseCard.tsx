@@ -51,9 +51,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
       {/* Progress indicator for pending items */}
       {status.type !== "completed" && (
         <div className="mt-2 w-full bg-gray-200 rounded-full h-1">
-          <div
-            className={`h-1 rounded-full transition-all duration-300 ${getStatusBgColor(status.type)}`}
-          />
+          <div className={`h-1 rounded-full transition-all duration-300 ${getStatusBgColor(status.type)}`} />
         </div>
       )}
     </div>
