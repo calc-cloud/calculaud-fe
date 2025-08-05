@@ -1,12 +1,12 @@
 import { Plus } from "lucide-react";
 import React from "react";
 
+import { StatusColorTooltip } from "@/components/common/StatusColorTooltip";
 import { PurchaseTimeline } from "@/components/detail/PurchaseTimeline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
-import { StatusColorTooltip } from "@/utils/purchaseUtils";
 
 interface PurchasesTimelineCardProps {
   purpose: Purpose;

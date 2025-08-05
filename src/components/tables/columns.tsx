@@ -1,10 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 
+import { StatusColorTooltip } from "@/components/common/StatusColorTooltip";
 import { Badge } from "@/components/ui/badge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-import { StatusColorTooltip } from "@/utils/purchaseUtils";
 import { SortConfig } from "@/utils/sorting";
 import { getStatusDisplay } from "@/utils/statusUtils";
 import {
