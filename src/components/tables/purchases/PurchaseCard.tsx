@@ -19,7 +19,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
       <div className="rounded-md p-2 border border-gray-200 bg-gray-50 transition-colors hover:shadow-sm">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-semibold text-gray-600">{purchaseId}</span>
-          <StatusIndicator status={status} variant="compact" showIcon={false} />
+          <StatusIndicator status={status} variant="compact" />
         </div>
         <div className="text-xs text-gray-700 truncate" title={status.stageName}>
           {status.stageName}

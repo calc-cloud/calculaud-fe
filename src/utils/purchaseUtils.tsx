@@ -119,23 +119,6 @@ export const formatPurchaseId = (purchaseId: number): string => {
 };
 
 /**
- * Get priority indicator based on status type
- */
-export const getPriorityIcon = (statusType: PurchaseStatus["type"]): string => {
-  switch (statusType) {
-    case "critical":
-      return "🔴";
-    case "warning":
-      return "🟡";
-    case "completed":
-      return "🟢";
-    case "recent":
-    default:
-      return "⚪";
-  }
-};
-
-/**
  * Get the text color class for a purchase status
  */
 export const getStatusTextColor = (statusType: PurchaseStatus["type"]): string => {

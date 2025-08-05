@@ -1,17 +1,14 @@
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { PurchaseStatus, getPriorityIcon } from "@/utils/purchaseUtils";
+import { PurchaseStatus } from "@/utils/purchaseUtils";
 
 interface StatusIndicatorProps {
   status: PurchaseStatus;
-  showIcon?: boolean;
   variant?: "default" | "compact";
 }
 
-export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status, showIcon = true, variant = "default" }) => {
-  const _icon = showIcon ? getPriorityIcon(status.type) : null;
-
+export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status, variant = "default" }) => {
   if (variant === "compact") {
     return (
       <div
