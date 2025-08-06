@@ -1,19 +1,15 @@
 import { TimestampedEntity, PaginatedResponse, EntityCreateRequest, EntityUpdateRequest } from "./base";
 
 export interface ServiceType extends TimestampedEntity {
-  type: string;
-  parent_id?: number;
-  path: string;
+  name: string;
 }
 
 export type ServiceTypeCreateRequest = EntityCreateRequest<{
-  type?: string;
-  parent_id?: number;
+  name?: string;
 }>;
 
 export type ServiceTypeUpdateRequest = EntityUpdateRequest<{
-  type?: string;
-  parent_id?: number;
+  name?: string;
 }>;
 
 // Updated to match actual API response structure
