@@ -42,36 +42,44 @@ export const PurchaseGridCell: React.FC<PurchaseGridCellProps> = ({ purpose, max
     );
   }
 
-  // Always use grid layout for consistency
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div className="w-full">
-          <div className={`grid gap-2 ${sortedPurchases.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-            {visiblePurchases.map((purchase) => (
-              <PurchaseCard key={purchase.id} purchase={purchase} compact />
-            ))}
-          </div>
+  // Content component
+  const content = (
+    <div className="w-full">
+      <div className={`grid gap-2 ${sortedPurchases.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+        {visiblePurchases.map((purchase) => (
+          <PurchaseCard key={purchase.id} purchase={purchase} compact />
+        ))}
+      </div>
 
-          {/* Show more/less toggle */}
-          {hasMore && (
-            <div className="mt-2 text-center">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowAll(!showAll);
-                }}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                {showAll ? "Show less" : `+${sortedPurchases.length - maxVisible} more`}
-              </Button>
-            </div>
-          )}
+      {/* Show more/less toggle */}
+      {hasMore && (
+        <div className="mt-2 text-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowAll(!showAll);
+            }}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            {showAll ? "Show less" : `+${sortedPurchases.length - maxVisible} more`}
+          </Button>
         </div>
-      </TooltipTrigger>
-      <TooltipContent>{tooltipContent}</TooltipContent>
-    </Tooltip>
+      )}
+    </div>
   );
+
+  // Only show tooltip if there are more purchases than maxVisible
+  if (hasMore) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{content}</TooltipTrigger>
+        <TooltipContent>{tooltipContent}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  // No tooltip when all purchases are visible
+  return content;
 };
