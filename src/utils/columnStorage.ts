@@ -15,7 +15,7 @@ export const DEFAULT_COLUMN_SIZING: ColumnSizing = {
   supplier: 120,
   hierarchy: 80,
   serviceType: 140,
-  purchases: 280,
+  purchases: 320,
   emfIds: 120,
   demandIds: 120,
   totalCost: 140,
