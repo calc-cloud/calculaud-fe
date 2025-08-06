@@ -78,7 +78,7 @@ export interface PurposeContent {
 
 // New Purchase workflow types
 export interface Purchase {
-  id: string;
+  id: number;
   purpose_id: string;
   creation_date: string;
   costs: Cost[];

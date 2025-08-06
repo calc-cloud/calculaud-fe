@@ -1,6 +1,8 @@
 import { getCurrencySymbol, Purpose } from "@/types";
 import { getStagesText } from "@/utils/stageUtils";
 
+import { ColumnSizing } from "./columnStorage";
+
 // Column configuration constants
 export const COLUMN_SIZES = {
   status: { size: 140, minSize: 100 },
@@ -11,13 +13,20 @@ export const COLUMN_SIZES = {
   pendingAuthority: { size: 160, minSize: 120 },
   hierarchy: { size: 80, minSize: 60 },
   serviceType: { size: 140, minSize: 112 },
-  purchases: { size: 280, minSize: 240 },
+  purchases: { size: 320, minSize: 240 },
   emfIds: { size: 120, minSize: 96 },
   demandIds: { size: 120, minSize: 96 },
-  totalCost: { size: 140, minSize: 112 },
+  totalCost: { size: 120, minSize: 112 },
   expectedDelivery: { size: 120, minSize: 96 },
   createdAt: { size: 120, minSize: 96 },
   lastModified: { size: 120, minSize: 96 },
+};
+
+/**
+ * Extract default column sizes from COLUMN_SIZES configuration
+ */
+export const getDefaultColumnSizing = (): ColumnSizing => {
+  return Object.fromEntries(Object.entries(COLUMN_SIZES).map(([key, config]) => [key, config.size]));
 };
 
 export const getLastHierarchyLevel = (hierarchyName: string | undefined | null): string => {
@@ -133,7 +142,14 @@ export const getContentsDisplay = (purpose: Purpose) => {
 };
 
 export const getStagesDisplay = (purpose: Purpose) => {
-  return purpose.purchases.map((purchase) => getStagesText(purchase, true)).filter((text) => text !== null);
+  // Sort purchases by days_since_last_completion in descending order (highest pending days first)
+  const sortedPurchases = [...purpose.purchases].sort((a, b) => {
+    const daysA = a.days_since_last_completion ?? -1;
+    const daysB = b.days_since_last_completion ?? -1;
+    return daysB - daysA;
+  });
+
+  return sortedPurchases.map((purchase) => getStagesText(purchase, true)).filter((text) => text !== null);
 };
 
 export const getHierarchyInfo = (purpose: Purpose, hierarchies: any[]) => {

@@ -3,6 +3,8 @@
  * and related text generation.
  */
 
+import { formatPurchaseId } from "./purchaseUtils";
+
 /**
  * Convert purchase data to structured stages array
  */
@@ -41,7 +43,7 @@ export const convertPurchaseToStages = (purchase: any) => {
         name: "Created",
         completed: true,
         date: purchase.creation_date,
-        value: `Purchase #${purchase.id}`,
+        value: formatPurchaseId(purchase.id),
         priority: 0, // Changed from 1 to 0 to ensure it comes before any actual stages
         stage_type: { name: "creation", value_required: false },
       },

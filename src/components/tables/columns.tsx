@@ -1,6 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 
+import { StatusColorTooltip } from "@/components/common/StatusColorTooltip";
 import { Badge } from "@/components/ui/badge";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { SortConfig } from "@/utils/sorting";
@@ -16,6 +18,7 @@ import {
   getTotalCostWithCurrencies,
 } from "@/utils/tableUtils";
 
+import { PurchaseGridCell } from "./purchases/PurchaseGridCell";
 import { CellWrapper } from "./shared/CellWrapper";
 import { HeaderWrapper, SimpleHeaderWrapper } from "./shared/HeaderWrapper";
 import { MultiItemDisplay, TooltipCell } from "./shared/TooltipCell";
@@ -150,33 +153,24 @@ export const createColumns = (
   {
     id: "purchases",
     accessorFn: (row) => getStagesDisplay(row).join(", "),
-    header: () => <SimpleHeaderWrapper>Purchases</SimpleHeaderWrapper>,
+    header: () => (
+      <HeaderWrapper
+        sortable
+        sortField="days_since_last_completion"
+        currentSort={sortConfig}
+        onSortChange={onSortChange}
+        sortLabel="Purchases"
+      >
+        <TooltipProvider>
+          <StatusColorTooltip>
+            <span>Purchases</span>
+          </StatusColorTooltip>
+        </TooltipProvider>
+      </HeaderWrapper>
+    ),
     cell: ({ row }) => {
       const purpose = row.original;
-      const stagesTexts = getStagesDisplay(purpose);
-
-      if (!stagesTexts || stagesTexts.length === 0) {
-        return (
-          <CellWrapper>
-            <div className="text-sm text-muted-foreground">
-              {purpose.purchases.length === 0 ? "No purchases added" : "No stage information"}
-            </div>
-          </CellWrapper>
-        );
-      }
-
-      return (
-        <TooltipCell
-          trigger={<MultiItemDisplay items={stagesTexts} />}
-          content={
-            <div className="flex flex-col">
-              {stagesTexts.map((text, index) => (
-                <div key={index}>{text}</div>
-              ))}
-            </div>
-          }
-        />
-      );
+      return <PurchaseGridCell purpose={purpose} />;
     },
     ...COLUMN_SIZES.purchases,
   },

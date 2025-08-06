@@ -1,28 +1,12 @@
 import { ColumnVisibility, DEFAULT_COLUMN_VISIBILITY } from "@/components/common/ColumnControl";
 
+import { getDefaultColumnSizing } from "./tableUtils";
+
 const COLUMN_VISIBILITY_KEY = "search-column-visibility";
 const COLUMN_SIZING_KEY = "search-column-sizing";
 
 // Column sizing type - maps column IDs to their widths
 export type ColumnSizing = Record<string, number>;
-
-// Default column sizes extracted from column definitions
-export const DEFAULT_COLUMN_SIZING: ColumnSizing = {
-  status: 140,
-  statusMessage: 180,
-  description: 300,
-  content: 200,
-  supplier: 120,
-  hierarchy: 80,
-  serviceType: 140,
-  purchases: 280,
-  emfIds: 120,
-  demandIds: 120,
-  totalCost: 140,
-  expectedDelivery: 120,
-  createdAt: 120,
-  lastModified: 120,
-};
 
 /**
  * Save column visibility settings to localStorage
@@ -74,38 +58,40 @@ export const saveColumnSizing = (columnSizing: ColumnSizing): void => {
 
 /**
  * Load column sizing settings from localStorage
- * Falls back to DEFAULT_COLUMN_SIZING if localStorage is unavailable or data is invalid
+ * Falls back to default column sizing from tableUtils if localStorage is unavailable or data is invalid
  */
 export const loadColumnSizing = (): ColumnSizing => {
+  const defaultSizing = getDefaultColumnSizing();
+
   try {
     const stored = localStorage.getItem(COLUMN_SIZING_KEY);
     if (!stored) {
-      return DEFAULT_COLUMN_SIZING;
+      return defaultSizing;
     }
 
     const parsed = JSON.parse(stored);
 
     // Validate that the parsed data is an object with numeric values
     if (typeof parsed !== "object" || parsed === null) {
-      return DEFAULT_COLUMN_SIZING;
+      return defaultSizing;
     }
 
     // Filter out invalid entries and merge with defaults
     const validSizing: ColumnSizing = {};
 
     // Start with defaults to ensure all columns have sizes
-    Object.assign(validSizing, DEFAULT_COLUMN_SIZING);
+    Object.assign(validSizing, defaultSizing);
 
     // Override with valid stored values
     Object.entries(parsed).forEach(([columnId, width]) => {
-      if (typeof width === "number" && width > 0 && columnId in DEFAULT_COLUMN_SIZING) {
+      if (typeof width === "number" && width > 0 && columnId in defaultSizing) {
         validSizing[columnId] = width;
       }
     });
 
     return validSizing;
   } catch (_error) {
-    return DEFAULT_COLUMN_SIZING;
+    return defaultSizing;
   }
 };
 

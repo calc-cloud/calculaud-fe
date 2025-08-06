@@ -385,6 +385,8 @@ class PurposeService {
         return "expected_delivery";
       case "last_modified":
         return "last_modified";
+      case "days_since_last_completion":
+        return "days_since_last_completion";
       default:
         return "creation_time";
     }
