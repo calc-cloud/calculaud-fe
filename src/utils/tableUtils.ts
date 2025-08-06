@@ -26,9 +26,7 @@ export const COLUMN_SIZES = {
  * Extract default column sizes from COLUMN_SIZES configuration
  */
 export const getDefaultColumnSizing = (): ColumnSizing => {
-  return Object.fromEntries(
-    Object.entries(COLUMN_SIZES).map(([key, config]) => [key, config.size])
-  );
+  return Object.fromEntries(Object.entries(COLUMN_SIZES).map(([key, config]) => [key, config.size]));
 };
 
 export const getLastHierarchyLevel = (hierarchyName: string | undefined | null): string => {

@@ -62,7 +62,7 @@ export const saveColumnSizing = (columnSizing: ColumnSizing): void => {
  */
 export const loadColumnSizing = (): ColumnSizing => {
   const defaultSizing = getDefaultColumnSizing();
-  
+
   try {
     const stored = localStorage.getItem(COLUMN_SIZING_KEY);
     if (!stored) {
