@@ -104,6 +104,30 @@ export const usePurposeDetail = () => {
     }
   };
 
+  const handleToggleFlag = async () => {
+    if (!id || !purpose) return;
+
+    const newFlaggedState = !purpose.is_flagged;
+
+    try {
+      await purposeService.toggleFlag(id, newFlaggedState);
+      toast({
+        title: newFlaggedState ? "Purpose flagged" : "Purpose unflagged",
+        description: newFlaggedState 
+          ? "The purpose has been flagged successfully." 
+          : "The purpose has been unflagged successfully.",
+      });
+      await refreshPurpose();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to toggle purpose flag";
+      toast({
+        title: `Error ${newFlaggedState ? "flagging" : "unflagging"} purpose`,
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleFilesChange = (newFiles: PurposeFile[]) => {
     if (purpose) {
       setPurpose({
@@ -365,6 +389,7 @@ export const usePurposeDetail = () => {
     handleEditGeneralData,
     handleBackToSearch,
     handleDeletePurpose,
+    handleToggleFlag,
     handleFilesChange,
     handleSaveGeneralData,
     handleCreatePurchase,

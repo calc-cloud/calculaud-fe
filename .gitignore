@@ -30,3 +30,7 @@ dist-ssr
 
 # Claude Code settings
 .claude/settings.local.json
+
+.env
+.env.production
+.env.development.local

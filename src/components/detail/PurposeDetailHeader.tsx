@@ -1,4 +1,4 @@
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, MoreVertical, Flag, FlagOff } from "lucide-react";
 import React from "react";
 
 import {
@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { getStatusDisplay } from "@/utils/statusUtils";
@@ -22,12 +28,14 @@ interface PurposeDetailHeaderProps {
   purpose: Purpose;
   onBackToSearch: () => void;
   onDeletePurpose: () => void;
+  onToggleFlag: () => void;
 }
 
 export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
   purpose,
   onBackToSearch,
   onDeletePurpose,
+  onToggleFlag,
 }) => {
   const statusInfo = getStatusDisplay(purpose.status);
 
@@ -45,32 +53,61 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
         <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>
           {statusInfo.label}
         </Badge>
+        <div className="group relative ml-2">
+          <Flag 
+            className={`h-5 w-5 cursor-pointer transition-opacity duration-200 ${
+              purpose.is_flagged 
+                ? 'opacity-100 text-red-500 fill-red-500 group-hover:opacity-0' 
+                : 'opacity-0 text-red-500 group-hover:opacity-100 group-hover:text-red-500'
+            }`}
+            onClick={onToggleFlag}
+          />
+          {purpose.is_flagged && (
+            <FlagOff 
+              className="absolute top-0 left-0 h-5 w-5 cursor-pointer text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              onClick={onToggleFlag}
+            />
+          )}
+        </div>
       </div>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button variant="destructive" size="sm">
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete Purpose
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm">
+            <MoreVertical className="h-4 w-4" />
           </Button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the purpose and remove all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={onDeletePurpose}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={onToggleFlag}>
+            <Flag className="mr-2 h-4 w-4" />
+            {purpose.is_flagged ? "Unflag" : "Flag"}
+          </DropdownMenuItem>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the purpose and remove all associated data.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={onDeletePurpose}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

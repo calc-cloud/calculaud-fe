@@ -35,6 +35,7 @@ const PurposeDetail: React.FC = () => {
     handleEditGeneralData,
     handleBackToSearch,
     handleDeletePurpose,
+    handleToggleFlag,
     handleFilesChange,
     handleSaveGeneralData,
     handleCreatePurchase,
@@ -91,6 +92,7 @@ const PurposeDetail: React.FC = () => {
         purpose={purpose}
         onBackToSearch={handleBackToSearch}
         onDeletePurpose={handleDeletePurpose}
+        onToggleFlag={handleToggleFlag}
       />
 
       {/* 2-Column Layout */}

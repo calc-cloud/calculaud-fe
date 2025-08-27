@@ -62,6 +62,7 @@ export interface Purpose {
     file_url: string;
   }[];
   pending_authority?: Authority;
+  is_flagged: boolean;
 }
 
 export interface Purchase {
@@ -167,6 +168,10 @@ class PurposeService {
 
   async deletePurpose(id: string): Promise<void> {
     return apiService.delete<void>(`/purposes/${id}`);
+  }
+
+  async toggleFlag(id: string, isFlagged: boolean): Promise<Purpose> {
+    return apiService.patch<Purpose>(`/purposes/${id}`, { is_flagged: isFlagged });
   }
 
   async createPurchase(data: PurchaseCreateRequest): Promise<Purchase> {
@@ -435,6 +440,7 @@ class PurposeService {
         pending_authority: purpose.pending_authority || null,
         purchases: (purpose.purchases || []).map((purchase) => this.transformPurchase(purchase, purpose.id)),
         files: (purpose.file_attachments || []).map((file) => this.transformFileAttachment(file, purpose.id)),
+        is_flagged: purpose.is_flagged || false,
       };
     } catch (_error) {
       // Return fallback object for malformed purpose data
@@ -454,6 +460,7 @@ class PurposeService {
         pending_authority: null,
         purchases: [],
         files: [],
+        is_flagged: false,
       };
     }
   }
