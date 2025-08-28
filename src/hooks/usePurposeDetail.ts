@@ -96,7 +96,7 @@ export const usePurposeDetail = () => {
   const handleDeletePurpose = async () => {
     if (!id || !purpose) return;
 
-    await deletePurpose.mutateAsync(purpose.id);
+    await deletePurpose.mutateAsync({ id: purpose.id, refetchImmediately: false });
     handleBackToSearch();
   };
 

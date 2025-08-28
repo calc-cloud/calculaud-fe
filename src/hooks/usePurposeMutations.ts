@@ -54,12 +54,16 @@ export const usePurposeMutations = () => {
   });
 
   const deletePurpose = useMutation({
-    mutationFn: (id: string) => {
+    mutationFn: ({ id, refetchImmediately: _refetchImmediately = true }: { id: string; refetchImmediately?: boolean }) => {
       return purposeService.deletePurpose(id);
     },
-    onSuccess: () => {
-      // Invalidate cache to trigger refetch when needed
-      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+    onSuccess: (_, { refetchImmediately = true }) => {
+      // Use refetch for immediate updates (Search page) or invalidate for lazy updates (Purpose page)
+      if (refetchImmediately) {
+        queryClient.refetchQueries({ queryKey: ["purposes"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["purposes"] });
+      }
       queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose deleted",

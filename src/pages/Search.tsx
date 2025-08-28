@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePurposeData } from "@/hooks/usePurposeData";
+import { usePurposeMutations } from "@/hooks/usePurposeMutations";
 import { Purpose } from "@/types";
 import { UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import {
@@ -25,12 +26,13 @@ import {
 } from "@/utils/columnStorage";
 import { exportPurposesToCSV } from "@/utils/csvExport";
 import { clearFilters } from "@/utils/filterUtils";
-import { togglePurposeFlag, deletePurposeAction } from "@/utils/purposeActions";
+import { togglePurposeFlag } from "@/utils/purposeActions";
 import { SortConfig } from "@/utils/sorting";
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const { deletePurpose } = usePurposeMutations();
 
   // Parse URL params to initial state
   const getInitialFilters = (): UnifiedFiltersType => {
@@ -264,9 +266,7 @@ const Search: React.FC = () => {
 
   // Handle delete purpose - called by context menu after confirmation
   const handleDeletePurpose = async (purpose: Purpose) => {
-    await deletePurposeAction(purpose, toast, () => {
-      queryClient.invalidateQueries({ queryKey: ["purposes"] });
-    });
+    deletePurpose.mutate({ id: purpose.id, refetchImmediately: true });
   };
 
   // Calculate display indices for server-side pagination
