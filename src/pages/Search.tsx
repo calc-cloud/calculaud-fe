@@ -115,11 +115,15 @@ const Search: React.FC = () => {
       filters.relative_time = searchParams.get("relative_time") || undefined;
     }
 
+    // Parse flagged filter
+    if (searchParams.get("flagged")) {
+      filters.flagged = searchParams.get("flagged") === "true";
+    }
+
     // If no date/time filters are provided in URL, set default "All Time" values
     const hasDateTimeParams =
       searchParams.get("start_date") || searchParams.get("end_date") || searchParams.get("relative_time");
     if (!hasDateTimeParams) {
-      // For "All Time", don't set start_date or end_date
       filters.relative_time = "all_time";
     }
 
@@ -236,6 +240,11 @@ const Search: React.FC = () => {
       params.set("relative_time", filters.relative_time);
     }
 
+    // Add flagged filter
+    if (filters.flagged === true) {
+      params.set("flagged", "true");
+    }
+
     // Add sorting
     if (sortConfig.field !== "creation_time" || sortConfig.direction !== "desc") {
       params.set("sort_field", sortConfig.field);
@@ -285,6 +294,7 @@ const Search: React.FC = () => {
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.flagged === true ? [1] : []),
   ].length;
 
   // Show error state

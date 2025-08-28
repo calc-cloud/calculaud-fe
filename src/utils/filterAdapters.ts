@@ -29,6 +29,7 @@ export const dashboardFiltersToUnified = (filters: DashboardFilters): UnifiedFil
     status: filters.status?.map((status) => STATUS_API_TO_DISPLAY[status] || status),
     material: filters.service_id, // service_id maps to material in dashboard context
     pending_authority: filters.pending_authority_id,
+    flagged: filters.flagged,
   };
 };
 
@@ -44,5 +45,6 @@ export const unifiedToDashboardFilters = (filters: UnifiedFilters): DashboardFil
     status: filters.status?.map((status) => STATUS_DISPLAY_TO_API[status] || status),
     service_id: filters.material, // material maps to service_id in dashboard context
     pending_authority_id: filters.pending_authority,
+    flagged: filters.flagged,
   };
 };

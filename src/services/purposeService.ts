@@ -16,6 +16,7 @@ export interface PurposeApiParams {
   sort_order?: "asc" | "desc";
   start_date?: string;
   end_date?: string;
+  is_flagged?: boolean;
 }
 
 export interface PurposeApiResponse {
@@ -263,8 +264,12 @@ class PurposeService {
       params.start_date = filters.start_date;
     }
     if (filters.end_date) {
-      // Backend is now inclusive, so pass end_date as-is
       params.end_date = filters.end_date;
+    }
+
+    // Flagged filter
+    if (filters.flagged !== undefined) {
+      params.is_flagged = filters.flagged;
     }
 
     return params;

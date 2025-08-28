@@ -1,20 +1,16 @@
 // Shared filter types for unified filtering across search and dashboard
 
 export interface UnifiedFilters {
-  // Date/time filters
   start_date?: string;
   end_date?: string;
   relative_time?: string;
-
-  // Entity filters - using number arrays consistently
   hierarchy_id?: number[];
   service_type?: number[];
   supplier?: number[];
   status?: string[];
   material?: number[];
   pending_authority?: number[];
-
-  // Search specific
+  flagged?: boolean;
   search_query?: string;
 }
 
