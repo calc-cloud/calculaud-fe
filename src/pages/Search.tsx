@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Download, Loader2, Search as SearchIcon, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -13,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePurposeData } from "@/hooks/usePurposeData";
+import { Purpose } from "@/types";
 import { UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import {
   ColumnSizing,
@@ -23,10 +25,12 @@ import {
 } from "@/utils/columnStorage";
 import { exportPurposesToCSV } from "@/utils/csvExport";
 import { clearFilters } from "@/utils/filterUtils";
+import { togglePurposeFlag, deletePurposeAction } from "@/utils/purposeActions";
 import { SortConfig } from "@/utils/sorting";
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
 
   // Parse URL params to initial state
   const getInitialFilters = (): UnifiedFiltersType => {
@@ -250,6 +254,21 @@ const Search: React.FC = () => {
 
   const itemsPerPage = 10;
 
+
+  // Handle flag toggle - called by context menu after user confirms
+  const handleToggleFlag = async (purpose: Purpose) => {
+    await togglePurposeFlag(purpose, toast, () => {
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+    });
+  };
+
+  // Handle delete purpose - called by context menu after confirmation
+  const handleDeletePurpose = async (purpose: Purpose) => {
+    await deletePurposeAction(purpose, toast, () => {
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+    });
+  };
+
   // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
@@ -354,6 +373,8 @@ const Search: React.FC = () => {
         onSortChange={handleSortChange}
         columnSizing={columnSizing}
         onColumnSizingChange={setColumnSizing}
+        onToggleFlag={handleToggleFlag}
+        onDeletePurpose={handleDeletePurpose}
       />
     </div>
   );

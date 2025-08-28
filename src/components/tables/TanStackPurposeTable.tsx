@@ -6,10 +6,11 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { ColumnVisibility } from "@/components/common/ColumnControl";
+import { PurposeContextMenu } from "@/components/shared/PurposeContextMenu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { Purpose } from "@/types";
@@ -26,6 +27,8 @@ interface TanStackPurposeTableProps {
   onSortChange?: (config: SortConfig) => void;
   columnSizing?: ColumnSizing;
   onColumnSizingChange?: (sizing: ColumnSizing) => void;
+  onToggleFlag?: (purpose: Purpose) => void;
+  onDeletePurpose?: (purpose: Purpose) => void;
 }
 
 export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
@@ -36,9 +39,19 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
   onSortChange,
   columnSizing,
   onColumnSizingChange,
+  onToggleFlag,
+  onDeletePurpose,
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    purpose: Purpose | null;
+  }>({ visible: false, x: 0, y: 0, purpose: null });
 
   // Convert our ColumnVisibility to TanStack's VisibilityState
   const visibilityState: VisibilityState = useMemo(() => {
@@ -105,6 +118,45 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
     navigate(`/purposes/${purpose.id}`);
   };
 
+  const handleContextMenu = (e: React.MouseEvent, purpose: Purpose) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      purpose,
+    });
+  };
+
+  const handleCloseContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, purpose: null });
+  };
+
+  // Close context menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (_event: MouseEvent) => {
+      if (contextMenu.visible) {
+        handleCloseContextMenu();
+      }
+    };
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && contextMenu.visible) {
+        handleCloseContextMenu();
+      }
+    };
+
+    if (contextMenu.visible) {
+      document.addEventListener("click", handleClickOutside);
+      document.addEventListener("keydown", handleEscapeKey);
+
+      return () => {
+        document.removeEventListener("click", handleClickOutside);
+        document.removeEventListener("keydown", handleEscapeKey);
+      };
+    }
+  }, [contextMenu.visible]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -163,7 +215,10 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
             <TableRow
               key={row.id}
               onClick={() => handleRowClick(row.original)}
-              className="cursor-pointer hover:bg-muted/50 h-20"
+              onContextMenu={(e) => handleContextMenu(e, row.original)}
+              className={`cursor-pointer h-20 ${
+                row.original.is_flagged ? "bg-red-50 hover:bg-red-100" : "hover:bg-muted/50"
+              }`}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
@@ -180,6 +235,19 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
           ))}
         </TableBody>
       </Table>
+
+      {/* Context Menu */}
+      {contextMenu.visible && contextMenu.purpose && onToggleFlag && onDeletePurpose && (
+        <PurposeContextMenu
+          purpose={contextMenu.purpose}
+          onToggleFlag={onToggleFlag}
+          onDeletePurpose={onDeletePurpose}
+          isContextMenu
+          position={{ x: contextMenu.x, y: contextMenu.y }}
+          open={contextMenu.visible}
+          onOpenChange={handleCloseContextMenu}
+        />
+      )}
     </div>
   );
 };

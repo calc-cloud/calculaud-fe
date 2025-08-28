@@ -13,10 +13,8 @@ export const usePurposeMutations = () => {
       return purposeService.createPurpose(apiRequest);
     },
     onSuccess: () => {
-      // More aggressive cache invalidation
+      // Invalidate cache to trigger refetch when needed
       queryClient.invalidateQueries({ queryKey: ["purposes"] });
-      queryClient.refetchQueries({ queryKey: ["purposes"] });
-      // Also clear any cached purpose detail pages
       queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose created",
@@ -38,9 +36,8 @@ export const usePurposeMutations = () => {
       return purposeService.updatePurpose(id, apiRequest);
     },
     onSuccess: () => {
-      // More aggressive cache invalidation
+      // Invalidate cache to trigger refetch when needed
       queryClient.invalidateQueries({ queryKey: ["purposes"] });
-      queryClient.refetchQueries({ queryKey: ["purposes"] });
       queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose updated",
@@ -61,9 +58,8 @@ export const usePurposeMutations = () => {
       return purposeService.deletePurpose(id);
     },
     onSuccess: () => {
-      // More aggressive cache invalidation
+      // Invalidate cache to trigger refetch when needed
       queryClient.invalidateQueries({ queryKey: ["purposes"] });
-      queryClient.refetchQueries({ queryKey: ["purposes"] });
       queryClient.invalidateQueries({ queryKey: ["purpose"] });
       toast({
         title: "Purpose deleted",

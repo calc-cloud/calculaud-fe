@@ -4,9 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePurposeMutations } from "@/hooks/usePurposeMutations";
-import { purposeService } from "@/services/purposeService";
+import { purposeService, Purpose as ApiPurpose } from "@/services/purposeService";
 import { stageService, UpdateStageRequest } from "@/services/stageService";
 import { Purpose, PurposeFile, CreatePurchaseRequest } from "@/types";
+import { togglePurposeFlag } from "@/utils/purposeActions";
 import { convertPurchaseToStages } from "@/utils/stageUtils";
 
 export const usePurposeDetail = () => {
@@ -14,7 +15,7 @@ export const usePurposeDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { hierarchies, suppliers, serviceTypes } = useAdminData();
-  const { deletePurpose, updatePurpose } = usePurposeMutations();
+  const { updatePurpose, deletePurpose } = usePurposeMutations();
 
   // State for modals and editing
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -93,39 +94,19 @@ export const usePurposeDetail = () => {
   };
 
   const handleDeletePurpose = async () => {
-    if (!id) return;
+    if (!id || !purpose) return;
 
-    try {
-      await deletePurpose.mutateAsync(id);
-      // Go back to search with stored filters
-      handleBackToSearch();
-    } catch {
-      // Error handling is done in the mutation
-    }
+    await deletePurpose.mutateAsync(purpose.id);
+    handleBackToSearch();
   };
 
   const handleToggleFlag = async () => {
     if (!id || !purpose) return;
 
-    const newFlaggedState = !purpose.is_flagged;
-
-    try {
-      await purposeService.toggleFlag(id, newFlaggedState);
-      toast({
-        title: newFlaggedState ? "Purpose flagged" : "Purpose unflagged",
-        description: newFlaggedState 
-          ? "The purpose has been flagged successfully." 
-          : "The purpose has been unflagged successfully.",
-      });
-      await refreshPurpose();
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to toggle purpose flag";
-      toast({
-        title: `Error ${newFlaggedState ? "flagging" : "unflagging"} purpose`,
-        description: errorMessage,
-        variant: "destructive",
-      });
-    }
+    await togglePurposeFlag(purpose, toast, (updatedPurpose: ApiPurpose) => {
+      // Update the local purpose state directly with the API response
+      setPurpose(purposeService.transformApiPurpose(updatedPurpose, hierarchies));
+    });
   };
 
   const handleFilesChange = (newFiles: PurposeFile[]) => {
