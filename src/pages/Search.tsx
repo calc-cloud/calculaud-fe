@@ -256,7 +256,6 @@ const Search: React.FC = () => {
 
   const itemsPerPage = 10;
 
-
   // Handle flag toggle - called by context menu after user confirms
   const handleToggleFlag = async (purpose: Purpose) => {
     await togglePurposeFlag(purpose, toast, () => {

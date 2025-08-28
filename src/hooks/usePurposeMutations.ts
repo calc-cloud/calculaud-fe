@@ -54,7 +54,13 @@ export const usePurposeMutations = () => {
   });
 
   const deletePurpose = useMutation({
-    mutationFn: ({ id, refetchImmediately: _refetchImmediately = true }: { id: string; refetchImmediately?: boolean }) => {
+    mutationFn: ({
+      id,
+      refetchImmediately: _refetchImmediately = true,
+    }: {
+      id: string;
+      refetchImmediately?: boolean;
+    }) => {
       return purposeService.deletePurpose(id);
     },
     onSuccess: (_, { refetchImmediately = true }) => {
