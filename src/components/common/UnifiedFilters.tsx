@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, Filter } from "lucide-react";
+import { CalendarIcon, ChevronDown, Filter, Flag } from "lucide-react";
 import React, { useState } from "react";
 
 import { HierarchySelector } from "@/components/common/HierarchySelector";
@@ -364,7 +364,10 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
               }}
             >
               <Checkbox checked={filters.flagged === true} />
-              <span className="text-sm font-medium">Flagged</span>
+              <div className="flex items-center gap-2">
+                <Flag className="h-4 w-4 text-red-500 fill-red-500" />
+                <span className="text-sm font-medium">Flagged</span>
+              </div>
             </div>
           </div>
         </div>

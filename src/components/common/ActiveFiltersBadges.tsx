@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, Flag } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -160,6 +160,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
         )}
         {filters.flagged === true && (
           <Badge variant="secondary" className="flex items-center gap-1">
+            <Flag className="h-3 w-3 text-red-500 fill-red-500" />
             Flagged
             <X className="h-3 w-3 cursor-pointer" onClick={clearFlaggedFilter} />
           </Badge>
