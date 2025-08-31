@@ -36,7 +36,11 @@ export const loadColumnVisibility = (): ColumnVisibility => {
       return DEFAULT_COLUMN_VISIBILITY;
     }
 
-    return parsed as ColumnVisibility;
+    // Force status column to always be visible
+    const columnVisibility = { ...(parsed as ColumnVisibility) };
+    columnVisibility.status = true;
+
+    return columnVisibility;
   } catch (_error) {
     return DEFAULT_COLUMN_VISIBILITY;
   }

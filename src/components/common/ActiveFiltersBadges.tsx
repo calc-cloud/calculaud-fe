@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, Flag } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +46,13 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     });
   };
 
+  const clearFlaggedFilter = () => {
+    onFiltersChange({
+      ...filters,
+      flagged: undefined,
+    });
+  };
+
   const activeFiltersCount = [
     ...(filters.relative_time && filters.relative_time !== "all_time" ? [1] : []),
     ...(filters.hierarchy_id || []),
@@ -54,6 +61,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.flagged === true ? [1] : []),
   ].length;
 
   if (activeFiltersCount === 0) return null;
@@ -149,6 +157,13 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
               ) : null;
             })}
           </>
+        )}
+        {filters.flagged === true && (
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Flag className="h-3 w-3 text-red-500 fill-red-500" />
+            Flagged
+            <X className="h-3 w-3 cursor-pointer" onClick={clearFlaggedFilter} />
+          </Badge>
         )}
       </div>
     </div>

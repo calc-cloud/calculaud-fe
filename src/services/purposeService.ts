@@ -16,6 +16,7 @@ export interface PurposeApiParams {
   sort_order?: "asc" | "desc";
   start_date?: string;
   end_date?: string;
+  is_flagged?: boolean;
 }
 
 export interface PurposeApiResponse {
@@ -62,6 +63,7 @@ export interface Purpose {
     file_url: string;
   }[];
   pending_authority?: Authority;
+  is_flagged: boolean;
 }
 
 export interface Purchase {
@@ -169,6 +171,10 @@ class PurposeService {
     return apiService.delete<void>(`/purposes/${id}`);
   }
 
+  async toggleFlag(id: string, isFlagged: boolean): Promise<Purpose> {
+    return apiService.patch<Purpose>(`/purposes/${id}`, { is_flagged: isFlagged });
+  }
+
   async createPurchase(data: PurchaseCreateRequest): Promise<Purchase> {
     return apiService.post<Purchase>("/purchases/", data);
   }
@@ -258,8 +264,12 @@ class PurposeService {
       params.start_date = filters.start_date;
     }
     if (filters.end_date) {
-      // Backend is now inclusive, so pass end_date as-is
       params.end_date = filters.end_date;
+    }
+
+    // Flagged filter
+    if (filters.flagged !== undefined) {
+      params.is_flagged = filters.flagged;
     }
 
     return params;
@@ -435,6 +445,7 @@ class PurposeService {
         pending_authority: purpose.pending_authority || null,
         purchases: (purpose.purchases || []).map((purchase) => this.transformPurchase(purchase, purpose.id)),
         files: (purpose.file_attachments || []).map((file) => this.transformFileAttachment(file, purpose.id)),
+        is_flagged: purpose.is_flagged || false,
       };
     } catch (_error) {
       // Return fallback object for malformed purpose data
@@ -454,6 +465,7 @@ class PurposeService {
         pending_authority: null,
         purchases: [],
         files: [],
+        is_flagged: false,
       };
     }
   }

@@ -25,7 +25,7 @@ export const calculateDateRange = (relativeTime: string) => {
       startDate = subYears(today, 1);
       break;
     case "this_week":
-      startDate = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
+      startDate = startOfWeek(today, { weekStartsOn: 0 });
       break;
     case "this_month":
       startDate = startOfMonth(today);
@@ -104,6 +104,8 @@ export const clearFilters = (onFiltersChange: (filters: UnifiedFilters) => void,
     ...(currentFilters?.search_query && {
       search_query: currentFilters.search_query,
     }),
+    // Clear flagged filter
+    flagged: undefined,
   };
   onFiltersChange(defaultFilters);
 };

@@ -89,11 +89,11 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
   };
 
   const handleHideAll = () => {
-    // Keep at least one column visible (description as it's essential)
+    // Keep at least one column visible (status as it's essential)
     const allHidden = Object.keys(columnVisibility).reduce(
       (acc, key) => ({
         ...acc,
-        [key]: key === "description",
+        [key]: key === "status",
       }),
       {} as ColumnVisibility
     );
@@ -120,7 +120,7 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleShowAll} className="flex-1">
               <Check className="h-3 w-3 mr-1" />
-              Show All
+              Reset to Default
             </Button>
             <Button variant="outline" size="sm" onClick={handleHideAll} className="flex-1">
               Hide All
@@ -133,7 +133,7 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
             {Object.entries(COLUMN_LABELS).map(([key, label]) => {
               const columnKey = key as keyof ColumnVisibility;
               const isChecked = columnVisibility[columnKey];
-              const isDisabled = key === "description" && visibleColumnsCount === 1;
+              const isDisabled = key === "status"; // Status column is always required
 
               return (
                 <div key={key} className="flex items-center space-x-2">
@@ -163,9 +163,7 @@ export const ColumnControl: React.FC<ColumnControlProps> = ({
             <p>
               {visibleColumnsCount} of {totalColumnsCount} columns visible
             </p>
-            <p className="mt-1">
-              Description column is always required and cannot be hidden when it's the only visible column.
-            </p>
+            <p className="mt-1">Status column is always required and cannot be hidden.</p>
           </div>
         </div>
       </PopoverContent>

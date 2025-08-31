@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { Flag } from "lucide-react";
 
 import { StatusColorTooltip } from "@/components/common/StatusColorTooltip";
 import { Badge } from "@/components/ui/badge";
@@ -39,9 +40,12 @@ export const createColumns = (
       return (
         <TooltipCell
           trigger={
-            <Badge variant={statusInfo.variant} className={`pointer-events-none ${statusInfo.className}`}>
-              {statusInfo.label}
-            </Badge>
+            <div className="relative inline-block">
+              <Badge variant={statusInfo.variant} className={`pointer-events-none ${statusInfo.className}`}>
+                {statusInfo.label}
+              </Badge>
+              {purpose.is_flagged && <Flag className="absolute -top-2 -right-2 h-4 w-4 text-red-500 fill-red-500" />}
+            </div>
           }
           content={<p>{purpose.comments || "No status message"}</p>}
         />

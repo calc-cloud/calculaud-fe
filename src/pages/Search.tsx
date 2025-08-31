@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { Download, Loader2, Search as SearchIcon, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -13,6 +14,8 @@ import { Separator } from "@/components/ui/separator";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePurposeData } from "@/hooks/usePurposeData";
+import { usePurposeMutations } from "@/hooks/usePurposeMutations";
+import { Purpose } from "@/types";
 import { UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import {
   ColumnSizing,
@@ -23,10 +26,13 @@ import {
 } from "@/utils/columnStorage";
 import { exportPurposesToCSV } from "@/utils/csvExport";
 import { clearFilters } from "@/utils/filterUtils";
+import { togglePurposeFlag } from "@/utils/purposeActions";
 import { SortConfig } from "@/utils/sorting";
 
 const Search: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+  const { deletePurpose } = usePurposeMutations();
 
   // Parse URL params to initial state
   const getInitialFilters = (): UnifiedFiltersType => {
@@ -109,11 +115,15 @@ const Search: React.FC = () => {
       filters.relative_time = searchParams.get("relative_time") || undefined;
     }
 
+    // Parse flagged filter
+    if (searchParams.get("flagged")) {
+      filters.flagged = searchParams.get("flagged") === "true";
+    }
+
     // If no date/time filters are provided in URL, set default "All Time" values
     const hasDateTimeParams =
       searchParams.get("start_date") || searchParams.get("end_date") || searchParams.get("relative_time");
     if (!hasDateTimeParams) {
-      // For "All Time", don't set start_date or end_date
       filters.relative_time = "all_time";
     }
 
@@ -230,6 +240,11 @@ const Search: React.FC = () => {
       params.set("relative_time", filters.relative_time);
     }
 
+    // Add flagged filter
+    if (filters.flagged === true) {
+      params.set("flagged", "true");
+    }
+
     // Add sorting
     if (sortConfig.field !== "creation_time" || sortConfig.direction !== "desc") {
       params.set("sort_field", sortConfig.field);
@@ -250,6 +265,18 @@ const Search: React.FC = () => {
 
   const itemsPerPage = 10;
 
+  // Handle flag toggle - called by context menu after user confirms
+  const handleToggleFlag = async (purpose: Purpose) => {
+    await togglePurposeFlag(purpose, toast, () => {
+      queryClient.invalidateQueries({ queryKey: ["purposes"] });
+    });
+  };
+
+  // Handle delete purpose - called by context menu after confirmation
+  const handleDeletePurpose = async (purpose: Purpose) => {
+    deletePurpose.mutate({ id: purpose.id, refetchImmediately: true });
+  };
+
   // Calculate display indices for server-side pagination
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
@@ -267,6 +294,7 @@ const Search: React.FC = () => {
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.flagged === true ? [1] : []),
   ].length;
 
   // Show error state
@@ -354,6 +382,8 @@ const Search: React.FC = () => {
         onSortChange={handleSortChange}
         columnSizing={columnSizing}
         onColumnSizingChange={setColumnSizing}
+        onToggleFlag={handleToggleFlag}
+        onDeletePurpose={handleDeletePurpose}
       />
     </div>
   );

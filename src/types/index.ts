@@ -61,6 +61,7 @@ export interface Purpose {
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   files: PurposeFile[];
   pending_authority?: Authority;
+  is_flagged: boolean;
 }
 
 // New interface for purpose contents

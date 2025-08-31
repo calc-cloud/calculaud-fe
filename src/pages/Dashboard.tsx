@@ -111,6 +111,11 @@ const Dashboard: React.FC = () => {
       filters.relative_time = searchParams.get("relative_time") || undefined;
     }
 
+    // Parse flagged filter
+    if (searchParams.get("flagged")) {
+      filters.flagged = searchParams.get("flagged") === "true";
+    }
+
     // Override with URL params only if they exist, otherwise keep defaults
     const hasDateTimeParams =
       searchParams.get("start_date") || searchParams.get("end_date") || searchParams.get("relative_time");
@@ -172,6 +177,10 @@ const Dashboard: React.FC = () => {
     if (filters.relative_time) {
       params.set("relative_time", filters.relative_time);
     }
+    // Add flagged filter
+    if (filters.flagged === true) {
+      params.set("flagged", "true");
+    }
 
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
@@ -221,6 +230,7 @@ const Dashboard: React.FC = () => {
     ...(unifiedFilters.supplier || []),
     ...(unifiedFilters.material || []),
     ...(unifiedFilters.pending_authority || []),
+    ...(unifiedFilters.flagged === true ? [1] : []),
   ].length;
 
   return (

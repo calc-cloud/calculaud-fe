@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, Filter } from "lucide-react";
+import { CalendarIcon, ChevronDown, Filter, Flag } from "lucide-react";
 import React, { useState } from "react";
 
 import { HierarchySelector } from "@/components/common/HierarchySelector";
@@ -36,6 +36,8 @@ const countActiveFilters = (filters: UnifiedFiltersType) => {
     ...(filters.material || []),
     // Count each individual pending authority selection
     ...(filters.pending_authority || []),
+    // Count flagged filter if active
+    ...(filters.flagged === true ? [1] : []),
   ].length;
 };
 
@@ -322,7 +324,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           </div>
 
           {/* Status Multi-Select */}
-          <div className="pb-3">
+          <div className="border-b border-gray-200 pb-3">
             <Collapsible>
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1">
                 <span>Statuses</span>
@@ -348,6 +350,25 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
                 ))}
               </CollapsibleContent>
             </Collapsible>
+          </div>
+
+          {/* Flagged Filter */}
+          <div className="pb-3">
+            <div
+              className="flex items-center space-x-3 cursor-pointer py-2"
+              onClick={() => {
+                onFiltersChange({
+                  ...filters,
+                  flagged: filters.flagged ? undefined : true,
+                });
+              }}
+            >
+              <Checkbox checked={filters.flagged === true} />
+              <div className="flex items-center gap-2">
+                <Flag className="h-4 w-4 text-red-500 fill-red-500" />
+                <span className="text-sm font-medium">Flagged</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
