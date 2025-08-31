@@ -1,7 +1,7 @@
 import { ArrowLeft, MoreVertical, Flag, FlagOff } from "lucide-react";
 import React from "react";
 
-import { PurposeContextMenu } from "@/components/shared/PurposeContextMenu";
+import { PurposeDropdownMenu } from "@/components/shared/PurposeDropdownMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Purpose } from "@/types";
@@ -54,7 +54,7 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
           )}
         </div>
       </div>
-      <PurposeContextMenu
+      <PurposeDropdownMenu
         purpose={purpose}
         onToggleFlag={() => onToggleFlag()}
         onDeletePurpose={() => onDeletePurpose()}

@@ -242,7 +242,6 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
           purpose={contextMenu.purpose}
           onToggleFlag={onToggleFlag}
           onDeletePurpose={onDeletePurpose}
-          isContextMenu
           position={{ x: contextMenu.x, y: contextMenu.y }}
           open={contextMenu.visible}
           onOpenChange={handleCloseContextMenu}
