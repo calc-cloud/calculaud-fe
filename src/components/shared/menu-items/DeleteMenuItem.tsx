@@ -26,7 +26,7 @@ export const DeleteMenuItem: React.FC<DeleteMenuItemProps> = ({
   purpose,
   onDeletePurpose,
   onClose,
-  variant = "dropdown"
+  variant = "dropdown",
 }) => {
   const handleDelete = () => {
     onDeletePurpose(purpose);
@@ -79,9 +79,7 @@ export const DeleteMenuItem: React.FC<DeleteMenuItemProps> = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-          {triggerContent}
-        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>{triggerContent}</DropdownMenuItem>
       </AlertDialogTrigger>
       {dialogContent}
     </AlertDialog>

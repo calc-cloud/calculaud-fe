@@ -36,18 +36,8 @@ export const PurposeContextMenu: React.FC<PurposeContextMenuProps> = ({
         top: position.y,
       }}
     >
-      <FlagMenuItem
-        purpose={purpose}
-        onToggleFlag={onToggleFlag}
-        onClose={handleClose}
-        variant="context"
-      />
-      <DeleteMenuItem
-        purpose={purpose}
-        onDeletePurpose={onDeletePurpose}
-        onClose={handleClose}
-        variant="context"
-      />
+      <FlagMenuItem purpose={purpose} onToggleFlag={onToggleFlag} onClose={handleClose} variant="context" />
+      <DeleteMenuItem purpose={purpose} onDeletePurpose={onDeletePurpose} onClose={handleClose} variant="context" />
     </div>
   );
 };

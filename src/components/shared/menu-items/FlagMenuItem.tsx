@@ -11,12 +11,7 @@ interface FlagMenuItemProps {
   variant?: "dropdown" | "context";
 }
 
-export const FlagMenuItem: React.FC<FlagMenuItemProps> = ({
-  purpose,
-  onToggleFlag,
-  onClose,
-  variant = "dropdown"
-}) => {
+export const FlagMenuItem: React.FC<FlagMenuItemProps> = ({ purpose, onToggleFlag, onClose, variant = "dropdown" }) => {
   const handleClick = (e: React.MouseEvent) => {
     if (variant === "context") {
       e.stopPropagation();
@@ -43,9 +38,5 @@ export const FlagMenuItem: React.FC<FlagMenuItemProps> = ({
     );
   }
 
-  return (
-    <DropdownMenuItem onClick={handleClick}>
-      {content}
-    </DropdownMenuItem>
-  );
+  return <DropdownMenuItem onClick={handleClick}>{content}</DropdownMenuItem>;
 };

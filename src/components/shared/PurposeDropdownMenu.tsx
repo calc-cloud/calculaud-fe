@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Purpose } from "@/types";
 
 import { DeleteMenuItem } from "./menu-items/DeleteMenuItem";
@@ -35,18 +31,8 @@ export const PurposeDropdownMenu: React.FC<PurposeDropdownMenuProps> = ({
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <FlagMenuItem
-          purpose={purpose}
-          onToggleFlag={onToggleFlag}
-          onClose={handleClose}
-          variant="dropdown"
-        />
-        <DeleteMenuItem
-          purpose={purpose}
-          onDeletePurpose={onDeletePurpose}
-          onClose={handleClose}
-          variant="dropdown"
-        />
+        <FlagMenuItem purpose={purpose} onToggleFlag={onToggleFlag} onClose={handleClose} variant="dropdown" />
+        <DeleteMenuItem purpose={purpose} onDeletePurpose={onDeletePurpose} onClose={handleClose} variant="dropdown" />
       </DropdownMenuContent>
     </DropdownMenu>
   );
