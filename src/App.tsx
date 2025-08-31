@@ -3,6 +3,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { useAuth } from "react-oidc-context";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
+import AccessDenied from "@/components/auth/AccessDenied";
 import Layout from "@/components/layout/Layout";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,6 +14,7 @@ import Dashboard from "@/pages/Dashboard";
 import PurposeDetail from "@/pages/PurposeDetail";
 import Search from "@/pages/Search";
 import { apiService } from "@/services/apiService";
+import { hasRequiredRole } from "@/utils/roleUtils";
 
 import NotFound from "./pages/NotFound";
 
@@ -68,6 +70,11 @@ const App = () => {
   // Set up API token provider immediately when authenticated
   if (auth.user?.access_token) {
     apiService.setTokenProvider(() => auth.user?.access_token);
+  }
+
+  // Check if user has required role
+  if (!hasRequiredRole(auth.user)) {
+    return <AccessDenied />;
   }
 
   return (
