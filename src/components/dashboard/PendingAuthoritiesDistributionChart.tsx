@@ -54,10 +54,14 @@ export const PendingAuthoritiesDistributionChart: React.FC<PendingAuthoritiesDis
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // Add the clicked pending authority to the filters (only if not null)
+    // For Live Operations, exclude COMPLETED status from search results
+    const nonCompletedStatuses = ["In Progress", "Signed", "Partially Supplied"];
+
+    // Add the clicked pending authority to the filters (only if not null) and exclude COMPLETED status
     const updatedFilters = {
       ...unifiedFilters,
       pending_authority: data.authorityId ? [data.authorityId] : undefined,
+      status: nonCompletedStatuses, // Always exclude COMPLETED status for live operations
     };
 
     // Build search URL with filters

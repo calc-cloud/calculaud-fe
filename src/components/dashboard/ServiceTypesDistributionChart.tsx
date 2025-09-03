@@ -50,10 +50,14 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // Add the clicked service type to the filters
+    // For Live Operations, exclude COMPLETED status from search results
+    const nonCompletedStatuses = ["In Progress", "Signed", "Partially Supplied"];
+    
+    // Add the clicked service type to the filters and exclude COMPLETED status
     const updatedFilters = {
       ...unifiedFilters,
       service_type: [segmentData.id], // Use service type ID for search page compatibility
+      status: nonCompletedStatuses, // Always exclude COMPLETED status for live operations
     };
 
     // Build search URL with filters

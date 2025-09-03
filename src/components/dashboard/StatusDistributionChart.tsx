@@ -49,11 +49,14 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // Add the clicked status to the filters
+    // For Live Operations, exclude COMPLETED status from search results
+    // If user clicked on a specific status, use that; otherwise get all non-completed statuses
     const statusDisplayName = getStatusDisplayName(data.status);
+    const allStatuses = ["In Progress", "Signed", "Partially Supplied"]; // All non-COMPLETED statuses
+    
     const updatedFilters = {
       ...unifiedFilters,
-      status: [statusDisplayName], // Use display name for search page compatibility
+      status: data.status === "COMPLETED" ? allStatuses : [statusDisplayName],
     };
 
     // Build search URL with filters
