@@ -2,8 +2,8 @@ import {
   DashboardFilters,
   ServicesQuantityResponse,
   ServiceTypesDistributionResponse,
-  HierarchyDistributionResponse,
-  ExpenditureTimelineResponse,
+  StatusDistributionResponse,
+  PendingAuthorityDistributionResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
@@ -50,32 +50,14 @@ export class AnalyticsService {
     return apiService.get<ServiceTypesDistributionResponse>("/analytics/service-types/distribution", params);
   }
 
-  async getHierarchyDistribution(
-    filters?: DashboardFilters,
-    level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null,
-    parent_id?: number | null
-  ): Promise<HierarchyDistributionResponse> {
+  async getStatusesDistribution(filters?: DashboardFilters): Promise<StatusDistributionResponse> {
     const params = this.buildFilterParams(filters);
-
-    // Add hierarchy-specific parameters
-    if (level !== null && level !== undefined) {
-      params.level = level;
-    }
-    if (parent_id !== null && parent_id !== undefined) {
-      params.parent_id = parent_id;
-    }
-
-    return apiService.get<HierarchyDistributionResponse>("/analytics/hierarchies/distribution", params);
+    return apiService.get<StatusDistributionResponse>("/analytics/statuses/distribution", params);
   }
 
-  async getExpenditureTimeline(
-    filters?: DashboardFilters,
-    groupBy: "day" | "week" | "month" | "year" = "month"
-  ): Promise<ExpenditureTimelineResponse> {
+  async getPendingAuthoritiesDistribution(filters?: DashboardFilters): Promise<PendingAuthorityDistributionResponse> {
     const params = this.buildFilterParams(filters);
-    params.group_by = groupBy;
-
-    return apiService.get<ExpenditureTimelineResponse>("/analytics/expenditure/timeline", params);
+    return apiService.get<PendingAuthorityDistributionResponse>("/analytics/pending-authorities/distribution", params);
   }
 }
 

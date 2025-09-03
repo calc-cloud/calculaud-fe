@@ -33,36 +33,21 @@ export interface ServiceTypesDistributionResponse {
   data: ServiceTypeItem[];
 }
 
-export interface HierarchyDistributionItem {
-  id: number;
-  name: string;
-  path: string;
-  type: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM";
+export interface StatusDistributionItem {
+  status: string;
   count: number;
-  parent_id: number | null;
 }
 
-export interface HierarchyDistributionResponse {
-  items: HierarchyDistributionItem[];
-  level: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM";
-  parent_name: string | null;
+export interface StatusDistributionResponse {
+  data: StatusDistributionItem[];
 }
 
-export interface ExpenditureTimelineServiceType {
-  service_type_id: number;
-  name: string;
-  total_ils: number;
-  total_usd: number;
+export interface PendingAuthorityDistributionItem {
+  authority_id: number | null;
+  authority_name: string;
+  count: number;
 }
 
-export interface ExpenditureTimelineItem {
-  time_period: string;
-  total_ils: number;
-  total_usd: number;
-  data: ExpenditureTimelineServiceType[];
-}
-
-export interface ExpenditureTimelineResponse {
-  items: ExpenditureTimelineItem[];
-  group_by: "day" | "week" | "month" | "year";
+export interface PendingAuthorityDistributionResponse {
+  data: PendingAuthorityDistributionItem[];
 }

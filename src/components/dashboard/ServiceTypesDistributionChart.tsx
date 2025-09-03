@@ -1,15 +1,16 @@
-import { ExternalLink } from "lucide-react";
-import React from "react";
+import { Loader2 } from "lucide-react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ServiceTypesDistributionResponse } from "@/types/analytics";
+import { DashboardFilters, ServiceTypesDistributionResponse } from "@/types/analytics";
+import { UnifiedFilters } from "@/types/filters";
+import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface ServiceTypesDistributionChartProps {
   data: ServiceTypesDistributionResponse | undefined;
   isLoading: boolean;
+  globalFilters: DashboardFilters;
 }
 
 // Colors for the pie chart segments
@@ -26,80 +27,61 @@ const COLORS = [
   "#6b7280", // gray
 ];
 
-export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({ data, isLoading }) => {
+export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({
+  data,
+  isLoading,
+  globalFilters,
+}) => {
   const navigate = useNavigate();
 
-  const handleViewInSearch = () => {
-    const currentParams = new URLSearchParams(window.location.search);
-    navigate(`/search?${currentParams.toString()}`);
+  // Transform data for recharts
+  const chartData = useMemo(() => {
+    if (!data || !data.data) return [];
+    return data.data.map((item, index) => ({
+      name: item.name,
+      value: item.count,
+      id: item.id,
+      color: COLORS[index % COLORS.length],
+    }));
+  }, [data]);
+
+  // Handle clicking on a pie segment
+  const handleSegmentClick = (segmentData: any) => {
+    // Convert global filters to unified format
+    const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
+
+    // Add the clicked service type to the filters
+    const updatedFilters = {
+      ...unifiedFilters,
+      service_type: [segmentData.id], // Use service type ID for search page compatibility
+    };
+
+    // Build search URL with filters
+    const searchParams = new URLSearchParams();
+
+    if (updatedFilters.relative_time) {
+      searchParams.set("relative_time", updatedFilters.relative_time);
+    }
+    if (updatedFilters.start_date) {
+      searchParams.set("start_date", updatedFilters.start_date);
+    }
+    if (updatedFilters.end_date) {
+      searchParams.set("end_date", updatedFilters.end_date);
+    }
+    if (updatedFilters.service_type && updatedFilters.service_type.length > 0) {
+      searchParams.set("service_type_id", updatedFilters.service_type.join(","));
+    }
+    if (updatedFilters.status && updatedFilters.status.length > 0) {
+      searchParams.set("status", updatedFilters.status.join(","));
+    }
+
+    // Navigate to search page with filters
+    navigate(`/search?${searchParams.toString()}`);
   };
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Service Types Distribution</CardTitle>
-              <CardDescription>Purpose count by service type</CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleViewInSearch}
-              className="h-8 w-8 p-0"
-              title="View in Search"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] flex items-center justify-center">
-            <div className="text-muted-foreground">Loading chart data...</div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!data || !data.data || data.data.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Service Types Distribution</CardTitle>
-              <CardDescription>Purpose count by service type</CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleViewInSearch}
-              className="h-8 w-8 p-0"
-              title="View in Search"
-            >
-              <ExternalLink className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px] flex items-center justify-center">
-            <div className="text-muted-foreground">No data available</div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Transform data for recharts - data is now an array of objects with count instead of value
-  const chartData = data.data.map((item) => ({
-    name: item.name,
-    value: item.count,
-  }));
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
     const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.65;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -131,43 +113,65 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     return null;
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-96 flex flex-col p-4">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+          <p className="text-sm text-gray-600">Purpose count by service type</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || !data.data || data.data.length === 0) {
+    return (
+      <div className="w-full h-96 flex flex-col p-4">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+          <p className="text-sm text-gray-600">Purpose count by service type</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">No service type data available</div>
+      </div>
+    );
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Service Types Distribution</CardTitle>
-            <CardDescription>Purpose count by service type</CardDescription>
-          </div>
-          <Button variant="ghost" size="sm" onClick={handleViewInSearch} className="h-8 w-8 p-0" title="View in Search">
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={renderCustomLabel}
-                outerRadius={120}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="w-full h-96 flex flex-col p-4">
+      {/* Chart Title */}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+        <p className="text-sm text-gray-600">Purpose count by service type</p>
+      </div>
+
+      {/* Chart Content */}
+      <div className="flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              outerRadius={85}
+              fill="#8884d8"
+              dataKey="value"
+              onClick={handleSegmentClick}
+              className="cursor-pointer"
+              labelLine={false}
+              label={renderCustomLabel}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
+              ))}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };

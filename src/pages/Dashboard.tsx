@@ -1,16 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { ActiveFiltersBadges } from "@/components/common/ActiveFiltersBadges";
-import { FiltersDrawer } from "@/components/common/UnifiedFilters";
-import { CostOverTimeChart } from "@/components/dashboard/CostOverTimeChart";
-import { HierarchyDistributionChart } from "@/components/dashboard/HierarchyDistributionChart";
+import { InlineFilters } from "@/components/common/UnifiedFilters";
+import { ChartBlock } from "@/components/dashboard/ChartBlock";
+import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
 import { ServicesQuantityChart } from "@/components/dashboard/ServicesQuantityChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
-import { Button } from "@/components/ui/button";
-import { useAdminData } from "@/contexts/AdminDataContext";
+import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
 import { dashboardFiltersToUnified, unifiedToDashboardFilters } from "@/utils/filterAdapters";
@@ -127,11 +124,6 @@ const Dashboard: React.FC = () => {
   };
 
   const [filters, setFilters] = useState<DashboardFiltersType>(getInitialFilters());
-  const [hierarchyLevel, setHierarchyLevel] = useState<"UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null>(null);
-  const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
-  const [expenditureGroupBy, setExpenditureGroupBy] = useState<"day" | "week" | "month" | "year">("month");
-
-  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities } = useAdminData();
 
   // Update URL when filters change
   useEffect(() => {
@@ -197,41 +189,19 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { data: hierarchyDistributionData, isLoading: isHierarchyDistributionLoading } = useQuery({
-    queryKey: ["hierarchyDistribution", filters, hierarchyLevel, hierarchyParentId],
-    queryFn: () => analyticsService.getHierarchyDistribution(filters, hierarchyLevel, hierarchyParentId),
+  const { data: statusDistributionData, isLoading: isStatusDistributionLoading } = useQuery({
+    queryKey: ["statusDistribution", filters],
+    queryFn: () => analyticsService.getStatusesDistribution(filters),
     refetchOnWindowFocus: false,
   });
 
-  const { data: expenditureTimelineData, isLoading: isExpenditureTimelineLoading } = useQuery({
-    queryKey: ["expenditureTimeline", filters, expenditureGroupBy],
-    queryFn: () => analyticsService.getExpenditureTimeline(filters, expenditureGroupBy),
+  const { data: pendingAuthoritiesDistributionData, isLoading: isPendingAuthoritiesDistributionLoading } = useQuery({
+    queryKey: ["pendingAuthoritiesDistribution", filters],
+    queryFn: () => analyticsService.getPendingAuthoritiesDistribution(filters),
     refetchOnWindowFocus: false,
   });
-
-  const handleHierarchyFiltersChange = (
-    level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null,
-    parent_id?: number | null
-  ) => {
-    setHierarchyLevel(level ?? null);
-    setHierarchyParentId(parent_id ?? null);
-  };
-
-  const handleExpenditureGroupByChange = (groupBy: "day" | "week" | "month" | "year") => {
-    setExpenditureGroupBy(groupBy);
-  };
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
-  const activeFiltersCount = [
-    ...(unifiedFilters.relative_time && unifiedFilters.relative_time !== "all_time" ? [1] : []),
-    ...(unifiedFilters.hierarchy_id || []),
-    ...(unifiedFilters.service_type || []),
-    ...(unifiedFilters.status || []),
-    ...(unifiedFilters.supplier || []),
-    ...(unifiedFilters.material || []),
-    ...(unifiedFilters.pending_authority || []),
-    ...(unifiedFilters.flagged === true ? [1] : []),
-  ].length;
 
   return (
     <div className="space-y-6">
@@ -239,61 +209,73 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Global Filters */}
-      <div className="flex items-center gap-4">
-        <FiltersDrawer
-          filters={unifiedFilters}
-          onFiltersChange={(unifiedFilters) => {
-            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-            setFilters(dashboardFilters);
-          }}
-        />
-        {activeFiltersCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
-          >
-            <X className="h-4 w-4 mr-1" />
-            Clear Filters
-          </Button>
-        )}
-      </div>
-      <ActiveFiltersBadges
+      {/* Inline Filters - only time and service types */}
+      <InlineFilters
         filters={unifiedFilters}
         onFiltersChange={(unifiedFilters) => {
           const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
           setFilters(dashboardFilters);
         }}
-        hierarchies={hierarchies}
-        serviceTypes={serviceTypes}
-        suppliers={suppliers}
-        materials={materials}
-        responsibleAuthorities={responsibleAuthorities}
+        onClearFilters={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
+        visibleFilters={{
+          showTime: true,
+          showServiceTypes: true,
+          showHierarchy: false,
+          showMaterials: false,
+          showSuppliers: false,
+          showStatus: false,
+          showPendingAuthority: false,
+          showFlagged: false,
+        }}
       />
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HierarchyDistributionChart
-          data={hierarchyDistributionData}
-          isLoading={isHierarchyDistributionLoading}
-          globalFilters={filters}
-          onFiltersChange={handleHierarchyFiltersChange}
-        />
-        <ServiceTypesDistributionChart
-          data={serviceTypesDistributionData}
-          isLoading={isServiceTypesDistributionLoading}
-        />
-      </div>
+      {/* Chart Blocks */}
+      <div className="space-y-6">
+        {/* Live Operations Block */}
+        <ChartBlock
+          title="Live Operations"
+          themeColor="orange"
+          description={
+            <div className="space-y-1">
+              <p className="text-base font-semibold">Real-time data of active purposes</p>
+              <p>Note: Time filters do not apply to live operations charts.</p>
+            </div>
+          }
+          className="mt-2"
+        >
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <StatusDistributionChart
+              data={statusDistributionData?.data}
+              isLoading={isStatusDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypesDistributionChart
+              data={serviceTypesDistributionData}
+              isLoading={isServiceTypesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <PendingAuthoritiesDistributionChart
+              data={pendingAuthoritiesDistributionData?.data}
+              isLoading={isPendingAuthoritiesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
 
-      {/* Second Row - Full Width Charts */}
-      <div className="grid grid-cols-1 gap-6">
-        <ServicesQuantityChart data={servicesQuantityData} isLoading={isServicesQuantityLoading} />
-        <CostOverTimeChart
-          data={expenditureTimelineData}
-          isLoading={isExpenditureTimelineLoading}
-          globalFilters={filters}
-          onGroupByChange={handleExpenditureGroupByChange}
-        />
+        {/* Performance Analytics Block */}
+        <ChartBlock
+          title="Performance Analytics"
+          themeColor="green"
+          description="Service quantities and cost analysis over time"
+        >
+          <div className="col-span-3 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServicesQuantityChart data={servicesQuantityData} isLoading={isServicesQuantityLoading} />
+          </div>
+        </ChartBlock>
       </div>
     </div>
   );
