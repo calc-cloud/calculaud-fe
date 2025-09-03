@@ -52,7 +52,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
 
     // For Live Operations, exclude COMPLETED status from search results
     const nonCompletedStatuses = ["In Progress", "Signed", "Partially Supplied"];
-    
+
     // Add the clicked service type to the filters and exclude COMPLETED status
     const updatedFilters = {
       ...unifiedFilters,

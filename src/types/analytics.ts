@@ -51,3 +51,20 @@ export interface PendingAuthorityDistributionItem {
 export interface PendingAuthorityDistributionResponse {
   data: PendingAuthorityDistributionItem[];
 }
+
+export interface ServiceTypeCount {
+  service_type_id: number;
+  service_type_name: string;
+  count: number;
+}
+
+export interface PendingStagesDistributionItem {
+  stage_type_id: number;
+  stage_type_name: string;
+  total_count: number;
+  service_types: ServiceTypeCount[];
+}
+
+export interface PendingStagesDistributionResponse {
+  data: PendingStagesDistributionItem[];
+}

@@ -5,6 +5,7 @@ import { useSearchParams } from "react-router-dom";
 import { InlineFilters } from "@/components/common/UnifiedFilters";
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
+import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
 import { ServicesQuantityChart } from "@/components/dashboard/ServicesQuantityChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
@@ -201,6 +202,12 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: pendingStagesDistributionData, isLoading: isPendingStagesDistributionLoading } = useQuery({
+    queryKey: ["pendingStagesDistribution", filters],
+    queryFn: () => analyticsService.getPendingStagesDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
+
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
   return (
@@ -261,6 +268,13 @@ const Dashboard: React.FC = () => {
             <PendingAuthoritiesDistributionChart
               data={pendingAuthoritiesDistributionData?.data}
               isLoading={isPendingAuthoritiesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-3 border border-gray-200 rounded-lg p-4 bg-white">
+            <PendingStagesDistributionChart
+              data={pendingStagesDistributionData?.data}
+              isLoading={isPendingStagesDistributionLoading}
               globalFilters={filters}
             />
           </div>

@@ -4,6 +4,7 @@ import {
   ServiceTypesDistributionResponse,
   StatusDistributionResponse,
   PendingAuthorityDistributionResponse,
+  PendingStagesDistributionResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
@@ -58,6 +59,11 @@ export class AnalyticsService {
   async getPendingAuthoritiesDistribution(filters?: DashboardFilters): Promise<PendingAuthorityDistributionResponse> {
     const params = this.buildFilterParams(filters);
     return apiService.get<PendingAuthorityDistributionResponse>("/analytics/pending-authorities/distribution", params);
+  }
+
+  async getPendingStagesDistribution(filters?: DashboardFilters): Promise<PendingStagesDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<PendingStagesDistributionResponse>("/analytics/pending-stages/distribution", params);
   }
 }
 

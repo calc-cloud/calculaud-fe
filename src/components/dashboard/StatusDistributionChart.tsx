@@ -53,7 +53,7 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
     // If user clicked on a specific status, use that; otherwise get all non-completed statuses
     const statusDisplayName = getStatusDisplayName(data.status);
     const allStatuses = ["In Progress", "Signed", "Partially Supplied"]; // All non-COMPLETED statuses
-    
+
     const updatedFilters = {
       ...unifiedFilters,
       status: data.status === "COMPLETED" ? allStatuses : [statusDisplayName],
