@@ -1,6 +1,5 @@
 import {
   DashboardFilters,
-  ServicesQuantityResponse,
   ServiceTypesDistributionResponse,
   StatusDistributionResponse,
   PendingAuthorityDistributionResponse,
@@ -41,10 +40,6 @@ export class AnalyticsService {
     return params;
   }
 
-  async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
-    const params = this.buildFilterParams(filters);
-    return apiService.get<ServicesQuantityResponse>("/analytics/services/quantities", params);
-  }
 
   async getServiceTypesDistribution(filters?: DashboardFilters): Promise<ServiceTypesDistributionResponse> {
     const params = this.buildFilterParams(filters);

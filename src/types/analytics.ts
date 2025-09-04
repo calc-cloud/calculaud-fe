@@ -11,17 +11,6 @@ export interface DashboardFilters {
   flagged?: boolean;
 }
 
-export interface ServiceItem {
-  id: number;
-  name: string;
-  service_type_id: number;
-  service_type_name: string;
-  quantity: number;
-}
-
-export interface ServicesQuantityResponse {
-  data: ServiceItem[];
-}
 
 export interface ServiceTypeItem {
   id: number;
