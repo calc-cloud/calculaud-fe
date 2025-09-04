@@ -40,7 +40,6 @@ export class AnalyticsService {
     return params;
   }
 
-
   async getServiceTypesDistribution(filters?: DashboardFilters): Promise<ServiceTypesDistributionResponse> {
     const params = this.buildFilterParams(filters);
     return apiService.get<ServiceTypesDistributionResponse>("/analytics/service-types/distribution", params);

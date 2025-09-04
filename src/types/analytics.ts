@@ -11,7 +11,6 @@ export interface DashboardFilters {
   flagged?: boolean;
 }
 
-
 export interface ServiceTypeItem {
   id: number;
   name: string;

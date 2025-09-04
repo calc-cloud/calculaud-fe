@@ -80,7 +80,6 @@ const Dashboard: React.FC = () => {
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
-
   const { data: serviceTypesDistributionData, isLoading: isServiceTypesDistributionLoading } = useQuery({
     queryKey: ["serviceTypesDistribution", filters],
     queryFn: () => analyticsService.getServiceTypesDistribution(filters),
