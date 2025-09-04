@@ -126,7 +126,6 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Status Distribution</h3>
-          <p className="text-sm text-gray-600">Current status breakdown of purposes</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -140,7 +139,6 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Status Distribution</h3>
-          <p className="text-sm text-gray-600">Current status breakdown of purposes</p>
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">No status data available</div>
       </div>
@@ -152,7 +150,6 @@ export const StatusDistributionChart: React.FC<StatusDistributionChartProps> = (
       {/* Chart Title */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Status Distribution</h3>
-        <p className="text-sm text-gray-600">Current status breakdown of purposes</p>
       </div>
 
       {/* Chart Content */}

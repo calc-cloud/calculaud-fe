@@ -151,7 +151,6 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Pending Stages Distribution</h3>
-          <p className="text-sm text-gray-600">Breakdown of pending stages by service type</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -165,7 +164,6 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Pending Stages Distribution</h3>
-          <p className="text-sm text-gray-600">Breakdown of pending stages by service type</p>
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">No pending stages data available</div>
       </div>
@@ -177,7 +175,6 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
       {/* Chart Title */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Pending Stages Distribution</h3>
-        <p className="text-sm text-gray-600">Breakdown of pending stages by service type</p>
       </div>
 
       {/* Chart Content */}
@@ -189,9 +186,9 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
             onClick={handleBarClick}
             className="cursor-pointer"
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="stage_name" height={80} interval={0} fontSize={12} />
-            <YAxis />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis dataKey="stage_name" height={40} fontSize={14} />
+            <YAxis fontSize={14} />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             {serviceTypes.map((serviceType) => (

@@ -6,6 +6,7 @@ import { InlineFilters } from "@/components/common/UnifiedFilters";
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
 import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
+import { MaterialQuantitiesChart } from "@/components/dashboard/ServiceQuantitiesChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
 import { analyticsService } from "@/services/analyticsService";
@@ -79,6 +80,12 @@ const Dashboard: React.FC = () => {
 
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
+
+  const { data: serviceQuantitiesData, isLoading: isServiceQuantitiesLoading } = useQuery({
+    queryKey: ["serviceQuantities", filters],
+    queryFn: () => analyticsService.getServicesQuantities(filters),
+    refetchOnWindowFocus: false,
+  });
 
   const { data: serviceTypesDistributionData, isLoading: isServiceTypesDistributionLoading } = useQuery({
     queryKey: ["serviceTypesDistribution", filters],
@@ -177,6 +184,19 @@ const Dashboard: React.FC = () => {
         </ChartBlock>
 
         {/* Performance Analytics Block */}
+        <ChartBlock
+          title="Performance Analytics"
+          themeColor="blue"
+          description="Material quantities and resource allocation across different service types"
+        >
+          <div className="col-span-3 border border-gray-200 rounded-lg p-4 bg-white">
+            <MaterialQuantitiesChart
+              data={serviceQuantitiesData}
+              isLoading={isServiceQuantitiesLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
       </div>
     </div>
   );

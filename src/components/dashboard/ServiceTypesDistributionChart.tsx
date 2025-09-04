@@ -122,7 +122,6 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
-          <p className="text-sm text-gray-600">Purpose count by service type</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -136,7 +135,6 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
-          <p className="text-sm text-gray-600">Purpose count by service type</p>
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">No service type data available</div>
       </div>
@@ -148,7 +146,6 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
       {/* Chart Title */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
-        <p className="text-sm text-gray-600">Purpose count by service type</p>
       </div>
 
       {/* Chart Content */}

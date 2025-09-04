@@ -134,7 +134,6 @@ export const PendingAuthoritiesDistributionChart: React.FC<PendingAuthoritiesDis
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Pending Authorities Distribution</h3>
-          <p className="text-sm text-gray-600">Purposes awaiting authority approval</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -148,7 +147,6 @@ export const PendingAuthoritiesDistributionChart: React.FC<PendingAuthoritiesDis
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
           <h3 className="text-lg font-semibold text-gray-900">Pending Authorities Distribution</h3>
-          <p className="text-sm text-gray-600">Purposes awaiting authority approval</p>
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">No pending authority data available</div>
       </div>
@@ -160,7 +158,6 @@ export const PendingAuthoritiesDistributionChart: React.FC<PendingAuthoritiesDis
       {/* Chart Title */}
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Pending Authorities Distribution</h3>
-        <p className="text-sm text-gray-600">Purposes awaiting authority approval</p>
       </div>
 
       {/* Chart Content */}
