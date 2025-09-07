@@ -2,6 +2,7 @@ import {
   DashboardFilters,
   ServiceQuantitiesResponse,
   ServiceTypesDistributionResponse,
+  ServiceTypesPerformanceDistributionResponse,
   StatusDistributionResponse,
   PendingAuthorityDistributionResponse,
   PendingStagesDistributionResponse,
@@ -53,6 +54,11 @@ export class AnalyticsService {
   async getPendingStagesDistribution(filters?: DashboardFilters): Promise<PendingStagesDistributionResponse> {
     const params = this.buildFilterParams(filters);
     return apiService.get<PendingStagesDistributionResponse>("/analytics/pending-stages/distribution", params);
+  }
+
+  async getServiceTypesPerformanceDistribution(status: 'SIGNED' | 'COMPLETED', filters?: DashboardFilters): Promise<ServiceTypesPerformanceDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<ServiceTypesPerformanceDistributionResponse>(`/analytics/service-types/${status}/distribution`, params);
   }
 }
 

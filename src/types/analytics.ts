@@ -74,3 +74,15 @@ export interface PendingStagesDistributionItem {
 export interface PendingStagesDistributionResponse {
   data: PendingStagesDistributionItem[];
 }
+
+export interface ServiceTypePerformanceItem {
+  service_type_id: number;
+  service_type_name: string;
+  count: number;
+}
+
+export interface ServiceTypesPerformanceDistributionResponse {
+  data: ServiceTypePerformanceItem[];
+  total_count: number;
+  target_status: 'SIGNED' | 'COMPLETED';
+}

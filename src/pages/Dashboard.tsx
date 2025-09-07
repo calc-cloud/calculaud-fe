@@ -8,6 +8,7 @@ import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/Pend
 import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
 import { MaterialQuantitiesChart } from "@/components/dashboard/ServiceQuantitiesChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
+import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
@@ -111,6 +112,18 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: serviceTypesPerformanceSignedData, isLoading: isServiceTypesPerformanceSignedLoading } = useQuery({
+    queryKey: ["serviceTypesPerformanceSigned", filters],
+    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution('SIGNED', filters),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: serviceTypesPerformanceCompletedData, isLoading: isServiceTypesPerformanceCompletedLoading } = useQuery({
+    queryKey: ["serviceTypesPerformanceCompleted", filters],
+    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution('COMPLETED', filters),
+    refetchOnWindowFocus: false,
+  });
+
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
   return (
@@ -193,6 +206,16 @@ const Dashboard: React.FC = () => {
             <MaterialQuantitiesChart
               data={serviceQuantitiesData}
               isLoading={isServiceQuantitiesLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypesPerformanceChart
+              data={{
+                signed: serviceTypesPerformanceSignedData,
+                completed: serviceTypesPerformanceCompletedData,
+              }}
+              isLoading={isServiceTypesPerformanceSignedLoading || isServiceTypesPerformanceCompletedLoading}
               globalFilters={filters}
             />
           </div>
