@@ -69,3 +69,55 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.build.outputs.digest }}
+
+  # Deploy to EKS using Helm
+  deploy-to-eks:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Only deploy main branch automatically
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_REGION || 'us-east-1' }} --name ${{ vars.EKS_CLUSTER_NAME }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.14.0'
+
+      - name: Deploy with Helm
+        run: |
+          # Set image tag from the build
+          IMAGE_TAG="${GITHUB_SHA::7}"
+          
+          # Deploy to staging environment
+          helm upgrade --install calculaud-fe-staging ./k8s/helm/calculaud-fe \
+            --namespace ${{ vars.K8S_NAMESPACE || 'calculaud' }} \
+            --create-namespace \
+            --set image.tag=${IMAGE_TAG} \
+            --set platform=eks \
+            --set environment.name=staging \
+            --set ingress.groupOrder=10 \
+            --set ingress.hosts[0].host="${{ vars.STAGING_HOST || 'calculaud-staging.internal' }}" \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.hosts[0].paths[0].pathType=Prefix \
+            --set runtime.apiBaseUrl="${{ vars.STAGING_API_URL || 'https://calcloud-api-staging.up.railway.app/api/v1' }}" \
+            --set runtime.authAuthority="${{ secrets.STAGING_AUTH_AUTHORITY }}" \
+            --set runtime.authClientId="${{ secrets.STAGING_AUTH_CLIENT_ID }}" \
+            --set runtime.authRedirectUri="https://${{ vars.STAGING_HOST || 'calculaud-staging.internal' }}/" \
+            --wait --timeout=10m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n ${{ vars.K8S_NAMESPACE || 'calculaud' }} -l app.kubernetes.io/name=calculaud-fe
+          kubectl get ingress -n ${{ vars.K8S_NAMESPACE || 'calculaud' }} calculaud-fe-staging

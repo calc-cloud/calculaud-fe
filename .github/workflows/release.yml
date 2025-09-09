@@ -122,3 +122,66 @@ jobs:
           tag_name: ${{ steps.version.outputs.version }}
           body: ${{ steps.release_body.outputs.content }}
           append_body: true
+
+  # Deploy to EKS Production using Helm
+  deploy-to-production:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: production  # Require manual approval for production deployments
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "version_number=${VERSION#v}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ vars.AWS_REGION || 'us-east-1' }} --name ${{ vars.EKS_CLUSTER_NAME }}
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: '3.14.0'
+
+      - name: Deploy to Production with Helm
+        run: |
+          # Deploy to production environment
+          helm upgrade --install calculaud-fe-production ./k8s/helm/calculaud-fe \
+            --namespace ${{ vars.K8S_NAMESPACE || 'calculaud' }} \
+            --create-namespace \
+            --set image.tag=${{ steps.version.outputs.version }} \
+            --set platform=eks \
+            --set environment.name=production \
+            --set ingress.groupOrder=10 \
+            --set ingress.hosts[0].host="${{ vars.PRODUCTION_HOST }}" \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.hosts[0].paths[0].pathType=Prefix \
+            --set runtime.apiBaseUrl="${{ vars.PRODUCTION_API_URL }}" \
+            --set runtime.authAuthority="${{ secrets.PRODUCTION_AUTH_AUTHORITY }}" \
+            --set runtime.authClientId="${{ secrets.PRODUCTION_AUTH_CLIENT_ID }}" \
+            --set runtime.authRedirectUri="https://${{ vars.PRODUCTION_HOST }}/" \
+            --set autoscaling.enabled=true \
+            --set autoscaling.minReplicas=3 \
+            --set autoscaling.maxReplicas=10 \
+            --set resources.requests.memory=256Mi \
+            --set resources.requests.cpu=200m \
+            --set resources.limits.memory=512Mi \
+            --set resources.limits.cpu=500m \
+            --wait --timeout=15m
+
+      - name: Verify production deployment
+        run: |
+          kubectl get pods -n ${{ vars.K8S_NAMESPACE || 'calculaud' }} -l app.kubernetes.io/name=calculaud-fe
+          kubectl get ingress -n ${{ vars.K8S_NAMESPACE || 'calculaud' }} calculaud-fe-production

@@ -1,0 +1,216 @@
+# Default values for calculaud-fe
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Number of replicas
+replicaCount: 1
+
+# Image configuration
+image:
+  repository: calculaud/calculaud-fe
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Existing secret name (if using external secret management)
+existingSecret: ""
+
+# Application configuration (non-sensitive)
+config:
+  appName: "Calculaud Frontend"
+  debug: false
+  version: ""  # Will use Chart.AppVersion if empty
+  environment: "production"
+  
+  # Frontend-specific settings
+  apiBaseUrl: "https://calcloud-api-production.up.railway.app/api/v1"
+  authAuthority: ""  # OIDC authority URL - provide externally
+  authRedirectUri: ""  # Redirect URI - will be computed based on ingress
+  authLogoutUri: ""   # Logout URI - will be computed based on ingress
+  authResponseType: "code"
+  authResponseMode: "query"
+  authScope: "openid"
+  requiredRole: ""
+  roleClaimPath: ""
+
+# Runtime environment variables (RUNTIME_ prefixed)
+# These will be injected at container startup
+runtime:
+  # API Configuration
+  apiBaseUrl: "https://calcloud-api-production.up.railway.app/api/v1"
+  
+  # Authentication Configuration
+  authAuthority: ""  # CHANGE THIS - OIDC provider URL
+  authClientId: "calculaud-ui"  # CHANGE THIS
+  authRedirectUri: "/"  # Will be computed based on host
+  authLogoutDomain: ""  # Optional logout domain
+  authLogoutUri: "/logout"  # Logout path
+  authResponseType: "code"
+  authResponseMode: "query"
+  authScope: "openid"
+  authAuthorizationEndpoint: ""  # Optional - auto-discovered if not provided
+  
+  # Role-based access control
+  requiredRole: ""  # Optional - required role for access
+  roleClaimPath: ""  # Optional - path to role claim in JWT
+
+# Service Account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101  # nginx user in nginxinc/nginx-unprivileged
+  runAsGroup: 101
+  fsGroup: 101
+
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 101
+  capabilities:
+    drop:
+    - ALL
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080  # nginx listens on 8080 (unprivileged port)
+  annotations: {}
+
+# Platform configuration (must be set for deployment)
+platform: ""  # Set to "eks" or "openshift" based on target platform
+
+# Ingress configuration (ALB for EKS, disabled for OpenShift)
+ingress:
+  enabled: true  # EKS uses ALB ingress, OpenShift uses Routes
+  className: "alb"
+  groupName: "calculaud"  # Shared ALB group name for all environments
+  groupOrder: 10  # Lower number = higher priority (frontend should be first)
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    # alb.ingress.kubernetes.io/ssl-redirect: '443'  # Disabled - no HTTPS
+    alb.ingress.kubernetes.io/healthcheck-path: /
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: '30'
+    alb.ingress.kubernetes.io/healthcheck-timeout-seconds: '5'
+    alb.ingress.kubernetes.io/healthy-threshold-count: '2'
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: '2'
+  hosts:
+    - host: ""  # Will be set based on environment
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []  # TLS will be handled by ALB
+
+# Environment-specific configuration for path-based routing
+environment:
+  name: ""  # Will be set during deployment (staging, pr, etc.)
+  pathPrefix: "/"  # Frontend typically serves from root
+  # Path mapping:
+  # - staging: / (root)
+  # - pr environments: / (root, but different host/domain)
+
+# OpenShift Route configuration (used when platform: "openshift")
+route:
+  enabled: false  # Will be enabled based on platform
+  host: calculaud.example.com  # CHANGE THIS!
+  path: /
+  annotations:
+    haproxy.router.openshift.io/timeout: 60s
+    haproxy.router.openshift.io/balance: roundrobin
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+
+# Resource limits and requests
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "200m"
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}
+
+# Strategy for rolling updates
+strategy:
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+# Termination grace period
+terminationGracePeriodSeconds: 30
+
+# Health check configuration
+healthcheck:
+  liveness:
+    path: /
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+  readiness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 3
+  startup:
+    path: /
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 30
+
+# Metrics configuration
+metrics:
+  enabled: false  # nginx doesn't expose Prometheus metrics by default
+
+# Extra environment variables
+extraEnvVars: []
+# - name: CUSTOM_ENV_VAR
+#   value: "custom-value"
+
+# Extra volumes
+extraVolumes: []
+
+# Extra volume mounts
+extraVolumeMounts: []

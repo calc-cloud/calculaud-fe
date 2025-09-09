@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "calculaud-fe.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "calculaud-fe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.strategy.rollingUpdate.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "calculaud-fe.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "calculaud-fe.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        {{- end }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "calculaud-fe.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+      - name: {{ .Chart.Name }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: {{ include "calculaud-fe.image" . }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: {{ include "calculaud-fe.fullname" . }}-config
+        - secretRef:
+            name: {{ .Values.existingSecret | default (printf "%s-secret" (include "calculaud-fe.fullname" .)) }}
+        env:
+        {{- include "calculaud-fe.runtimeEnvVars" . | nindent 8 }}
+        {{- with .Values.extraEnvVars }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.liveness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthcheck.liveness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthcheck.liveness.periodSeconds }}
+          timeoutSeconds: {{ .Values.healthcheck.liveness.timeoutSeconds }}
+          successThreshold: {{ .Values.healthcheck.liveness.successThreshold }}
+          failureThreshold: {{ .Values.healthcheck.liveness.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.readiness.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthcheck.readiness.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthcheck.readiness.periodSeconds }}
+          timeoutSeconds: {{ .Values.healthcheck.readiness.timeoutSeconds }}
+          successThreshold: {{ .Values.healthcheck.readiness.successThreshold }}
+          failureThreshold: {{ .Values.healthcheck.readiness.failureThreshold }}
+        startupProbe:
+          httpGet:
+            path: {{ .Values.healthcheck.startup.path }}
+            port: http
+          initialDelaySeconds: {{ .Values.healthcheck.startup.initialDelaySeconds }}
+          periodSeconds: {{ .Values.healthcheck.startup.periodSeconds }}
+          timeoutSeconds: {{ .Values.healthcheck.startup.timeoutSeconds }}
+          successThreshold: {{ .Values.healthcheck.startup.successThreshold }}
+          failureThreshold: {{ .Values.healthcheck.startup.failureThreshold }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /var/cache/nginx
+        - name: nginx-pid
+          mountPath: /var/run
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir: {}
+      - name: nginx-pid
+        emptyDir: {}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}

@@ -1,0 +1,57 @@
+# Values for production environment
+# This file provides production-specific overrides for the base values.yaml
+
+# Platform configuration
+platform: "eks"
+
+# Environment configuration
+environment:
+  name: "production"
+  pathPrefix: "/"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  groupOrder: 10  # Higher priority than backend
+  hosts:
+    - host: ""  # Will be set during deployment
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Production resource configuration
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Production autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Health check configuration (production settings)
+healthcheck:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 5
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 3
+  startup:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 30
+
+# Production-specific config
+config:
+  environment: "production"
+  debug: false

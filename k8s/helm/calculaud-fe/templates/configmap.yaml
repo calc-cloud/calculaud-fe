@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "calculaud-fe.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "calculaud-fe.labels" . | nindent 4 }}
+    app.kubernetes.io/component: configmap
+data:
+  # Application settings
+  APP_NAME: {{ .Values.config.appName | quote }}
+  DEBUG: {{ .Values.config.debug | quote }}
+  VERSION: {{ .Values.config.version | default .Chart.AppVersion | quote }}
+  ENVIRONMENT: {{ .Values.config.environment | quote }}
+  
+  # API settings (non-sensitive)
+  VITE_API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
+  
+  # Authentication settings (non-sensitive)
+  VITE_AUTH_RESPONSE_TYPE: {{ .Values.config.authResponseType | quote }}
+  VITE_AUTH_RESPONSE_MODE: {{ .Values.config.authResponseMode | quote }}
+  VITE_AUTH_SCOPE: {{ .Values.config.authScope | quote }}
+  
+  # Role-based access control settings
+  {{- if .Values.config.requiredRole }}
+  VITE_REQUIRED_ROLE: {{ .Values.config.requiredRole | quote }}
+  {{- end }}
+  {{- if .Values.config.roleClaimPath }}
+  VITE_ROLE_CLAIM_PATH: {{ .Values.config.roleClaimPath | quote }}
+  {{- end }}
+  
+  # Environment-specific settings
+  {{- if .Values.environment.name }}
+  DEPLOYMENT_ENV: {{ .Values.environment.name | quote }}
+  {{- end }}
+  {{- if .Values.environment.pathPrefix }}
+  PUBLIC_URL: {{ .Values.environment.pathPrefix | quote }}
+  {{- end }}

@@ -1,0 +1,47 @@
+# Values for staging environment
+# This file provides staging-specific overrides for the base values.yaml
+
+# Platform configuration
+platform: "eks"
+
+# Environment configuration
+environment:
+  name: "staging"
+  pathPrefix: "/"
+
+# Ingress configuration
+ingress:
+  enabled: true
+  groupOrder: 10  # Higher priority than backend (which uses 100)
+  hosts:
+    - host: ""  # Will be set during deployment
+      paths:
+        - path: /
+          pathType: Prefix
+
+# Resource configuration (slightly more resources for staging)
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "300m"
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+
+# Health check configuration (more frequent for staging)
+healthcheck:
+  liveness:
+    initialDelaySeconds: 15
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  startup:
+    initialDelaySeconds: 5
+    periodSeconds: 5
