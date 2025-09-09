@@ -36,12 +36,12 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
   globalFilters,
 }) => {
   const navigate = useNavigate();
-  const [activeStatus, setActiveStatus] = useState<'SIGNED' | 'COMPLETED'>('SIGNED');
+  const [activeStatus, setActiveStatus] = useState<"SIGNED" | "COMPLETED">("SIGNED");
 
   // Get current data based on active status
   const currentData = useMemo(() => {
     if (!data) return null;
-    return activeStatus === 'SIGNED' ? data.signed : data.completed;
+    return activeStatus === "SIGNED" ? data.signed : data.completed;
   }, [data, activeStatus]);
 
   // Transform data for recharts and calculate total
@@ -66,8 +66,8 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
     // Add the clicked service type and current status to the filters
-    const statusDisplayName = activeStatus === 'SIGNED' ? 'Signed' : 'Completed';
-    
+    const statusDisplayName = activeStatus === "SIGNED" ? "Signed" : "Completed";
+
     const updatedFilters = {
       ...unifiedFilters,
       service_type: [segmentData.service_type_id],
@@ -104,7 +104,7 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`Service Type: ${data.name}`}</p>
           <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
-          <p className="text-gray-500 text-sm">{`Status: ${activeStatus === 'SIGNED' ? 'Signed' : 'Completed'}`}</p>
+          <p className="text-gray-500 text-sm">{`Status: ${activeStatus === "SIGNED" ? "Signed" : "Completed"}`}</p>
         </div>
       );
     }
@@ -156,9 +156,7 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-          No performance data available
-        </div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">No performance data available</div>
       </div>
     );
   }
@@ -171,21 +169,21 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
         <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
           <button
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              activeStatus === 'SIGNED'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              activeStatus === "SIGNED"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
-            onClick={() => setActiveStatus('SIGNED')}
+            onClick={() => setActiveStatus("SIGNED")}
           >
             Signed
           </button>
           <button
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              activeStatus === 'COMPLETED'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              activeStatus === "COMPLETED"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
-            onClick={() => setActiveStatus('COMPLETED')}
+            onClick={() => setActiveStatus("COMPLETED")}
           >
             Completed
           </button>
@@ -222,9 +220,7 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">{totalCount}</div>
-                <div className="text-sm text-gray-600">
-                  {activeStatus === 'SIGNED' ? 'Signed' : 'Completed'}
-                </div>
+                <div className="text-sm text-gray-600">{activeStatus === "SIGNED" ? "Signed" : "Completed"}</div>
               </div>
             </div>
           </div>

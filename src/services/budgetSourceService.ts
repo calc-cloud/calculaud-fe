@@ -1,5 +1,10 @@
 import { API_CONFIG } from "@/config/api";
-import { BudgetSource, BudgetSourcesResponse, BudgetSourceCreateRequest, BudgetSourceUpdateRequest } from "@/types/budgetSources";
+import {
+  BudgetSource,
+  BudgetSourcesResponse,
+  BudgetSourceCreateRequest,
+  BudgetSourceUpdateRequest,
+} from "@/types/budgetSources";
 
 import { BaseService, BaseQueryParams } from "./BaseService";
 

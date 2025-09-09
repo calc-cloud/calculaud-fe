@@ -7,6 +7,7 @@ export const API_CONFIG = {
     SERVICES: "/services/",
     RESPONSIBLE_AUTHORITIES: "/responsible-authorities/",
     BUDGET_SOURCES: "/budget-sources/",
+    PURCHASES: "/purchases/",
   },
   PAGINATION: {
     DEFAULT_PAGE: 1,

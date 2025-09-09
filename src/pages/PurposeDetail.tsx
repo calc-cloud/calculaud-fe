@@ -6,6 +6,7 @@ import { PurchasesTimelineCard } from "@/components/detail/PurchasesTimelineCard
 import { PurposeDetailHeader } from "@/components/detail/PurposeDetailHeader";
 import { AddPurchaseModal } from "@/components/modals/AddPurchaseModal";
 import { EditGeneralDataModal } from "@/components/modals/EditGeneralDataModal";
+import { EditPurchaseModal } from "@/components/modals/EditPurchaseModal";
 import { usePurposeDetail } from "@/hooks/usePurposeDetail";
 
 const PurposeDetail: React.FC = () => {
@@ -23,6 +24,11 @@ const PurposeDetail: React.FC = () => {
     isAddPurchaseModalOpen,
     setIsAddPurchaseModalOpen,
     isCreatingPurchase,
+    isEditPurchaseModalOpen,
+    setIsEditPurchaseModalOpen,
+    selectedPurchase,
+    setSelectedPurchase,
+    isUpdatingPurchase,
 
     // Stage editing states
     editingStage,
@@ -40,6 +46,8 @@ const PurposeDetail: React.FC = () => {
     handleSaveGeneralData,
     handleCreatePurchase,
     handleDeletePurchase,
+    handleEditPurchase,
+    handleUpdatePurchase,
     handleStageClick,
     handleEditCancel,
     handleCloseStagePopup,
@@ -110,6 +118,7 @@ const PurposeDetail: React.FC = () => {
             purpose={purpose}
             onAddPurchase={() => setIsAddPurchaseModalOpen(true)}
             onDeletePurchase={handleDeletePurchase}
+            onEditPurchase={handleEditPurchase}
             editingStage={editingStage}
             selectedStage={selectedStage}
             editForm={editForm}
@@ -152,6 +161,18 @@ const PurposeDetail: React.FC = () => {
           isLoading={isCreatingPurchase}
         />
       )}
+
+      {/* Edit Purchase Modal */}
+      <EditPurchaseModal
+        isOpen={isEditPurchaseModalOpen}
+        onClose={() => {
+          setIsEditPurchaseModalOpen(false);
+          setSelectedPurchase(null);
+        }}
+        onSubmit={handleUpdatePurchase}
+        purchase={selectedPurchase}
+        isLoading={isUpdatingPurchase}
+      />
 
       {/* Full-screen overlay when stage is expanded */}
       {selectedStage && <div className="fixed inset-0 bg-black bg-opacity-20 z-40" onClick={handleCloseStagePopup} />}

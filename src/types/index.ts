@@ -1,16 +1,15 @@
-// Core entity types for the Procurement Management System
-
-// Export base types for reuse
 export * from "./base";
+export * from "./budgetSources";
+export * from "./purchases";
 
-// Currency enum with API values
+import type { Purchase } from "./purchases";
+
 export enum Currency {
   ILS = "ILS",
   SUPPORT_USD = "SUPPORT_USD",
   AVAILABLE_USD = "AVAILABLE_USD",
 }
 
-// Helper to get display name for currency
 export const getCurrencyDisplayName = (currency: Currency): string => {
   switch (currency) {
     case Currency.ILS:
@@ -24,7 +23,6 @@ export const getCurrencyDisplayName = (currency: Currency): string => {
   }
 };
 
-// Helper to get currency symbol
 export const getCurrencySymbol = (currency: Currency): string => {
   switch (currency) {
     case Currency.ILS:
@@ -37,7 +35,6 @@ export const getCurrencySymbol = (currency: Currency): string => {
   }
 };
 
-// Authority interface - used across multiple entities
 export interface Authority {
   id: number;
   name: string;
@@ -48,7 +45,7 @@ export interface Authority {
 export interface Purpose {
   id: string;
   description: string;
-  contents: PurposeContent[]; // Changed from content: string to contents: PurposeContent[]
+  contents: PurposeContent[];
   supplier: string;
   hierarchy_id: string;
   hierarchy_name: string;
@@ -58,13 +55,12 @@ export interface Purpose {
   service_type: string;
   creation_time: string;
   last_modified: string;
-  purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
+  purchases: Purchase[];
   files: PurposeFile[];
   pending_authority?: Authority;
   is_flagged: boolean;
 }
 
-// New interface for purpose contents
 export interface PurposeContent {
   id?: number; // Present in response, not in request
   material_id: number; // Frontend name, maps to backend service_id
@@ -75,18 +71,6 @@ export interface PurposeContent {
   service_name?: string; // Backend field name
   service_type?: string; // Backend field name
   quantity: number;
-}
-
-// New Purchase workflow types
-export interface Purchase {
-  id: number;
-  purpose_id: string;
-  creation_date: string;
-  costs: Cost[];
-  flow_stages: Stage[];
-  current_pending_stages?: Stage[];
-  days_since_last_completion?: number;
-  pending_authority?: Authority;
 }
 
 export interface Stage {
@@ -118,18 +102,6 @@ export interface Cost {
   currency: Currency; // Now uses Currency enum
 }
 
-// Request interface for creating a new purchase
-export interface CreatePurchaseRequest {
-  purpose_id: number;
-  budget_source_id: number;
-  costs: CreateCostRequest[];
-}
-
-export interface CreateCostRequest {
-  amount: number;
-  currency: Currency;
-}
-
 export interface PurposeFile {
   id: string;
   purpose_id: string;
@@ -146,7 +118,6 @@ export interface Hierarchy {
 
 export type PurposeStatus = "IN_PROGRESS" | "COMPLETED" | "SIGNED" | "PARTIALLY_SUPPLIED";
 
-// Add specific API response type for purposes
 export interface PurposesApiResponse {
   items: Purpose[];
   total: number;

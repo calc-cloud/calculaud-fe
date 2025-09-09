@@ -1,5 +1,5 @@
 import { apiService } from "@/services/apiService";
-import { CreatePurchaseRequest as PurchaseCreateRequest, Currency, Authority } from "@/types";
+import { Currency, Authority } from "@/types";
 import { UnifiedFilters } from "@/types/filters";
 
 export interface PurposeApiParams {
@@ -173,14 +173,6 @@ class PurposeService {
 
   async toggleFlag(id: string, isFlagged: boolean): Promise<Purpose> {
     return apiService.patch<Purpose>(`/purposes/${id}`, { is_flagged: isFlagged });
-  }
-
-  async createPurchase(data: PurchaseCreateRequest): Promise<Purchase> {
-    return apiService.post<Purchase>("/purchases/", data);
-  }
-
-  async deletePurchase(purchaseId: string): Promise<void> {
-    return apiService.delete<void>(`/purchases/${purchaseId}`);
   }
 
   async exportPurposesCSV(params: Omit<PurposeApiParams, "page" | "limit">): Promise<Response> {
@@ -476,6 +468,7 @@ class PurposeService {
       id: purchase.id?.toString() || "",
       purpose_id: purposeId?.toString() || "",
       creation_date: purchase.creation_date || "",
+      budget_source: purchase.budget_source || null,
       costs: (purchase.costs || []).map((cost) => ({
         id: cost.id?.toString() || "",
         purchase_id: cost.purchase_id?.toString() || "",

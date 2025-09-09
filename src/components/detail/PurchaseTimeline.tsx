@@ -1,4 +1,4 @@
-import { Check, Trash2, Workflow, X, Info } from "lucide-react";
+import { Check, Edit, MoreVertical, Trash2, Workflow, X, Info } from "lucide-react";
 import React from "react";
 
 import {
@@ -14,6 +14,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { getCurrencySymbol } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 import { formatPurchaseId, getPurchaseStatus, getStatusTextColor, getStatusBorderColor } from "@/utils/purchaseUtils";
@@ -32,6 +38,7 @@ interface PurchaseTimelineProps {
   onCloseStagePopup: () => void;
   onSaveStage: (stage: any) => Promise<void>;
   onDeletePurchase: (purchaseId: string) => Promise<void>;
+  onEditPurchase: (purchase: any) => void;
   setEditForm: (form: { date: string; text: string }) => void;
   // Utility functions
   getStageDisplayDate: (stage: any) => string;
@@ -55,6 +62,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
   onCloseStagePopup,
   onSaveStage,
   onDeletePurchase,
+  onEditPurchase,
   setEditForm,
   getStageDisplayDate,
   hasMultipleStagesWithSamePriority,
@@ -246,30 +254,44 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
             </div>
             <div className="text-xs text-gray-500">Created: {formatDate(purchase.creation_date)}</div>
           </div>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                <Trash2 className="h-4 w-4" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-700 hover:bg-gray-50">
+                <MoreVertical className="h-4 w-4" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete {purchaseId}? This action cannot be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDeletePurchase(purchase.id)}
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEditPurchase(purchase)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete {purchaseId}? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDeletePurchase(purchase.id)}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="relative">
@@ -353,20 +375,35 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
           </div>
         </div>
 
-        {/* Cost */}
         <div className="mt-6">
-          <h5 className="text-base font-medium mb-2">Cost</h5>
-          <div className="flex flex-wrap items-center justify-between gap-1">
-            <div className="flex flex-wrap gap-1">
-              {purchase.costs.map((cost: any) => {
-                return (
-                  <Badge key={cost.id} variant="outline" className="text-sm">
-                    {getCurrencySymbol(cost.currency)}
-                    {cost.amount.toLocaleString()} {cost.currency}
+          <div className="flex flex-wrap items-end justify-between gap-1">
+            <div className="flex flex-col gap-2">
+              {/* Cost header and badges */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h5 className="text-base font-medium">Cost:</h5>
+                {purchase.costs.map((cost: any) => {
+                  return (
+                    <Badge key={cost.id} variant="outline" className="text-sm">
+                      {getCurrencySymbol(cost.currency)}
+                      {cost.amount.toLocaleString()} {cost.currency}
+                    </Badge>
+                  );
+                })}
+              </div>
+
+              {/* Budget source */}
+              {purchase.budget_source ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h5 className="text-base font-medium">Budget Source:</h5>
+                  <Badge variant="outline" className="text-sm">
+                    {purchase.budget_source.name}
                   </Badge>
-                );
-              })}
+                </div>
+              ) : (
+                <h5 className="text-base font-medium text-orange-600">No Budget Source selected</h5>
+              )}
             </div>
+
             {/* Parallelism Explanation */}
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Info className="w-3 h-3" />

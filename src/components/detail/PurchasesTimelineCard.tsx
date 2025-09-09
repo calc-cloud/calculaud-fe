@@ -12,6 +12,7 @@ interface PurchasesTimelineCardProps {
   purpose: Purpose;
   onAddPurchase: () => void;
   onDeletePurchase: (purchaseId: string) => Promise<void>;
+  onEditPurchase: (purchase: any) => void;
   // Stage editing props
   editingStage: string | null;
   selectedStage: any | null;
@@ -35,6 +36,7 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
   purpose,
   onAddPurchase,
   onDeletePurchase,
+  onEditPurchase,
   editingStage,
   selectedStage,
   editForm,
@@ -100,6 +102,7 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
                 onCloseStagePopup={onCloseStagePopup}
                 onSaveStage={onSaveStage}
                 onDeletePurchase={onDeletePurchase}
+                onEditPurchase={onEditPurchase}
                 setEditForm={setEditForm}
                 getStageDisplayDate={getStageDisplayDate}
                 hasMultipleStagesWithSamePriority={hasMultipleStagesWithSamePriority}

@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useBudgetSources } from "@/hooks/useBudgetSources";
-import { Currency, getCurrencyDisplayName, CreatePurchaseRequest } from "@/types";
+import { Currency, getCurrencyDisplayName, PurchaseCreateRequest } from "@/types";
 
 interface AddPurchaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (purchaseData: CreatePurchaseRequest) => void;
+  onSubmit: (purchaseData: PurchaseCreateRequest) => void;
   purposeId: number;
   isLoading?: boolean;
 }
@@ -154,7 +154,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
       return;
     }
 
-    const purchaseData: CreatePurchaseRequest = {
+    const purchaseData: PurchaseCreateRequest = {
       purpose_id: purposeId,
       budget_source_id: parseInt(selectedBudgetSourceId),
       costs: validCosts.map((cost) => ({
@@ -274,7 +274,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
             {!costs.some((cost) => cost.amount > 0) && (
               <p className="text-sm text-red-500">Please add at least one cost with an amount greater than 0.</p>
             )}
-            
+
             {!selectedBudgetSourceId && costs.some((cost) => cost.amount > 0) && (
               <p className="text-sm text-red-500">Please select a budget source.</p>
             )}

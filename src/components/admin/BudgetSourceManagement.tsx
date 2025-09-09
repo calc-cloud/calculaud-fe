@@ -1,6 +1,11 @@
 import { BaseQueryParams } from "@/services/BaseService";
 import { budgetSourceService } from "@/services/budgetSourceService";
-import { BudgetSource, BudgetSourcesResponse, BudgetSourceCreateRequest, BudgetSourceUpdateRequest } from "@/types/budgetSources";
+import {
+  BudgetSource,
+  BudgetSourcesResponse,
+  BudgetSourceCreateRequest,
+  BudgetSourceUpdateRequest,
+} from "@/types/budgetSources";
 
 import BudgetSourceModal from "./BudgetSourceModal";
 import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
