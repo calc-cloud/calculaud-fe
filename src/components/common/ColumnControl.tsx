@@ -15,6 +15,7 @@ export interface ColumnVisibility {
   pendingAuthority: boolean;
   hierarchy: boolean;
   serviceType: boolean;
+  budgetSource: boolean;
   purchases: boolean;
   emfIds: boolean;
   demandIds: boolean;
@@ -33,6 +34,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   pendingAuthority: false,
   hierarchy: true,
   serviceType: true,
+  budgetSource: false,
   purchases: true,
   emfIds: true,
   demandIds: false,
@@ -51,6 +53,7 @@ const COLUMN_LABELS = {
   pendingAuthority: "Pending Authority",
   hierarchy: "Hierarchy",
   serviceType: "Service Type",
+  budgetSource: "Budget Source",
   purchases: "Purchases",
   emfIds: "EMF IDs",
   demandIds: "Demand IDs",

@@ -13,6 +13,7 @@ export const COLUMN_SIZES = {
   pendingAuthority: { size: 160, minSize: 120 },
   hierarchy: { size: 80, minSize: 60 },
   serviceType: { size: 140, minSize: 112 },
+  budgetSource: { size: 140, minSize: 112 },
   purchases: { size: 320, minSize: 240 },
   emfIds: { size: 120, minSize: 96 },
   demandIds: { size: 120, minSize: 96 },
@@ -191,5 +192,23 @@ export const getAuthorityInfo = (purpose: Purpose) => {
     displayName: "N/A",
     description: "No authority assigned",
     accessorValue: "N/A",
+  };
+};
+
+export const getBudgetSources = (purpose: Purpose) => {
+  const budgetSources: string[] = [];
+
+  purpose.purchases.forEach((purchase) => {
+    if (purchase.budget_source && purchase.budget_source.name) {
+      const name = purchase.budget_source.name.trim();
+      if (name && !budgetSources.includes(name)) {
+        budgetSources.push(name);
+      }
+    }
+  });
+
+  return {
+    sources: budgetSources,
+    allSources: budgetSources.length > 0 ? budgetSources.join(", ") : "-",
   };
 };
