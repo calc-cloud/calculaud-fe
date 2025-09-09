@@ -5,41 +5,41 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Supplier, SupplierCreateRequest, SupplierUpdateRequest } from "@/types/suppliers";
+import { BudgetSource, BudgetSourceCreateRequest, BudgetSourceUpdateRequest } from "@/types/budgetSources";
 
-interface SupplierModalProps {
+interface BudgetSourceModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  editItem: Supplier | null;
-  onSave: (data: SupplierCreateRequest | SupplierUpdateRequest, editId?: number) => Promise<void>;
+  editItem: BudgetSource | null;
+  onSave: (data: BudgetSourceCreateRequest | BudgetSourceUpdateRequest, editId?: number) => Promise<void>;
 }
 
-const SupplierModal: React.FC<SupplierModalProps> = ({ open, onOpenChange, editItem, onSave }) => {
-  const [supplierName, setSupplierName] = useState("");
+const BudgetSourceModal: React.FC<BudgetSourceModalProps> = ({ open, onOpenChange, editItem, onSave }) => {
+  const [budgetSourceName, setBudgetSourceName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (editItem) {
-      setSupplierName(editItem.name);
+      setBudgetSourceName(editItem.name);
     } else {
-      setSupplierName("");
+      setBudgetSourceName("");
     }
   }, [editItem]);
 
   const handleSave = async () => {
-    if (!supplierName.trim()) {
-      toast({ title: "Please enter a supplier name", variant: "destructive" });
+    if (!budgetSourceName.trim()) {
+      toast({ title: "Please enter a budget source name", variant: "destructive" });
       return;
     }
 
     setIsSaving(true);
     try {
-      const data = { name: supplierName.trim() };
+      const data = { name: budgetSourceName.trim() };
       await onSave(data, editItem?.id);
 
       onOpenChange(false);
-      setSupplierName("");
+      setBudgetSourceName("");
     } catch (_error) {
       // Error handling is done in the parent component
     } finally {
@@ -49,13 +49,13 @@ const SupplierModal: React.FC<SupplierModalProps> = ({ open, onOpenChange, editI
 
   const handleCancel = () => {
     onOpenChange(false);
-    setSupplierName("");
+    setBudgetSourceName("");
   };
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       // When closing the modal, reset the form like Cancel button
-      setSupplierName(editItem?.name || "");
+      setBudgetSourceName(editItem?.name || "");
     }
     onOpenChange(open);
   };
@@ -64,18 +64,18 @@ const SupplierModal: React.FC<SupplierModalProps> = ({ open, onOpenChange, editI
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{editItem ? "Edit Supplier" : "Create New Supplier"}</DialogTitle>
+          <DialogTitle>{editItem ? "Edit Budget Source" : "Create New Budget Source"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div>
-            <Label htmlFor="supplierName" className="text-sm mb-2 block">
-              Supplier Name
+            <Label htmlFor="budgetSourceName" className="text-sm mb-2 block">
+              Budget Source Name
             </Label>
             <Input
-              id="supplierName"
-              value={supplierName}
-              onChange={(e) => setSupplierName(e.target.value)}
-              placeholder="Enter supplier name"
+              id="budgetSourceName"
+              value={budgetSourceName}
+              onChange={(e) => setBudgetSourceName(e.target.value)}
+              placeholder="Enter budget source name"
               className="h-8"
             />
           </div>
@@ -93,4 +93,4 @@ const SupplierModal: React.FC<SupplierModalProps> = ({ open, onOpenChange, editI
   );
 };
 
-export default SupplierModal;
+export default BudgetSourceModal;

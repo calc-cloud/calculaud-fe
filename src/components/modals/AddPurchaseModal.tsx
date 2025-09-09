@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useBudgetSources } from "@/hooks/useBudgetSources";
 import { Currency, getCurrencyDisplayName, CreatePurchaseRequest } from "@/types";
 
 interface AddPurchaseModalProps {
@@ -29,6 +30,8 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
   isLoading = false,
 }) => {
   const [costs, setCosts] = useState<CostFormData[]>([{ amount: 0, currency: Currency.ILS }]);
+  const [selectedBudgetSourceId, setSelectedBudgetSourceId] = useState<string>("");
+  const { data: budgetSourcesData } = useBudgetSources();
 
   const addCost = () => {
     // Determine the appropriate default currency for the new cost
@@ -146,8 +149,14 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
       return;
     }
 
+    // Validate budget source
+    if (!selectedBudgetSourceId) {
+      return;
+    }
+
     const purchaseData: CreatePurchaseRequest = {
       purpose_id: purposeId,
+      budget_source_id: parseInt(selectedBudgetSourceId),
       costs: validCosts.map((cost) => ({
         amount: cost.amount,
         currency: cost.currency,
@@ -160,6 +169,7 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
   const handleClose = () => {
     // Reset to initial state
     setCosts([{ amount: 0, currency: Currency.ILS }]);
+    setSelectedBudgetSourceId("");
     onClose();
   };
 
@@ -167,10 +177,11 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setCosts([{ amount: 0, currency: Currency.ILS }]);
+      setSelectedBudgetSourceId("");
     }
   }, [isOpen]);
 
-  const isFormValid = costs.some((cost) => cost.amount > 0);
+  const isFormValid = costs.some((cost) => cost.amount > 0) && selectedBudgetSourceId !== "";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -181,6 +192,23 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">
+                Budget Source <span className="text-red-500">*</span>
+              </Label>
+              <Select value={selectedBudgetSourceId} onValueChange={setSelectedBudgetSourceId}>
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select a budget source" />
+                </SelectTrigger>
+                <SelectContent>
+                  {budgetSourcesData?.items?.map((budgetSource) => (
+                    <SelectItem key={budgetSource.id} value={budgetSource.id.toString()}>
+                      {budgetSource.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex items-center justify-between">
               <Label className="text-sm font-medium">
                 Costs <span className="text-red-500">*</span>
@@ -243,8 +271,12 @@ export const AddPurchaseModal: React.FC<AddPurchaseModalProps> = ({
               ))}
             </div>
 
-            {!isFormValid && (
+            {!costs.some((cost) => cost.amount > 0) && (
               <p className="text-sm text-red-500">Please add at least one cost with an amount greater than 0.</p>
+            )}
+            
+            {!selectedBudgetSourceId && costs.some((cost) => cost.amount > 0) && (
+              <p className="text-sm text-red-500">Please select a budget source.</p>
             )}
 
             <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">

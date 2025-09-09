@@ -121,6 +121,7 @@ export interface Cost {
 // Request interface for creating a new purchase
 export interface CreatePurchaseRequest {
   purpose_id: number;
+  budget_source_id: number;
   costs: CreateCostRequest[];
 }
 
