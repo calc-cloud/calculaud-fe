@@ -66,6 +66,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
       pendingAuthority: columnVisibility.pendingAuthority,
       hierarchy: columnVisibility.hierarchy,
       serviceType: columnVisibility.serviceType,
+      budgetSource: columnVisibility.budgetSource,
       purchases: columnVisibility.purchases,
       emfIds: columnVisibility.emfIds,
       demandIds: columnVisibility.demandIds,

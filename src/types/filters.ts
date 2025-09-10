@@ -10,6 +10,7 @@ export interface UnifiedFilters {
   status?: string[];
   material?: number[];
   pending_authority?: number[];
+  budget_source?: number[];
   flagged?: boolean;
   search_query?: string;
 }

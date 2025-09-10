@@ -69,8 +69,19 @@ const MaterialModal: React.FC<MaterialModalProps> = ({ open, onOpenChange, editI
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !isLoading) {
+      // When closing the modal, reset the form like Cancel button
+      setMaterialName(editItem?.name || "");
+      setSelectedServiceTypeId(editItem?.service_type_id.toString() || "");
+    }
+    if (!isLoading) {
+      onOpenChange(open);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{editItem ? "Edit Material" : "Create New Material"}</DialogTitle>

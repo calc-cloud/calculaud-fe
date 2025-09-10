@@ -84,5 +84,5 @@ export interface ServiceTypePerformanceItem {
 export interface ServiceTypesPerformanceDistributionResponse {
   data: ServiceTypePerformanceItem[];
   total_count: number;
-  target_status: 'SIGNED' | 'COMPLETED';
+  target_status: "SIGNED" | "COMPLETED";
 }

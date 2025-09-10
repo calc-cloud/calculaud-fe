@@ -114,15 +114,17 @@ const Dashboard: React.FC = () => {
 
   const { data: serviceTypesPerformanceSignedData, isLoading: isServiceTypesPerformanceSignedLoading } = useQuery({
     queryKey: ["serviceTypesPerformanceSigned", filters],
-    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution('SIGNED', filters),
+    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution("SIGNED", filters),
     refetchOnWindowFocus: false,
   });
 
-  const { data: serviceTypesPerformanceCompletedData, isLoading: isServiceTypesPerformanceCompletedLoading } = useQuery({
-    queryKey: ["serviceTypesPerformanceCompleted", filters],
-    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution('COMPLETED', filters),
-    refetchOnWindowFocus: false,
-  });
+  const { data: serviceTypesPerformanceCompletedData, isLoading: isServiceTypesPerformanceCompletedLoading } = useQuery(
+    {
+      queryKey: ["serviceTypesPerformanceCompleted", filters],
+      queryFn: () => analyticsService.getServiceTypesPerformanceDistribution("COMPLETED", filters),
+      refetchOnWindowFocus: false,
+    }
+  );
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
@@ -148,6 +150,7 @@ const Dashboard: React.FC = () => {
           showSuppliers: false,
           showStatus: false,
           showPendingAuthority: false,
+          showBudgetSources: false,
           showFlagged: false,
         }}
       />

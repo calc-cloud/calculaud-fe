@@ -1,3 +1,4 @@
+import BudgetSourceManagement from "@/components/admin/BudgetSourceManagement";
 import HierarchyManagement from "@/components/admin/HierarchyManagement";
 import MaterialManagement from "@/components/admin/MaterialManagement";
 import ServiceTypeManagement from "@/components/admin/ServiceTypeManagement";
@@ -12,7 +13,7 @@ const Admin = () => {
       </div>
 
       <Tabs defaultValue="hierarchies" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-4 flex-shrink-0">
+        <TabsList className="grid w-full grid-cols-5 flex-shrink-0">
           <TabsTrigger value="hierarchies" className="text-sm">
             Hierarchies
           </TabsTrigger>
@@ -24,6 +25,9 @@ const Admin = () => {
           </TabsTrigger>
           <TabsTrigger value="materials" className="text-sm">
             Materials
+          </TabsTrigger>
+          <TabsTrigger value="budget-sources" className="text-sm">
+            Budget Sources
           </TabsTrigger>
         </TabsList>
 
@@ -41,6 +45,10 @@ const Admin = () => {
 
         <TabsContent value="materials" className="flex-1 mt-4 min-h-0">
           <MaterialManagement />
+        </TabsContent>
+
+        <TabsContent value="budget-sources" className="flex-1 mt-4 min-h-0">
+          <BudgetSourceManagement />
         </TabsContent>
       </Tabs>
     </div>
