@@ -8,6 +8,7 @@ import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
 import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
 import { MaterialQuantitiesChart } from "@/components/dashboard/ServiceQuantitiesChart";
+import { ServiceTypeCostsDistributionChart } from "@/components/dashboard/ServiceTypeCostsDistributionChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
 import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
@@ -133,6 +134,12 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: serviceTypeCostsDistributionData, isLoading: isServiceTypeCostsDistributionLoading } = useQuery({
+    queryKey: ["serviceTypeCostsDistribution", filters],
+    queryFn: () => analyticsService.getServiceTypeCostsDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
+
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
   return (
@@ -231,16 +238,23 @@ const Dashboard: React.FC = () => {
           </div>
         </ChartBlock>
 
-        {/* Financial Analytics Block */}
+        {/* Cost Analytics Block */}
         <ChartBlock
-          title="Financial Analytics"
+          title="Cost Analytics"
           themeColor="green"
-          description="Budget source distribution and financial allocation across different funding streams"
+          description="Cost breakdown by budget sources and service types"
         >
           <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
             <BudgetSourceDistributionChart
               data={budgetSourceDistributionData}
               isLoading={isBudgetSourceDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypeCostsDistributionChart
+              data={serviceTypeCostsDistributionData}
+              isLoading={isServiceTypeCostsDistributionLoading}
               globalFilters={filters}
             />
           </div>

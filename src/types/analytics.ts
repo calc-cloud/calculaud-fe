@@ -104,3 +104,13 @@ export interface BudgetSourceDistributionItem {
 export interface BudgetSourceDistributionResponse {
   data: BudgetSourceDistributionItem[];
 }
+
+export interface ServiceTypeCostsDistributionItem {
+  service_type_id: number;
+  service_type_name: string;
+  amounts: BudgetSourceAmounts;
+}
+
+export interface ServiceTypeCostsDistributionResponse {
+  data: ServiceTypeCostsDistributionItem[];
+}

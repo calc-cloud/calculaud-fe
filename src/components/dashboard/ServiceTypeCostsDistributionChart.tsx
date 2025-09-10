@@ -1,28 +1,25 @@
 import { Loader2 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-import { DashboardFilters, ServiceTypesPerformanceDistributionResponse } from "@/types/analytics";
+import { DashboardFilters, ServiceTypeCostsDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
-interface ServiceTypesPerformanceChartProps {
-  data?: {
-    signed: ServiceTypesPerformanceDistributionResponse;
-    completed: ServiceTypesPerformanceDistributionResponse;
-  };
-  isLoading?: boolean;
+interface ServiceTypeCostsDistributionChartProps {
+  data: ServiceTypeCostsDistributionResponse | undefined;
+  isLoading: boolean;
   globalFilters: DashboardFilters;
 }
 
-// Colors for the pie chart segments
+// Colors for the pie chart segments - different from budget source chart
 const COLORS = [
   "#3b82f6", // blue
   "#ef4444", // red
-  "#10b981", // green
-  "#f59e0b", // yellow
   "#8b5cf6", // purple
+  "#f59e0b", // yellow
+  "#10b981", // green
   "#f97316", // orange
   "#06b6d4", // cyan
   "#84cc16", // lime
@@ -30,48 +27,41 @@ const COLORS = [
   "#6b7280", // gray
 ];
 
-export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChartProps> = ({
+export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistributionChartProps> = ({
   data,
-  isLoading = false,
+  isLoading,
   globalFilters,
 }) => {
   const navigate = useNavigate();
-  const [activeStatus, setActiveStatus] = useState<"SIGNED" | "COMPLETED">("SIGNED");
 
-  // Get current data based on active status
-  const currentData = useMemo(() => {
-    if (!data) return null;
-    return activeStatus === "SIGNED" ? data.signed : data.completed;
-  }, [data, activeStatus]);
+  // Transform data for recharts and calculate total USD
+  const { chartData, totalUSD } = useMemo(() => {
+    if (!data || !data.data) return { chartData: [], totalUSD: 0 };
 
-  // Transform data for recharts and calculate total
-  const chartData = useMemo(() => {
-    if (!currentData?.data) return [];
-    return currentData.data.map((item, index) => ({
-      name: item.service_type_name,
-      value: item.count,
-      service_type_id: item.service_type_id,
-      color: COLORS[index % COLORS.length],
-    }));
-  }, [currentData]);
+    let totalUSD = 0;
+    const chartData = data.data.map((item, index) => {
+      totalUSD += item.amounts.total_usd;
+      return {
+        name: item.service_type_name,
+        value: item.amounts.total_usd,
+        service_type_id: item.service_type_id,
+        amounts: item.amounts,
+        color: COLORS[index % COLORS.length],
+      };
+    });
 
-  // Calculate total count
-  const totalCount = useMemo(() => {
-    return currentData?.total_count || 0;
-  }, [currentData]);
+    return { chartData, totalUSD };
+  }, [data]);
 
   // Handle clicking on a pie segment
   const handleSegmentClick = (segmentData: any) => {
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // Add the clicked service type and current status to the filters
-    const statusDisplayName = activeStatus === "SIGNED" ? "Signed" : "Completed";
-
+    // Add the clicked service type to the filters
     const updatedFilters = {
       ...unifiedFilters,
       service_type: [segmentData.service_type_id],
-      status: [statusDisplayName],
     };
 
     // Build search URL with filters
@@ -89,9 +79,6 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
     if (updatedFilters.service_type && updatedFilters.service_type.length > 0) {
       searchParams.set("service_type_id", updatedFilters.service_type.join(","));
     }
-    if (updatedFilters.status && updatedFilters.status.length > 0) {
-      searchParams.set("status", updatedFilters.status.join(","));
-    }
 
     // Navigate to search page with filters
     navigate(`/search?${searchParams.toString()}`);
@@ -100,12 +87,19 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
-      const percentage = totalCount > 0 ? ((data.value / totalCount) * 100).toFixed(1) : 0;
+      const amounts = data.payload.amounts;
+      const percentage = totalUSD > 0 ? ((amounts.total_usd / totalUSD) * 100).toFixed(1) : 0;
+
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{`Service Type: ${data.name} (${percentage}%)`}</p>
-          <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
-          <p className="text-gray-500 text-sm">{`Status: ${activeStatus === "SIGNED" ? "Signed" : "Completed"}`}</p>
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900 mb-2">{`Service Type: ${data.name} (${percentage}%)`}</p>
+          <div className="space-y-1 text-sm">
+            <p className="text-gray-600">{`ILS: ${amounts.ils.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Support USD: $${amounts.support_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Available USD: $${amounts.available_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600 font-medium">{`Total USD: $${amounts.total_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Total ILS: ${amounts.total_ils.toLocaleString()}`}</p>
+          </div>
         </div>
       );
     }
@@ -135,8 +129,8 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
   if (isLoading) {
     return (
       <div className="w-full h-96 flex flex-col p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Service Type</h3>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -145,44 +139,24 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
     );
   }
 
-  if (!data || (!data.signed?.data?.length && !data.completed?.data?.length)) {
+  if (!data || !data.data || data.data.length === 0) {
     return (
       <div className="w-full h-96 flex flex-col p-4">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Service Type</h3>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">No performance data available</div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">
+          No service type costs data available
+        </div>
       </div>
     );
   }
 
   return (
     <div className="w-full h-96 flex flex-col p-4">
-      {/* Chart Title and Status Toggle */}
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
-        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
-          <button
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              activeStatus === "SIGNED"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveStatus("SIGNED")}
-          >
-            Signed
-          </button>
-          <button
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              activeStatus === "COMPLETED"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-            }`}
-            onClick={() => setActiveStatus("COMPLETED")}
-          >
-            Completed
-          </button>
-        </div>
+      {/* Chart Title */}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Service Type</h3>
       </div>
 
       {/* Chart Content */}
@@ -214,8 +188,8 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
             {/* Center Label */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">{totalCount}</div>
-                <div className="text-sm text-gray-600">{activeStatus === "SIGNED" ? "Signed" : "Completed"}</div>
+                <div className="text-2xl font-bold text-gray-900">${Math.round(totalUSD).toLocaleString()}</div>
+                <div className="text-sm text-gray-600">Total In USD</div>
               </div>
             </div>
           </div>

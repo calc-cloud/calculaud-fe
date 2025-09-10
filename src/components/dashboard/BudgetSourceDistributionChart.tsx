@@ -91,10 +91,11 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     if (active && payload && payload.length) {
       const data = payload[0];
       const amounts = data.payload.amounts;
+      const percentage = totalUSD > 0 ? ((amounts.total_usd / totalUSD) * 100).toFixed(1) : 0;
 
       return (
         <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-2">{`Budget Source: ${data.name}`}</p>
+          <p className="font-medium text-gray-900 mb-2">{`Budget Source: ${data.name} (${percentage}%)`}</p>
           <div className="space-y-1 text-sm">
             <p className="text-gray-600">{`ILS: ${amounts.ils.toLocaleString()}`}</p>
             <p className="text-gray-600">{`Support USD: $${amounts.support_usd.toLocaleString()}`}</p>
@@ -108,25 +109,19 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     return null;
   };
 
-  // Custom legend with percentages for right-side layout
+  // Custom legend for right-side layout
   const renderCustomLegend = (props: any) => {
     const { payload } = props;
 
     return (
       <div className="flex flex-col space-y-3">
         {payload.map((entry: any, index: number) => {
-          const percentage = totalUSD > 0 ? ((entry.value / totalUSD) * 100).toFixed(1) : 0;
           return (
-            <div key={index} className="flex flex-col space-y-1">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }} />
-                <span className="text-sm font-medium truncate" title={entry.name}>
-                  {entry.name}
-                </span>
-              </div>
-              <div className="text-xs text-gray-600 ml-5">
-                ${entry.value.toLocaleString()} ({percentage}%)
-              </div>
+            <div key={index} className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }} />
+              <span className="text-sm font-medium truncate" title={entry.name}>
+                {entry.name}
+              </span>
             </div>
           );
         })}
@@ -138,7 +133,7 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     return (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Budget Source Distribution</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -151,7 +146,7 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     return (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Budget Source Distribution</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
         </div>
         <div className="flex-1 flex items-center justify-center text-gray-500">No budget source data available</div>
       </div>
@@ -162,7 +157,7 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     <div className="w-full h-96 flex flex-col p-4">
       {/* Chart Title */}
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Budget Source Distribution</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
       </div>
 
       {/* Chart Content */}
