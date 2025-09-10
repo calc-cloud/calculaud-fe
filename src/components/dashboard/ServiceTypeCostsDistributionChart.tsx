@@ -188,7 +188,7 @@ export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistrib
             {/* Center Label */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">${Math.round(totalUSD).toLocaleString()}</div>
+                <div className="text-xl font-bold text-gray-900">${Math.round(totalUSD).toLocaleString()}</div>
                 <div className="text-sm text-gray-600">Total In USD</div>
               </div>
             </div>
