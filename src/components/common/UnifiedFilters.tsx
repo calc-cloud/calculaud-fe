@@ -85,6 +85,14 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
+  // State for controlling collapsible sections
+  const [serviceTypesOpen, setServiceTypesOpen] = useState(false);
+  const [materialsOpen, setMaterialsOpen] = useState(false);
+  const [suppliersOpen, setSuppliersOpen] = useState(false);
+  const [pendingAuthoritiesOpen, setPendingAuthoritiesOpen] = useState(false);
+  const [budgetSourcesOpen, setBudgetSourcesOpen] = useState(false);
+  const [statusesOpen, setStatusesOpen] = useState(false);
+
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
   const toggleStatus = createToggleFunction<string>("status", filters, onFiltersChange);
@@ -243,13 +251,18 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Service Type Multi-Select */}
           {visibility.showServiceTypes && (
             <div className="border-t border-gray-200 pt-3 border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={serviceTypesOpen} onOpenChange={setServiceTypesOpen}>
                 <CollapsibleTrigger
                   className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
                   disabled={isLoading}
                 >
                   <span>{isLoading ? "Loading..." : "Service Types"}</span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      serviceTypesOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1">
                   {serviceTypes.map((type) => (
@@ -270,7 +283,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Material Multi-Select */}
           {visibility.showMaterials && (
             <div className="border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={materialsOpen} onOpenChange={setMaterialsOpen}>
                 <CollapsibleTrigger
                   className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
                   disabled={isLoading}
@@ -284,7 +297,12 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
                       </span>
                     )}
                   </span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      materialsOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
                   {filteredMaterials.length === 0 ? (
@@ -315,13 +333,18 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Supplier Multi-Select */}
           {visibility.showSuppliers && (
             <div className="border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={suppliersOpen} onOpenChange={setSuppliersOpen}>
                 <CollapsibleTrigger
                   className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
                   disabled={isLoading}
                 >
                   <span>{isLoading ? "Loading..." : "Suppliers"}</span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      suppliersOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
                   {suppliers.map((supplier) => (
@@ -342,13 +365,18 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Pending Authority Multi-Select */}
           {visibility.showPendingAuthority && (
             <div className="border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={pendingAuthoritiesOpen} onOpenChange={setPendingAuthoritiesOpen}>
                 <CollapsibleTrigger
                   className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
                   disabled={isLoading}
                 >
                   <span>{isLoading ? "Loading..." : "Pending Authorities"}</span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      pendingAuthoritiesOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
                   {responsibleAuthorities.map((authority) => (
@@ -369,13 +397,18 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Budget Source Multi-Select */}
           {visibility.showBudgetSources && (
             <div className="border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={budgetSourcesOpen} onOpenChange={setBudgetSourcesOpen}>
                 <CollapsibleTrigger
                   className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
                   disabled={isLoading}
                 >
                   <span>{isLoading ? "Loading..." : "Budget Sources"}</span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      budgetSourcesOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
                   {budgetSources.map((budgetSource) => (
@@ -396,10 +429,15 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
           {/* Status Multi-Select */}
           {visibility.showStatus && (
             <div className="border-b border-gray-200 pb-3">
-              <Collapsible>
+              <Collapsible open={statusesOpen} onOpenChange={setStatusesOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1">
                   <span>Statuses</span>
-                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 flex-shrink-0 transition-transform duration-200",
+                      statusesOpen && "rotate-180"
+                    )}
+                  />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 mt-3 pl-1">
                   {PURPOSE_STATUSES_DISPLAY.map((status) => (
