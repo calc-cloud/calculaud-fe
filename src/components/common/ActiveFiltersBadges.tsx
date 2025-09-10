@@ -2,6 +2,7 @@ import { X, Flag } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { BudgetSource } from "@/types/budgetSources";
 import { RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import { Hierarchy } from "@/types/hierarchies";
 import { Material } from "@/types/materials";
@@ -19,6 +20,7 @@ interface ActiveFiltersBadgesProps {
   suppliers: Supplier[];
   materials: Material[];
   responsibleAuthorities?: ResponsibleAuthority[];
+  budgetSources?: BudgetSource[];
 }
 
 export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
@@ -29,6 +31,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   suppliers,
   materials,
   responsibleAuthorities = [],
+  budgetSources = [],
 }) => {
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
   const toggleStatus = createToggleFunction<string>("status", filters, onFiltersChange);
@@ -36,6 +39,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   const toggleMaterial = createToggleFunction<number>("material", filters, onFiltersChange);
   const toggleHierarchy = createToggleFunction<number>("hierarchy_id", filters, onFiltersChange);
   const togglePendingAuthority = createToggleFunction<number>("pending_authority", filters, onFiltersChange);
+  const toggleBudgetSource = createToggleFunction<number>("budget_source", filters, onFiltersChange);
 
   const clearRelativeTime = () => {
     onFiltersChange({
@@ -61,6 +65,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.budget_source || []),
     ...(filters.flagged === true ? [1] : []),
   ].length;
 
@@ -153,6 +158,19 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
                 <Badge key={authorityId} variant="secondary" className="flex items-center gap-1">
                   {authority.name}
                   <X className="h-3 w-3 cursor-pointer" onClick={() => togglePendingAuthority(authorityId)} />
+                </Badge>
+              ) : null;
+            })}
+          </>
+        )}
+        {filters.budget_source && filters.budget_source.length > 0 && (
+          <>
+            {filters.budget_source.map((budgetSourceId) => {
+              const budgetSource = budgetSources.find((b) => b.id === budgetSourceId);
+              return budgetSource ? (
+                <Badge key={budgetSourceId} variant="secondary" className="flex items-center gap-1">
+                  {budgetSource.name}
+                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleBudgetSource(budgetSourceId)} />
                 </Badge>
               ) : null;
             })}

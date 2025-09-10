@@ -105,6 +105,18 @@ const Search: React.FC = () => {
       }
     }
 
+    // Parse budget source IDs
+    if (searchParams.get("budget_source_id")) {
+      const budgetSourceIds = searchParams
+        .get("budget_source_id")
+        ?.split(",")
+        .map((id) => parseInt(id, 10))
+        .filter((id) => !isNaN(id));
+      if (budgetSourceIds && budgetSourceIds.length > 0) {
+        filters.budget_source = budgetSourceIds;
+      }
+    }
+
     if (searchParams.get("start_date")) {
       filters.start_date = searchParams.get("start_date") || undefined;
     }
@@ -166,7 +178,7 @@ const Search: React.FC = () => {
   };
 
   // Get admin data for filter badges
-  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities, budgetSources } = useAdminData();
 
   // Column visibility state - load from localStorage
   const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>(() => loadColumnVisibility());
@@ -227,6 +239,11 @@ const Search: React.FC = () => {
     // Add pending authority IDs
     if (filters.pending_authority && filters.pending_authority.length > 0) {
       params.set("pending_authority_id", filters.pending_authority.join(","));
+    }
+
+    // Add budget source IDs
+    if (filters.budget_source && filters.budget_source.length > 0) {
+      params.set("budget_source_id", filters.budget_source.join(","));
     }
 
     // Add date/time filters (always include these if they have values, including defaults)
@@ -294,6 +311,7 @@ const Search: React.FC = () => {
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.budget_source || []),
     ...(filters.flagged === true ? [1] : []),
   ].length;
 
@@ -355,6 +373,7 @@ const Search: React.FC = () => {
         suppliers={suppliers}
         materials={materials}
         responsibleAuthorities={responsibleAuthorities}
+        budgetSources={budgetSources}
       />
 
       <div className="flex items-center justify-between">

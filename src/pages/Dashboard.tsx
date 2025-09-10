@@ -150,6 +150,7 @@ const Dashboard: React.FC = () => {
           showSuppliers: false,
           showStatus: false,
           showPendingAuthority: false,
+          showBudgetSources: false,
           showFlagged: false,
         }}
       />

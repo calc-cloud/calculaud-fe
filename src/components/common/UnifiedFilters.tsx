@@ -26,6 +26,7 @@ export interface FilterVisibilityConfig {
   showSuppliers?: boolean;
   showStatus?: boolean;
   showPendingAuthority?: boolean;
+  showBudgetSources?: boolean;
   showFlagged?: boolean;
 }
 
@@ -46,6 +47,8 @@ const countActiveFilters = (filters: UnifiedFiltersType) => {
     ...(filters.material || []),
     // Count each individual pending authority selection
     ...(filters.pending_authority || []),
+    // Count each individual budget source selection
+    ...(filters.budget_source || []),
     // Count flagged filter if active
     ...(filters.flagged === true ? [1] : []),
   ].length;
@@ -68,13 +71,15 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
     showSuppliers: true,
     showStatus: true,
     showPendingAuthority: true,
+    showBudgetSources: true,
     showFlagged: true,
   };
 
   const visibility = { ...defaultVisibility, ...visibleFilters };
 
   // Data hooks
-  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities, isLoading } = useAdminData();
+  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities, budgetSources, isLoading } =
+    useAdminData();
 
   // State for controlling date picker popovers
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
@@ -86,6 +91,7 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
   const toggleSupplier = createToggleFunction<number>("supplier", filters, onFiltersChange);
   const toggleMaterial = createToggleFunction<number>("material", filters, onFiltersChange);
   const togglePendingAuthority = createToggleFunction<number>("pending_authority", filters, onFiltersChange);
+  const toggleBudgetSource = createToggleFunction<number>("budget_source", filters, onFiltersChange);
 
   // Function to reset relative time filter to default
   const _clearRelativeTime = () => {
@@ -360,6 +366,33 @@ export const UnifiedFilters: React.FC<UnifiedFiltersProps> = ({ filters, onFilte
             </div>
           )}
 
+          {/* Budget Source Multi-Select */}
+          {visibility.showBudgetSources && (
+            <div className="border-b border-gray-200 pb-3">
+              <Collapsible>
+                <CollapsibleTrigger
+                  className="flex items-center justify-between w-full py-2 text-sm font-medium text-left hover:bg-gray-50 rounded-sm px-1"
+                  disabled={isLoading}
+                >
+                  <span>{isLoading ? "Loading..." : "Budget Sources"}</span>
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 mt-3 pl-1 max-h-60 overflow-y-auto">
+                  {budgetSources.map((budgetSource) => (
+                    <div
+                      key={budgetSource.id}
+                      className="flex items-center space-x-3 cursor-pointer py-1"
+                      onClick={() => toggleBudgetSource(budgetSource.id)}
+                    >
+                      <Checkbox checked={(filters.budget_source || []).includes(budgetSource.id)} />
+                      <span className="text-sm truncate">{budgetSource.name}</span>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+          )}
+
           {/* Status Multi-Select */}
           {visibility.showStatus && (
             <div className="border-b border-gray-200 pb-3">
@@ -485,6 +518,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
     showSuppliers: true,
     showStatus: true,
     showPendingAuthority: true,
+    showBudgetSources: true,
     showFlagged: true,
   };
 
