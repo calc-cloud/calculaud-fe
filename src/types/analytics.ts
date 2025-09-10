@@ -86,3 +86,21 @@ export interface ServiceTypesPerformanceDistributionResponse {
   total_count: number;
   target_status: "SIGNED" | "COMPLETED";
 }
+
+export interface BudgetSourceAmounts {
+  ils: number;
+  support_usd: number;
+  available_usd: number;
+  total_usd: number;
+  total_ils: number;
+}
+
+export interface BudgetSourceDistributionItem {
+  budget_source_id: number | null;
+  budget_source_name: string;
+  amounts: BudgetSourceAmounts;
+}
+
+export interface BudgetSourceDistributionResponse {
+  data: BudgetSourceDistributionItem[];
+}

@@ -6,6 +6,7 @@ import {
   StatusDistributionResponse,
   PendingAuthorityDistributionResponse,
   PendingStagesDistributionResponse,
+  BudgetSourceDistributionResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
@@ -65,6 +66,11 @@ export class AnalyticsService {
       `/analytics/service-types/${status}/distribution`,
       params
     );
+  }
+
+  async getBudgetSourceDistribution(filters?: DashboardFilters): Promise<BudgetSourceDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<BudgetSourceDistributionResponse>("/analytics/costs/distribution/by-budget-source", params);
   }
 }
 

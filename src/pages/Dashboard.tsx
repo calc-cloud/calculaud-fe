@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { InlineFilters } from "@/components/common/UnifiedFilters";
+import { BudgetSourceDistributionChart } from "@/components/dashboard/BudgetSourceDistributionChart";
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
 import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
@@ -126,6 +127,12 @@ const Dashboard: React.FC = () => {
     }
   );
 
+  const { data: budgetSourceDistributionData, isLoading: isBudgetSourceDistributionLoading } = useQuery({
+    queryKey: ["budgetSourceDistribution", filters],
+    queryFn: () => analyticsService.getBudgetSourceDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
+
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
   return (
@@ -219,6 +226,21 @@ const Dashboard: React.FC = () => {
                 completed: serviceTypesPerformanceCompletedData,
               }}
               isLoading={isServiceTypesPerformanceSignedLoading || isServiceTypesPerformanceCompletedLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
+
+        {/* Financial Analytics Block */}
+        <ChartBlock
+          title="Financial Analytics"
+          themeColor="green"
+          description="Budget source distribution and financial allocation across different funding streams"
+        >
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <BudgetSourceDistributionChart
+              data={budgetSourceDistributionData}
+              isLoading={isBudgetSourceDistributionLoading}
               globalFilters={filters}
             />
           </div>
