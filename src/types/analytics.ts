@@ -114,3 +114,17 @@ export interface ServiceTypeCostsDistributionItem {
 export interface ServiceTypeCostsDistributionResponse {
   data: ServiceTypeCostsDistributionItem[];
 }
+
+export interface ProcessingTimeServiceType {
+  service_type_id: number;
+  service_type_name: string;
+  count: number;
+  average_processing_days: number;
+  min_processing_days: number;
+  max_processing_days: number;
+}
+
+export interface ProcessingTimesResponse {
+  service_types: ProcessingTimeServiceType[];
+  total_purposes: number;
+}

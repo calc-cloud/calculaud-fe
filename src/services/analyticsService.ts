@@ -8,6 +8,7 @@ import {
   PendingStagesDistributionResponse,
   BudgetSourceDistributionResponse,
   ServiceTypeCostsDistributionResponse,
+  ProcessingTimesResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
@@ -80,6 +81,11 @@ export class AnalyticsService {
       "/analytics/costs/distribution/by-service-type",
       params
     );
+  }
+
+  async getProcessingTimes(filters?: DashboardFilters): Promise<ProcessingTimesResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<ProcessingTimesResponse>("/analytics/purposes/processing-times", params);
   }
 }
 

@@ -7,6 +7,7 @@ import { BudgetSourceDistributionChart } from "@/components/dashboard/BudgetSour
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
 import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
+import { PurposeProcessingTimesChart } from "@/components/dashboard/PurposeProcessingTimesChart";
 import { MaterialQuantitiesChart } from "@/components/dashboard/ServiceQuantitiesChart";
 import { ServiceTypeCostsDistributionChart } from "@/components/dashboard/ServiceTypeCostsDistributionChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
@@ -140,6 +141,12 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
+  const { data: processingTimesData, isLoading: isProcessingTimesLoading } = useQuery({
+    queryKey: ["processingTimes", filters],
+    queryFn: () => analyticsService.getProcessingTimes(filters),
+    refetchOnWindowFocus: false,
+  });
+
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
   return (
@@ -233,6 +240,13 @@ const Dashboard: React.FC = () => {
                 completed: serviceTypesPerformanceCompletedData,
               }}
               isLoading={isServiceTypesPerformanceSignedLoading || isServiceTypesPerformanceCompletedLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-2 border border-gray-200 rounded-lg p-4 bg-white">
+            <PurposeProcessingTimesChart
+              data={processingTimesData}
+              isLoading={isProcessingTimesLoading}
               globalFilters={filters}
             />
           </div>
