@@ -53,6 +53,7 @@ export interface Purpose {
   service_type: string;
   creation_time: string;
   last_modified: string;
+  current_status_changed_at: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   file_attachments: {
     id: number;
@@ -440,6 +441,7 @@ class PurposeService {
         service_type: purpose.service_type || "",
         creation_time: purpose.creation_time || "",
         last_modified: purpose.last_modified || "",
+        current_status_changed_at: purpose.current_status_changed_at || "",
         pending_authority: purpose.pending_authority || null,
         purchases: (purpose.purchases || []).map((purchase) => this.transformPurchase(purchase, purpose.id)),
         files: (purpose.file_attachments || []).map((file) => this.transformFileAttachment(file, purpose.id)),
@@ -460,6 +462,7 @@ class PurposeService {
         service_type: "",
         creation_time: "",
         last_modified: "",
+        current_status_changed_at: "",
         pending_authority: null,
         purchases: [],
         files: [],

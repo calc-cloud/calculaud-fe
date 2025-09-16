@@ -1,4 +1,4 @@
-import { Building, Calendar, Edit, Layers, MessageSquare, Target } from "lucide-react";
+import { Building, Calendar, Edit, Layers, MessageSquare, Target, Clock } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { getStatusDisplay } from "@/utils/statusUtils";
 
 interface GeneralDataCardProps {
   purpose: Purpose;
@@ -14,6 +15,8 @@ interface GeneralDataCardProps {
 }
 
 export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdit }) => {
+  const statusInfo = getStatusDisplay(purpose.status);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -33,32 +36,32 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdi
 
         {/* 2-column grid for other fields */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex items-center space-x-2">
-            <Building className="h-4 w-4 text-gray-500" />
+          <div className="flex items-start space-x-2">
+            <Building className="h-4 w-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-gray-900">Supplier</p>
               <p className="text-sm text-gray-600">{purpose.supplier}</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Target className="h-4 w-4 text-gray-500" />
+          <div className="flex items-start space-x-2">
+            <Target className="h-4 w-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-gray-900">Service Type</p>
               <p className="text-sm text-gray-600">{purpose.service_type}</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 col-span-2">
-            <Calendar className="h-4 w-4 text-gray-500" />
+          <div className="flex items-start space-x-2 col-span-2">
+            <Calendar className="h-4 w-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-gray-900">Expected Delivery</p>
               <p className="text-sm text-gray-600">{formatDate(purpose.expected_delivery)}</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 col-span-2">
-            <Layers className="h-4 w-4 text-gray-500" />
+          <div className="flex items-start space-x-2 col-span-2">
+            <Layers className="h-4 w-4 text-gray-500 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-gray-900">Hierarchy</p>
               <p className="text-sm text-gray-600 text-xs">{purpose.hierarchy_name}</p>
@@ -67,6 +70,27 @@ export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdi
         </div>
 
         <Separator />
+
+        {/* Status Section */}
+        <div className="flex items-start space-x-2 col-span-2">
+          <Clock className="h-4 w-4 text-gray-500 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-gray-900">Status</p>
+            <div className="flex items-center space-x-2 mt-1">
+              <Badge variant={statusInfo.variant} className={statusInfo.className}>
+                {statusInfo.label}
+              </Badge>
+              {purpose.status !== "IN_PROGRESS" && (
+                <span className="text-xs text-gray-500">
+                  (Last Changed {formatDate(purpose.current_status_changed_at)})
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
         <div className="flex items-start space-x-2">
           <MessageSquare className="h-4 w-4 text-gray-500 mt-1" />
           <div>

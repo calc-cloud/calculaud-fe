@@ -55,6 +55,7 @@ export interface Purpose {
   service_type: string;
   creation_time: string;
   last_modified: string;
+  current_status_changed_at: string;
   purchases: Purchase[];
   files: PurposeFile[];
   pending_authority?: Authority;
