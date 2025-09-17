@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 import { DashboardFilters, PendingStagesDistributionItem } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
@@ -108,6 +108,27 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
     navigate(`/search?${searchParams.toString()}`);
   };
 
+  // Custom legend with circular indicators
+  const renderCustomLegend = () => {
+    const payload = serviceTypes.map((serviceType) => ({
+      color: serviceTypeColors[serviceType],
+      name: serviceType,
+    }));
+
+    return (
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-4">
+        {payload.map((entry: any, index: number) => {
+          return (
+            <div key={index} className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }} />
+              <span className="text-sm text-gray-600">{entry.name}</span>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const total = payload.reduce((sum: number, entry: any) => sum + entry.value, 0);
@@ -121,7 +142,7 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
             .reverse()
             .map((entry: any, index: number) => (
               <div key={index} className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: entry.color }} />
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
                 <span className="text-sm">
                   {entry.dataKey}: {entry.value}
                 </span>
@@ -177,13 +198,15 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
             <XAxis dataKey="stage_name" height={40} fontSize={14} />
             <YAxis fontSize={14} />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
             {serviceTypes.map((serviceType) => (
               <Bar key={serviceType} dataKey={serviceType} stackId="stages" fill={serviceTypeColors[serviceType]} />
             ))}
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Custom Legend */}
+      {renderCustomLegend()}
     </div>
   );
 };

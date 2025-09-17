@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 import { DashboardFilters, StageProcessingTimesResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
@@ -29,24 +29,109 @@ interface ChartDataPoint {
   size: number;
 }
 
-// Custom star shape component
-const StarDot = (props: any) => {
-  const { cx, cy, fill } = props;
+// Create tooltip-enabled dot components that use external tooltip state
+const createStarDot = (setActiveTooltip: (tooltip: any) => void) => {
+  const StarDotComponent = (props: any) => {
+  const { cx, cy, fill, stroke, payload } = props;
   const size = 12; // Star size
+  const color = fill || stroke || "#f59e0b";
 
   // Star path - 5-pointed star
   const starPath = `M${cx},${cy - size} L${cx + size * 0.3},${cy - size * 0.3} L${cx + size},${cy - size * 0.3} L${cx + size * 0.5},${cy + size * 0.2} L${cx + size * 0.8},${cy + size} L${cx},${cy + size * 0.6} L${cx - size * 0.8},${cy + size} L${cx - size * 0.5},${cy + size * 0.2} L${cx - size},${cy - size * 0.3} L${cx - size * 0.3},${cy - size * 0.3} Z`;
 
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    const rect = (e.target as SVGElement).getBoundingClientRect();
+    const chartContainer = (e.target as SVGElement).closest('.recharts-wrapper');
+    const containerRect = chartContainer?.getBoundingClientRect();
+
+    if (containerRect) {
+      setActiveTooltip({
+        data: {
+          type: 'stage_overall',
+          y: payload.y,
+          min_processing_days: payload.min_processing_days,
+          max_processing_days: payload.max_processing_days,
+          count: payload.count
+        },
+        position: {
+          x: rect.left - containerRect.left + 15,
+          y: rect.top - containerRect.top - 10
+        }
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setActiveTooltip(null);
+  };
+
   return (
     <path
       d={starPath}
-      fill={fill}
-      stroke={fill}
+      fill={color}
+      stroke={color}
       strokeWidth={1}
       className="cursor-pointer"
+      style={{ pointerEvents: 'all' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     />
   );
+  };
+
+  StarDotComponent.displayName = 'StarDotComponent';
+  return StarDotComponent;
 };
+
+const createCircleDot = (setActiveTooltip: (tooltip: any) => void) => {
+  const CircleDotComponent = (props: any) => {
+  const { cx, cy, fill, payload } = props;
+
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    const rect = (e.target as SVGElement).getBoundingClientRect();
+    const chartContainer = (e.target as SVGElement).closest('.recharts-wrapper');
+    const containerRect = chartContainer?.getBoundingClientRect();
+
+    if (containerRect) {
+      setActiveTooltip({
+        data: {
+          type: 'service_type',
+          service_type_name: payload.service_type_name,
+          y: payload.y,
+          min_processing_days: payload.min_processing_days,
+          max_processing_days: payload.max_processing_days,
+          count: payload.count
+        },
+        position: {
+          x: rect.left - containerRect.left + 10,
+          y: rect.top - containerRect.top - 10
+        }
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setActiveTooltip(null);
+  };
+
+  return (
+    <circle
+      cx={cx}
+      cy={cy}
+      r={5}
+      fill={fill}
+      className="cursor-pointer"
+      style={{ pointerEvents: 'all' }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    />
+  );
+  };
+
+  CircleDotComponent.displayName = 'CircleDotComponent';
+  return CircleDotComponent;
+};
+
 
 export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps> = ({
   data,
@@ -54,19 +139,38 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
   globalFilters,
 }) => {
   const navigate = useNavigate();
+  const [activeTooltip, setActiveTooltip] = useState<{ data: any; position: { x: number; y: number } } | null>(null);
 
-  // Transform data for scatter chart
-  const { chartData, uniqueServiceTypes } = useMemo(() => {
-    if (!data?.data) return { chartData: [], uniqueServiceTypes: [] };
+  // Create dot components with shared tooltip state
+  const StarDot = useMemo(() => createStarDot(setActiveTooltip), []);
+  const CircleDot = useMemo(() => createCircleDot(setActiveTooltip), []);
+
+  // Transform data for composed chart
+  const { lineChartData, chartData, uniqueServiceTypes } = useMemo(() => {
+    if (!data?.data) return { lineChartData: [], chartData: [], uniqueServiceTypes: [] };
 
     const allDataPoints: ChartDataPoint[] = [];
+    const lineData: any[] = [];
     const serviceTypeSet = new Set<string>();
 
     data.data.forEach((stage, stageIndex) => {
-      // Add stage overall average point (large, prominent)
+      // Create line chart data for stage overall (for Line component)
+      lineData.push({
+        x: stageIndex,
+        y: stage.overall_avg_processing_days,
+        stageIndex,
+        stageName: stage.stage_type_name,
+        stageDisplayName: stage.stage_type_display_name,
+        type: "stage_overall",
+        count: stage.overall_count,
+        min_processing_days: stage.overall_min_processing_days,
+        max_processing_days: stage.overall_max_processing_days,
+      });
+
+      // Add stage overall average point (for custom star dots)
       allDataPoints.push({
-        x: stage.overall_avg_processing_days,
-        y: stageIndex,
+        x: stageIndex,
+        y: stage.overall_avg_processing_days,
         stageName: stage.stage_type_name,
         stageDisplayName: stage.stage_type_display_name,
         type: "stage_overall",
@@ -81,8 +185,8 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
       stage.service_types.forEach((serviceType) => {
         serviceTypeSet.add(serviceType.service_type_name);
         allDataPoints.push({
-          x: serviceType.avg_processing_days,
-          y: stageIndex,
+          x: stageIndex,
+          y: serviceType.avg_processing_days,
           stageName: stage.stage_type_name,
           stageDisplayName: stage.stage_type_display_name,
           type: "service_type",
@@ -106,15 +210,15 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
       };
     });
 
-    return { chartData: allDataPoints, uniqueServiceTypes };
+    return { lineChartData: lineData, chartData: allDataPoints, uniqueServiceTypes };
   }, [data]);
 
-  // Get stage names for Y-axis and max value for X-axis
+  // Get stage names for X-axis and max value for Y-axis
   const { stageNames, maxProcessingDays } = useMemo(() => {
     if (!data?.data) return { stageNames: [], maxProcessingDays: 0 };
 
     const names = data.data.map((stage) => stage.stage_type_display_name);
-    const maxDays = Math.max(...chartData.map(point => point.x));
+    const maxDays = Math.max(...chartData.map(point => point.y));
 
     return { stageNames: names, maxProcessingDays: maxDays };
   }, [data, chartData]);
@@ -140,34 +244,6 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
     }
 
     navigate(`/search?${searchParams.toString()}`);
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const point = payload[0].payload as ChartDataPoint;
-
-      return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          {point.type === "stage_overall" ? (
-            <>
-              <p className="text-gray-600">Overall Average: {point.x.toFixed(1)} days</p>
-              <p className="text-gray-600">Min: {point.min_processing_days} days</p>
-              <p className="text-gray-600">Max: {point.max_processing_days} days</p>
-              <p className="text-gray-500 text-sm">Total Purposes: {point.count}</p>
-            </>
-          ) : (
-            <>
-              <p className="font-medium text-gray-700 mb-1">{point.service_type_name}</p>
-              <p className="text-gray-600">Average: {point.x.toFixed(1)} days</p>
-              <p className="text-gray-600">Min: {point.min_processing_days} days</p>
-              <p className="text-gray-600">Max: {point.max_processing_days} days</p>
-              <p className="text-gray-500 text-sm">Purposes: {point.count}</p>
-            </>
-          )}
-        </div>
-      );
-    }
-    return null;
   };
 
   // Custom legend
@@ -241,15 +317,25 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
 
       {/* Chart Content */}
       <div className="flex-1 relative">
-        <ResponsiveContainer width="100%" height={600}>
-          <ScatterChart
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-          >
+        <div className="relative">
+          <ResponsiveContainer width="100%" height={600}>
+            <ComposedChart
+              data={lineChartData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               type="number"
               dataKey="x"
-              label={{ value: "Processing Days", position: "insideBottom", offset: -10 }}
+              domain={[-0.5, stageNames.length - 0.5]}
+              tickFormatter={(value) => stageNames[Math.round(value)] || ""}
+              ticks={stageNames.map((_, index) => index)}
+              fontSize={14}
+            />
+            <YAxis
+              type="number"
+              dataKey="y"
+              label={{ value: "Processing Days", angle: -90, position: "insideLeft" }}
               fontSize={14}
               domain={[0, "dataMax"]}
               tickCount={15}
@@ -259,18 +345,19 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
                 return (roundedValue % 10 === 0 || roundedValue >= maxProcessingDays) ? roundedValue.toString() : "";
               }}
             />
-            <YAxis
-              type="number"
-              dataKey="y"
-              domain={[-0.5, stageNames.length - 0.5]}
-              tickFormatter={(value) => stageNames[Math.round(value)] || ""}
-              ticks={stageNames.map((_, index) => index)}
-              fontSize={14}
-              width={100}
-            />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={() => null} />
 
-            {/* Stage overall averages - prominent star dots */}
+            {/* Stage overall averages - connecting line only (no interaction) */}
+            <Line
+              dataKey="y"
+              stroke="#f59e0b"
+              strokeWidth={2}
+              dot={false}
+              connectNulls
+              activeDot={false}
+            />
+
+            {/* Stage overall averages - interactive star dots */}
             <Scatter
               data={stageOverallData}
               fill="#f59e0b"
@@ -291,12 +378,42 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
                   fill={serviceType.color}
                   onClick={(data) => data && handlePointClick(data)}
                   className="cursor-pointer"
-                  r={5}
+                  shape={<CircleDot />}
                 />
               );
             })}
-          </ScatterChart>
+          </ComposedChart>
         </ResponsiveContainer>
+
+        {/* External tooltip that appears on top */}
+        {activeTooltip && (
+          <div
+            className="absolute bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-sm pointer-events-none z-50"
+            style={{
+              left: activeTooltip.position.x,
+              top: activeTooltip.position.y,
+              transform: 'translate(-50%, -100%)'
+            }}
+          >
+            {activeTooltip.data.type === "stage_overall" ? (
+              <>
+                <p className="text-gray-600">Overall Average: {activeTooltip.data.y.toFixed(1)} days</p>
+                <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
+                <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
+                <p className="text-gray-500 text-sm">Total Purposes: {activeTooltip.data.count}</p>
+              </>
+            ) : (
+              <>
+                <p className="font-medium text-gray-700 mb-1">{activeTooltip.data.service_type_name}</p>
+                <p className="text-gray-600">Average: {activeTooltip.data.y.toFixed(1)} days</p>
+                <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
+                <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
+                <p className="text-gray-500 text-sm">Purposes: {activeTooltip.data.count}</p>
+              </>
+            )}
+          </div>
+        )}
+      </div>
 
         {/* Custom Legend */}
         {renderCustomLegend()}
