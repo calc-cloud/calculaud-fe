@@ -1,7 +1,7 @@
 import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 import { DashboardFilters, ServiceQuantitiesResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
@@ -105,6 +105,25 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
     return null;
   };
 
+  // Custom legend
+  const renderCustomLegend = () => {
+    if (legendData.length === 0) return null;
+
+    return (
+      <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-4">
+        {legendData.map((item) => (
+          <div key={item.value} className="flex items-center space-x-2">
+            <div
+              className="w-3 h-3 rounded-sm"
+              style={{ backgroundColor: item.color }}
+            />
+            <span className="text-sm text-gray-600">{item.value}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="w-full flex flex-col p-4 min-h-96">
@@ -155,7 +174,7 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
           <BarChart
             layout="vertical"
             data={chartData}
-            margin={{ top: 20, right: 30, left: 200, bottom: 20 }}
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
             className="cursor-pointer"
             onClick={(data) => {
               if (data && data.activePayload && data.activePayload.length > 0) {
@@ -169,7 +188,6 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
             <XAxis type="number" fontSize={14} />
             <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={180} fontSize={14} />
             <Tooltip content={<CustomTooltip />} />
-            {legendData.length > 0 && <Legend payload={legendData} />}
             <Bar dataKey="quantity" label={{ position: "right", fontSize: 14, fill: "#374151" }}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
@@ -177,6 +195,9 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
+
+        {/* Custom Legend */}
+        {renderCustomLegend()}
       </div>
 
       {/* Show More/Less Button */}

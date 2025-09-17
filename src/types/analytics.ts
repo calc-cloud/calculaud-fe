@@ -128,3 +128,27 @@ export interface ProcessingTimesResponse {
   service_types: ProcessingTimeServiceType[];
   total_purposes: number;
 }
+
+export interface StageProcessingTimeServiceType {
+  service_type_id: number;
+  service_type_name: string;
+  count: number;
+  avg_processing_days: number;
+  min_processing_days: number;
+  max_processing_days: number;
+}
+
+export interface StageProcessingTimeData {
+  stage_type_id: number;
+  stage_type_name: string;
+  stage_type_display_name: string;
+  service_types: StageProcessingTimeServiceType[];
+  overall_count: number;
+  overall_avg_processing_days: number;
+  overall_min_processing_days: number;
+  overall_max_processing_days: number;
+}
+
+export interface StageProcessingTimesResponse {
+  data: StageProcessingTimeData[];
+}

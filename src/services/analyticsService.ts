@@ -9,6 +9,7 @@ import {
   BudgetSourceDistributionResponse,
   ServiceTypeCostsDistributionResponse,
   ProcessingTimesResponse,
+  StageProcessingTimesResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
@@ -86,6 +87,11 @@ export class AnalyticsService {
   async getProcessingTimes(filters?: DashboardFilters): Promise<ProcessingTimesResponse> {
     const params = this.buildFilterParams(filters);
     return apiService.get<ProcessingTimesResponse>("/analytics/purposes/processing-times", params);
+  }
+
+  async getStageProcessingTimes(filters?: DashboardFilters): Promise<StageProcessingTimesResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<StageProcessingTimesResponse>("/analytics/stages/processing-times", params);
   }
 }
 
