@@ -32,8 +32,10 @@ export function getServiceTypeColor(serviceTypeId: number | string, serviceTypeN
 
   // If we've seen this service type before, return its assigned color
   if (serviceTypeRegistry.has(key)) {
-    const assignment = serviceTypeRegistry.get(key)!;
-    return assignment.color;
+    const assignment = serviceTypeRegistry.get(key);
+    if (assignment) {
+      return assignment.color;
+    }
   }
 
   // New service type: assign the next available color
@@ -65,7 +67,10 @@ export function getEntityColor(entityId: number | string | null, entityName?: st
 
   // If we've seen this entity before, return its assigned color
   if (entityColorRegistry.has(key)) {
-    return entityColorRegistry.get(key)!.color;
+    const assignment = entityColorRegistry.get(key);
+    if (assignment) {
+      return assignment.color;
+    }
   }
 
   // New entity: assign the next available color

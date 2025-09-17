@@ -31,6 +31,10 @@ const mockAdminData = {
     mockResponsibleAuthority({ id: 1, name: "Authority 1" }),
     mockResponsibleAuthority({ id: 2, name: "Authority 2" }),
   ],
+  budgetSources: [
+    { id: 1, name: "Budget Source 1" },
+    { id: 2, name: "Budget Source 2" },
+  ],
   isLoading: false,
 };
 
