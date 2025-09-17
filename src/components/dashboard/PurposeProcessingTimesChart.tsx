@@ -1,10 +1,11 @@
 import { Loader2 } from "lucide-react";
 import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 import { DashboardFilters, ProcessingTimesResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface PurposeProcessingTimesChartProps {
@@ -31,6 +32,7 @@ export const PurposeProcessingTimesChart: React.FC<PurposeProcessingTimesChartPr
       max_processing_days: serviceType.max_processing_days,
       count: serviceType.count,
       service_type_id: serviceType.service_type_id,
+      color: getServiceTypeColor(serviceType.service_type_id, serviceType.service_type_name),
     }));
   }, [data]);
 
@@ -131,7 +133,11 @@ export const PurposeProcessingTimesChart: React.FC<PurposeProcessingTimesChartPr
             <XAxis type="number" fontSize={12} label={{ value: "Days", position: "bottom" }} />
             <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} width={160} fontSize={14} />
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="average_processing_days" fill="#3b82f6" />
+            <Bar dataKey="average_processing_days">
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

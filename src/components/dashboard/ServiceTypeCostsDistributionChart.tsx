@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DashboardFilters, ServiceTypeCostsDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface ServiceTypeCostsDistributionChartProps {
@@ -12,20 +13,6 @@ interface ServiceTypeCostsDistributionChartProps {
   isLoading: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Colors for the pie chart segments - different from budget source chart
-const COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#8b5cf6", // purple
-  "#f59e0b", // yellow
-  "#10b981", // green
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistributionChartProps> = ({
   data,
@@ -39,14 +26,14 @@ export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistrib
     if (!data || !data.data) return { chartData: [], totalUSD: 0 };
 
     let totalUSD = 0;
-    const chartData = data.data.map((item, index) => {
+    const chartData = data.data.map((item) => {
       totalUSD += item.amounts.total_usd;
       return {
         name: item.service_type_name,
         value: item.amounts.total_usd,
         service_type_id: item.service_type_id,
         amounts: item.amounts,
-        color: COLORS[index % COLORS.length],
+        color: getServiceTypeColor(item.service_type_id, item.service_type_name),
       };
     });
 

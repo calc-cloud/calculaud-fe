@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DashboardFilters, BudgetSourceDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getEntityColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface BudgetSourceDistributionChartProps {
@@ -12,20 +13,6 @@ interface BudgetSourceDistributionChartProps {
   isLoading: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Colors for the pie chart segments
-const COLORS = [
-  "#10b981", // green
-  "#3b82f6", // blue
-  "#f59e0b", // yellow
-  "#ef4444", // red
-  "#8b5cf6", // purple
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionChartProps> = ({
   data,
@@ -39,14 +26,14 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
     if (!data || !data.data) return { chartData: [], totalUSD: 0 };
 
     let totalUSD = 0;
-    const chartData = data.data.map((item, index) => {
+    const chartData = data.data.map((item) => {
       totalUSD += item.amounts.total_usd;
       return {
         name: item.budget_source_name,
         value: item.amounts.total_usd,
         budget_source_id: item.budget_source_id,
         amounts: item.amounts,
-        color: COLORS[index % COLORS.length],
+        color: getEntityColor(item.budget_source_id, item.budget_source_name),
       };
     });
 

@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DashboardFilters, ServiceTypesPerformanceDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface ServiceTypesPerformanceChartProps {
@@ -15,20 +16,6 @@ interface ServiceTypesPerformanceChartProps {
   isLoading?: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Colors for the pie chart segments
-const COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#10b981", // green
-  "#f59e0b", // yellow
-  "#8b5cf6", // purple
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChartProps> = ({
   data,
@@ -47,11 +34,11 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
   // Transform data for recharts and calculate total
   const chartData = useMemo(() => {
     if (!currentData?.data) return [];
-    return currentData.data.map((item, index) => ({
+    return currentData.data.map((item) => ({
       name: item.service_type_name,
       value: item.count,
       service_type_id: item.service_type_id,
-      color: COLORS[index % COLORS.length],
+      color: getServiceTypeColor(item.service_type_id, item.service_type_name),
     }));
   }, [currentData]);
 

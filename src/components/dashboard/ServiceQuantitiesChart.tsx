@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 import { DashboardFilters, ServiceQuantitiesResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface MaterialQuantitiesChartProps {
@@ -12,20 +13,6 @@ interface MaterialQuantitiesChartProps {
   isLoading?: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Base colors for different service types (consistent with other charts)
-const MATERIAL_TYPE_COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#10b981", // green
-  "#f59e0b", // yellow
-  "#8b5cf6", // purple
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = ({
   data,
@@ -46,13 +33,13 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
 
     const materialsData: any[] = [];
 
-    data.data.forEach((serviceType, serviceTypeIndex) => {
+    data.data.forEach((serviceType) => {
       serviceType.services.forEach((material: any) => {
         materialsData.push({
           name: material.service_name,
           quantity: material.quantity,
           serviceId: material.service_id, // Add service ID for individual material filtering
-          color: MATERIAL_TYPE_COLORS[serviceTypeIndex % MATERIAL_TYPE_COLORS.length],
+          color: getServiceTypeColor(serviceType.service_type_id, serviceType.service_type_name),
           serviceTypeData: serviceType, // For grouping/context
         });
       });
@@ -61,10 +48,10 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
     // Create legend data for service types that have materials
     const legendData = data.data
       .filter((serviceType) => serviceType.services.length > 0)
-      .map((serviceType, index) => ({
+      .map((serviceType) => ({
         value: serviceType.service_type_name,
         type: "rect" as const,
-        color: MATERIAL_TYPE_COLORS[index % MATERIAL_TYPE_COLORS.length],
+        color: getServiceTypeColor(serviceType.service_type_id, serviceType.service_type_name),
       }));
 
     // Slice data based on expanded state

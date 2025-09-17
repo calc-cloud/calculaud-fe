@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 import { DashboardFilters, ServiceTypesDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface ServiceTypesDistributionChartProps {
@@ -12,20 +13,6 @@ interface ServiceTypesDistributionChartProps {
   isLoading: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Colors for the pie chart segments
-const COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#10b981", // green
-  "#f59e0b", // yellow
-  "#8b5cf6", // purple
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({
   data,
@@ -37,11 +24,11 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
   // Transform data for recharts
   const chartData = useMemo(() => {
     if (!data || !data.data) return [];
-    return data.data.map((item, index) => ({
+    return data.data.map((item) => ({
       name: item.name,
       value: item.count,
       id: item.id,
-      color: COLORS[index % COLORS.length],
+      color: getServiceTypeColor(item.id, item.name),
     }));
   }, [data]);
 

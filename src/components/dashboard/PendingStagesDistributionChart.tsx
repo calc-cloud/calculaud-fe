@@ -5,6 +5,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 import { DashboardFilters, PendingStagesDistributionItem } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
+import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
 interface PendingStagesDistributionChartProps {
@@ -12,20 +13,6 @@ interface PendingStagesDistributionChartProps {
   isLoading?: boolean;
   globalFilters: DashboardFilters;
 }
-
-// Colors for different service types (consistent with other charts)
-const SERVICE_TYPE_COLORS = [
-  "#3b82f6", // blue
-  "#ef4444", // red
-  "#10b981", // green
-  "#f59e0b", // yellow
-  "#8b5cf6", // purple
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#84cc16", // lime
-  "#ec4899", // pink
-  "#6b7280", // gray
-];
 
 export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionChartProps> = ({
   data = [],
@@ -50,10 +37,10 @@ export const PendingStagesDistributionChart: React.FC<PendingStagesDistributionC
 
     const serviceTypesArray = Array.from(allServiceTypes).sort();
 
-    // Assign colors to service types
+    // Assign colors to service types using shared color system
     const colors: Record<string, string> = {};
-    serviceTypesArray.forEach((serviceType, index) => {
-      colors[serviceType] = SERVICE_TYPE_COLORS[index % SERVICE_TYPE_COLORS.length];
+    serviceTypesArray.forEach((serviceType) => {
+      colors[serviceType] = getServiceTypeColor(serviceType, serviceType);
     });
 
     // Transform data for Recharts stacked bar format
