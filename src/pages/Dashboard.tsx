@@ -14,6 +14,7 @@ import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTyp
 import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
 import { StageProcessingTimesChart } from "@/components/dashboard/StageProcessingTimesChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
+import { useStickyFilters } from "@/hooks/useStickyFilters";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
 import { dashboardFiltersToUnified, unifiedToDashboardFilters } from "@/utils/filterAdapters";
@@ -21,6 +22,7 @@ import { clearFilters } from "@/utils/filterUtils";
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isSticky, containerRef, sentinelRef } = useStickyFilters();
 
   // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
@@ -162,26 +164,35 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Inline Filters - only time and service types */}
-      <InlineFilters
-        filters={unifiedFilters}
-        onFiltersChange={(unifiedFilters) => {
-          const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-          setFilters(dashboardFilters);
-        }}
-        onClearFilters={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
-        visibleFilters={{
-          showTime: true,
-          showServiceTypes: true,
-          showHierarchy: false,
-          showMaterials: false,
-          showSuppliers: false,
-          showStatus: false,
-          showPendingAuthority: false,
-          showBudgetSources: false,
-          showFlagged: false,
-        }}
-      />
+      {/* Sentinel element to detect when filters should become sticky */}
+      <div ref={sentinelRef} className="h-0" />
+
+      {/* Sticky Filters Container */}
+      <div
+        ref={containerRef}
+        className="sticky top-20 z-40"
+      >
+        <InlineFilters
+          filters={unifiedFilters}
+          onFiltersChange={(unifiedFilters) => {
+            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+            setFilters(dashboardFilters);
+          }}
+          onClearFilters={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
+          visibleFilters={{
+            showTime: true,
+            showServiceTypes: true,
+            showHierarchy: false,
+            showMaterials: false,
+            showSuppliers: false,
+            showStatus: false,
+            showPendingAuthority: false,
+            showBudgetSources: false,
+            showFlagged: false,
+          }}
+          isSticky={isSticky}
+        />
+      </div>
 
       {/* Chart Blocks */}
       <div className="space-y-6">

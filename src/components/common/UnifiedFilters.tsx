@@ -539,6 +539,7 @@ interface InlineFiltersProps {
   onFiltersChange: (filters: UnifiedFiltersType) => void;
   visibleFilters?: FilterVisibilityConfig;
   onClearFilters?: () => void;
+  isSticky?: boolean;
 }
 
 export const InlineFilters: React.FC<InlineFiltersProps> = ({
@@ -546,6 +547,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   onFiltersChange,
   visibleFilters,
   onClearFilters,
+  isSticky = false,
 }) => {
   // Default visibility config - show all filters if not specified
   const defaultVisibility: FilterVisibilityConfig = {
@@ -585,7 +587,11 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${
+      isSticky
+        ? "shadow-lg mb-0"
+        : "mb-6"
+    }`}>
       <div className="flex flex-wrap items-center gap-4">
         {/* Date Range Controls */}
         {visibility.showTime && (
