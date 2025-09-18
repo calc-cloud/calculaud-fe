@@ -113,10 +113,7 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-4">
         {legendData.map((item) => (
           <div key={item.value} className="flex items-center space-x-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span className="text-sm text-gray-600">{item.value}</span>
           </div>
         ))}

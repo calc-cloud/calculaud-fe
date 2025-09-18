@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { InlineFilters } from "@/components/common/UnifiedFilters";
+import { InlineFilters, MinimizedFilters } from "@/components/common/UnifiedFilters";
 import { BudgetSourceDistributionChart } from "@/components/dashboard/BudgetSourceDistributionChart";
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
@@ -158,6 +158,16 @@ const Dashboard: React.FC = () => {
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (filters.relative_time && filters.relative_time !== "all_time") count++;
+    if (filters.service_type_id && filters.service_type_id.length > 0) count += filters.service_type_id.length;
+    return count;
+  };
+
+  const activeFiltersCount = countActiveFilters();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -165,39 +175,41 @@ const Dashboard: React.FC = () => {
       </div>
 
       {/* Auto-Hide Floating Filters Container */}
-      <div
-        className={`fixed top-14 left-0 right-0 z-40 flex justify-center transition-opacity duration-100 ease-in-out ${
-          isVisible ? 'opacity-100' : 'opacity-0'
-        }`}
-      >
+      <div className="fixed top-14 left-0 right-0 z-40 flex justify-center">
         <div
-          className="w-full max-w-4xl"
+          className={`transition-all duration-300 ease-in-out ${
+            isVisible ? "w-full max-w-4xl" : "flex justify-center"
+          }`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          <InlineFilters
-            filters={unifiedFilters}
-            onFiltersChange={(unifiedFilters) => {
-              const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-              setFilters(dashboardFilters);
-              resetTimer(); // Reset timer on filter change
-            }}
-            onClearFilters={() => {
-              clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
-              resetTimer(); // Reset timer on clear filters
-            }}
-            visibleFilters={{
-              showTime: true,
-              showServiceTypes: true,
-              showHierarchy: false,
-              showMaterials: false,
-              showSuppliers: false,
-              showStatus: false,
-              showPendingAuthority: false,
-              showBudgetSources: false,
-              showFlagged: false,
-            }}
-          />
+          {isVisible ? (
+            <InlineFilters
+              filters={unifiedFilters}
+              onFiltersChange={(unifiedFilters) => {
+                const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+                setFilters(dashboardFilters);
+                resetTimer(); // Reset timer on filter change
+              }}
+              onClearFilters={() => {
+                clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
+                resetTimer(); // Reset timer on clear filters
+              }}
+              visibleFilters={{
+                showTime: true,
+                showServiceTypes: true,
+                showHierarchy: false,
+                showMaterials: false,
+                showSuppliers: false,
+                showStatus: false,
+                showPendingAuthority: false,
+                showBudgetSources: false,
+                showFlagged: false,
+              }}
+            />
+          ) : (
+            <MinimizedFilters activeFiltersCount={activeFiltersCount} />
+          )}
         </div>
       </div>
 

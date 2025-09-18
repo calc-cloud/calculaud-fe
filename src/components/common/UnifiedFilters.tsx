@@ -749,7 +749,11 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
             {filters.service_type?.map((serviceTypeId) => {
               const serviceType = serviceTypes.find((st) => st.id === serviceTypeId);
               return serviceType ? (
-                <Badge key={serviceTypeId} variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
+                <Badge
+                  key={serviceTypeId}
+                  variant="default"
+                  className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200"
+                >
                   {serviceType.name}
                   <X
                     className="h-3 w-3 cursor-pointer hover:text-red-600"
@@ -761,6 +765,32 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// Minimized Filters Indicator Component
+interface MinimizedFiltersProps {
+  activeFiltersCount: number;
+}
+
+export const MinimizedFilters: React.FC<MinimizedFiltersProps> = ({ activeFiltersCount }) => {
+  return (
+    <div className="bg-gray-100/80 backdrop-blur-lg shadow-xl border border-gray-200/30 ring-1 ring-black/5 rounded-lg px-4 py-3 transition-all duration-300 ease-in-out w-fit">
+      <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-2">
+          {activeFiltersCount > 0 ? (
+            <>
+              <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium">
+                {activeFiltersCount} active filter{activeFiltersCount !== 1 ? "s" : ""}
+              </div>
+            </>
+          ) : (
+            <span className="text-gray-600 text-sm">No active filters</span>
+          )}
+        </div>
+        <span className="text-gray-500 text-xs">Hover to see filters</span>
+      </div>
     </div>
   );
 };
