@@ -539,7 +539,6 @@ interface InlineFiltersProps {
   onFiltersChange: (filters: UnifiedFiltersType) => void;
   visibleFilters?: FilterVisibilityConfig;
   onClearFilters?: () => void;
-  isSticky?: boolean;
 }
 
 export const InlineFilters: React.FC<InlineFiltersProps> = ({
@@ -547,7 +546,6 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   onFiltersChange,
   visibleFilters,
   onClearFilters,
-  isSticky = false,
 }) => {
   // Default visibility config - show all filters if not specified
   const defaultVisibility: FilterVisibilityConfig = {
@@ -587,11 +585,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   };
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-4 ${
-      isSticky
-        ? "shadow-lg mb-0"
-        : "mb-6"
-    }`}>
+    <div className="border border-gray-200 rounded-lg p-4 bg-gray-100/80 backdrop-blur-lg shadow-xl border-gray-200/30 ring-1 ring-black/5 mb-6">
       <div className="flex flex-wrap items-center gap-4">
         {/* Date Range Controls */}
         {visibility.showTime && (
@@ -734,7 +728,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
           <div className="flex flex-wrap items-center gap-2">
             {/* Relative Time Badge */}
             {filters.relative_time && filters.relative_time !== "all_time" && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
                 {RELATIVE_TIME_OPTIONS.find((opt) => opt.value === filters.relative_time)?.label ||
                   filters.relative_time}
                 <X
@@ -755,7 +749,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
             {filters.service_type?.map((serviceTypeId) => {
               const serviceType = serviceTypes.find((st) => st.id === serviceTypeId);
               return serviceType ? (
-                <Badge key={serviceTypeId} variant="secondary" className="gap-1">
+                <Badge key={serviceTypeId} variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
                   {serviceType.name}
                   <X
                     className="h-3 w-3 cursor-pointer hover:text-red-600"

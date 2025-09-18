@@ -14,7 +14,7 @@ import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTyp
 import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
 import { StageProcessingTimesChart } from "@/components/dashboard/StageProcessingTimesChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
-import { useStickyFilters } from "@/hooks/useStickyFilters";
+import { useAutoHideFilters } from "@/hooks/useAutoHideFilters";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
 import { dashboardFiltersToUnified, unifiedToDashboardFilters } from "@/utils/filterAdapters";
@@ -22,7 +22,7 @@ import { clearFilters } from "@/utils/filterUtils";
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isSticky, containerRef, sentinelRef } = useStickyFilters();
+  const { isVisible, handleMouseEnter, handleMouseLeave, resetTimer } = useAutoHideFilters();
 
   // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
@@ -164,34 +164,41 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Sentinel element to detect when filters should become sticky */}
-      <div ref={sentinelRef} className="h-0" />
-
-      {/* Sticky Filters Container */}
+      {/* Auto-Hide Floating Filters Container */}
       <div
-        ref={containerRef}
-        className="sticky top-20 z-40"
+        className={`fixed top-14 left-0 right-0 z-40 flex justify-center transition-opacity duration-100 ease-in-out ${
+          isVisible ? 'opacity-100' : 'opacity-0'
+        }`}
       >
-        <InlineFilters
-          filters={unifiedFilters}
-          onFiltersChange={(unifiedFilters) => {
-            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-            setFilters(dashboardFilters);
-          }}
-          onClearFilters={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
-          visibleFilters={{
-            showTime: true,
-            showServiceTypes: true,
-            showHierarchy: false,
-            showMaterials: false,
-            showSuppliers: false,
-            showStatus: false,
-            showPendingAuthority: false,
-            showBudgetSources: false,
-            showFlagged: false,
-          }}
-          isSticky={isSticky}
-        />
+        <div
+          className="w-full max-w-4xl"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <InlineFilters
+            filters={unifiedFilters}
+            onFiltersChange={(unifiedFilters) => {
+              const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+              setFilters(dashboardFilters);
+              resetTimer(); // Reset timer on filter change
+            }}
+            onClearFilters={() => {
+              clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
+              resetTimer(); // Reset timer on clear filters
+            }}
+            visibleFilters={{
+              showTime: true,
+              showServiceTypes: true,
+              showHierarchy: false,
+              showMaterials: false,
+              showSuppliers: false,
+              showStatus: false,
+              showPendingAuthority: false,
+              showBudgetSources: false,
+              showFlagged: false,
+            }}
+          />
+        </div>
       </div>
 
       {/* Chart Blocks */}
