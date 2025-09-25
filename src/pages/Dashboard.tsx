@@ -22,7 +22,7 @@ import { clearFilters } from "@/utils/filterUtils";
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isVisible, handleMouseEnter, handleMouseLeave, resetTimer } = useAutoHideFilters();
+  const { isVisible, handleMouseEnter, handleMouseLeave } = useAutoHideFilters();
 
   // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
       <div className="fixed top-14 left-0 right-0 z-40 flex justify-center">
         <div
           className={`transition-all duration-300 ease-in-out ${
-            isVisible ? "w-full max-w-4xl" : "flex justify-center"
+            isVisible ? "w-auto max-w-3xl" : "flex justify-center"
           }`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -189,11 +189,9 @@ const Dashboard: React.FC = () => {
               onFiltersChange={(unifiedFilters) => {
                 const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
                 setFilters(dashboardFilters);
-                resetTimer(); // Reset timer on filter change
               }}
               onClearFilters={() => {
                 clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
-                resetTimer(); // Reset timer on clear filters
               }}
               visibleFilters={{
                 showTime: true,
@@ -206,6 +204,7 @@ const Dashboard: React.FC = () => {
                 showBudgetSources: false,
                 showFlagged: false,
               }}
+              excludeTimeOptions={["custom"]}
             />
           ) : (
             <MinimizedFilters activeFiltersCount={activeFiltersCount} />

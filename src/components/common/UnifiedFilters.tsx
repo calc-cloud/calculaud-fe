@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { CalendarIcon, ChevronDown, Filter, Flag, X } from "lucide-react";
+import { CalendarIcon, Check, ChevronDown, Filter, Flag, X } from "lucide-react";
 import React, { useState } from "react";
 
 import { HierarchySelector } from "@/components/common/HierarchySelector";
@@ -539,6 +539,7 @@ interface InlineFiltersProps {
   onFiltersChange: (filters: UnifiedFiltersType) => void;
   visibleFilters?: FilterVisibilityConfig;
   onClearFilters?: () => void;
+  excludeTimeOptions?: string[];
 }
 
 export const InlineFilters: React.FC<InlineFiltersProps> = ({
@@ -546,6 +547,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   onFiltersChange,
   visibleFilters,
   onClearFilters,
+  excludeTimeOptions = [],
 }) => {
   // Default visibility config - show all filters if not specified
   const defaultVisibility: FilterVisibilityConfig = {
@@ -565,15 +567,18 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   // Data hooks
   const { serviceTypes } = useAdminData();
 
-  // State for controlling date picker popovers
-  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
-  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
 
   // Calculate active filters count
   const activeFiltersCount = countActiveFilters(filters);
+
+  // Filter time options based on excludeTimeOptions prop
+  const filteredTimeOptions = RELATIVE_TIME_OPTIONS.filter(
+    (option) => !excludeTimeOptions.includes(option.value)
+  );
+
 
   // Helper function to remove specific filter
   const removeServiceType = (serviceTypeId: number) => {
@@ -587,96 +592,36 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   return (
     <div className="border border-gray-200 rounded-lg p-4 bg-gray-100/80 backdrop-blur-lg shadow-xl border-gray-200/30 ring-1 ring-black/5 mb-6">
       <div className="flex flex-wrap items-center gap-4">
-        {/* Date Range Controls */}
+        {/* Time Filter */}
         {visibility.showTime && (
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-gray-700">Time:</span>
-
-            {/* Relative Time Dropdown */}
-            <Select
-              value={filters.relative_time || "all_time"}
-              onValueChange={(relativeTime) => handleRelativeTimeChange(relativeTime, filters, onFiltersChange)}
-            >
-              <SelectTrigger className="w-36">
-                <SelectValue placeholder="Select time range" />
-              </SelectTrigger>
-              <SelectContent>
-                {RELATIVE_TIME_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Custom Date Range - only show when "custom" is selected */}
-            {filters.relative_time === "custom" && (
-              <div className="flex items-center gap-2">
-                <Popover open={startDatePickerOpen} onOpenChange={setStartDatePickerOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-32 justify-start text-left font-normal text-xs",
-                        !filters.start_date && "text-muted-foreground"
-                      )}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-48 justify-between">
+                  <span>
+                    {filteredTimeOptions.find((opt) => opt.value === (filters.relative_time || "all_time"))?.label || "All Time"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-60 p-0" align="start">
+                <div className="p-2">
+                  {filteredTimeOptions.map((option) => (
+                    <div
+                      key={option.value}
+                      className="flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                      onClick={() => handleRelativeTimeChange(option.value, filters, onFiltersChange)}
                     >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.start_date ? format(new Date(filters.start_date), "dd/MM/yy") : "Start"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filters.start_date ? new Date(filters.start_date) : undefined}
-                      onSelect={(date) => {
-                        handleDateChange(
-                          "start_date",
-                          date ? format(date, "yyyy-MM-dd") : undefined,
-                          filters,
-                          onFiltersChange
-                        );
-                        setStartDatePickerOpen(false);
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <span className="text-muted-foreground text-sm">—</span>
-
-                <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-32 justify-start text-left font-normal text-xs",
-                        !filters.end_date && "text-muted-foreground"
+                      <span>{option.label}</span>
+                      {(filters.relative_time || "all_time") === option.value && (
+                        <Check className="h-4 w-4 text-blue-600" />
                       )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {filters.end_date ? format(new Date(filters.end_date), "dd/MM/yy") : "End"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={filters.end_date ? new Date(filters.end_date) : undefined}
-                      onSelect={(date) => {
-                        handleDateChange(
-                          "end_date",
-                          date ? format(date, "yyyy-MM-dd") : undefined,
-                          filters,
-                          onFiltersChange
-                        );
-                        setEndDatePickerOpen(false);
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
 
@@ -729,7 +674,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
             {/* Relative Time Badge */}
             {filters.relative_time && filters.relative_time !== "all_time" && (
               <Badge variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
-                {RELATIVE_TIME_OPTIONS.find((opt) => opt.value === filters.relative_time)?.label ||
+                {filteredTimeOptions.find((opt) => opt.value === filters.relative_time)?.label ||
                   filters.relative_time}
                 <X
                   className="h-3 w-3 cursor-pointer hover:text-red-600"
