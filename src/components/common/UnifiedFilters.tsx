@@ -567,6 +567,10 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   // Data hooks
   const { serviceTypes } = useAdminData();
 
+  // State for controlling date picker popovers
+  const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
+  const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
+
 
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
@@ -575,9 +579,9 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   const activeFiltersCount = countActiveFilters(filters);
 
   // Filter time options based on excludeTimeOptions prop
-  const filteredTimeOptions = RELATIVE_TIME_OPTIONS.filter(
-    (option) => !excludeTimeOptions.includes(option.value)
-  );
+  const filteredTimeOptions = excludeTimeOptions.length > 0
+    ? RELATIVE_TIME_OPTIONS.filter((option) => !excludeTimeOptions.includes(option.value))
+    : RELATIVE_TIME_OPTIONS;
 
 
   // Helper function to remove specific filter
@@ -620,6 +624,86 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
                     </div>
                   ))}
                 </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+
+        {/* Date Range Pickers - Show when custom is selected or dates are set */}
+        {visibility.showTime && (filters.relative_time === "custom" || filters.start_date || filters.end_date) && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">From:</span>
+            <Popover open={startDatePickerOpen} onOpenChange={setStartDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-40 justify-start text-left font-normal",
+                    !filters.start_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : "Start date"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={filters.start_date ? new Date(filters.start_date) : undefined}
+                  onSelect={(date) => {
+                    handleDateChange(
+                      "start_date",
+                      date ? format(date, "yyyy-MM-dd") : undefined,
+                      filters,
+                      onFiltersChange
+                    );
+                    setStartDatePickerOpen(false);
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+
+        {/* End Date Picker */}
+        {visibility.showTime && (filters.relative_time === "custom" || filters.start_date || filters.end_date) && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">To:</span>
+            <Popover open={endDatePickerOpen} onOpenChange={setEndDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-40 justify-start text-left font-normal",
+                    !filters.end_date && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">
+                    {filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : "End date"}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={filters.end_date ? new Date(filters.end_date) : undefined}
+                  onSelect={(date) => {
+                    handleDateChange(
+                      "end_date",
+                      date ? format(date, "yyyy-MM-dd") : undefined,
+                      filters,
+                      onFiltersChange
+                    );
+                    setEndDatePickerOpen(false);
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
               </PopoverContent>
             </Popover>
           </div>
@@ -674,8 +758,12 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
             {/* Relative Time Badge */}
             {filters.relative_time && filters.relative_time !== "all_time" && (
               <Badge variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
-                {filteredTimeOptions.find((opt) => opt.value === filters.relative_time)?.label ||
-                  filters.relative_time}
+                {filters.relative_time === "custom" && (filters.start_date || filters.end_date) ? (
+                  `${filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : ""} - ${filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : ""}`
+                ) : (
+                  filteredTimeOptions.find((opt) => opt.value === filters.relative_time)?.label ||
+                  filters.relative_time
+                )}
                 <X
                   className="h-3 w-3 cursor-pointer hover:text-red-600"
                   onClick={() =>

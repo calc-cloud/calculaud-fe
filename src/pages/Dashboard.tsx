@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
       <div className="fixed top-14 left-0 right-0 z-40 flex justify-center">
         <div
           className={`transition-all duration-300 ease-in-out ${
-            isVisible ? "w-auto max-w-3xl" : "flex justify-center"
+            isVisible ? "w-auto max-w-7xl" : "flex justify-center"
           }`}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -204,7 +204,6 @@ const Dashboard: React.FC = () => {
                 showBudgetSources: false,
                 showFlagged: false,
               }}
-              excludeTimeOptions={["custom"]}
             />
           ) : (
             <MinimizedFilters activeFiltersCount={activeFiltersCount} />
