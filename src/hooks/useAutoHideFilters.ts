@@ -23,7 +23,6 @@ export const useAutoHideFilters = (): UseAutoHideFiltersReturn => {
     setIsVisible(false);
   }, []);
 
-
   return {
     isVisible,
     isHovered,

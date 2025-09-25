@@ -571,7 +571,6 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   const [startDatePickerOpen, setStartDatePickerOpen] = useState(false);
   const [endDatePickerOpen, setEndDatePickerOpen] = useState(false);
 
-
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
 
@@ -579,10 +578,10 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
   const activeFiltersCount = countActiveFilters(filters);
 
   // Filter time options based on excludeTimeOptions prop
-  const filteredTimeOptions = excludeTimeOptions.length > 0
-    ? RELATIVE_TIME_OPTIONS.filter((option) => !excludeTimeOptions.includes(option.value))
-    : RELATIVE_TIME_OPTIONS;
-
+  const filteredTimeOptions =
+    excludeTimeOptions.length > 0
+      ? RELATIVE_TIME_OPTIONS.filter((option) => !excludeTimeOptions.includes(option.value))
+      : RELATIVE_TIME_OPTIONS;
 
   // Helper function to remove specific filter
   const removeServiceType = (serviceTypeId: number) => {
@@ -604,7 +603,8 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-48 justify-between">
                   <span>
-                    {filteredTimeOptions.find((opt) => opt.value === (filters.relative_time || "all_time"))?.label || "All Time"}
+                    {filteredTimeOptions.find((opt) => opt.value === (filters.relative_time || "all_time"))?.label ||
+                      "All Time"}
                   </span>
                   <ChevronDown className="h-4 w-4 flex-shrink-0" />
                 </Button>
@@ -758,12 +758,10 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
             {/* Relative Time Badge */}
             {filters.relative_time && filters.relative_time !== "all_time" && (
               <Badge variant="default" className="gap-1 bg-blue-100 text-blue-800 hover:bg-blue-200">
-                {filters.relative_time === "custom" && (filters.start_date || filters.end_date) ? (
-                  `${filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : ""} - ${filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : ""}`
-                ) : (
-                  filteredTimeOptions.find((opt) => opt.value === filters.relative_time)?.label ||
-                  filters.relative_time
-                )}
+                {filters.relative_time === "custom" && (filters.start_date || filters.end_date)
+                  ? `${filters.start_date ? format(new Date(filters.start_date), "dd/MM/yyyy") : ""} - ${filters.end_date ? format(new Date(filters.end_date), "dd/MM/yyyy") : ""}`
+                  : filteredTimeOptions.find((opt) => opt.value === filters.relative_time)?.label ||
+                    filters.relative_time}
                 <X
                   className="h-3 w-3 cursor-pointer hover:text-red-600"
                   onClick={() =>
