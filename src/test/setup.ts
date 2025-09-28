@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
+// Import all mocks to ensure they're loaded
+import "./mocks";
+
 // Mock window.URL.createObjectURL and revokeObjectURL for file download tests
 Object.defineProperty(window, "URL", {
   writable: true,

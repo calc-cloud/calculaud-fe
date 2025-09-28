@@ -7,6 +7,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import React, { useCallback, useMemo, useState, useEffect } from "react";
+import { useAuth } from "react-oidc-context";
 import { useNavigate } from "react-router-dom";
 
 import { ColumnVisibility } from "@/components/common/ColumnControl";
@@ -15,6 +16,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { Purpose } from "@/types";
 import { ColumnSizing, loadColumnSizing, saveColumnSizing } from "@/utils/columnStorage";
+import { hasAdminRole } from "@/utils/roleUtils";
 import { SortConfig } from "@/utils/sorting";
 
 import { createColumns } from "./columns";
@@ -44,6 +46,8 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
 }) => {
   const { hierarchies } = useAdminData();
   const navigate = useNavigate();
+  const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -216,7 +220,7 @@ export const TanStackPurposeTable: React.FC<TanStackPurposeTableProps> = ({
             <TableRow
               key={row.id}
               onClick={() => handleRowClick(row.original)}
-              onContextMenu={(e) => handleContextMenu(e, row.original)}
+              onContextMenu={(e) => (isAdmin ? handleContextMenu(e, row.original) : e.preventDefault())}
               className={`cursor-pointer h-20 ${
                 row.original.is_flagged ? "bg-red-50 hover:bg-red-100" : "hover:bg-muted/50"
               }`}

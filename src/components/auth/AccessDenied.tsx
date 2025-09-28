@@ -21,7 +21,8 @@ const AccessDenied = () => {
   };
 
   const userRoles = getUserRoles(auth.user);
-  const requiredRole = import.meta.env.VITE_REQUIRED_ROLE || "calculaudAdmin";
+  const adminRole = import.meta.env.VITE_ADMIN_ROLE || "calAdmins";
+  const userRole = import.meta.env.VITE_USER_ROLE || "calUsers";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -39,8 +40,10 @@ const AccessDenied = () => {
               <span className="text-gray-600">{getDisplayName()}</span>
             </div>
             <div>
-              <span className="font-medium text-gray-700">Required Role:</span>{" "}
-              <span className="text-gray-600">{requiredRole}</span>
+              <span className="font-medium text-gray-700">Required Roles:</span>{" "}
+              <span className="text-gray-600">
+                {adminRole} or {userRole}
+              </span>
             </div>
             <div>
               <span className="font-medium text-gray-700">Your Roles:</span>{" "}
@@ -50,7 +53,7 @@ const AccessDenied = () => {
         </div>
 
         <p className="text-sm text-gray-500 mb-6">
-          Please contact your administrator to request access to the "{requiredRole}" role.
+          Please contact your administrator to request access to either the "{adminRole}" or "{userRole}" role.
         </p>
 
         <Button onClick={handleLogout} className="flex items-center gap-2 mx-auto" variant="outline">

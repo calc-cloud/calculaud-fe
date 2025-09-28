@@ -82,8 +82,8 @@ vi.mock("sonner", () => ({
 }));
 
 // Mock date-fns to avoid timezone issues in tests
-vi.mock("date-fns", async () => {
-  const actual = await vi.importActual("date-fns");
+vi.mock("date-fns", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("date-fns")>();
   return {
     ...actual,
     format: vi.fn((date: Date, formatStr: string) => {
@@ -93,8 +93,97 @@ vi.mock("date-fns", async () => {
       }
       return "2024-01-01";
     }),
+    subDays: vi.fn((date: Date, amount: number) => {
+      const result = new Date(date);
+      result.setDate(result.getDate() - amount);
+      return result;
+    }),
+    subWeeks: vi.fn((date: Date, amount: number) => {
+      const result = new Date(date);
+      result.setDate(result.getDate() - amount * 7);
+      return result;
+    }),
+    subMonths: vi.fn((date: Date, amount: number) => {
+      const result = new Date(date);
+      result.setMonth(result.getMonth() - amount);
+      return result;
+    }),
+    subYears: vi.fn((date: Date, amount: number) => {
+      const result = new Date(date);
+      result.setFullYear(result.getFullYear() - amount);
+      return result;
+    }),
+    startOfDay: vi.fn((date: Date) => {
+      const result = new Date(date);
+      result.setHours(0, 0, 0, 0);
+      return result;
+    }),
+    endOfDay: vi.fn((date: Date) => {
+      const result = new Date(date);
+      result.setHours(23, 59, 59, 999);
+      return result;
+    }),
   };
 });
+
+// Mock react-oidc-context
+export const mockUser = {
+  access_token: "mock-access-token",
+  profile: {
+    sub: "mock-user-id",
+    email: "test@example.com",
+    unique_name: "Test User",
+    preferred_username: "testuser",
+    upn: "test@example.com",
+    role: "calAdmins" as string | string[], // Default to admin role for tests
+  },
+};
+
+export const mockAuth = {
+  user: mockUser,
+  isAuthenticated: true,
+  isLoading: false,
+  error: null,
+  signinRedirect: vi.fn(),
+  signoutRedirect: vi.fn(),
+};
+
+vi.mock("react-oidc-context", () => ({
+  useAuth: () => mockAuth,
+}));
+
+// Mock environment variables - this will be applied globally
+Object.defineProperty(import.meta, "env", {
+  value: {
+    VITE_ADMIN_ROLE: "calAdmins",
+    VITE_USER_ROLE: "calUsers",
+    VITE_ROLE_CLAIM_PATH: "role",
+  },
+  writable: true,
+});
+
+// Helper functions to change user roles in tests
+export const setUserRole = (role: string | string[]) => {
+  mockAuth.user.profile.role = role;
+};
+
+export const setAdminUser = () => {
+  setUserRole("calAdmins");
+};
+
+export const setRegularUser = () => {
+  setUserRole("calUsers");
+};
+
+export const setUnauthenticatedUser = () => {
+  mockAuth.isAuthenticated = false;
+  mockAuth.user = null;
+};
+
+export const setAuthenticatedUser = () => {
+  mockAuth.isAuthenticated = true;
+  mockAuth.user = mockUser;
+};
 
 // Reset all mocks
 export const resetAllMocks = () => {
@@ -111,4 +200,13 @@ export const resetAllMocks = () => {
   mockToast.error.mockReset();
   mockToast.info.mockReset();
   mockToast.warning.mockReset();
+  mockAuth.signinRedirect.mockReset();
+  mockAuth.signoutRedirect.mockReset();
+
+  // Reset auth state to default
+  mockAuth.isAuthenticated = true;
+  mockAuth.isLoading = false;
+  mockAuth.error = null;
+  mockAuth.user = mockUser;
+  setAdminUser(); // Default to admin user
 };

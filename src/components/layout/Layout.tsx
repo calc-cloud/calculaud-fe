@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { hasAdminRole } from "@/utils/roleUtils";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
@@ -103,23 +105,30 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             </div>
             <div className="flex items-center space-x-4 ml-auto">
-              <Button
-                onClick={handleCreatePurpose}
-                className="flex items-center gap-2 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-colors bg-cyan-800 hover:bg-cyan-700"
-              >
-                <Plus className="h-4 w-4" />
-                Create Purpose
-              </Button>
-              <div className="flex items-center space-x-2 border-l pl-4">
+              {isAdmin && (
+                <>
+                  <Button
+                    onClick={handleCreatePurpose}
+                    className="flex items-center gap-2 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-colors bg-cyan-800 hover:bg-cyan-700"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Create Purpose
+                  </Button>
+                  <div className="border-l h-6 border-gray-300" />
+                </>
+              )}
+              <div className="flex items-center space-x-2">
                 <Link to="/dashboard">
                   <Button variant={location.pathname === "/dashboard" ? "default" : "ghost"}>Dashboard</Button>
                 </Link>
                 <Link to="/search">
                   <Button variant={location.pathname === "/search" ? "default" : "ghost"}>Search</Button>
                 </Link>
-                <Link to="/admin">
-                  <Button variant={location.pathname === "/admin" ? "default" : "ghost"}>Admin</Button>
-                </Link>
+                {isAdmin && (
+                  <Link to="/admin">
+                    <Button variant={location.pathname === "/admin" ? "default" : "ghost"}>Admin</Button>
+                  </Link>
+                )}
               </div>
 
               {/* User Avatar Dropdown */}

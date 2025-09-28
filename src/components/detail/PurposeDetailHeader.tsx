@@ -1,11 +1,13 @@
 import { ArrowLeft, MoreVertical, Flag, FlagOff } from "lucide-react";
 import React from "react";
+import { useAuth } from "react-oidc-context";
 
 import { PurposeDropdownMenu } from "@/components/shared/PurposeDropdownMenu";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { hasAdminRole } from "@/utils/roleUtils";
 import { getStatusDisplay } from "@/utils/statusUtils";
 
 interface PurposeDetailHeaderProps {
@@ -21,6 +23,8 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
   onDeletePurpose,
   onToggleFlag,
 }) => {
+  const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
   const statusInfo = getStatusDisplay(purpose.status);
 
   return (
@@ -37,33 +41,37 @@ export const PurposeDetailHeader: React.FC<PurposeDetailHeaderProps> = ({
         <Badge variant={statusInfo.variant} className={`cursor-default pointer-events-none ${statusInfo.className}`}>
           {statusInfo.label}
         </Badge>
-        <div className="group relative ml-2">
-          <Flag
-            className={`h-5 w-5 cursor-pointer transition-opacity duration-200 ${
-              purpose.is_flagged
-                ? "opacity-100 text-red-500 fill-red-500 group-hover:opacity-0"
-                : "opacity-0 text-red-500 group-hover:opacity-100 group-hover:text-red-500"
-            }`}
-            onClick={onToggleFlag}
-          />
-          {purpose.is_flagged && (
-            <FlagOff
-              className="absolute top-0 left-0 h-5 w-5 cursor-pointer text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        {isAdmin && (
+          <div className="group relative ml-2">
+            <Flag
+              className={`h-5 w-5 cursor-pointer transition-opacity duration-200 ${
+                purpose.is_flagged
+                  ? "opacity-100 text-red-500 fill-red-500 group-hover:opacity-0"
+                  : "opacity-0 text-red-500 group-hover:opacity-100 group-hover:text-red-500"
+              }`}
               onClick={onToggleFlag}
             />
-          )}
-        </div>
+            {purpose.is_flagged && (
+              <FlagOff
+                className="absolute top-0 left-0 h-5 w-5 cursor-pointer text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                onClick={onToggleFlag}
+              />
+            )}
+          </div>
+        )}
       </div>
-      <PurposeDropdownMenu
-        purpose={purpose}
-        onToggleFlag={() => onToggleFlag()}
-        onDeletePurpose={() => onDeletePurpose()}
-        trigger={
-          <Button variant="ghost" size="sm">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        }
-      />
+      {isAdmin && (
+        <PurposeDropdownMenu
+          purpose={purpose}
+          onToggleFlag={() => onToggleFlag()}
+          onDeletePurpose={() => onDeletePurpose()}
+          trigger={
+            <Button variant="ghost" size="sm">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          }
+        />
+      )}
     </div>
   );
 };
