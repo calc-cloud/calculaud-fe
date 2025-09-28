@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import React from "react";
+import { useAuth } from "react-oidc-context";
 
 import { StatusColorTooltip } from "@/components/common/StatusColorTooltip";
 import { PurchaseTimeline } from "@/components/detail/PurchaseTimeline";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Purpose } from "@/types";
+import { hasAdminRole } from "@/utils/roleUtils";
 
 interface PurchasesTimelineCardProps {
   purpose: Purpose;
@@ -53,6 +55,9 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
   calculateStagePosition,
   isPurchaseComplete,
 }) => {
+  const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
+
   // Sort purchases - incomplete first, then completed
   const sortedPurchases = purpose.purchases.sort((a, b) => {
     const aComplete = isPurchaseComplete(a);
@@ -76,7 +81,7 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
               <CardTitle className="text-lg font-semibold cursor-help">Purchases</CardTitle>
             </StatusColorTooltip>
           </TooltipProvider>
-          {purpose.purchases.length > 0 && (
+          {purpose.purchases.length > 0 && isAdmin && (
             <Button variant="outline" size="sm" onClick={onAddPurchase}>
               <Plus className="mr-2 h-4 w-4" />
               Add Purchase
@@ -104,6 +109,7 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
                 onDeletePurchase={onDeletePurchase}
                 onEditPurchase={onEditPurchase}
                 setEditForm={setEditForm}
+                isAdmin={isAdmin}
                 getStageDisplayDate={getStageDisplayDate}
                 hasMultipleStagesWithSamePriority={hasMultipleStagesWithSamePriority}
                 getPriorityVariant={getPriorityVariant}
@@ -116,10 +122,12 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
         ) : (
           <div className="text-center py-6">
             <p className="text-gray-500 mb-3 text-sm">No purchases yet</p>
-            <Button variant="outline" size="sm" onClick={onAddPurchase}>
-              <Plus className="mr-2 h-3 w-3" />
-              Add First Purchase
-            </Button>
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={onAddPurchase}>
+                <Plus className="mr-2 h-3 w-3" />
+                Add First Purchase
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

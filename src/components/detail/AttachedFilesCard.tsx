@@ -1,8 +1,10 @@
 import React from "react";
+import { useAuth } from "react-oidc-context";
 
 import { FileUpload } from "@/components/common/FileUpload";
 import { Card, CardContent } from "@/components/ui/card";
 import { Purpose, PurposeFile } from "@/types";
+import { hasAdminRole } from "@/utils/roleUtils";
 
 interface AttachedFilesCardProps {
   purpose: Purpose;
@@ -10,10 +12,13 @@ interface AttachedFilesCardProps {
 }
 
 export const AttachedFilesCard: React.FC<AttachedFilesCardProps> = ({ purpose, onFilesChange }) => {
+  const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
+
   return (
     <Card className="flex-none">
       <CardContent className="p-6">
-        <FileUpload files={purpose.files} onFilesChange={onFilesChange} isReadOnly={false} purposeId={purpose.id} />
+        <FileUpload files={purpose.files} onFilesChange={onFilesChange} isReadOnly={!isAdmin} purposeId={purpose.id} />
       </CardContent>
     </Card>
   );

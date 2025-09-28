@@ -40,6 +40,7 @@ interface PurchaseTimelineProps {
   onDeletePurchase: (purchaseId: string) => Promise<void>;
   onEditPurchase: (purchase: any) => void;
   setEditForm: (form: { date: string; text: string }) => void;
+  isAdmin: boolean;
   // Utility functions
   getStageDisplayDate: (stage: any) => string;
   hasMultipleStagesWithSamePriority: (stages: any[], stage: any) => boolean;
@@ -64,6 +65,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
   onDeletePurchase,
   onEditPurchase,
   setEditForm,
+  isAdmin,
   getStageDisplayDate,
   hasMultipleStagesWithSamePriority,
   getPriorityVariant,
@@ -94,19 +96,19 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
         >
           <div
             className={`bg-white rounded-lg shadow-sm transition-all duration-300 ${
-              editingStage === stage.id ? "" : "cursor-pointer"
+              editingStage === stage.id || !isAdmin ? "" : "cursor-pointer"
             } ${
               isCurrentPendingStage(stage, purchase)
                 ? isExpanded
-                  ? `w-64 p-4 shadow-xl hover:shadow-2xl z-50 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
-                  : `min-w-32 max-w-40 p-3 hover:shadow-md z-10 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
+                  ? `w-64 p-4 shadow-xl ${isAdmin ? "hover:shadow-2xl" : ""} z-50 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
+                  : `min-w-32 max-w-40 p-3 ${isAdmin ? "hover:shadow-md" : ""} z-10 border-2 ${getStatusBorderColor(purchaseStatus.type)}`
                 : isExpanded
-                  ? "w-64 p-4 shadow-xl hover:shadow-2xl z-50 border border-gray-200"
-                  : "min-w-32 max-w-40 p-3 hover:shadow-md z-10 border border-gray-200"
+                  ? `w-64 p-4 shadow-xl ${isAdmin ? "hover:shadow-2xl" : ""} z-50 border border-gray-200`
+                  : `min-w-32 max-w-40 p-3 ${isAdmin ? "hover:shadow-md" : ""} z-10 border border-gray-200`
             }`}
             onClick={() => {
-              // Don't trigger if already in edit mode
-              if (editingStage === stage.id) {
+              // Don't trigger if already in edit mode or user is not admin
+              if (editingStage === stage.id || !isAdmin) {
                 return;
               }
               onStageClick(stage);
@@ -254,44 +256,46 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
             </div>
             <div className="text-xs text-gray-500">Created: {formatDate(purchase.creation_date)}</div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-700 hover:bg-gray-50">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEditPurchase(purchase)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to delete {purchaseId}? This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDeletePurchase(purchase.id)}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
+          {isAdmin && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-700 hover:bg-gray-50">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEditPurchase(purchase)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600 focus:text-red-600">
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Delete
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Purchase</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete {purchaseId}? This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDeletePurchase(purchase.id)}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
 
         <div className="relative">

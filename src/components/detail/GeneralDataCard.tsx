@@ -1,5 +1,6 @@
 import { Building, Calendar, Edit, Layers, MessageSquare, Target, Clock } from "lucide-react";
 import React from "react";
+import { useAuth } from "react-oidc-context";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Purpose } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
+import { hasAdminRole } from "@/utils/roleUtils";
 import { getStatusDisplay } from "@/utils/statusUtils";
 
 interface GeneralDataCardProps {
@@ -15,16 +17,20 @@ interface GeneralDataCardProps {
 }
 
 export const GeneralDataCard: React.FC<GeneralDataCardProps> = ({ purpose, onEdit }) => {
+  const auth = useAuth();
+  const isAdmin = hasAdminRole(auth.user);
   const statusInfo = getStatusDisplay(purpose.status);
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-lg font-semibold">General Data</CardTitle>
-        <Button variant="outline" size="sm" onClick={onEdit}>
-          <Edit className="mr-2 h-4 w-4" />
-          Edit
-        </Button>
+        {isAdmin && (
+          <Button variant="outline" size="sm" onClick={onEdit}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit
+          </Button>
+        )}
       </CardHeader>
       <CardContent className="space-y-4 px-6 pb-6 pt-4">
         <div>
