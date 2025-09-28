@@ -17,6 +17,7 @@ import {
   getAuthorityInfo,
   getStagesDisplay,
   getTotalCostWithCurrencies,
+  getBudgetSources,
 } from "@/utils/tableUtils";
 
 import { PurchaseGridCell } from "./purchases/PurchaseGridCell";
@@ -152,6 +153,27 @@ export const createColumns = (
       </CellWrapper>
     ),
     ...COLUMN_SIZES.serviceType,
+  },
+
+  {
+    id: "budgetSource",
+    accessorFn: (row) => getBudgetSources(row).allSources,
+    header: () => <SimpleHeaderWrapper>Budget Source</SimpleHeaderWrapper>,
+    cell: ({ row }) => {
+      const budgetSources = getBudgetSources(row.original);
+
+      return budgetSources.sources.length > 0 ? (
+        <TooltipCell
+          trigger={<MultiItemDisplay items={budgetSources.sources} />}
+          content={<p>{budgetSources.allSources}</p>}
+        />
+      ) : (
+        <CellWrapper>
+          <div className="text-sm text-muted-foreground">-</div>
+        </CellWrapper>
+      );
+    },
+    ...COLUMN_SIZES.budgetSource,
   },
 
   {

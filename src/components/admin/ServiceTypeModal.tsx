@@ -61,8 +61,18 @@ const ServiceTypeModal: React.FC<ServiceTypeModalProps> = ({ open, onOpenChange,
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !isLoading) {
+      // When closing the modal, reset the form like Cancel button
+      setServiceTypeName(editItem?.name || "");
+    }
+    if (!isLoading) {
+      onOpenChange(open);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{editItem ? "Edit Service Type" : "Create New Service Type"}</DialogTitle>

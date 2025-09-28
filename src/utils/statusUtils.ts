@@ -4,6 +4,7 @@ export interface StatusDisplayInfo {
   label: string;
   variant: "default" | "secondary" | "destructive" | "outline";
   className: string;
+  backgroundColor: string;
 }
 
 /**
@@ -16,30 +17,35 @@ export const getStatusDisplay = (status: string | PurposeStatus): StatusDisplayI
         label: "In Progress",
         variant: "outline",
         className: "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-200",
+        backgroundColor: "#f59e0b",
       };
     case "COMPLETED":
       return {
         label: "Completed",
         variant: "outline",
         className: "bg-green-100 text-green-800 border-green-200 hover:bg-green-200",
+        backgroundColor: "#059669",
       };
     case "SIGNED":
       return {
         label: "Signed",
         variant: "outline",
         className: "bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-200",
+        backgroundColor: "#2563eb",
       };
     case "PARTIALLY_SUPPLIED":
       return {
         label: "Partially Supplied",
         variant: "outline",
         className: "bg-orange-200 text-orange-800 border-orange-300 hover:bg-orange-300",
+        backgroundColor: "#d97706",
       };
     default:
       return {
         label: status,
         variant: "outline",
         className: "bg-gray-100 text-gray-800 border-gray-200 hover:bg-gray-200",
+        backgroundColor: "#6b7280",
       };
   }
 };

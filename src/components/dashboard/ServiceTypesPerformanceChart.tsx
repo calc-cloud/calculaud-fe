@@ -1,55 +1,64 @@
 import { Loader2 } from "lucide-react";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-import { DashboardFilters, ServiceTypesDistributionResponse } from "@/types/analytics";
+import { DashboardFilters, ServiceTypesPerformanceDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
 import { getServiceTypeColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
-interface ServiceTypesDistributionChartProps {
-  data: ServiceTypesDistributionResponse | undefined;
-  isLoading: boolean;
+interface ServiceTypesPerformanceChartProps {
+  data?: {
+    signed: ServiceTypesPerformanceDistributionResponse;
+    completed: ServiceTypesPerformanceDistributionResponse;
+  };
+  isLoading?: boolean;
   globalFilters: DashboardFilters;
 }
 
-export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({
+export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChartProps> = ({
   data,
-  isLoading,
+  isLoading = false,
   globalFilters,
 }) => {
   const navigate = useNavigate();
+  const [activeStatus, setActiveStatus] = useState<"SIGNED" | "COMPLETED">("SIGNED");
 
-  // Transform data for recharts
+  // Get current data based on active status
+  const currentData = useMemo(() => {
+    if (!data) return null;
+    return activeStatus === "SIGNED" ? data.signed : data.completed;
+  }, [data, activeStatus]);
+
+  // Transform data for recharts and calculate total
   const chartData = useMemo(() => {
-    if (!data || !data.data) return [];
-    return data.data.map((item) => ({
-      name: item.name,
+    if (!currentData?.data) return [];
+    return currentData.data.map((item) => ({
+      name: item.service_type_name,
       value: item.count,
-      id: item.id,
-      color: getServiceTypeColor(item.id, item.name),
+      service_type_id: item.service_type_id,
+      color: getServiceTypeColor(item.service_type_id, item.service_type_name),
     }));
-  }, [data]);
+  }, [currentData]);
 
   // Calculate total count
   const totalCount = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.value, 0);
-  }, [chartData]);
+    return currentData?.total_count || 0;
+  }, [currentData]);
 
   // Handle clicking on a pie segment
   const handleSegmentClick = (segmentData: any) => {
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // For Live Operations, exclude COMPLETED status from search results
-    const nonCompletedStatuses = ["In Progress", "Signed", "Partially Supplied"];
+    // Add the clicked service type and current status to the filters
+    const statusDisplayName = activeStatus === "SIGNED" ? "Signed" : "Completed";
 
-    // Add the clicked service type to the filters and exclude COMPLETED status
     const updatedFilters = {
       ...unifiedFilters,
-      service_type: [segmentData.id], // Use service type ID for search page compatibility
-      status: nonCompletedStatuses, // Always exclude COMPLETED status for live operations
+      service_type: [segmentData.service_type_id],
+      status: [statusDisplayName],
     };
 
     // Build search URL with filters
@@ -75,27 +84,6 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     navigate(`/search?${searchParams.toString()}`);
   };
 
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.65;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-        fontSize="12"
-        fontWeight="bold"
-      >
-        {value}
-      </text>
-    );
-  };
-
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
@@ -104,6 +92,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium text-gray-900">{`Service Type: ${data.name} (${percentage}%)`}</p>
           <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
+          <p className="text-gray-500 text-sm">{`Status: ${activeStatus === "SIGNED" ? "Signed" : "Completed"}`}</p>
         </div>
       );
     }
@@ -133,8 +122,8 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
   if (isLoading) {
     return (
       <div className="w-full h-96 flex flex-col p-4">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -143,22 +132,44 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     );
   }
 
-  if (!data || !data.data || data.data.length === 0) {
+  if (!data || (!data.signed?.data?.length && !data.completed?.data?.length)) {
     return (
       <div className="w-full h-96 flex flex-col p-4">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">No service type data available</div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">No performance data available</div>
       </div>
     );
   }
 
   return (
     <div className="w-full h-96 flex flex-col p-4">
-      {/* Chart Title */}
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+      {/* Chart Title and Status Toggle */}
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-900">Service Types by Performance Status</h3>
+        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+          <button
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              activeStatus === "SIGNED"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveStatus("SIGNED")}
+          >
+            Signed
+          </button>
+          <button
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              activeStatus === "COMPLETED"
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            }`}
+            onClick={() => setActiveStatus("COMPLETED")}
+          >
+            Completed
+          </button>
+        </div>
       </div>
 
       {/* Chart Content */}
@@ -172,21 +183,28 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
                   data={chartData}
                   cx="50%"
                   cy="50%"
+                  innerRadius={70}
                   outerRadius={85}
-                  fill="#8884d8"
+                  paddingAngle={2}
                   dataKey="value"
                   onClick={handleSegmentClick}
                   className="cursor-pointer"
-                  labelLine={false}
-                  label={renderCustomLabel}
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 9999 }} />
               </PieChart>
             </ResponsiveContainer>
+
+            {/* Center Label */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">{totalCount}</div>
+                <div className="text-sm text-gray-600">{activeStatus === "SIGNED" ? "Signed" : "Completed"}</div>
+              </div>
+            </div>
           </div>
         </div>
 

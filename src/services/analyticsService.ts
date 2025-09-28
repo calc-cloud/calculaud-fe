@@ -1,48 +1,43 @@
 import {
   DashboardFilters,
-  ServicesQuantityResponse,
+  ServiceQuantitiesResponse,
   ServiceTypesDistributionResponse,
-  HierarchyDistributionResponse,
-  ExpenditureTimelineResponse,
+  ServiceTypesPerformanceDistributionResponse,
+  StatusDistributionResponse,
+  PendingAuthorityDistributionResponse,
+  PendingStagesDistributionResponse,
+  BudgetSourceDistributionResponse,
+  ServiceTypeCostsDistributionResponse,
+  ProcessingTimesResponse,
+  StageProcessingTimesResponse,
 } from "@/types/analytics";
 
 import { apiService } from "./apiService";
 
 export class AnalyticsService {
-  // Helper method to build filter parameters (eliminates massive duplication)
   private buildFilterParams(filters?: DashboardFilters): Record<string, any> {
     const params: Record<string, any> = {};
 
     if (filters) {
+      // Time filters
       if (filters.start_date) {
         params.start_date = filters.start_date;
       }
       if (filters.end_date) {
         params.end_date = filters.end_date;
       }
-      if (filters.service_id?.length) {
-        params.service_id = filters.service_id;
-      }
+      // Service type filters
       if (filters.service_type_id?.length) {
         params.service_type_id = filters.service_type_id;
-      }
-      if (filters.hierarchy_id?.length) {
-        params.hierarchy_id = filters.hierarchy_id;
-      }
-      if (filters.status?.length) {
-        params.status = filters.status;
-      }
-      if (filters.supplier_id?.length) {
-        params.supplier_id = filters.supplier_id;
       }
     }
 
     return params;
   }
 
-  async getServicesQuantities(filters?: DashboardFilters): Promise<ServicesQuantityResponse> {
+  async getServicesQuantities(filters?: DashboardFilters): Promise<ServiceQuantitiesResponse> {
     const params = this.buildFilterParams(filters);
-    return apiService.get<ServicesQuantityResponse>("/analytics/services/quantities", params);
+    return apiService.get<ServiceQuantitiesResponse>("/analytics/services/quantities", params);
   }
 
   async getServiceTypesDistribution(filters?: DashboardFilters): Promise<ServiceTypesDistributionResponse> {
@@ -50,32 +45,53 @@ export class AnalyticsService {
     return apiService.get<ServiceTypesDistributionResponse>("/analytics/service-types/distribution", params);
   }
 
-  async getHierarchyDistribution(
-    filters?: DashboardFilters,
-    level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null,
-    parent_id?: number | null
-  ): Promise<HierarchyDistributionResponse> {
+  async getStatusesDistribution(filters?: DashboardFilters): Promise<StatusDistributionResponse> {
     const params = this.buildFilterParams(filters);
-
-    // Add hierarchy-specific parameters
-    if (level !== null && level !== undefined) {
-      params.level = level;
-    }
-    if (parent_id !== null && parent_id !== undefined) {
-      params.parent_id = parent_id;
-    }
-
-    return apiService.get<HierarchyDistributionResponse>("/analytics/hierarchies/distribution", params);
+    return apiService.get<StatusDistributionResponse>("/analytics/statuses/distribution", params);
   }
 
-  async getExpenditureTimeline(
-    filters?: DashboardFilters,
-    groupBy: "day" | "week" | "month" | "year" = "month"
-  ): Promise<ExpenditureTimelineResponse> {
+  async getPendingAuthoritiesDistribution(filters?: DashboardFilters): Promise<PendingAuthorityDistributionResponse> {
     const params = this.buildFilterParams(filters);
-    params.group_by = groupBy;
+    return apiService.get<PendingAuthorityDistributionResponse>("/analytics/pending-authorities/distribution", params);
+  }
 
-    return apiService.get<ExpenditureTimelineResponse>("/analytics/expenditure/timeline", params);
+  async getPendingStagesDistribution(filters?: DashboardFilters): Promise<PendingStagesDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<PendingStagesDistributionResponse>("/analytics/pending-stages/distribution", params);
+  }
+
+  async getServiceTypesPerformanceDistribution(
+    status: "SIGNED" | "COMPLETED",
+    filters?: DashboardFilters
+  ): Promise<ServiceTypesPerformanceDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<ServiceTypesPerformanceDistributionResponse>(
+      `/analytics/service-types/${status}/distribution`,
+      params
+    );
+  }
+
+  async getBudgetSourceDistribution(filters?: DashboardFilters): Promise<BudgetSourceDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<BudgetSourceDistributionResponse>("/analytics/costs/distribution/by-budget-source", params);
+  }
+
+  async getServiceTypeCostsDistribution(filters?: DashboardFilters): Promise<ServiceTypeCostsDistributionResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<ServiceTypeCostsDistributionResponse>(
+      "/analytics/costs/distribution/by-service-type",
+      params
+    );
+  }
+
+  async getProcessingTimes(filters?: DashboardFilters): Promise<ProcessingTimesResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<ProcessingTimesResponse>("/analytics/purposes/processing-times", params);
+  }
+
+  async getStageProcessingTimes(filters?: DashboardFilters): Promise<StageProcessingTimesResponse> {
+    const params = this.buildFilterParams(filters);
+    return apiService.get<StageProcessingTimesResponse>("/analytics/stages/processing-times", params);
   }
 }
 

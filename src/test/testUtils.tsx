@@ -70,9 +70,11 @@ export const mockPurpose = (overrides = {}) => ({
   service_type: "Test Service Type",
   creation_time: "2024-01-01T00:00:00Z",
   last_modified: "2024-01-01T00:00:00Z",
+  current_status_changed_at: "2024-01-01T00:00:00Z",
   purchases: [],
   files: [],
   pending_authority: undefined,
+  is_flagged: false,
   ...overrides,
 });
 

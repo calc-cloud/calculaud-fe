@@ -2,6 +2,7 @@ import { X, Flag } from "lucide-react";
 import React from "react";
 
 import { Badge } from "@/components/ui/badge";
+import { BudgetSource } from "@/types/budgetSources";
 import { RELATIVE_TIME_OPTIONS, UnifiedFilters as UnifiedFiltersType } from "@/types/filters";
 import { Hierarchy } from "@/types/hierarchies";
 import { Material } from "@/types/materials";
@@ -11,6 +12,12 @@ import { Supplier } from "@/types/suppliers";
 import { createToggleFunction } from "@/utils/filterUtils";
 import { getStatusDisplayFromLabel } from "@/utils/statusUtils";
 
+// Generic interface for entities with id and name
+interface EntityWithIdAndName {
+  id: number;
+  name: string;
+}
+
 interface ActiveFiltersBadgesProps {
   filters: UnifiedFiltersType;
   onFiltersChange: (filters: UnifiedFiltersType) => void;
@@ -19,6 +26,7 @@ interface ActiveFiltersBadgesProps {
   suppliers: Supplier[];
   materials: Material[];
   responsibleAuthorities?: ResponsibleAuthority[];
+  budgetSources?: BudgetSource[];
 }
 
 export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
@@ -29,6 +37,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   suppliers,
   materials,
   responsibleAuthorities = [],
+  budgetSources = [],
 }) => {
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
   const toggleStatus = createToggleFunction<string>("status", filters, onFiltersChange);
@@ -36,6 +45,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
   const toggleMaterial = createToggleFunction<number>("material", filters, onFiltersChange);
   const toggleHierarchy = createToggleFunction<number>("hierarchy_id", filters, onFiltersChange);
   const togglePendingAuthority = createToggleFunction<number>("pending_authority", filters, onFiltersChange);
+  const toggleBudgetSource = createToggleFunction<number>("budget_source", filters, onFiltersChange);
 
   const clearRelativeTime = () => {
     onFiltersChange({
@@ -53,6 +63,25 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     });
   };
 
+  // Generic function to render filter badges for array-based filters
+  const renderFilterBadges = <T extends EntityWithIdAndName>(
+    filterArray: number[] | undefined,
+    dataArray: T[],
+    toggleFunction: (id: number) => void
+  ) => {
+    if (!filterArray || filterArray.length === 0) return null;
+
+    return filterArray.map((id) => {
+      const item = dataArray.find((entity) => entity.id === id);
+      return item ? (
+        <Badge key={id} variant="secondary" className="flex items-center gap-1">
+          {item.name}
+          <X className="h-3 w-3 cursor-pointer" onClick={() => toggleFunction(id)} />
+        </Badge>
+      ) : null;
+    });
+  };
+
   const activeFiltersCount = [
     ...(filters.relative_time && filters.relative_time !== "all_time" ? [1] : []),
     ...(filters.hierarchy_id || []),
@@ -61,6 +90,7 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
     ...(filters.supplier || []),
     ...(filters.material || []),
     ...(filters.pending_authority || []),
+    ...(filters.budget_source || []),
     ...(filters.flagged === true ? [1] : []),
   ].length;
 
@@ -76,32 +106,8 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             <X className="h-3 w-3 cursor-pointer" onClick={clearRelativeTime} />
           </Badge>
         )}
-        {filters.hierarchy_id && filters.hierarchy_id.length > 0 && (
-          <>
-            {filters.hierarchy_id.map((hierarchyId) => {
-              const hierarchy = hierarchies.find((h) => h.id === hierarchyId);
-              return hierarchy ? (
-                <Badge key={hierarchyId} variant="secondary" className="flex items-center gap-1">
-                  {hierarchy.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleHierarchy(hierarchyId)} />
-                </Badge>
-              ) : null;
-            })}
-          </>
-        )}
-        {filters.service_type && filters.service_type.length > 0 && (
-          <>
-            {filters.service_type.map((typeId) => {
-              const type = serviceTypes.find((st) => st.id === typeId);
-              return type ? (
-                <Badge key={typeId} variant="secondary" className="flex items-center gap-1">
-                  {type.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleServiceType(typeId)} />
-                </Badge>
-              ) : null;
-            })}
-          </>
-        )}
+        {renderFilterBadges(filters.hierarchy_id, hierarchies, toggleHierarchy)}
+        {renderFilterBadges(filters.service_type, serviceTypes, toggleServiceType)}
         {filters.status && filters.status.length > 0 && (
           <>
             {filters.status.map((status) => {
@@ -119,45 +125,10 @@ export const ActiveFiltersBadges: React.FC<ActiveFiltersBadgesProps> = ({
             })}
           </>
         )}
-        {filters.supplier && filters.supplier.length > 0 && (
-          <>
-            {filters.supplier.map((supplierId) => {
-              const supplier = suppliers.find((s) => s.id === supplierId);
-              return supplier ? (
-                <Badge key={supplierId} variant="secondary" className="flex items-center gap-1">
-                  {supplier.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleSupplier(supplierId)} />
-                </Badge>
-              ) : null;
-            })}
-          </>
-        )}
-        {filters.material && filters.material.length > 0 && (
-          <>
-            {filters.material.map((materialId) => {
-              const material = materials.find((m) => m.id === materialId);
-              return material ? (
-                <Badge key={materialId} variant="secondary" className="flex items-center gap-1">
-                  {material.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleMaterial(materialId)} />
-                </Badge>
-              ) : null;
-            })}
-          </>
-        )}
-        {filters.pending_authority && filters.pending_authority.length > 0 && (
-          <>
-            {filters.pending_authority.map((authorityId) => {
-              const authority = responsibleAuthorities.find((a) => a.id === authorityId);
-              return authority ? (
-                <Badge key={authorityId} variant="secondary" className="flex items-center gap-1">
-                  {authority.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => togglePendingAuthority(authorityId)} />
-                </Badge>
-              ) : null;
-            })}
-          </>
-        )}
+        {renderFilterBadges(filters.supplier, suppliers, toggleSupplier)}
+        {renderFilterBadges(filters.material, materials, toggleMaterial)}
+        {renderFilterBadges(filters.pending_authority, responsibleAuthorities, togglePendingAuthority)}
+        {renderFilterBadges(filters.budget_source, budgetSources, toggleBudgetSource)}
         {filters.flagged === true && (
           <Badge variant="secondary" className="flex items-center gap-1">
             <Flag className="h-3 w-3 text-red-500 fill-red-500" />

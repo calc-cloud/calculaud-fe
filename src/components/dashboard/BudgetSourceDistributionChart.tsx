@@ -3,53 +3,52 @@ import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-import { DashboardFilters, ServiceTypesDistributionResponse } from "@/types/analytics";
+import { DashboardFilters, BudgetSourceDistributionResponse } from "@/types/analytics";
 import { UnifiedFilters } from "@/types/filters";
-import { getServiceTypeColor } from "@/utils/chartColors";
+import { getEntityColor } from "@/utils/chartColors";
 import { dashboardFiltersToUnified } from "@/utils/filterAdapters";
 
-interface ServiceTypesDistributionChartProps {
-  data: ServiceTypesDistributionResponse | undefined;
+interface BudgetSourceDistributionChartProps {
+  data: BudgetSourceDistributionResponse | undefined;
   isLoading: boolean;
   globalFilters: DashboardFilters;
 }
 
-export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionChartProps> = ({
+export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionChartProps> = ({
   data,
   isLoading,
   globalFilters,
 }) => {
   const navigate = useNavigate();
 
-  // Transform data for recharts
-  const chartData = useMemo(() => {
-    if (!data || !data.data) return [];
-    return data.data.map((item) => ({
-      name: item.name,
-      value: item.count,
-      id: item.id,
-      color: getServiceTypeColor(item.id, item.name),
-    }));
-  }, [data]);
+  // Transform data for recharts and calculate total USD
+  const { chartData, totalUSD } = useMemo(() => {
+    if (!data || !data.data) return { chartData: [], totalUSD: 0 };
 
-  // Calculate total count
-  const totalCount = useMemo(() => {
-    return chartData.reduce((sum, item) => sum + item.value, 0);
-  }, [chartData]);
+    let totalUSD = 0;
+    const chartData = data.data.map((item) => {
+      totalUSD += item.amounts.total_usd;
+      return {
+        name: item.budget_source_name,
+        value: item.amounts.total_usd,
+        budget_source_id: item.budget_source_id,
+        amounts: item.amounts,
+        color: getEntityColor(item.budget_source_id, item.budget_source_name),
+      };
+    });
+
+    return { chartData, totalUSD };
+  }, [data]);
 
   // Handle clicking on a pie segment
   const handleSegmentClick = (segmentData: any) => {
     // Convert global filters to unified format
     const unifiedFilters: UnifiedFilters = dashboardFiltersToUnified(globalFilters);
 
-    // For Live Operations, exclude COMPLETED status from search results
-    const nonCompletedStatuses = ["In Progress", "Signed", "Partially Supplied"];
-
-    // Add the clicked service type to the filters and exclude COMPLETED status
+    // Add the clicked budget source to the filters
     const updatedFilters = {
       ...unifiedFilters,
-      service_type: [segmentData.id], // Use service type ID for search page compatibility
-      status: nonCompletedStatuses, // Always exclude COMPLETED status for live operations
+      budget_source: segmentData.budget_source_id ? [segmentData.budget_source_id] : [],
     };
 
     // Build search URL with filters
@@ -67,43 +66,30 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     if (updatedFilters.service_type && updatedFilters.service_type.length > 0) {
       searchParams.set("service_type_id", updatedFilters.service_type.join(","));
     }
-    if (updatedFilters.status && updatedFilters.status.length > 0) {
-      searchParams.set("status", updatedFilters.status.join(","));
+    if (updatedFilters.budget_source && updatedFilters.budget_source.length > 0) {
+      searchParams.set("budget_source_id", updatedFilters.budget_source.join(","));
     }
 
     // Navigate to search page with filters
     navigate(`/search?${searchParams.toString()}`);
   };
 
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, value }: any) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.65;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-        fontSize="12"
-        fontWeight="bold"
-      >
-        {value}
-      </text>
-    );
-  };
-
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0];
-      const percentage = totalCount > 0 ? ((data.value / totalCount) * 100).toFixed(1) : 0;
+      const amounts = data.payload.amounts;
+      const percentage = totalUSD > 0 ? ((amounts.total_usd / totalUSD) * 100).toFixed(1) : 0;
+
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{`Service Type: ${data.name} (${percentage}%)`}</p>
-          <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
+        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-medium text-gray-900 mb-2">{`Budget Source: ${data.name} (${percentage}%)`}</p>
+          <div className="space-y-1 text-sm">
+            <p className="text-gray-600">{`ILS: ${amounts.ils.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Support USD: $${amounts.support_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Available USD: $${amounts.available_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600 font-medium">{`Total USD: $${amounts.total_usd.toLocaleString()}`}</p>
+            <p className="text-gray-600">{`Total ILS: ${amounts.total_ils.toLocaleString()}`}</p>
+          </div>
         </div>
       );
     }
@@ -134,7 +120,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     return (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -147,9 +133,9 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     return (
       <div className="w-full h-96 flex flex-col p-4">
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
         </div>
-        <div className="flex-1 flex items-center justify-center text-gray-500">No service type data available</div>
+        <div className="flex-1 flex items-center justify-center text-gray-500">No budget source data available</div>
       </div>
     );
   }
@@ -158,7 +144,7 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
     <div className="w-full h-96 flex flex-col p-4">
       {/* Chart Title */}
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Service Types Distribution</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Costs Distribution By Budget Source</h3>
       </div>
 
       {/* Chart Content */}
@@ -172,21 +158,28 @@ export const ServiceTypesDistributionChart: React.FC<ServiceTypesDistributionCha
                   data={chartData}
                   cx="50%"
                   cy="50%"
+                  innerRadius={70}
                   outerRadius={85}
-                  fill="#8884d8"
+                  paddingAngle={2}
                   dataKey="value"
                   onClick={handleSegmentClick}
                   className="cursor-pointer"
-                  labelLine={false}
-                  label={renderCustomLabel}
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 9999 }} />
               </PieChart>
             </ResponsiveContainer>
+
+            {/* Center Label */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <div className="text-xl font-bold text-gray-900">${Math.round(totalUSD).toLocaleString()}</div>
+                <div className="text-sm text-gray-600">Total In USD</div>
+              </div>
+            </div>
           </div>
         </div>
 

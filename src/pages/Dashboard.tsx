@@ -1,16 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { ActiveFiltersBadges } from "@/components/common/ActiveFiltersBadges";
-import { FiltersDrawer } from "@/components/common/UnifiedFilters";
-import { CostOverTimeChart } from "@/components/dashboard/CostOverTimeChart";
-import { HierarchyDistributionChart } from "@/components/dashboard/HierarchyDistributionChart";
-import { ServicesQuantityChart } from "@/components/dashboard/ServicesQuantityChart";
+import { InlineFilters, MinimizedFilters } from "@/components/common/UnifiedFilters";
+import { BudgetSourceDistributionChart } from "@/components/dashboard/BudgetSourceDistributionChart";
+import { ChartBlock } from "@/components/dashboard/ChartBlock";
+import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
+import { PendingStagesDistributionChart } from "@/components/dashboard/PendingStagesDistributionChart";
+import { PurposeProcessingTimesChart } from "@/components/dashboard/PurposeProcessingTimesChart";
+import { MaterialQuantitiesChart } from "@/components/dashboard/ServiceQuantitiesChart";
+import { ServiceTypeCostsDistributionChart } from "@/components/dashboard/ServiceTypeCostsDistributionChart";
 import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTypesDistributionChart";
-import { Button } from "@/components/ui/button";
-import { useAdminData } from "@/contexts/AdminDataContext";
+import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
+import { StageProcessingTimesChart } from "@/components/dashboard/StageProcessingTimesChart";
+import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
+import { useAutoHideFilters } from "@/hooks/useAutoHideFilters";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
 import { dashboardFiltersToUnified, unifiedToDashboardFilters } from "@/utils/filterAdapters";
@@ -18,6 +22,7 @@ import { clearFilters } from "@/utils/filterUtils";
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isVisible, handleMouseEnter, handleMouseLeave } = useAutoHideFilters();
 
   // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
@@ -32,18 +37,6 @@ const Dashboard: React.FC = () => {
     const defaultFilters = getDefaultFilters();
     const filters: DashboardFiltersType = { ...defaultFilters };
 
-    // Parse material IDs (service IDs)
-    if (searchParams.get("material_id")) {
-      const materialIds = searchParams
-        .get("material_id")
-        ?.split(",")
-        .map((id) => parseInt(id, 10))
-        .filter((id) => !isNaN(id));
-      if (materialIds && materialIds.length > 0) {
-        filters.service_id = materialIds;
-      }
-    }
-
     // Parse service type IDs
     if (searchParams.get("service_type_id")) {
       const serviceTypeIds = searchParams
@@ -53,50 +46,6 @@ const Dashboard: React.FC = () => {
         .filter((id) => !isNaN(id));
       if (serviceTypeIds && serviceTypeIds.length > 0) {
         filters.service_type_id = serviceTypeIds;
-      }
-    }
-
-    // Parse hierarchy IDs
-    if (searchParams.get("hierarchy_id")) {
-      const hierarchyIds = searchParams
-        .get("hierarchy_id")
-        ?.split(",")
-        .map((id) => parseInt(id, 10))
-        .filter((id) => !isNaN(id));
-      if (hierarchyIds && hierarchyIds.length > 0) {
-        filters.hierarchy_id = hierarchyIds;
-      }
-    }
-
-    // Parse supplier IDs
-    if (searchParams.get("supplier_id")) {
-      const supplierIds = searchParams
-        .get("supplier_id")
-        ?.split(",")
-        .map((id) => parseInt(id, 10))
-        .filter((id) => !isNaN(id));
-      if (supplierIds && supplierIds.length > 0) {
-        filters.supplier_id = supplierIds;
-      }
-    }
-
-    // Parse status array
-    if (searchParams.get("status")) {
-      const statuses = searchParams.get("status")?.split(",");
-      if (statuses && statuses.length > 0) {
-        filters.status = statuses;
-      }
-    }
-
-    // Parse pending authority IDs
-    if (searchParams.get("pending_authority_id")) {
-      const pendingAuthorityIds = searchParams
-        .get("pending_authority_id")
-        ?.split(",")
-        .map((id) => parseInt(id, 10))
-        .filter((id) => !isNaN(id));
-      if (pendingAuthorityIds && pendingAuthorityIds.length > 0) {
-        filters.pending_authority_id = pendingAuthorityIds;
       }
     }
 
@@ -111,63 +60,21 @@ const Dashboard: React.FC = () => {
       filters.relative_time = searchParams.get("relative_time") || undefined;
     }
 
-    // Parse flagged filter
-    if (searchParams.get("flagged")) {
-      filters.flagged = searchParams.get("flagged") === "true";
-    }
-
-    // Override with URL params only if they exist, otherwise keep defaults
-    const hasDateTimeParams =
-      searchParams.get("start_date") || searchParams.get("end_date") || searchParams.get("relative_time");
-    if (!hasDateTimeParams) {
-      // Keep the default values we already set
-    }
-
     return filters;
   };
 
   const [filters, setFilters] = useState<DashboardFiltersType>(getInitialFilters());
-  const [hierarchyLevel, setHierarchyLevel] = useState<"UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null>(null);
-  const [hierarchyParentId, setHierarchyParentId] = useState<number | null>(null);
-  const [expenditureGroupBy, setExpenditureGroupBy] = useState<"day" | "week" | "month" | "year">("month");
-
-  const { hierarchies, suppliers, serviceTypes, materials, responsibleAuthorities } = useAdminData();
 
   // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams();
-
-    // Add material IDs (service IDs)
-    if (filters.service_id && filters.service_id.length > 0) {
-      params.set("material_id", filters.service_id.join(","));
-    }
 
     // Add service type IDs
     if (filters.service_type_id && filters.service_type_id.length > 0) {
       params.set("service_type_id", filters.service_type_id.join(","));
     }
 
-    // Add hierarchy IDs
-    if (filters.hierarchy_id && filters.hierarchy_id.length > 0) {
-      params.set("hierarchy_id", filters.hierarchy_id.join(","));
-    }
-
-    // Add supplier IDs
-    if (filters.supplier_id && filters.supplier_id.length > 0) {
-      params.set("supplier_id", filters.supplier_id.join(","));
-    }
-
-    // Add status array
-    if (filters.status && filters.status.length > 0) {
-      params.set("status", filters.status.join(","));
-    }
-
-    // Add pending authority IDs
-    if (filters.pending_authority_id && filters.pending_authority_id.length > 0) {
-      params.set("pending_authority_id", filters.pending_authority_id.join(","));
-    }
-
-    // Add date/time filters (always include these if they have values, including defaults)
+    // Add date/time filters
     if (filters.start_date) {
       params.set("start_date", filters.start_date);
     }
@@ -177,16 +84,12 @@ const Dashboard: React.FC = () => {
     if (filters.relative_time) {
       params.set("relative_time", filters.relative_time);
     }
-    // Add flagged filter
-    if (filters.flagged === true) {
-      params.set("flagged", "true");
-    }
 
     setSearchParams(params, { replace: true });
   }, [filters, setSearchParams]);
 
-  const { data: servicesQuantityData, isLoading: isServicesQuantityLoading } = useQuery({
-    queryKey: ["servicesQuantities", filters],
+  const { data: serviceQuantitiesData, isLoading: isServiceQuantitiesLoading } = useQuery({
+    queryKey: ["serviceQuantities", filters],
     queryFn: () => analyticsService.getServicesQuantities(filters),
     refetchOnWindowFocus: false,
   });
@@ -197,41 +100,73 @@ const Dashboard: React.FC = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { data: hierarchyDistributionData, isLoading: isHierarchyDistributionLoading } = useQuery({
-    queryKey: ["hierarchyDistribution", filters, hierarchyLevel, hierarchyParentId],
-    queryFn: () => analyticsService.getHierarchyDistribution(filters, hierarchyLevel, hierarchyParentId),
+  const { data: statusDistributionData, isLoading: isStatusDistributionLoading } = useQuery({
+    queryKey: ["statusDistribution", filters],
+    queryFn: () => analyticsService.getStatusesDistribution(filters),
     refetchOnWindowFocus: false,
   });
 
-  const { data: expenditureTimelineData, isLoading: isExpenditureTimelineLoading } = useQuery({
-    queryKey: ["expenditureTimeline", filters, expenditureGroupBy],
-    queryFn: () => analyticsService.getExpenditureTimeline(filters, expenditureGroupBy),
+  const { data: pendingAuthoritiesDistributionData, isLoading: isPendingAuthoritiesDistributionLoading } = useQuery({
+    queryKey: ["pendingAuthoritiesDistribution", filters],
+    queryFn: () => analyticsService.getPendingAuthoritiesDistribution(filters),
     refetchOnWindowFocus: false,
   });
 
-  const handleHierarchyFiltersChange = (
-    level?: "UNIT" | "CENTER" | "ANAF" | "MADOR" | "TEAM" | null,
-    parent_id?: number | null
-  ) => {
-    setHierarchyLevel(level ?? null);
-    setHierarchyParentId(parent_id ?? null);
-  };
+  const { data: pendingStagesDistributionData, isLoading: isPendingStagesDistributionLoading } = useQuery({
+    queryKey: ["pendingStagesDistribution", filters],
+    queryFn: () => analyticsService.getPendingStagesDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
 
-  const handleExpenditureGroupByChange = (groupBy: "day" | "week" | "month" | "year") => {
-    setExpenditureGroupBy(groupBy);
-  };
+  const { data: serviceTypesPerformanceSignedData, isLoading: isServiceTypesPerformanceSignedLoading } = useQuery({
+    queryKey: ["serviceTypesPerformanceSigned", filters],
+    queryFn: () => analyticsService.getServiceTypesPerformanceDistribution("SIGNED", filters),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: serviceTypesPerformanceCompletedData, isLoading: isServiceTypesPerformanceCompletedLoading } = useQuery(
+    {
+      queryKey: ["serviceTypesPerformanceCompleted", filters],
+      queryFn: () => analyticsService.getServiceTypesPerformanceDistribution("COMPLETED", filters),
+      refetchOnWindowFocus: false,
+    }
+  );
+
+  const { data: budgetSourceDistributionData, isLoading: isBudgetSourceDistributionLoading } = useQuery({
+    queryKey: ["budgetSourceDistribution", filters],
+    queryFn: () => analyticsService.getBudgetSourceDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: serviceTypeCostsDistributionData, isLoading: isServiceTypeCostsDistributionLoading } = useQuery({
+    queryKey: ["serviceTypeCostsDistribution", filters],
+    queryFn: () => analyticsService.getServiceTypeCostsDistribution(filters),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: processingTimesData, isLoading: isProcessingTimesLoading } = useQuery({
+    queryKey: ["processingTimes", filters],
+    queryFn: () => analyticsService.getProcessingTimes(filters),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: stageProcessingTimesData, isLoading: isStageProcessingTimesLoading } = useQuery({
+    queryKey: ["stageProcessingTimes", filters],
+    queryFn: () => analyticsService.getStageProcessingTimes(filters),
+    refetchOnWindowFocus: false,
+  });
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
-  const activeFiltersCount = [
-    ...(unifiedFilters.relative_time && unifiedFilters.relative_time !== "all_time" ? [1] : []),
-    ...(unifiedFilters.hierarchy_id || []),
-    ...(unifiedFilters.service_type || []),
-    ...(unifiedFilters.status || []),
-    ...(unifiedFilters.supplier || []),
-    ...(unifiedFilters.material || []),
-    ...(unifiedFilters.pending_authority || []),
-    ...(unifiedFilters.flagged === true ? [1] : []),
-  ].length;
+
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (filters.relative_time && filters.relative_time !== "all_time") count++;
+    if (filters.service_type_id && filters.service_type_id.length > 0) count += filters.service_type_id.length;
+    return count;
+  };
+
+  const activeFiltersCount = countActiveFilters();
 
   return (
     <div className="space-y-6">
@@ -239,61 +174,147 @@ const Dashboard: React.FC = () => {
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Global Filters */}
-      <div className="flex items-center gap-4">
-        <FiltersDrawer
-          filters={unifiedFilters}
-          onFiltersChange={(unifiedFilters) => {
-            const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-            setFilters(dashboardFilters);
-          }}
-        />
-        {activeFiltersCount > 0 && (
-          <Button
-            variant="outline"
-            onClick={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
-          >
-            <X className="h-4 w-4 mr-1" />
-            Clear Filters
-          </Button>
-        )}
-      </div>
-      <ActiveFiltersBadges
-        filters={unifiedFilters}
-        onFiltersChange={(unifiedFilters) => {
-          const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-          setFilters(dashboardFilters);
-        }}
-        hierarchies={hierarchies}
-        serviceTypes={serviceTypes}
-        suppliers={suppliers}
-        materials={materials}
-        responsibleAuthorities={responsibleAuthorities}
-      />
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HierarchyDistributionChart
-          data={hierarchyDistributionData}
-          isLoading={isHierarchyDistributionLoading}
-          globalFilters={filters}
-          onFiltersChange={handleHierarchyFiltersChange}
-        />
-        <ServiceTypesDistributionChart
-          data={serviceTypesDistributionData}
-          isLoading={isServiceTypesDistributionLoading}
-        />
+      {/* Auto-Hide Floating Filters Container */}
+      <div className="fixed top-14 left-0 right-0 z-40 flex justify-center">
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            isVisible ? "w-auto max-w-7xl" : "flex justify-center"
+          }`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {isVisible ? (
+            <InlineFilters
+              filters={unifiedFilters}
+              onFiltersChange={(unifiedFilters) => {
+                const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+                setFilters(dashboardFilters);
+              }}
+              onClearFilters={() => {
+                clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
+              }}
+              visibleFilters={{
+                showTime: true,
+                showServiceTypes: true,
+                showHierarchy: false,
+                showMaterials: false,
+                showSuppliers: false,
+                showStatus: false,
+                showPendingAuthority: false,
+                showBudgetSources: false,
+                showFlagged: false,
+              }}
+            />
+          ) : (
+            <MinimizedFilters activeFiltersCount={activeFiltersCount} />
+          )}
+        </div>
       </div>
 
-      {/* Second Row - Full Width Charts */}
-      <div className="grid grid-cols-1 gap-6">
-        <ServicesQuantityChart data={servicesQuantityData} isLoading={isServicesQuantityLoading} />
-        <CostOverTimeChart
-          data={expenditureTimelineData}
-          isLoading={isExpenditureTimelineLoading}
-          globalFilters={filters}
-          onGroupByChange={handleExpenditureGroupByChange}
-        />
+      {/* Chart Blocks */}
+      <div className="space-y-6">
+        {/* Live Operations Block */}
+        <ChartBlock
+          title="Live Operations"
+          themeColor="orange"
+          description={
+            <div className="space-y-1">
+              <p className="text-base font-semibold">Real-time data of active purposes</p>
+              <p>Note: Time filters do not apply to live operations charts.</p>
+            </div>
+          }
+          className="mt-2"
+        >
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <StatusDistributionChart
+              data={statusDistributionData?.data}
+              isLoading={isStatusDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypesDistributionChart
+              data={serviceTypesDistributionData}
+              isLoading={isServiceTypesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <PendingAuthoritiesDistributionChart
+              data={pendingAuthoritiesDistributionData?.data}
+              isLoading={isPendingAuthoritiesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-3 border border-gray-200 rounded-lg p-4 bg-white">
+            <PendingStagesDistributionChart
+              data={pendingStagesDistributionData?.data}
+              isLoading={isPendingStagesDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
+
+        {/* Performance Analytics Block */}
+        <ChartBlock
+          title="Performance Analytics"
+          themeColor="blue"
+          description="Material quantities and resource allocation across different service types"
+        >
+          <div className="col-span-3 border border-gray-200 rounded-lg p-4 bg-white">
+            <MaterialQuantitiesChart
+              data={serviceQuantitiesData}
+              isLoading={isServiceQuantitiesLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypesPerformanceChart
+              data={{
+                signed: serviceTypesPerformanceSignedData,
+                completed: serviceTypesPerformanceCompletedData,
+              }}
+              isLoading={isServiceTypesPerformanceSignedLoading || isServiceTypesPerformanceCompletedLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-2 border border-gray-200 rounded-lg p-4 bg-white">
+            <PurposeProcessingTimesChart
+              data={processingTimesData}
+              isLoading={isProcessingTimesLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-3 row-span-2 border border-gray-200 rounded-lg p-4 bg-white">
+            <StageProcessingTimesChart
+              data={stageProcessingTimesData}
+              isLoading={isStageProcessingTimesLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
+
+        {/* Cost Analytics Block */}
+        <ChartBlock
+          title="Cost Analytics"
+          themeColor="green"
+          description="Cost breakdown by budget sources and service types"
+        >
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <BudgetSourceDistributionChart
+              data={budgetSourceDistributionData}
+              isLoading={isBudgetSourceDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+          <div className="col-span-1 border border-gray-200 rounded-lg p-4 bg-white">
+            <ServiceTypeCostsDistributionChart
+              data={serviceTypeCostsDistributionData}
+              isLoading={isServiceTypeCostsDistributionLoading}
+              globalFilters={filters}
+            />
+          </div>
+        </ChartBlock>
       </div>
     </div>
   );

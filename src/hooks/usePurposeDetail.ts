@@ -4,9 +4,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAdminData } from "@/contexts/AdminDataContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePurposeMutations } from "@/hooks/usePurposeMutations";
+import { purchaseService } from "@/services/purchaseService";
 import { purposeService, Purpose as ApiPurpose } from "@/services/purposeService";
 import { stageService, UpdateStageRequest } from "@/services/stageService";
-import { Purpose, PurposeFile, CreatePurchaseRequest } from "@/types";
+import { Purpose, PurposeFile, PurchaseCreateRequest, PurchaseUpdateRequest, Purchase } from "@/types";
 import { togglePurposeFlag } from "@/utils/purposeActions";
 import { convertPurchaseToStages } from "@/utils/stageUtils";
 
@@ -22,6 +23,9 @@ export const usePurposeDetail = () => {
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | null>(null);
   const [isAddPurchaseModalOpen, setIsAddPurchaseModalOpen] = useState(false);
   const [isCreatingPurchase, setIsCreatingPurchase] = useState(false);
+  const [isEditPurchaseModalOpen, setIsEditPurchaseModalOpen] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
+  const [isUpdatingPurchase, setIsUpdatingPurchase] = useState(false);
 
   // Timeline state
   const [editingStage, setEditingStage] = useState<string | null>(null);
@@ -154,13 +158,13 @@ export const usePurposeDetail = () => {
     }
   };
 
-  const handleCreatePurchase = async (purchaseData: CreatePurchaseRequest) => {
+  const handleCreatePurchase = async (purchaseData: PurchaseCreateRequest) => {
     if (!id) return;
 
     setIsCreatingPurchase(true);
 
     try {
-      await purposeService.createPurchase(purchaseData);
+      await purchaseService.createPurchase(purchaseData);
 
       toast({
         title: "Purchase created",
@@ -184,7 +188,7 @@ export const usePurposeDetail = () => {
 
   const handleDeletePurchase = async (purchaseId: string) => {
     try {
-      await purposeService.deletePurchase(purchaseId);
+      await purchaseService.deletePurchase(parseInt(purchaseId));
 
       toast({
         title: "Purchase deleted",
@@ -200,6 +204,38 @@ export const usePurposeDetail = () => {
         description: errorMessage,
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEditPurchase = (purchase: Purchase) => {
+    setSelectedPurchase(purchase);
+    setIsEditPurchaseModalOpen(true);
+  };
+
+  const handleUpdatePurchase = async (purchaseId: string, purchaseData: PurchaseUpdateRequest) => {
+    setIsUpdatingPurchase(true);
+
+    try {
+      await purchaseService.updatePurchase(parseInt(purchaseId), purchaseData);
+
+      toast({
+        title: "Purchase updated",
+        description: "The purchase has been updated successfully.",
+      });
+
+      // Refresh the purpose data to show updated purchases
+      await refreshPurpose();
+      setIsEditPurchaseModalOpen(false);
+      setSelectedPurchase(null);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to update purchase";
+      toast({
+        title: "Error updating purchase",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPurchase(false);
     }
   };
 
@@ -358,6 +394,11 @@ export const usePurposeDetail = () => {
     isAddPurchaseModalOpen,
     setIsAddPurchaseModalOpen,
     isCreatingPurchase,
+    isEditPurchaseModalOpen,
+    setIsEditPurchaseModalOpen,
+    selectedPurchase,
+    setSelectedPurchase,
+    isUpdatingPurchase,
 
     // Stage editing states
     editingStage,
@@ -375,6 +416,8 @@ export const usePurposeDetail = () => {
     handleSaveGeneralData,
     handleCreatePurchase,
     handleDeletePurchase,
+    handleEditPurchase,
+    handleUpdatePurchase,
     handleStageClick,
     handleEditStart,
     handleEditCancel,

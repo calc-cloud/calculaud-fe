@@ -1,5 +1,5 @@
 import { apiService } from "@/services/apiService";
-import { CreatePurchaseRequest as PurchaseCreateRequest, Currency, Authority } from "@/types";
+import { Currency, Authority } from "@/types";
 import { UnifiedFilters } from "@/types/filters";
 
 export interface PurposeApiParams {
@@ -10,6 +10,7 @@ export interface PurposeApiParams {
   service_type_id?: number | number[];
   service_id?: number | number[]; // Material filter (maps to service_id in API)
   pending_authority_id?: number | number[];
+  budget_source_id?: number | number[];
   status?: string | string[];
   search?: string;
   sort_by?: string;
@@ -52,6 +53,7 @@ export interface Purpose {
   service_type: string;
   creation_time: string;
   last_modified: string;
+  current_status_changed_at: string;
   purchases: Purchase[]; // Changed from emfs: EMF[] to purchases: Purchase[]
   file_attachments: {
     id: number;
@@ -175,14 +177,6 @@ class PurposeService {
     return apiService.patch<Purpose>(`/purposes/${id}`, { is_flagged: isFlagged });
   }
 
-  async createPurchase(data: PurchaseCreateRequest): Promise<Purchase> {
-    return apiService.post<Purchase>("/purchases/", data);
-  }
-
-  async deletePurchase(purchaseId: string): Promise<void> {
-    return apiService.delete<void>(`/purchases/${purchaseId}`);
-  }
-
   async exportPurposesCSV(params: Omit<PurposeApiParams, "page" | "limit">): Promise<Response> {
     return apiService.downloadBlob("/purposes/export_csv", params);
   }
@@ -257,6 +251,11 @@ class PurposeService {
     if (filters.pending_authority && filters.pending_authority.length > 0) {
       params.pending_authority_id =
         filters.pending_authority.length === 1 ? filters.pending_authority[0] : filters.pending_authority;
+    }
+
+    // Budget source filter - handle multiple budget sources
+    if (filters.budget_source && filters.budget_source.length > 0) {
+      params.budget_source_id = filters.budget_source.length === 1 ? filters.budget_source[0] : filters.budget_source;
     }
 
     // Date filters
@@ -442,6 +441,7 @@ class PurposeService {
         service_type: purpose.service_type || "",
         creation_time: purpose.creation_time || "",
         last_modified: purpose.last_modified || "",
+        current_status_changed_at: purpose.current_status_changed_at || "",
         pending_authority: purpose.pending_authority || null,
         purchases: (purpose.purchases || []).map((purchase) => this.transformPurchase(purchase, purpose.id)),
         files: (purpose.file_attachments || []).map((file) => this.transformFileAttachment(file, purpose.id)),
@@ -462,6 +462,7 @@ class PurposeService {
         service_type: "",
         creation_time: "",
         last_modified: "",
+        current_status_changed_at: "",
         pending_authority: null,
         purchases: [],
         files: [],
@@ -476,6 +477,7 @@ class PurposeService {
       id: purchase.id?.toString() || "",
       purpose_id: purposeId?.toString() || "",
       creation_date: purchase.creation_date || "",
+      budget_source: purchase.budget_source || null,
       costs: (purchase.costs || []).map((cost) => ({
         id: cost.id?.toString() || "",
         purchase_id: cost.purchase_id?.toString() || "",
