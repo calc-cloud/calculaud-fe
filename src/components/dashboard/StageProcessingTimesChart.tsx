@@ -32,106 +32,105 @@ interface ChartDataPoint {
 // Create tooltip-enabled dot components that use external tooltip state
 const createStarDot = (setActiveTooltip: (tooltip: any) => void) => {
   const StarDotComponent = (props: any) => {
-  const { cx, cy, fill, stroke, payload } = props;
-  const size = 12; // Star size
-  const color = fill || stroke || "#f59e0b";
+    const { cx, cy, fill, stroke, payload } = props;
+    const size = 12; // Star size
+    const color = fill || stroke || "#f59e0b";
 
-  // Star path - 5-pointed star
-  const starPath = `M${cx},${cy - size} L${cx + size * 0.3},${cy - size * 0.3} L${cx + size},${cy - size * 0.3} L${cx + size * 0.5},${cy + size * 0.2} L${cx + size * 0.8},${cy + size} L${cx},${cy + size * 0.6} L${cx - size * 0.8},${cy + size} L${cx - size * 0.5},${cy + size * 0.2} L${cx - size},${cy - size * 0.3} L${cx - size * 0.3},${cy - size * 0.3} Z`;
+    // Star path - 5-pointed star
+    const starPath = `M${cx},${cy - size} L${cx + size * 0.3},${cy - size * 0.3} L${cx + size},${cy - size * 0.3} L${cx + size * 0.5},${cy + size * 0.2} L${cx + size * 0.8},${cy + size} L${cx},${cy + size * 0.6} L${cx - size * 0.8},${cy + size} L${cx - size * 0.5},${cy + size * 0.2} L${cx - size},${cy - size * 0.3} L${cx - size * 0.3},${cy - size * 0.3} Z`;
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    const rect = (e.target as SVGElement).getBoundingClientRect();
-    const chartContainer = (e.target as SVGElement).closest('.recharts-wrapper');
-    const containerRect = chartContainer?.getBoundingClientRect();
+    const handleMouseEnter = (e: React.MouseEvent) => {
+      const rect = (e.target as SVGElement).getBoundingClientRect();
+      const chartContainer = (e.target as SVGElement).closest(".recharts-wrapper");
+      const containerRect = chartContainer?.getBoundingClientRect();
 
-    if (containerRect) {
-      setActiveTooltip({
-        data: {
-          type: 'stage_overall',
-          y: payload.y,
-          min_processing_days: payload.min_processing_days,
-          max_processing_days: payload.max_processing_days,
-          count: payload.count
-        },
-        position: {
-          x: rect.left - containerRect.left + 15,
-          y: rect.top - containerRect.top - 10
-        }
-      });
-    }
+      if (containerRect) {
+        setActiveTooltip({
+          data: {
+            type: "stage_overall",
+            y: payload.y,
+            min_processing_days: payload.min_processing_days,
+            max_processing_days: payload.max_processing_days,
+            count: payload.count,
+          },
+          position: {
+            x: rect.left - containerRect.left + 15,
+            y: rect.top - containerRect.top - 10,
+          },
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setActiveTooltip(null);
+    };
+
+    return (
+      <path
+        d={starPath}
+        fill={color}
+        stroke={color}
+        strokeWidth={1}
+        className="cursor-pointer"
+        style={{ pointerEvents: "all" }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
+    );
   };
 
-  const handleMouseLeave = () => {
-    setActiveTooltip(null);
-  };
-
-  return (
-    <path
-      d={starPath}
-      fill={color}
-      stroke={color}
-      strokeWidth={1}
-      className="cursor-pointer"
-      style={{ pointerEvents: 'all' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    />
-  );
-  };
-
-  StarDotComponent.displayName = 'StarDotComponent';
+  StarDotComponent.displayName = "StarDotComponent";
   return StarDotComponent;
 };
 
 const createCircleDot = (setActiveTooltip: (tooltip: any) => void) => {
   const CircleDotComponent = (props: any) => {
-  const { cx, cy, fill, payload } = props;
+    const { cx, cy, fill, payload } = props;
 
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    const rect = (e.target as SVGElement).getBoundingClientRect();
-    const chartContainer = (e.target as SVGElement).closest('.recharts-wrapper');
-    const containerRect = chartContainer?.getBoundingClientRect();
+    const handleMouseEnter = (e: React.MouseEvent) => {
+      const rect = (e.target as SVGElement).getBoundingClientRect();
+      const chartContainer = (e.target as SVGElement).closest(".recharts-wrapper");
+      const containerRect = chartContainer?.getBoundingClientRect();
 
-    if (containerRect) {
-      setActiveTooltip({
-        data: {
-          type: 'service_type',
-          service_type_name: payload.service_type_name,
-          y: payload.y,
-          min_processing_days: payload.min_processing_days,
-          max_processing_days: payload.max_processing_days,
-          count: payload.count
-        },
-        position: {
-          x: rect.left - containerRect.left + 10,
-          y: rect.top - containerRect.top - 10
-        }
-      });
-    }
+      if (containerRect) {
+        setActiveTooltip({
+          data: {
+            type: "service_type",
+            service_type_name: payload.service_type_name,
+            y: payload.y,
+            min_processing_days: payload.min_processing_days,
+            max_processing_days: payload.max_processing_days,
+            count: payload.count,
+          },
+          position: {
+            x: rect.left - containerRect.left + 10,
+            y: rect.top - containerRect.top - 10,
+          },
+        });
+      }
+    };
+
+    const handleMouseLeave = () => {
+      setActiveTooltip(null);
+    };
+
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={5}
+        fill={fill}
+        className="cursor-pointer"
+        style={{ pointerEvents: "all" }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
+    );
   };
 
-  const handleMouseLeave = () => {
-    setActiveTooltip(null);
-  };
-
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={5}
-      fill={fill}
-      className="cursor-pointer"
-      style={{ pointerEvents: 'all' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    />
-  );
-  };
-
-  CircleDotComponent.displayName = 'CircleDotComponent';
+  CircleDotComponent.displayName = "CircleDotComponent";
   return CircleDotComponent;
 };
-
 
 export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps> = ({
   data,
@@ -218,7 +217,7 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
     if (!data?.data) return { stageNames: [], maxProcessingDays: 0 };
 
     const names = data.data.map((stage) => stage.stage_type_display_name);
-    const maxDays = Math.max(...chartData.map(point => point.y));
+    const maxDays = Math.max(...chartData.map((point) => point.y));
 
     return { stageNames: names, maxProcessingDays: maxDays };
   }, [data, chartData]);
@@ -253,10 +252,7 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
         {/* Stage Overall Legend */}
         <div className="flex items-center space-x-2">
           <svg width="20" height="20" viewBox="0 0 20 20">
-            <path
-              d="M10,2 L11.5,7 L16.5,7 L13,10.5 L14.5,16 L10,12.5 L5.5,16 L7,10.5 L3.5,7 L8.5,7 Z"
-              fill="#f59e0b"
-            />
+            <path d="M10,2 L11.5,7 L16.5,7 L13,10.5 L14.5,16 L10,12.5 L5.5,16 L7,10.5 L3.5,7 L8.5,7 Z" fill="#f59e0b" />
           </svg>
           <span className="text-sm font-medium text-gray-700">Stage Overall Average</span>
         </div>
@@ -264,10 +260,7 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
         {/* Service Type Legends */}
         {uniqueServiceTypes.map((serviceType) => (
           <div key={serviceType.name} className="flex items-center space-x-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: serviceType.color }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: serviceType.color }} />
             <span className="text-sm text-gray-600">{serviceType.name}</span>
           </div>
         ))}
@@ -319,101 +312,91 @@ export const StageProcessingTimesChart: React.FC<StageProcessingTimesChartProps>
       <div className="flex-1 relative">
         <div className="relative">
           <ResponsiveContainer width="100%" height={600}>
-            <ComposedChart
-              data={lineChartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-            >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              type="number"
-              dataKey="x"
-              domain={[-0.5, stageNames.length - 0.5]}
-              tickFormatter={(value) => stageNames[Math.round(value)] || ""}
-              ticks={stageNames.map((_, index) => index)}
-              fontSize={14}
-            />
-            <YAxis
-              type="number"
-              dataKey="y"
-              label={{ value: "Processing Days", angle: -90, position: "insideLeft" }}
-              fontSize={14}
-              domain={[0, "dataMax"]}
-              tickCount={15}
-              tickFormatter={(value) => {
-                const roundedValue = Math.round(value);
-                // Show multiples of 10 or the maximum value
-                return (roundedValue % 10 === 0 || roundedValue >= maxProcessingDays) ? roundedValue.toString() : "";
+            <ComposedChart data={lineChartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                type="number"
+                dataKey="x"
+                domain={[-0.5, stageNames.length - 0.5]}
+                tickFormatter={(value) => stageNames[Math.round(value)] || ""}
+                ticks={stageNames.map((_, index) => index)}
+                fontSize={14}
+              />
+              <YAxis
+                type="number"
+                dataKey="y"
+                label={{ value: "Processing Days", angle: -90, position: "insideLeft" }}
+                fontSize={14}
+                domain={[0, "dataMax"]}
+                tickCount={15}
+                tickFormatter={(value) => {
+                  const roundedValue = Math.round(value);
+                  // Show multiples of 10 or the maximum value
+                  return roundedValue % 10 === 0 || roundedValue >= maxProcessingDays ? roundedValue.toString() : "";
+                }}
+              />
+              <Tooltip content={() => null} />
+
+              {/* Stage overall averages - connecting line only (no interaction) */}
+              <Line dataKey="y" stroke="#f59e0b" strokeWidth={2} dot={false} connectNulls activeDot={false} />
+
+              {/* Stage overall averages - interactive star dots */}
+              <Scatter
+                data={stageOverallData}
+                fill="#f59e0b"
+                onClick={(data) => data && handlePointClick(data)}
+                className="cursor-pointer"
+                shape={<StarDot />}
+              />
+
+              {/* Service type dots - colored by service type */}
+              {uniqueServiceTypes.map((serviceType) => {
+                const serviceTypePoints = serviceTypeData.filter(
+                  (point) => point.service_type_name === serviceType.name
+                );
+                return (
+                  <Scatter
+                    key={serviceType.name}
+                    data={serviceTypePoints}
+                    fill={serviceType.color}
+                    onClick={(data) => data && handlePointClick(data)}
+                    className="cursor-pointer"
+                    shape={<CircleDot />}
+                  />
+                );
+              })}
+            </ComposedChart>
+          </ResponsiveContainer>
+
+          {/* External tooltip that appears on top */}
+          {activeTooltip && (
+            <div
+              className="absolute bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-sm pointer-events-none z-50"
+              style={{
+                left: activeTooltip.position.x,
+                top: activeTooltip.position.y,
+                transform: "translate(-50%, -100%)",
               }}
-            />
-            <Tooltip content={() => null} />
-
-            {/* Stage overall averages - connecting line only (no interaction) */}
-            <Line
-              dataKey="y"
-              stroke="#f59e0b"
-              strokeWidth={2}
-              dot={false}
-              connectNulls
-              activeDot={false}
-            />
-
-            {/* Stage overall averages - interactive star dots */}
-            <Scatter
-              data={stageOverallData}
-              fill="#f59e0b"
-              onClick={(data) => data && handlePointClick(data)}
-              className="cursor-pointer"
-              shape={<StarDot />}
-            />
-
-            {/* Service type dots - colored by service type */}
-            {uniqueServiceTypes.map((serviceType) => {
-              const serviceTypePoints = serviceTypeData.filter(
-                (point) => point.service_type_name === serviceType.name
-              );
-              return (
-                <Scatter
-                  key={serviceType.name}
-                  data={serviceTypePoints}
-                  fill={serviceType.color}
-                  onClick={(data) => data && handlePointClick(data)}
-                  className="cursor-pointer"
-                  shape={<CircleDot />}
-                />
-              );
-            })}
-          </ComposedChart>
-        </ResponsiveContainer>
-
-        {/* External tooltip that appears on top */}
-        {activeTooltip && (
-          <div
-            className="absolute bg-white p-3 border border-gray-200 rounded-lg shadow-lg text-sm pointer-events-none z-50"
-            style={{
-              left: activeTooltip.position.x,
-              top: activeTooltip.position.y,
-              transform: 'translate(-50%, -100%)'
-            }}
-          >
-            {activeTooltip.data.type === "stage_overall" ? (
-              <>
-                <p className="text-gray-600">Overall Average: {activeTooltip.data.y.toFixed(1)} days</p>
-                <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
-                <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
-                <p className="text-gray-500 text-sm">Total Purposes: {activeTooltip.data.count}</p>
-              </>
-            ) : (
-              <>
-                <p className="font-medium text-gray-700 mb-1">{activeTooltip.data.service_type_name}</p>
-                <p className="text-gray-600">Average: {activeTooltip.data.y.toFixed(1)} days</p>
-                <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
-                <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
-                <p className="text-gray-500 text-sm">Purposes: {activeTooltip.data.count}</p>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+            >
+              {activeTooltip.data.type === "stage_overall" ? (
+                <>
+                  <p className="text-gray-600">Overall Average: {activeTooltip.data.y.toFixed(1)} days</p>
+                  <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
+                  <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
+                  <p className="text-gray-500 text-sm">Total Purposes: {activeTooltip.data.count}</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-medium text-gray-700 mb-1">{activeTooltip.data.service_type_name}</p>
+                  <p className="text-gray-600">Average: {activeTooltip.data.y.toFixed(1)} days</p>
+                  <p className="text-gray-600">Min: {activeTooltip.data.min_processing_days} days</p>
+                  <p className="text-gray-600">Max: {activeTooltip.data.max_processing_days} days</p>
+                  <p className="text-gray-500 text-sm">Purposes: {activeTooltip.data.count}</p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Custom Legend */}
         {renderCustomLegend()}

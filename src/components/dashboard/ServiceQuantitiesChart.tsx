@@ -113,10 +113,7 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
       <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-4">
         {legendData.map((item) => (
           <div key={item.value} className="flex items-center space-x-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span className="text-sm text-gray-600">{item.value}</span>
           </div>
         ))}
@@ -174,7 +171,7 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
           <BarChart
             layout="vertical"
             data={chartData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            margin={{ top: 20, right: 30, left: 20 }}
             className="cursor-pointer"
             onClick={(data) => {
               if (data && data.activePayload && data.activePayload.length > 0) {
@@ -205,7 +202,7 @@ export const MaterialQuantitiesChart: React.FC<MaterialQuantitiesChartProps> = (
         <div className="flex justify-center mt-4">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:text-blue-800 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all duration-200 shadow-sm hover:shadow"
+            className="flex items-center gap-2 px-4 py-2 mt-2 text-sm font-medium text-blue-600 bg-blue-50 hover:text-blue-800 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all duration-200 shadow-sm hover:shadow"
           >
             {isExpanded ? (
               <>

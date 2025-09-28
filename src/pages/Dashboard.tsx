@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { InlineFilters } from "@/components/common/UnifiedFilters";
+import { InlineFilters, MinimizedFilters } from "@/components/common/UnifiedFilters";
 import { BudgetSourceDistributionChart } from "@/components/dashboard/BudgetSourceDistributionChart";
 import { ChartBlock } from "@/components/dashboard/ChartBlock";
 import { PendingAuthoritiesDistributionChart } from "@/components/dashboard/PendingAuthoritiesDistributionChart";
@@ -14,6 +14,7 @@ import { ServiceTypesDistributionChart } from "@/components/dashboard/ServiceTyp
 import { ServiceTypesPerformanceChart } from "@/components/dashboard/ServiceTypesPerformanceChart";
 import { StageProcessingTimesChart } from "@/components/dashboard/StageProcessingTimesChart";
 import { StatusDistributionChart } from "@/components/dashboard/StatusDistributionChart";
+import { useAutoHideFilters } from "@/hooks/useAutoHideFilters";
 import { analyticsService } from "@/services/analyticsService";
 import { DashboardFilters as DashboardFiltersType } from "@/types/analytics";
 import { dashboardFiltersToUnified, unifiedToDashboardFilters } from "@/utils/filterAdapters";
@@ -21,6 +22,7 @@ import { clearFilters } from "@/utils/filterUtils";
 
 const Dashboard: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isVisible, handleMouseEnter, handleMouseLeave } = useAutoHideFilters();
 
   // Set default filters with "All Time" relative time
   const getDefaultFilters = (): DashboardFiltersType => {
@@ -156,32 +158,58 @@ const Dashboard: React.FC = () => {
 
   const unifiedFilters = dashboardFiltersToUnified(filters);
 
+  // Count active filters
+  const countActiveFilters = () => {
+    let count = 0;
+    if (filters.relative_time && filters.relative_time !== "all_time") count++;
+    if (filters.service_type_id && filters.service_type_id.length > 0) count += filters.service_type_id.length;
+    return count;
+  };
+
+  const activeFiltersCount = countActiveFilters();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
       </div>
 
-      {/* Inline Filters - only time and service types */}
-      <InlineFilters
-        filters={unifiedFilters}
-        onFiltersChange={(unifiedFilters) => {
-          const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
-          setFilters(dashboardFilters);
-        }}
-        onClearFilters={() => clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters)}
-        visibleFilters={{
-          showTime: true,
-          showServiceTypes: true,
-          showHierarchy: false,
-          showMaterials: false,
-          showSuppliers: false,
-          showStatus: false,
-          showPendingAuthority: false,
-          showBudgetSources: false,
-          showFlagged: false,
-        }}
-      />
+      {/* Auto-Hide Floating Filters Container */}
+      <div className="fixed top-14 left-0 right-0 z-40 flex justify-center">
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            isVisible ? "w-auto max-w-7xl" : "flex justify-center"
+          }`}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          {isVisible ? (
+            <InlineFilters
+              filters={unifiedFilters}
+              onFiltersChange={(unifiedFilters) => {
+                const dashboardFilters = unifiedToDashboardFilters(unifiedFilters);
+                setFilters(dashboardFilters);
+              }}
+              onClearFilters={() => {
+                clearFilters((unified) => setFilters(unifiedToDashboardFilters(unified)), unifiedFilters);
+              }}
+              visibleFilters={{
+                showTime: true,
+                showServiceTypes: true,
+                showHierarchy: false,
+                showMaterials: false,
+                showSuppliers: false,
+                showStatus: false,
+                showPendingAuthority: false,
+                showBudgetSources: false,
+                showFlagged: false,
+              }}
+            />
+          ) : (
+            <MinimizedFilters activeFiltersCount={activeFiltersCount} />
+          )}
+        </div>
+      </div>
 
       {/* Chart Blocks */}
       <div className="space-y-6">
