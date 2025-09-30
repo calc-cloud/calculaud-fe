@@ -143,7 +143,7 @@ export const EditTimelineModal: React.FC<EditTimelineModalProps> = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-        <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Purchase Timeline</DialogTitle>
           </DialogHeader>

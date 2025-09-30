@@ -1,36 +1,42 @@
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragStartEvent,
+  pointerWithin,
+  rectIntersection,
+  CollisionDetection,
   DragOverlay,
+  getFirstCollision,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  UniqueIdentifier,
+  useSensors,
+  useSensor,
+  MeasuringStrategy,
+  DragStartEvent,
   DragOverEvent,
-  useDroppable,
+  DragEndEvent,
+  defaultDropAnimationSideEffects,
+  DropAnimation,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
   useSortable,
+  arrayMove,
+  verticalListSortingStrategy,
+  AnimateLayoutChanges,
+  defaultAnimateLayoutChanges,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Plus, X, Grip } from "lucide-react";
-import React, { useState, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StageData } from "@/types/purchases";
 
-interface StageStack {
-  id: number;
-  priority: number;
-  stages: StageData[];
-}
+type Items = Record<UniqueIdentifier, UniqueIdentifier[]>;
 
 interface DraggableStageListProps {
   stages: StageData[];
@@ -38,84 +44,69 @@ interface DraggableStageListProps {
   onAddStage?: () => void;
 }
 
-interface SortableStageProps {
+interface DroppableContainerProps {
+  id: UniqueIdentifier;
+  items: UniqueIdentifier[];
+  stageMap: Record<UniqueIdentifier, StageData>;
+  onRemoveStage: (stageId: number) => void;
+  isSortingContainer: boolean;
+}
+
+interface SortableItemProps {
+  id: UniqueIdentifier;
   stage: StageData;
-  isDragging?: boolean;
-  isInStack?: boolean;
-  onRemove?: (stageId: number) => void;
-  isHighlighted?: boolean;
+  disabled?: boolean;
+  onRemove: (stageId: number) => void;
 }
 
-interface SortableStackProps {
-  stack: StageStack;
-  isDragging?: boolean;
-  onRemoveStage?: (stageId: number) => void;
-  isHighlighted?: boolean;
-  dragOverStage?: string | number | null;
-}
+const animateLayoutChanges: AnimateLayoutChanges = (args) =>
+  defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
-interface DropZoneProps {
-  id: string;
-  index: number;
-  isActive: boolean;
-}
-
-const DropZone: React.FC<DropZoneProps> = ({ id, isActive }) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id,
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`h-2 transition-all ${isActive && isOver ? "border-b-2 border-blue-500 bg-blue-50" : ""}`}
-      style={{
-        height: isActive && isOver ? "8px" : "2px",
-        margin: isActive && isOver ? "4px 0" : "0",
-      }}
-    />
-  );
+const dropAnimation: DropAnimation = {
+  sideEffects: defaultDropAnimationSideEffects({
+    styles: {
+      active: {
+        opacity: "0.5",
+      },
+    },
+  }),
 };
 
-const SortableStage: React.FC<SortableStageProps> = ({
-  stage,
-  isDragging,
-  isInStack = false,
-  onRemove,
-  isHighlighted = false,
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: isSortableDragging,
-  } = useSortable({
-    id: stage.id,
+function DroppableContainer({ id, items, stageMap, onRemoveStage, isSortingContainer }: DroppableContainerProps) {
+  const { active, attributes, isDragging, listeners, over, setNodeRef, transition, transform } = useSortable({
+    id,
     data: {
-      type: "stage",
-      stage,
+      type: "container",
+      children: items,
     },
+    animateLayoutChanges,
   });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
+  const isOverContainer = over
+    ? (id === over.id && active?.data.current?.type !== "container") || items.includes(over.id)
+    : false;
+
+  const containerStyle = {
     transition,
-    opacity: isDragging || isSortableDragging ? 0.5 : 1,
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : undefined,
   };
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className={`bg-white border rounded-lg p-3 shadow-sm hover:shadow-md transition-all ${
-        isDragging || isSortableDragging ? "ring-2 ring-blue-500" : ""
-      } ${isHighlighted ? "ring-2 ring-green-500 bg-green-50" : ""}`}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 flex-1">
-          {!isInStack && (
+  // Single stage - render as individual item
+  if (items.length === 1) {
+    const stage = stageMap[items[0]];
+    if (!stage) return null;
+
+    return (
+      <div
+        ref={setNodeRef}
+        style={containerStyle}
+        className={`bg-white border rounded-lg p-3 shadow-sm hover:shadow-md transition-all ${
+          isOverContainer ? "ring-2 ring-green-500 bg-green-50" : ""
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 flex-1">
             <div
               {...attributes}
               {...listeners}
@@ -123,45 +114,81 @@ const SortableStage: React.FC<SortableStageProps> = ({
             >
               <GripVertical className="h-4 w-4 text-gray-400" />
             </div>
-          )}
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium">{stage.stage_type?.display_name || "Unknown Stage"}</span>
-              {stage.isNew && (
-                <Badge variant="secondary" className="text-xs">
-                  New
-                </Badge>
-              )}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium">{stage.stage_type?.display_name || "Unknown Stage"}</span>
+                {stage.isNew && (
+                  <Badge variant="secondary" className="text-xs">
+                    New
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
+          {(stage.isNew || !stage.completion_date) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onRemoveStage(stage.id)}
+              className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+            >
+              <X className="h-3 w-3" />
+            </Button>
+          )}
         </div>
-        {onRemove && (stage.isNew || !stage.completion_date) && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onRemove(stage.id)}
-            className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+      </div>
+    );
+  }
+
+  // Multiple stages - render as stack
+  return (
+    <div
+      ref={setNodeRef}
+      style={containerStyle}
+      className={`bg-blue-50 border-2 border-blue-200 rounded-lg p-3 transition-all ${
+        isOverContainer ? "ring-2 ring-green-500 bg-green-100" : ""
+      }`}
+    >
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab hover:cursor-grabbing p-1 hover:bg-blue-100 rounded"
           >
-            <X className="h-3 w-3" />
-          </Button>
-        )}
+            <Grip className="h-4 w-4 text-blue-600" />
+          </div>
+          <span className="text-sm font-medium text-blue-800">
+            Parallel Stages (Priority {String(id).replace("priority-", "")})
+          </span>
+        </div>
+      </div>
+      <div className="space-y-2 ml-6">
+        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          {items.map((itemId) => {
+            const stage = stageMap[itemId];
+            if (!stage) return null;
+            return (
+              <SortableItem
+                key={itemId}
+                id={itemId}
+                stage={stage}
+                disabled={isSortingContainer}
+                onRemove={onRemoveStage}
+              />
+            );
+          })}
+        </SortableContext>
       </div>
     </div>
   );
-};
+}
 
-const SortableStackedStage: React.FC<SortableStageProps> = ({ stage, isDragging, onRemove, isHighlighted = false }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: isSortableDragging,
-  } = useSortable({
-    id: stage.id,
+function SortableItem({ id, stage, disabled, onRemove }: SortableItemProps) {
+  const { setNodeRef, listeners, isDragging, transform, transition } = useSortable({
+    id,
     data: {
-      type: "stage",
+      type: "item",
       stage,
     },
   });
@@ -169,23 +196,17 @@ const SortableStackedStage: React.FC<SortableStageProps> = ({ stage, isDragging,
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging || isSortableDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
     <div
-      ref={setNodeRef}
+      ref={disabled ? undefined : setNodeRef}
       style={style}
-      className={`bg-white border rounded p-2 flex items-center justify-between ${
-        isDragging || isSortableDragging ? "ring-2 ring-blue-500" : ""
-      } ${isHighlighted ? "ring-2 ring-green-500 bg-green-50" : ""}`}
+      className="bg-white border rounded p-2 flex items-center justify-between"
     >
       <div className="flex items-center space-x-2 flex-1">
-        <div
-          {...attributes}
-          {...listeners}
-          className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-gray-100 rounded"
-        >
+        <div {...listeners} className="cursor-grab hover:cursor-grabbing p-0.5 hover:bg-gray-100 rounded">
           <GripVertical className="h-3 w-3 text-gray-400" />
         </div>
         <div className="flex-1">
@@ -199,7 +220,7 @@ const SortableStackedStage: React.FC<SortableStageProps> = ({ stage, isDragging,
           </div>
         </div>
       </div>
-      {onRemove && (stage.isNew || !stage.completion_date) && (
+      {(stage.isNew || !stage.completion_date) && (
         <Button
           variant="ghost"
           size="sm"
@@ -211,232 +232,265 @@ const SortableStackedStage: React.FC<SortableStageProps> = ({ stage, isDragging,
       )}
     </div>
   );
-};
-
-const SortableStack: React.FC<SortableStackProps> = ({
-  stack,
-  isDragging,
-  onRemoveStage,
-  isHighlighted = false,
-  dragOverStage = null,
-}) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging: isSortableDragging,
-  } = useSortable({
-    id: `stack-${stack.id}`,
-    data: {
-      type: "stack",
-      stack,
-    },
-  });
-
-  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
-    id: `stack-drop-${stack.id}`,
-    data: {
-      type: "stack-drop-zone",
-      stack,
-    },
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging || isSortableDragging ? 0.5 : 1,
-  };
-
-  if (stack.stages.length === 1) {
-    return (
-      <div ref={setDroppableRef}>
-        <SortableStage
-          stage={stack.stages[0]}
-          isDragging={isDragging}
-          onRemove={onRemoveStage}
-          isHighlighted={isHighlighted || isOver}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      ref={(node) => {
-        setNodeRef(node);
-        setDroppableRef(node);
-      }}
-      style={style}
-      className={`bg-blue-50 border-2 border-blue-200 rounded-lg p-3 transition-all ${
-        isDragging || isSortableDragging ? "ring-2 ring-blue-500" : ""
-      } ${isHighlighted || isOver ? "ring-2 ring-green-500 bg-green-100" : ""}`}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center space-x-2">
-          <div
-            {...attributes}
-            {...listeners}
-            className="cursor-grab hover:cursor-grabbing p-1 hover:bg-blue-100 rounded"
-          >
-            <Grip className="h-4 w-4 text-blue-600" />
-          </div>
-          <span className="text-sm font-medium text-blue-800">Parallel Stages (Priority {stack.priority})</span>
-        </div>
-      </div>
-      <div className="space-y-2 ml-6">
-        <SortableContext items={stack.stages.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-          {stack.stages.map((stage) => (
-            <SortableStackedStage
-              key={stage.id}
-              stage={stage}
-              onRemove={onRemoveStage}
-              isHighlighted={dragOverStage === stage.id}
-            />
-          ))}
-        </SortableContext>
-      </div>
-    </div>
-  );
-};
+}
 
 export const DraggableStageList: React.FC<DraggableStageListProps> = ({ stages, onStagesChange, onAddStage }) => {
-  const [activeId, setActiveId] = useState<string | number | null>(null);
-  const [dragOverContainer, setDragOverContainer] = useState<string | number | null>(null);
+  // Convert stages to container-based structure
+  const buildItemsFromStages = useCallback((stageList: StageData[]): Items => {
+    const priorityGroups: Record<number, StageData[]> = {};
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+    stageList.forEach((stage) => {
+      if (!priorityGroups[stage.priority]) {
+        priorityGroups[stage.priority] = [];
+      }
+      priorityGroups[stage.priority].push(stage);
+    });
 
-  // Group stages by priority to create stacks
-  const createStacks = useCallback((stageList: StageData[]): StageStack[] => {
-    const priorityGroups = stageList.reduce(
-      (groups, stage) => {
-        const priority = stage.priority;
-        if (!groups[priority]) {
-          groups[priority] = [];
-        }
-        groups[priority].push(stage);
-        return groups;
-      },
-      {} as Record<number, StageData[]>
-    );
+    const items: Items = {};
+    Object.entries(priorityGroups)
+      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+      .forEach(([priority, stageGroup]) => {
+        items[`priority-${priority}`] = stageGroup.map((s) => s.id);
+      });
 
-    return Object.entries(priorityGroups)
-      .map(([priority, stageGroup]) => ({
-        id: parseInt(priority), // Use numeric priority as ID
-        priority: parseInt(priority),
-        stages: stageGroup,
-      }))
-      .sort((a, b) => a.priority - b.priority);
+    return items;
   }, []);
 
-  const stacks = createStacks(stages);
-  const allIds = [...stacks.map((stack) => `stack-${stack.id}`), ...stages.map((stage) => stage.id)];
+  // Build stage lookup map
+  const buildStageMap = useCallback((stageList: StageData[]): Record<UniqueIdentifier, StageData> => {
+    const map: Record<UniqueIdentifier, StageData> = {};
+    stageList.forEach((stage) => {
+      map[stage.id] = stage;
+    });
+    return map;
+  }, []);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id);
-  };
+  const [items, setItems] = useState<Items>(() => buildItemsFromStages(stages));
+  const [containers, setContainers] = useState<UniqueIdentifier[]>(() => Object.keys(items));
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [clonedItems, setClonedItems] = useState<Items | null>(null);
+  const lastOverId = useRef<UniqueIdentifier | null>(null);
+  const recentlyMovedToNewContainer = useRef(false);
+  const isInternalUpdate = useRef(false);
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { over } = event;
+  const stageMap = buildStageMap(stages);
+  const isSortingContainer = activeId ? containers.includes(activeId) : false;
 
-    if (!over) {
-      setDragOverContainer(null);
+  // Update items when stages change externally (not from our own drag operations)
+  useEffect(() => {
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false;
       return;
     }
 
-    const overId = over.id; // UniqueIdentifier (string | number)
-    setDragOverContainer(overId);
+    const newItems = buildItemsFromStages(stages);
+    setItems(newItems);
+    setContainers(Object.keys(newItems));
+  }, [stages, buildItemsFromStages]);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  );
+
+  /**
+   * Custom collision detection strategy optimized for multiple containers
+   */
+  const collisionDetectionStrategy: CollisionDetection = useCallback(
+    (args) => {
+      if (activeId && activeId in items) {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((container) => container.id in items),
+        });
+      }
+
+      // Start by finding any intersecting droppable
+      const pointerIntersections = pointerWithin(args);
+      const intersections = pointerIntersections.length > 0 ? pointerIntersections : rectIntersection(args);
+      let overId = getFirstCollision(intersections, "id");
+
+      if (overId != null) {
+        if (overId in items) {
+          const containerItems = items[overId];
+
+          // If a container is matched and it contains items
+          if (containerItems.length > 0) {
+            // Return the closest droppable within that container
+            const closestItem = closestCenter({
+              ...args,
+              droppableContainers: args.droppableContainers.filter(
+                (container) => container.id !== overId && containerItems.includes(container.id)
+              ),
+            })[0]?.id;
+
+            // Use the closest item if found, otherwise use the container itself
+            overId = closestItem !== undefined ? closestItem : overId;
+          }
+        }
+
+        lastOverId.current = overId;
+        return [{ id: overId }];
+      }
+
+      // When a draggable item moves to a new container, the layout may shift
+      if (recentlyMovedToNewContainer.current) {
+        lastOverId.current = activeId;
+      }
+
+      // If no droppable is matched, return the last match
+      return lastOverId.current ? [{ id: lastOverId.current }] : [];
+    },
+    [activeId, items]
+  );
+
+  const findContainer = (id: UniqueIdentifier) => {
+    if (id in items) {
+      return id;
+    }
+    return Object.keys(items).find((key) => items[key].includes(id));
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-    setDragOverContainer(null);
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    setActiveId(active.id);
+    setClonedItems(items);
+  };
 
-    if (!over) return;
+  const handleDragOver = ({ active, over }: DragOverEvent) => {
+    const overId = over?.id;
 
-    const activeId = active.id; // UniqueIdentifier (string | number)
-    const overId = over.id; // UniqueIdentifier (string | number)
-    const activeData = active.data.current;
-    const overData = over.data.current;
+    if (overId == null || active.id in items) {
+      return;
+    }
 
-    if (activeId === overId) return;
+    const overContainer = findContainer(overId);
+    const activeContainer = findContainer(active.id);
 
-    // Handle different drag scenarios
-    if (activeData?.type === "stack" && overData?.type === "stack") {
-      // Stack to stack reordering
-      const activeStackId = `stack-${activeData.stack.id}`;
-      const overStackId = `stack-${overData.stack.id}`;
+    if (!overContainer || !activeContainer) {
+      return;
+    }
 
-      const stackIds = stacks.map((stack) => `stack-${stack.id}`);
-      const oldIndex = stackIds.indexOf(activeStackId);
-      const newIndex = stackIds.indexOf(overStackId);
+    if (activeContainer !== overContainer) {
+      setItems((items) => {
+        const activeItems = items[activeContainer];
+        const overItems = items[overContainer];
+        const overIndex = overItems.indexOf(overId);
+        const activeIndex = activeItems.indexOf(active.id);
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        const reorderedStacks = arrayMove(stacks, oldIndex, newIndex);
+        let newIndex: number;
 
-        // Reassign priorities based on new order
-        const updatedStages: StageData[] = [];
-        reorderedStacks.forEach((stack, index) => {
-          const newPriority = index + 1;
-          stack.stages.forEach((stage) => {
-            updatedStages.push({ ...stage, priority: newPriority });
-          });
-        });
+        if (overId in items) {
+          // Dropping on a container - add to end
+          newIndex = overItems.length;
+        } else {
+          // Dropping on an item within a container
+          const isBelowOverItem =
+            over &&
+            active.rect.current.translated &&
+            active.rect.current.translated.top > over.rect.top + over.rect.height;
 
-        onStagesChange(updatedStages);
-      }
-    } else if (activeData?.type === "stage") {
-      // Stage dragging
-      const activeStage = activeData.stage;
+          const modifier = isBelowOverItem ? 1 : 0;
+          newIndex = overIndex >= 0 ? overIndex + modifier : overItems.length;
+        }
 
-      if (overData?.type === "stack-drop-zone") {
-        // Dropping stage into stack
-        const targetStack = overData.stack;
-        const updatedStages = stages.map((stage) => {
-          if (stage.id === activeStage.id) {
-            return { ...stage, priority: targetStack.priority };
-          }
-          return stage;
-        });
-        onStagesChange(updatedStages);
-      } else if (overData?.type === "stage") {
-        // Dropping stage on another stage (create stack or join)
-        const targetStage = overData.stage;
-        const updatedStages = stages.map((stage) => {
-          if (stage.id === activeStage.id) {
-            return { ...stage, priority: targetStage.priority };
-          }
-          return stage;
-        });
-        onStagesChange(updatedStages);
-      } else if (typeof overId === "string" && overId.startsWith("drop-zone-")) {
-        // Dropping on insertion line
-        const insertIndex = parseInt(overId.split("-")[2]);
-        const newPriority = insertIndex + 1;
+        recentlyMovedToNewContainer.current = true;
 
-        // Update priorities for reordering
-        const updatedStages = stages.map((stage) => {
-          if (stage.id === activeStage.id) {
-            return { ...stage, priority: newPriority };
-          } else if (stage.priority >= newPriority && stage.id !== activeStage.id) {
-            return { ...stage, priority: stage.priority + 1 };
-          }
-          return stage;
-        });
-        onStagesChange(updatedStages);
+        return {
+          ...items,
+          [activeContainer]: items[activeContainer].filter((item) => item !== active.id),
+          [overContainer]: [
+            ...items[overContainer].slice(0, newIndex),
+            items[activeContainer][activeIndex],
+            ...items[overContainer].slice(newIndex, items[overContainer].length),
+          ],
+        };
+      });
+    }
+  };
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    let finalItems = items;
+    let finalContainers = containers;
+
+    // Handle container reordering
+    if (active.id in items && over?.id) {
+      const activeIndex = containers.indexOf(active.id);
+      const overIndex = containers.indexOf(over.id);
+      finalContainers = arrayMove(containers, activeIndex, overIndex);
+      setContainers(finalContainers);
+    }
+
+    const activeContainer = findContainer(active.id);
+
+    if (!activeContainer) {
+      setActiveId(null);
+      return;
+    }
+
+    const overId = over?.id;
+
+    if (overId == null) {
+      setActiveId(null);
+      return;
+    }
+
+    const overContainer = findContainer(overId);
+
+    // Handle item reordering within same container
+    if (overContainer) {
+      const activeIndex = items[activeContainer].indexOf(active.id);
+      const overIndex = items[overContainer].indexOf(overId);
+
+      if (activeIndex !== overIndex) {
+        finalItems = {
+          ...items,
+          [overContainer]: arrayMove(items[overContainer], activeIndex, overIndex),
+        };
+        setItems(finalItems);
       }
     }
+
+    setActiveId(null);
+
+    // Convert items back to stages with updated priorities
+    isInternalUpdate.current = true;
+    convertItemsToStages(finalItems, finalContainers);
+  };
+
+  const handleDragCancel = () => {
+    if (clonedItems) {
+      setItems(clonedItems);
+    }
+    setActiveId(null);
+    setClonedItems(null);
+  };
+
+  const convertItemsToStages = (currentItems: Items, currentContainers: UniqueIdentifier[]) => {
+    const updatedStages: StageData[] = [];
+
+    currentContainers.forEach((containerId, index) => {
+      const newPriority = index + 1;
+      const containerItems = currentItems[containerId] || [];
+
+      containerItems.forEach((stageId) => {
+        const stage = stageMap[stageId];
+        if (stage) {
+          updatedStages.push({ ...stage, priority: newPriority });
+        }
+      });
+    });
+
+    onStagesChange(updatedStages);
   };
 
   const handleRemoveStage = (stageId: number) => {
@@ -444,18 +498,82 @@ export const DraggableStageList: React.FC<DraggableStageListProps> = ({ stages, 
     onStagesChange(updatedStages);
   };
 
-  const getActiveItem = () => {
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      recentlyMovedToNewContainer.current = false;
+    });
+  }, [items]);
+
+  const renderDragOverlay = () => {
     if (!activeId) return null;
 
-    // Stack IDs are strings like "stack-1", stage IDs are numbers
-    if (typeof activeId === "string" && activeId.startsWith("stack-")) {
-      return stacks.find((stack) => `stack-${stack.id}` === activeId);
-    } else {
-      return stages.find((stage) => stage.id === activeId);
-    }
-  };
+    // Dragging a container
+    if (containers.includes(activeId)) {
+      const containerItems = items[activeId];
+      if (!containerItems) return null;
 
-  const activeItem = getActiveItem();
+      // Single item container
+      if (containerItems.length === 1) {
+        const stage = stageMap[containerItems[0]];
+        if (!stage) return null;
+
+        return (
+          <div className="bg-white border rounded-lg p-3 shadow-lg">
+            <div className="flex items-center space-x-2">
+              <GripVertical className="h-4 w-4 text-gray-400" />
+              <span className="text-sm font-medium">{stage.stage_type?.display_name || "Unknown Stage"}</span>
+              {stage.isNew && (
+                <Badge variant="secondary" className="text-xs">
+                  New
+                </Badge>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      // Multi-item stack
+      return (
+        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3 shadow-lg">
+          <div className="flex items-center space-x-2 mb-2">
+            <Grip className="h-4 w-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-800">
+              Parallel Stages (Priority {String(activeId).replace("priority-", "")})
+            </span>
+          </div>
+          <div className="space-y-2 ml-6">
+            {containerItems.map((itemId) => {
+              const stage = stageMap[itemId];
+              if (!stage) return null;
+              return (
+                <div key={itemId} className="bg-white border rounded p-2">
+                  <span className="text-sm font-medium">{stage.stage_type?.display_name || "Unknown Stage"}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    // Dragging an item
+    const stage = stageMap[activeId];
+    if (!stage) return null;
+
+    return (
+      <div className="bg-white border rounded p-2 shadow-lg">
+        <div className="flex items-center space-x-2">
+          <GripVertical className="h-3 w-3 text-gray-400" />
+          <span className="text-sm font-medium">{stage.stage_type?.display_name || "Unknown Stage"}</span>
+          {stage.isNew && (
+            <Badge variant="secondary" className="text-xs">
+              New
+            </Badge>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -471,49 +589,33 @@ export const DraggableStageList: React.FC<DraggableStageListProps> = ({ stages, 
 
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={collisionDetectionStrategy}
+        measuring={{
+          droppable: {
+            strategy: MeasuringStrategy.Always,
+          },
+        }}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
-        <SortableContext items={allIds} strategy={verticalListSortingStrategy}>
-          <div className="space-y-1">
-            {stacks.map((stack, index) => (
-              <div key={`stack-${stack.id}`} className="relative">
-                <DropZone
-                  id={`drop-zone-${index}`}
-                  index={index}
-                  isActive={!!activeId && typeof activeId === "number"}
-                />
-                <SortableStack
-                  stack={stack}
-                  isDragging={typeof activeId === "string" && `stack-${stack.id}` === activeId}
-                  onRemoveStage={handleRemoveStage}
-                  isHighlighted={
-                    typeof dragOverContainer === "string" &&
-                    dragOverContainer === `stack-drop-${stack.id}` &&
-                    !(typeof activeId === "string" && `stack-${stack.id}` === activeId)
-                  }
-                  dragOverStage={dragOverContainer}
-                />
-              </div>
+        <SortableContext items={containers} strategy={verticalListSortingStrategy}>
+          <div className="space-y-2">
+            {containers.map((containerId) => (
+              <DroppableContainer
+                key={containerId}
+                id={containerId}
+                items={items[containerId]}
+                stageMap={stageMap}
+                onRemoveStage={handleRemoveStage}
+                isSortingContainer={isSortingContainer}
+              />
             ))}
-            <DropZone
-              id={`drop-zone-${stacks.length}`}
-              index={stacks.length}
-              isActive={!!activeId && typeof activeId === "number"}
-            />
           </div>
         </SortableContext>
 
-        <DragOverlay>
-          {activeItem && typeof activeId === "string" && activeId.startsWith("stack-") && (
-            <SortableStack stack={activeItem as StageStack} isDragging onRemoveStage={handleRemoveStage} />
-          )}
-          {activeItem && typeof activeId === "number" && (
-            <SortableStage stage={activeItem as StageData} isDragging onRemove={handleRemoveStage} />
-          )}
-        </DragOverlay>
+        {createPortal(<DragOverlay dropAnimation={dropAnimation}>{renderDragOverlay()}</DragOverlay>, document.body)}
       </DndContext>
 
       {stages.length === 0 && (
