@@ -23,12 +23,13 @@ export const usePurposeDetail = () => {
   const [selectedPurpose, setSelectedPurpose] = useState<Purpose | null>(null);
   const [isAddPurchaseModalOpen, setIsAddPurchaseModalOpen] = useState(false);
   const [isCreatingPurchase, setIsCreatingPurchase] = useState(false);
-  const [isEditPurchaseModalOpen, setIsEditPurchaseModalOpen] = useState(false);
+  const [isEditBudgetSourceModalOpen, setIsEditBudgetSourceModalOpen] = useState(false);
+  const [isEditTimelineModalOpen, setIsEditTimelineModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [isUpdatingPurchase, setIsUpdatingPurchase] = useState(false);
 
   // Timeline state
-  const [editingStage, setEditingStage] = useState<string | null>(null);
+  const [editingStage, setEditingStage] = useState<number | null>(null);
   const [selectedStage, setSelectedStage] = useState<any | null>(null);
   const [editForm, setEditForm] = useState({ date: "", text: "" });
   const [isUpdatingStage, setIsUpdatingStage] = useState(false);
@@ -207,25 +208,39 @@ export const usePurposeDetail = () => {
     }
   };
 
-  const handleEditPurchase = (purchase: Purchase) => {
+  const handleEditBudgetSource = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
-    setIsEditPurchaseModalOpen(true);
+    setIsEditBudgetSourceModalOpen(true);
   };
 
-  const handleUpdatePurchase = async (purchaseId: string, purchaseData: PurchaseUpdateRequest) => {
+  const handleEditTimeline = (purchase: Purchase) => {
+    setSelectedPurchase(purchase);
+    setIsEditTimelineModalOpen(true);
+  };
+
+  const handleUpdatePurchase = async (purchaseId: number, purchaseData: PurchaseUpdateRequest) => {
     setIsUpdatingPurchase(true);
 
     try {
-      await purchaseService.updatePurchase(parseInt(purchaseId), purchaseData);
+      await purchaseService.updatePurchase(purchaseId, purchaseData);
 
+      const isTimelineUpdate = !!purchaseData.stages;
       toast({
-        title: "Purchase updated",
-        description: "The purchase has been updated successfully.",
+        title: isTimelineUpdate ? "Timeline updated" : "Purchase updated",
+        description: isTimelineUpdate
+          ? "The purchase timeline has been updated successfully."
+          : "The purchase has been updated successfully.",
       });
 
       // Refresh the purpose data to show updated purchases
       await refreshPurpose();
-      setIsEditPurchaseModalOpen(false);
+
+      // Close appropriate modal
+      if (isTimelineUpdate) {
+        setIsEditTimelineModalOpen(false);
+      } else {
+        setIsEditBudgetSourceModalOpen(false);
+      }
       setSelectedPurchase(null);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Failed to update purchase";
@@ -242,10 +257,10 @@ export const usePurposeDetail = () => {
   const handleStageClick = (stage: any) => {
     setSelectedStage(stage);
     // Automatically start editing when clicking on a stage
-    handleEditStart(stage.id, stage.date, stage.value);
+    handleEditStart(stage.id, stage.completion_date, stage.value);
   };
 
-  const handleEditStart = (stageId: string, date: string, value: string) => {
+  const handleEditStart = (stageId: number, date: string, value: string) => {
     setEditingStage(stageId);
     // For incomplete stages (no date), use today's date as default
     const formDate = date ? formatDateForInput(date) : new Date().toISOString().split("T")[0];
@@ -285,7 +300,7 @@ export const usePurposeDetail = () => {
       updateData.completion_date = editForm.date || null;
 
       // Call the API
-      await stageService.updateStage(stage.id.toString(), updateData);
+      await stageService.updateStage(stage.id, updateData);
 
       toast({
         title: "Stage updated",
@@ -329,15 +344,15 @@ export const usePurposeDetail = () => {
   };
 
   const getStageDisplayDate = (stage: any) => {
-    if (stage.completed && stage.date) {
-      const formattedDate = formatDateForTimeline(stage.date);
+    if (stage.completion_date) {
+      const formattedDate = formatDateForTimeline(stage.completion_date);
       if (stage.days_since_previous_stage !== null && stage.days_since_previous_stage !== undefined) {
         return `${formattedDate} (${stage.days_since_previous_stage} days)`;
       }
       return formattedDate;
     }
 
-    return ""; // No text for incomplete stages
+    return "";
   };
 
   const hasMultipleStagesWithSamePriority = (stages: any[], stage: any) => {
@@ -377,7 +392,7 @@ export const usePurposeDetail = () => {
     const stages = convertPurchaseToStages(purchase);
 
     // A purchase is complete if all stages have completion dates
-    return stages.every((stage) => stage.completed);
+    return stages.every((stage) => stage.completion_date !== null);
   };
 
   return {
@@ -394,8 +409,10 @@ export const usePurposeDetail = () => {
     isAddPurchaseModalOpen,
     setIsAddPurchaseModalOpen,
     isCreatingPurchase,
-    isEditPurchaseModalOpen,
-    setIsEditPurchaseModalOpen,
+    isEditBudgetSourceModalOpen,
+    setIsEditBudgetSourceModalOpen,
+    isEditTimelineModalOpen,
+    setIsEditTimelineModalOpen,
     selectedPurchase,
     setSelectedPurchase,
     isUpdatingPurchase,
@@ -416,7 +433,8 @@ export const usePurposeDetail = () => {
     handleSaveGeneralData,
     handleCreatePurchase,
     handleDeletePurchase,
-    handleEditPurchase,
+    handleEditBudgetSource,
+    handleEditTimeline,
     handleUpdatePurchase,
     handleStageClick,
     handleEditStart,

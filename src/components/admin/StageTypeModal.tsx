@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +22,7 @@ interface StageTypeModalProps {
       display_name: string;
       description: string;
       responsible_authority_id: number;
+      value_required: boolean;
     },
     editId?: number
   ) => Promise<void>;
@@ -31,6 +33,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
   const [displayName, setDisplayName] = useState("");
   const [description, setDescription] = useState("");
   const [responsibleAuthorityId, setResponsibleAuthorityId] = useState<number | null>(null);
+  const [valueRequired, setValueRequired] = useState(false);
   const [responsibleAuthorities, setResponsibleAuthorities] = useState<ResponsibleAuthority[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAuthorities, setIsLoadingAuthorities] = useState(false);
@@ -66,11 +69,13 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
       setDisplayName(editItem.display_name);
       setDescription(editItem.description);
       setResponsibleAuthorityId(editItem.responsible_authority_id);
+      setValueRequired(editItem.value_required);
     } else {
       setName("");
       setDisplayName("");
       setDescription("");
       setResponsibleAuthorityId(null);
+      setValueRequired(false);
     }
   }, [editItem]);
 
@@ -131,6 +136,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
           display_name: displayName.trim(),
           description: description.trim(),
           responsible_authority_id: responsibleAuthorityId,
+          value_required: valueRequired,
         },
         editItem?.id
       );
@@ -155,6 +161,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
       setDisplayName(editItem?.display_name || "");
       setDescription(editItem?.description || "");
       setResponsibleAuthorityId(editItem?.responsible_authority_id || null);
+      setValueRequired(editItem?.value_required || false);
     }
     if (!isLoading) {
       onOpenChange(open);
@@ -235,6 +242,23 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
               </SelectContent>
             </Select>
           </div>
+
+          {!editItem && (
+            <div>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="valueRequired"
+                  checked={valueRequired}
+                  onCheckedChange={(checked) => setValueRequired(checked === true)}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="valueRequired" className="text-sm">
+                  Is Value Required?
+                </Label>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Check if this stage type requires a value to be entered</p>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-2 pt-2">
             <Button variant="outline" onClick={handleClose} size="sm" disabled={isLoading}>

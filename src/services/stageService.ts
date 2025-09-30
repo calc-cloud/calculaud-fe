@@ -2,16 +2,17 @@ import { apiService } from "@/services/apiService";
 
 export interface UpdateStageRequest {
   value?: string;
-  completion_date?: string | null; // Date format: "YYYY-MM-DD" (e.g., "2025-07-08")
+  completion_date?: string | null;
+  priority?: number;
 }
 
-export interface UpdateStageResponse {
+export interface StageResponse {
   id: number;
   purchase_id: number;
   stage_type_id: number;
   priority: number;
   value: string | null;
-  completion_date: string | null; // Date format: "YYYY-MM-DD" (e.g., "2025-07-08")
+  completion_date: string | null;
   days_since_previous_stage: number | null;
   stage_type: {
     id: number;
@@ -21,8 +22,8 @@ export interface UpdateStageResponse {
 }
 
 class StageService {
-  async updateStage(stageId: string, data: UpdateStageRequest): Promise<UpdateStageResponse> {
-    return apiService.patch<UpdateStageResponse>(`/stages/${stageId}`, data);
+  async updateStage(stageId: number, data: UpdateStageRequest): Promise<StageResponse> {
+    return apiService.patch<StageResponse>(`/stages/${stageId}`, data);
   }
 }
 

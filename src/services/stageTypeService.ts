@@ -1,12 +1,12 @@
 import { API_CONFIG } from "@/config/api";
-import { StageType, StageTypesResponse, StageTypeCreateRequest, StageTypeUpdateRequest } from "@/types/stageTypes";
+import { StageType, StageTypesResponse, StageTypeRequest, StageTypeUpdateRequest } from "@/types/stageTypes";
 
 import { BaseService, BaseQueryParams } from "./BaseService";
 
 export class StageTypeService extends BaseService<
   StageType,
   StageTypesResponse,
-  StageTypeCreateRequest,
+  StageTypeRequest,
   StageTypeUpdateRequest,
   BaseQueryParams
 > {
@@ -16,7 +16,7 @@ export class StageTypeService extends BaseService<
     return this.getEntities(params);
   }
 
-  async createStageType(data: StageTypeCreateRequest): Promise<StageType> {
+  async createStageType(data: StageTypeRequest): Promise<StageType> {
     return this.createEntity(data);
   }
 

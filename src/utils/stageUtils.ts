@@ -3,34 +3,40 @@
  * and related text generation.
  */
 
+import { Stage } from "@/types/purchases";
+
 import { formatPurchaseId } from "./purchaseUtils";
 
 /**
  * Convert purchase data to structured stages array
  */
-export const convertPurchaseToStages = (purchase: any) => {
+export const convertPurchaseToStages = (purchase: any): Stage[] => {
   // Flatten nested arrays of stages - treat array items as independent stages
   const stages = (purchase.flow_stages || [])
     .flatMap((item: any) => (Array.isArray(item) ? item : [item])) // Flatten nested stage arrays
     .filter((stage: any) => stage && stage.stage_type && (stage.stage_type.display_name || stage.stage_type.name)) // Filter out invalid stages
-    .map((stage: any) => ({
-      id: stage.id,
-      name: stage.stage_type.display_name || stage.stage_type.name, // Using display_name from API response
-      completed: !!stage.completion_date,
-      date: stage.completion_date, // Only show completion date, no fallback to creation date
-      value: stage.value || "",
-      priority: stage.priority,
-      days_since_previous_stage: stage.days_since_previous_stage ?? null,
-      stage_type: stage.stage_type,
-    }))
-    .sort((a: any, b: any) => {
+    .map(
+      (stage: any): Stage => ({
+        id: stage.id,
+        purchase_id: stage.purchase_id,
+        stage_type_id: stage.stage_type_id,
+        priority: stage.priority,
+        value: stage.value || null,
+        completion_date: stage.completion_date,
+        days_since_previous_stage: stage.days_since_previous_stage ?? null,
+        stage_type: stage.stage_type,
+      })
+    )
+    .sort((a: Stage, b: Stage) => {
       // First sort by priority
       if (a.priority !== b.priority) {
         return a.priority - b.priority;
       }
       // Within the same priority, sort by completion status (completed first)
-      if (a.completed !== b.completed) {
-        return a.completed ? -1 : 1; // completed stages first
+      const aCompleted = !!a.completion_date;
+      const bCompleted = !!b.completion_date;
+      if (aCompleted !== bCompleted) {
+        return aCompleted ? -1 : 1; // completed stages first
       }
       return 0;
     });
@@ -39,13 +45,28 @@ export const convertPurchaseToStages = (purchase: any) => {
   if (stages.length === 0) {
     return [
       {
-        id: `${purchase.id}-creation`,
-        name: "Created",
-        completed: true,
-        date: purchase.creation_date,
+        id: purchase.id,
+        purchase_id: purchase.id,
+        stage_type_id: 0, // Special ID for creation stage
+        priority: 0,
         value: formatPurchaseId(purchase.id),
-        priority: 0, // Changed from 1 to 0 to ensure it comes before any actual stages
-        stage_type: { name: "creation", value_required: false },
+        completion_date: purchase.creation_date,
+        days_since_previous_stage: null,
+        stage_type: {
+          id: 0,
+          name: "creation",
+          display_name: "Created",
+          description: "Purchase creation",
+          value_required: false,
+          responsible_authority_id: 0,
+          created_at: purchase.creation_date,
+          responsible_authority: {
+            id: 0,
+            name: "System",
+            description: "System",
+            created_at: purchase.creation_date,
+          },
+        },
       },
     ];
   }
@@ -56,8 +77,8 @@ export const convertPurchaseToStages = (purchase: any) => {
 /**
  * Get current pending stages (incomplete stages with lowest priority)
  */
-export const getCurrentPendingStages = (stages: any[]) => {
-  const incompleteStages = stages.filter((stage) => !stage.completed);
+export const getCurrentPendingStages = (stages: Stage[]) => {
+  const incompleteStages = stages.filter((stage) => !stage.completion_date);
   if (incompleteStages.length === 0) {
     return [];
   }
@@ -77,7 +98,7 @@ export const getCurrentPendingStages = (stages: any[]) => {
  */
 export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false): string | null => {
   const stages = convertPurchaseToStages(purchase);
-  const isCompleted = stages.every((stage) => stage.completed);
+  const isCompleted = stages.every((stage) => stage.completion_date);
   if (isCompleted) {
     const daysAgo = calculateDaysSinceLastStageCompletion(purchase);
     if (daysAgo !== null) {
@@ -108,7 +129,7 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
   } else {
     days = calculateDaysSinceLastStageCompletion(purchase);
   }
-  const stageNames = pendingStages.map((stage) => stage.name).join(", ");
+  const stageNames = pendingStages.map((stage) => stage.stage_type.display_name || stage.stage_type.name).join(", ");
   const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 };
@@ -121,7 +142,7 @@ export const calculateDaysSinceLastStageCompletion = (purchase: any): number | n
   const stages = convertPurchaseToStages(purchase);
 
   // Find completed stages
-  const completedStages = stages.filter((stage) => stage.completed && stage.date);
+  const completedStages = stages.filter((stage) => stage.completion_date);
 
   if (completedStages.length === 0) {
     return null; // No completed stages
@@ -134,7 +155,7 @@ export const calculateDaysSinceLastStageCompletion = (purchase: any): number | n
 
   // Calculate days since completion
   const now = new Date();
-  const completionDate = new Date(lastCompletedStage.date);
+  const completionDate = new Date(lastCompletedStage.completion_date);
   const diffMs = now.getTime() - completionDate.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
