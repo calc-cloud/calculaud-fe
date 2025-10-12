@@ -24,7 +24,7 @@ export const usePurposeDetail = () => {
   const [isAddPurchaseModalOpen, setIsAddPurchaseModalOpen] = useState(false);
   const [isCreatingPurchase, setIsCreatingPurchase] = useState(false);
   const [isEditBudgetSourceModalOpen, setIsEditBudgetSourceModalOpen] = useState(false);
-  const [isEditTimelineModalOpen, setIsEditTimelineModalOpen] = useState(false);
+  const [isAddStageModalOpen, setIsAddStageModalOpen] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState<Purchase | null>(null);
   const [isUpdatingPurchase, setIsUpdatingPurchase] = useState(false);
 
@@ -213,9 +213,9 @@ export const usePurposeDetail = () => {
     setIsEditBudgetSourceModalOpen(true);
   };
 
-  const handleEditTimeline = (purchase: Purchase) => {
+  const handleAddStage = (purchase: Purchase) => {
     setSelectedPurchase(purchase);
-    setIsEditTimelineModalOpen(true);
+    setIsAddStageModalOpen(true);
   };
 
   const handleUpdatePurchase = async (purchaseId: number, purchaseData: PurchaseUpdateRequest) => {
@@ -237,7 +237,7 @@ export const usePurposeDetail = () => {
 
       // Close appropriate modal
       if (isTimelineUpdate) {
-        setIsEditTimelineModalOpen(false);
+        setIsAddStageModalOpen(false);
       } else {
         setIsEditBudgetSourceModalOpen(false);
       }
@@ -411,8 +411,8 @@ export const usePurposeDetail = () => {
     isCreatingPurchase,
     isEditBudgetSourceModalOpen,
     setIsEditBudgetSourceModalOpen,
-    isEditTimelineModalOpen,
-    setIsEditTimelineModalOpen,
+    isAddStageModalOpen,
+    setIsAddStageModalOpen,
     selectedPurchase,
     setSelectedPurchase,
     isUpdatingPurchase,
@@ -434,7 +434,7 @@ export const usePurposeDetail = () => {
     handleCreatePurchase,
     handleDeletePurchase,
     handleEditBudgetSource,
-    handleEditTimeline,
+    handleAddStage,
     handleUpdatePurchase,
     handleStageClick,
     handleEditStart,

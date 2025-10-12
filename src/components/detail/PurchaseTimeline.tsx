@@ -39,7 +39,7 @@ interface PurchaseTimelineProps {
   onSaveStage: (stage: any) => Promise<void>;
   onDeletePurchase: (purchaseId: string) => Promise<void>;
   onEditBudgetSource: (purchase: any) => void;
-  onEditTimeline: (purchase: any) => void;
+  onAddStage: (purchase: any) => void;
   setEditForm: (form: { date: string; text: string }) => void;
   isAdmin: boolean;
   // Utility functions
@@ -65,7 +65,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
   onSaveStage,
   onDeletePurchase,
   onEditBudgetSource,
-  onEditTimeline,
+  onAddStage,
   setEditForm,
   isAdmin,
   getStageDisplayDate,
@@ -270,9 +270,9 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Budget Source
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onEditTimeline(purchase)}>
+                <DropdownMenuItem onClick={() => onAddStage(purchase)}>
                   <Workflow className="h-4 w-4 mr-2" />
-                  Edit Timeline
+                  Add Stage
                 </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
