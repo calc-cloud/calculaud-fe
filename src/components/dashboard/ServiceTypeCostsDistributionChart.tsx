@@ -80,7 +80,7 @@ export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistrib
       return (
         <div
           className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg"
-          style={{ transform: 'translate(10px, -100%)' }}
+          style={{ transform: "translate(10px, -100%)" }}
         >
           <p className="font-medium text-gray-900 mb-2 text-sm">{`Service Type: ${data.name} (${percentage}%)`}</p>
           <div className="space-y-0.5 text-xs">
@@ -173,7 +173,7 @@ export const ServiceTypeCostsDistributionChart: React.FC<ServiceTypeCostsDistrib
                 </Pie>
                 <Tooltip
                   content={<CustomTooltip />}
-                  wrapperStyle={{ zIndex: 9999, pointerEvents: 'none', outline: 'none' }}
+                  wrapperStyle={{ zIndex: 9999, pointerEvents: "none", outline: "none" }}
                   cursor={false}
                   isAnimationActive={false}
                   allowEscapeViewBox={{ x: true, y: true }}

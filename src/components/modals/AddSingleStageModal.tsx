@@ -217,7 +217,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                         <div className="font-medium">{stageType.display_name}</div>
                         <div className="text-xs text-gray-500">{stageType.description}</div>
                         {stageType.responsible_authority && (
-                          <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                          <div className="text-xs text-blue-600">
+                            Responsible: {stageType.responsible_authority.name}
+                          </div>
                         )}
                       </div>
                     </SelectItem>
@@ -299,7 +301,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                         </Label>
                         <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
                           <SelectTrigger className="bg-white border-blue-300 focus:ring-blue-500 h-8 text-xs">
-                            <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
+                            <SelectValue placeholder="Select a stage type">
+                              {selectedStageType?.display_name}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {stageTypesData?.items?.map((stageType) => (
@@ -308,7 +312,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                                   <div className="font-medium">{stageType.display_name}</div>
                                   <div className="text-xs text-gray-500">{stageType.description}</div>
                                   {stageType.responsible_authority && (
-                                    <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                                    <div className="text-xs text-blue-600">
+                                      Responsible: {stageType.responsible_authority.name}
+                                    </div>
                                   )}
                                 </div>
                               </SelectItem>
@@ -396,7 +402,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                         <div className="font-medium">{stageType.display_name}</div>
                         <div className="text-xs text-gray-500">{stageType.description}</div>
                         {stageType.responsible_authority && (
-                          <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                          <div className="text-xs text-blue-600">
+                            Responsible: {stageType.responsible_authority.name}
+                          </div>
                         )}
                       </div>
                     </SelectItem>
