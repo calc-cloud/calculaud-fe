@@ -435,8 +435,8 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           </div>
 
           {/* Stages Preview */}
-          <div className="overflow-y-auto flex-1 min-h-0">
-            <div className="rounded-lg p-4 border-2 border-gray-300">
+          <div className="flex-1 min-h-0 rounded-lg border-2 border-gray-300 overflow-hidden flex flex-col">
+            <div className="overflow-y-auto p-4">
               {groupedStages.length > 0 ? (
                 groupedStages.map((stage, index) => (
                   <StageItem key={index} stage={stage} index={index} isLast={index === groupedStages.length - 1} />
