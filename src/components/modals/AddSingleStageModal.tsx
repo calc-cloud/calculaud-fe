@@ -60,12 +60,7 @@ const groupStagesByPriority = (stages: ReturnType<typeof convertPurchaseToStages
 /**
  * Creates a new stage object for insertion into the timeline
  */
-const createNewStageObject = (
-  stageTypeId: number,
-  stageTypeData: any,
-  purchaseId: number,
-  priority: number
-) => {
+const createNewStageObject = (stageTypeId: number, stageTypeData: any, purchaseId: number, priority: number) => {
   return {
     id: TEMP_NEW_STAGE_ID,
     stage_type_id: stageTypeId,
@@ -421,14 +416,14 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Stage to Timeline</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col space-y-4 overflow-hidden">
           {/* Position Selection */}
-          <div className="px-1">
+          <div className="px-1 flex-shrink-0">
             <Label className="text-sm font-medium">
               Stage Position <span className="text-red-500">*</span>
             </Label>
@@ -440,7 +435,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           </div>
 
           {/* Stages Preview */}
-          <div className="overflow-y-auto max-h-[500px]">
+          <div className="overflow-y-auto flex-1 min-h-0">
             <div className="rounded-lg p-4 border-2 border-gray-300">
               {groupedStages.length > 0 ? (
                 groupedStages.map((stage, index) => (
@@ -455,7 +450,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
