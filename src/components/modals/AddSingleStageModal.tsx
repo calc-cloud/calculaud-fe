@@ -26,6 +26,82 @@ interface SelectedPosition {
   position: PositionType;
 }
 
+// Constants
+const TEMP_NEW_STAGE_ID = -1;
+
+// Helper Functions
+
+/**
+ * Groups stages by priority and returns them as an array of groups
+ * Each group contains stages with the same priority
+ */
+const groupStagesByPriority = (stages: ReturnType<typeof convertPurchaseToStages>) => {
+  const priorityGroups: Map<number, typeof stages> = new Map();
+
+  stages.forEach((stage) => {
+    if (!priorityGroups.has(stage.priority)) {
+      priorityGroups.set(stage.priority, []);
+    }
+    const group = priorityGroups.get(stage.priority);
+    if (group) {
+      group.push(stage);
+    }
+  });
+
+  const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
+  return sortedPriorities
+    .map((priority) => {
+      const group = priorityGroups.get(priority);
+      return group || [];
+    })
+    .filter((group) => group.length > 0);
+};
+
+/**
+ * Creates a new stage object for insertion into the timeline
+ */
+const createNewStageObject = (
+  stageTypeId: number,
+  stageTypeData: any,
+  purchaseId: number,
+  priority: number
+) => {
+  return {
+    id: TEMP_NEW_STAGE_ID,
+    stage_type_id: stageTypeId,
+    priority,
+    stage_type: stageTypeData,
+    purchase_id: purchaseId,
+    value: null,
+    completion_date: null,
+    days_since_previous_stage: null,
+  };
+};
+
+/**
+ * Inserts a new stage into the grouped stages array based on the selected position
+ */
+const insertStageIntoGroups = (
+  groupedStages: ReturnType<typeof groupStagesByPriority>,
+  selectedPosition: SelectedPosition,
+  newStage: ReturnType<typeof createNewStageObject>
+) => {
+  const { index, position } = selectedPosition;
+
+  if (position === "inside") {
+    // Add to existing parallel group
+    groupedStages[index].push(newStage);
+  } else if (position === "above") {
+    // Insert new stage group above
+    groupedStages.splice(index, 0, [newStage]);
+  } else if (position === "below") {
+    // Insert new stage group below
+    groupedStages.splice(index + 1, 0, [newStage]);
+  }
+
+  return groupedStages;
+};
+
 export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
   isOpen,
   onClose,
@@ -70,29 +146,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
       const stages = convertPurchaseToStages(purchase);
 
       // Group stages by priority to build the nested structure
-      const priorityGroups: Map<number, typeof stages> = new Map();
-      stages.forEach((stage) => {
-        if (!priorityGroups.has(stage.priority)) {
-          priorityGroups.set(stage.priority, []);
-        }
-        const group = priorityGroups.get(stage.priority);
-        if (group) {
-          group.push(stage);
-        }
-      });
+      const groupedStages = groupStagesByPriority(stages);
 
-      // Convert to sorted array of groups
-      const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
-      const groupedStages = sortedPriorities
-        .map((priority) => {
-          const group = priorityGroups.get(priority);
-          return group || [];
-        })
-        .filter((group) => group.length > 0);
-
-      // Modify the grouped stages based on selected position
-      const { index, position } = selectedPosition;
-
+      // Get selected stage type data
       const selectedStageTypeData = stageTypesData?.items.find((st) => st.id === parseInt(selectedStageTypeId));
 
       if (!selectedStageTypeData) {
@@ -100,53 +156,23 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
         return;
       }
 
-      if (position === "inside") {
-        // Add to existing parallel group
-        groupedStages[index].push({
-          id: -1, // Temporary ID for new stage
-          stage_type_id: parseInt(selectedStageTypeId),
-          priority: groupedStages[index][0].priority,
-          stage_type: selectedStageTypeData,
-          purchase_id: purchase.id,
-          value: null,
-          completion_date: null,
-          days_since_previous_stage: null,
-        });
-      } else if (position === "above") {
-        // Insert new stage group above
-        groupedStages.splice(index, 0, [
-          {
-            id: -1,
-            stage_type_id: parseInt(selectedStageTypeId),
-            priority: -1, // Will be recalculated
-            stage_type: selectedStageTypeData,
-            purchase_id: purchase.id,
-            value: null,
-            completion_date: null,
-            days_since_previous_stage: null,
-          },
-        ]);
-      } else if (position === "below") {
-        // Insert new stage group below
-        groupedStages.splice(index + 1, 0, [
-          {
-            id: -1,
-            stage_type_id: parseInt(selectedStageTypeId),
-            priority: -1,
-            stage_type: selectedStageTypeData,
-            purchase_id: purchase.id,
-            value: null,
-            completion_date: null,
-            days_since_previous_stage: null,
-          },
-        ]);
-      }
+      // Create new stage object
+      const priority = selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
+      const newStage = createNewStageObject(
+        parseInt(selectedStageTypeId),
+        selectedStageTypeData,
+        purchase.id,
+        priority
+      );
+
+      // Insert new stage into grouped stages
+      insertStageIntoGroups(groupedStages, selectedPosition, newStage);
 
       // Convert back to nested array format for API
       const nestedStages: Array<StageUpdateItem | StageUpdateItem[]> = groupedStages.map((group) => {
         const stageItems = group.map((stage) => {
           const item: StageUpdateItem = {};
-          if (stage.id === -1) {
+          if (stage.id === TEMP_NEW_STAGE_ID) {
             // New stage
             item.stage_type_id = stage.stage_type_id;
           } else {
@@ -214,7 +240,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     onMouseLeave?: (e: React.MouseEvent) => void;
   }) => (
     <div
-      className={`bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-${compact ? "2" : "3"} ${className}`}
+      className={`bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg ${compact ? "p-2" : "p-3"} ${className}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -382,23 +408,10 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     if (!purchase) return [];
 
     const stages = convertPurchaseToStages(purchase);
-    const priorityGroups: Map<number, typeof stages> = new Map();
+    const groupedStages = groupStagesByPriority(stages);
 
-    stages.forEach((stage) => {
-      if (!priorityGroups.has(stage.priority)) {
-        priorityGroups.set(stage.priority, []);
-      }
-      const group = priorityGroups.get(stage.priority);
-      if (group) {
-        group.push(stage);
-      }
-    });
-
-    const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
-    return sortedPriorities
-      .map((priority) => {
-        const group = priorityGroups.get(priority);
-        if (!group) return null;
+    return groupedStages
+      .map((group) => {
         return group.length === 1 ? group[0] : group;
       })
       .filter(Boolean);
