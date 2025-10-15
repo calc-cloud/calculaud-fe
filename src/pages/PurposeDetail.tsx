@@ -5,8 +5,9 @@ import { GeneralDataCard } from "@/components/detail/GeneralDataCard";
 import { PurchasesTimelineCard } from "@/components/detail/PurchasesTimelineCard";
 import { PurposeDetailHeader } from "@/components/detail/PurposeDetailHeader";
 import { AddPurchaseModal } from "@/components/modals/AddPurchaseModal";
+import { AddSingleStageModal } from "@/components/modals/AddSingleStageModal";
+import { EditBudgetSourceModal } from "@/components/modals/EditBudgetSourceModal";
 import { EditGeneralDataModal } from "@/components/modals/EditGeneralDataModal";
-import { EditPurchaseModal } from "@/components/modals/EditPurchaseModal";
 import { usePurposeDetail } from "@/hooks/usePurposeDetail";
 
 const PurposeDetail: React.FC = () => {
@@ -24,8 +25,10 @@ const PurposeDetail: React.FC = () => {
     isAddPurchaseModalOpen,
     setIsAddPurchaseModalOpen,
     isCreatingPurchase,
-    isEditPurchaseModalOpen,
-    setIsEditPurchaseModalOpen,
+    isEditBudgetSourceModalOpen,
+    setIsEditBudgetSourceModalOpen,
+    isAddStageModalOpen,
+    setIsAddStageModalOpen,
     selectedPurchase,
     setSelectedPurchase,
     isUpdatingPurchase,
@@ -46,7 +49,8 @@ const PurposeDetail: React.FC = () => {
     handleSaveGeneralData,
     handleCreatePurchase,
     handleDeletePurchase,
-    handleEditPurchase,
+    handleEditBudgetSource,
+    handleAddStage,
     handleUpdatePurchase,
     handleStageClick,
     handleEditCancel,
@@ -118,7 +122,8 @@ const PurposeDetail: React.FC = () => {
             purpose={purpose}
             onAddPurchase={() => setIsAddPurchaseModalOpen(true)}
             onDeletePurchase={handleDeletePurchase}
-            onEditPurchase={handleEditPurchase}
+            onEditBudgetSource={handleEditBudgetSource}
+            onAddStage={handleAddStage}
             editingStage={editingStage}
             selectedStage={selectedStage}
             editForm={editForm}
@@ -162,11 +167,23 @@ const PurposeDetail: React.FC = () => {
         />
       )}
 
-      {/* Edit Purchase Modal */}
-      <EditPurchaseModal
-        isOpen={isEditPurchaseModalOpen}
+      {/* Edit Budget Source Modal */}
+      <EditBudgetSourceModal
+        isOpen={isEditBudgetSourceModalOpen}
         onClose={() => {
-          setIsEditPurchaseModalOpen(false);
+          setIsEditBudgetSourceModalOpen(false);
+          setSelectedPurchase(null);
+        }}
+        onSubmit={handleUpdatePurchase}
+        purchase={selectedPurchase}
+        isLoading={isUpdatingPurchase}
+      />
+
+      {/* Add Stage Modal */}
+      <AddSingleStageModal
+        isOpen={isAddStageModalOpen}
+        onClose={() => {
+          setIsAddStageModalOpen(false);
           setSelectedPurchase(null);
         }}
         onSubmit={handleUpdatePurchase}

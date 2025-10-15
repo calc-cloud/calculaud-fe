@@ -29,7 +29,7 @@ interface PurchaseTimelineProps {
   purchase: any;
   purchaseIndex: number;
   totalPurchases: number;
-  editingStage: string | null;
+  editingStage: number | null;
   selectedStage: any | null;
   editForm: { date: string; text: string };
   isUpdatingStage: boolean;
@@ -38,7 +38,8 @@ interface PurchaseTimelineProps {
   onCloseStagePopup: () => void;
   onSaveStage: (stage: any) => Promise<void>;
   onDeletePurchase: (purchaseId: string) => Promise<void>;
-  onEditPurchase: (purchase: any) => void;
+  onEditBudgetSource: (purchase: any) => void;
+  onAddStage: (purchase: any) => void;
   setEditForm: (form: { date: string; text: string }) => void;
   isAdmin: boolean;
   // Utility functions
@@ -63,7 +64,8 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
   onCloseStagePopup,
   onSaveStage,
   onDeletePurchase,
-  onEditPurchase,
+  onEditBudgetSource,
+  onAddStage,
   setEditForm,
   isAdmin,
   getStageDisplayDate,
@@ -119,7 +121,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
               <div className="text-center">
                 <div className="flex items-center justify-center mb-1">
                   <h4 className="font-medium text-gray-800 text-xs leading-tight break-words">
-                    {stage.name || "Unknown Stage"}
+                    {stage.stage_type.display_name || "Unknown Stage"}
                   </h4>
                   {hasMultipleStagesWithSamePriority(stages, stage) && (
                     <Badge
@@ -130,7 +132,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     </Badge>
                   )}
                 </div>
-                {stage.completed && stage.stage_type.value_required && stage.value && stage.value.trim() !== "" && (
+                {stage.stage_type.value_required && stage.value && stage.value.trim() !== "" && (
                   <div className="text-xs text-gray-900 font-medium mb-1 break-words">{stage.value}</div>
                 )}
                 {getStageDisplayDate(stage) && (
@@ -145,7 +147,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <h4 className="font-medium text-gray-800 text-sm">{stage.name}</h4>
+                      <h4 className="font-medium text-gray-800 text-sm">{stage.stage_type.display_name}</h4>
                       {hasMultipleStagesWithSamePriority(stages, stage) && (
                         <Badge
                           variant={getPriorityVariant(stage.priority)}
@@ -162,7 +164,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     )}
                   </div>
                   <div className="flex items-center space-x-1">
-                    <div className={`w-3 h-3 rounded-full ${stage.completed ? "bg-green-500" : "bg-gray-300"}`} />
+                    <div className={`w-3 h-3 rounded-full ${stage.completion_date ? "bg-green-500" : "bg-gray-300"}`} />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -264,9 +266,13 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEditPurchase(purchase)}>
+                <DropdownMenuItem onClick={() => onEditBudgetSource(purchase)}>
                   <Edit className="h-4 w-4 mr-2" />
-                  Edit
+                  Edit Budget Source
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onAddStage(purchase)}>
+                  <Workflow className="h-4 w-4 mr-2" />
+                  Add Stage
                 </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -356,10 +362,10 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                     {/* Stage Dot */}
                     <div
                       className={`w-4 h-4 rounded-full border-2 flex items-center justify-center relative z-10 ${
-                        stage.completed ? "bg-green-500 border-green-500" : "bg-white border-gray-300"
+                        stage.completion_date ? "bg-green-500 border-green-500" : "bg-white border-gray-300"
                       }`}
                     >
-                      {stage.completed && <Check className="w-2 h-2 text-white" />}
+                      {stage.completion_date && <Check className="w-2 h-2 text-white" />}
                     </div>
                   </div>
                 );

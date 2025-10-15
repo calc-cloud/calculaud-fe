@@ -1,6 +1,7 @@
 import { apiService } from "@/services/apiService";
 import { Currency, Authority } from "@/types";
 import { UnifiedFilters } from "@/types/filters";
+import { Stage } from "@/types/purchases";
 
 export interface PurposeApiParams {
   page?: number;
@@ -77,24 +78,6 @@ export interface Purchase {
   current_pending_stages?: Stage[];
   days_since_last_completion?: number;
   pending_authority?: Authority;
-}
-
-export interface Stage {
-  id: number;
-  purchase_id: number;
-  stage_type_id: number;
-  priority: number;
-  value: string | null;
-  completion_date: string | null;
-  days_since_previous_stage: number | null;
-  stage_type: StageType;
-}
-
-export interface StageType {
-  id: number;
-  name: string;
-  display_name?: string;
-  value_required: boolean;
 }
 
 export interface Cost {

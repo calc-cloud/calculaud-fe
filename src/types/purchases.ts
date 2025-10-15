@@ -1,5 +1,6 @@
 import { BaseEntity, PaginatedResponse } from "./base";
 import { BudgetSource } from "./budgetSources";
+import { StageType } from "./stageTypes";
 
 export interface Purchase extends BaseEntity {
   purpose_id: string;
@@ -21,22 +22,30 @@ export interface Cost {
 }
 
 export interface Stage {
-  id: string;
-  purchase_id: string;
+  id: number;
+  purchase_id: number;
   stage_type_id: number;
   priority: number;
   value: string | null;
-  completed: boolean;
-  date: string | null;
+  completion_date: string | null;
+  days_since_previous_stage: number | null;
   stage_type: StageType;
-  days_since_previous_stage?: number;
 }
 
-export interface StageType {
+// Shared interface for frontend components that need to handle both existing and new stages
+export interface StageData {
   id: number;
-  name: string;
-  value_required: boolean;
-  responsible_authority?: Authority;
+  stage_type_id: number;
+  priority: number;
+  stage_type: StageType;
+  purchase_id: number;
+  isNew?: boolean;
+  tempId?: number;
+
+  // Optional - not used in timeline editing, only for compatibility with Stage
+  value?: string | boolean | null;
+  completion_date?: string | null;
+  days_since_previous_stage?: number | null;
 }
 
 export interface Authority {
@@ -57,8 +66,14 @@ export interface CreateCostRequest {
   currency: string;
 }
 
+export interface StageUpdateItem {
+  id?: number;
+  stage_type_id?: number;
+}
+
 export interface PurchaseUpdateRequest {
-  budget_source_id: number;
+  budget_source_id?: number;
+  stages?: Array<StageUpdateItem | StageUpdateItem[]>;
 }
 
 export type PurchasesResponse = PaginatedResponse<Purchase>;

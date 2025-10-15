@@ -14,9 +14,10 @@ interface PurchasesTimelineCardProps {
   purpose: Purpose;
   onAddPurchase: () => void;
   onDeletePurchase: (purchaseId: string) => Promise<void>;
-  onEditPurchase: (purchase: any) => void;
+  onEditBudgetSource: (purchase: any) => void;
+  onAddStage: (purchase: any) => void;
   // Stage editing props
-  editingStage: string | null;
+  editingStage: number | null;
   selectedStage: any | null;
   editForm: { date: string; text: string };
   isUpdatingStage: boolean;
@@ -38,7 +39,8 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
   purpose,
   onAddPurchase,
   onDeletePurchase,
-  onEditPurchase,
+  onEditBudgetSource,
+  onAddStage,
   editingStage,
   selectedStage,
   editForm,
@@ -107,7 +109,8 @@ export const PurchasesTimelineCard: React.FC<PurchasesTimelineCardProps> = ({
                 onCloseStagePopup={onCloseStagePopup}
                 onSaveStage={onSaveStage}
                 onDeletePurchase={onDeletePurchase}
-                onEditPurchase={onEditPurchase}
+                onEditBudgetSource={onEditBudgetSource}
+                onAddStage={onAddStage}
                 setEditForm={setEditForm}
                 isAdmin={isAdmin}
                 getStageDisplayDate={getStageDisplayDate}

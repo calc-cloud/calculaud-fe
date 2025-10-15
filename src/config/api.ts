@@ -8,6 +8,7 @@ export const API_CONFIG = {
     RESPONSIBLE_AUTHORITIES: "/responsible-authorities/",
     BUDGET_SOURCES: "/budget-sources/",
     PURCHASES: "/purchases/",
+    STAGE_TYPES: "/stage-types/",
   },
   PAGINATION: {
     DEFAULT_PAGE: 1,

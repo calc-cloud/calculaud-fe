@@ -1,8 +1,10 @@
 export * from "./base";
 export * from "./budgetSources";
 export * from "./purchases";
+export * from "./stageTypes";
 
-import type { Purchase } from "./purchases";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import type { Purchase, Stage } from "./purchases";
 
 export enum Currency {
   ILS = "ILS",
@@ -72,28 +74,6 @@ export interface PurposeContent {
   service_name?: string; // Backend field name
   service_type?: string; // Backend field name
   quantity: number;
-}
-
-export interface Stage {
-  id: string;
-  purchase_id: string;
-  stage_type_id: string;
-  priority: number;
-  value: string | null;
-  completion_date: string | null;
-  days_since_previous_stage: number | null;
-  stage_type: StageType;
-}
-
-export interface StageType {
-  id: string;
-  name: string;
-  display_name?: string;
-  description?: string;
-  value_required: boolean;
-  responsible_authority_id?: number;
-  responsible_authority?: Authority;
-  created_at?: string;
 }
 
 export interface Cost {
