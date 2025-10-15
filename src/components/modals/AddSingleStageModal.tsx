@@ -197,10 +197,33 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
       <div className={`relative ${!isLast ? "mb-3" : ""}`}>
         {/* Above placeholder */}
         {isAboveSelected && (
-          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-2 mb-3 animate-pulse">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Workflow className="w-3 h-3" />
-              <span className="text-sm font-semibold">{selectedStageType?.display_name || "New Stage"}</span>
+          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-3 mb-3">
+            <div className="flex items-center gap-2 mb-2 text-blue-600">
+              <Workflow className="w-4 h-4" />
+              <span className="text-sm font-semibold">New Stage</span>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-blue-700">
+                Stage Type <span className="text-red-500">*</span>
+              </Label>
+              <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
+                <SelectTrigger className="bg-white border-blue-300 focus:ring-blue-500">
+                  <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {stageTypesData?.items?.map((stageType) => (
+                    <SelectItem key={stageType.id} value={stageType.id.toString()}>
+                      <div className="flex flex-col">
+                        <div className="font-medium">{stageType.display_name}</div>
+                        <div className="text-xs text-gray-500">{stageType.description}</div>
+                        {stageType.responsible_authority && (
+                          <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
@@ -256,13 +279,48 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                     </div>
                   ))}
                   {isInsideSelected && (
-                    <div className="bg-blue-50 border-2 border-dashed border-blue-400 px-2 py-1 text-xs rounded text-blue-600 font-medium animate-pulse">
-                      {selectedStageType?.display_name || "New Stage"}
+                    <div
+                      className="bg-blue-50 border-2 border-dashed border-blue-400 rounded p-2 w-full relative z-30"
+                      onMouseEnter={(e) => {
+                        e.stopPropagation();
+                        setHoveredIndex(null);
+                      }}
+                      onMouseLeave={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-2 text-blue-600">
+                        <Workflow className="w-3 h-3" />
+                        <span className="text-xs font-semibold">New Stage</span>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs font-medium text-blue-700">
+                          Stage Type <span className="text-red-500">*</span>
+                        </Label>
+                        <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
+                          <SelectTrigger className="bg-white border-blue-300 focus:ring-blue-500 h-8 text-xs">
+                            <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {stageTypesData?.items?.map((stageType) => (
+                              <SelectItem key={stageType.id} value={stageType.id.toString()}>
+                                <div className="flex flex-col">
+                                  <div className="font-medium">{stageType.display_name}</div>
+                                  <div className="text-xs text-gray-500">{stageType.description}</div>
+                                  {stageType.responsible_authority && (
+                                    <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {isHovered && (
+                {isHovered && !isInsideSelected && (
                   <div
                     className="absolute inset-0 rounded-lg flex items-center justify-center z-10 transition-all pointer-events-none"
                     onMouseEnter={() => setButtonHover("inside")}
@@ -318,10 +376,33 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
 
         {/* Below placeholder */}
         {isBelowSelected && (
-          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-2 mt-3 animate-pulse">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Workflow className="w-3 h-3" />
-              <span className="text-sm font-semibold">{selectedStageType?.display_name || "New Stage"}</span>
+          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-3 mt-3">
+            <div className="flex items-center gap-2 mb-2 text-blue-600">
+              <Workflow className="w-4 h-4" />
+              <span className="text-sm font-semibold">New Stage</span>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-blue-700">
+                Stage Type <span className="text-red-500">*</span>
+              </Label>
+              <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
+                <SelectTrigger className="bg-white border-blue-300 focus:ring-blue-500">
+                  <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {stageTypesData?.items?.map((stageType) => (
+                    <SelectItem key={stageType.id} value={stageType.id.toString()}>
+                      <div className="flex flex-col">
+                        <div className="font-medium">{stageType.display_name}</div>
+                        <div className="text-xs text-gray-500">{stageType.description}</div>
+                        {stageType.responsible_authority && (
+                          <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
@@ -366,31 +447,6 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
         </DialogHeader>
 
         <div className="space-y-4 flex flex-col">
-          {/* Stage Type Selection */}
-          <div className="px-1">
-            <Label className="text-sm font-medium">
-              Stage Type <span className="text-red-500">*</span>
-            </Label>
-            <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {stageTypesData?.items?.map((stageType) => (
-                  <SelectItem key={stageType.id} value={stageType.id.toString()}>
-                    <div className="flex flex-col">
-                      <div className="font-medium">{stageType.display_name}</div>
-                      <div className="text-xs text-gray-500">{stageType.description}</div>
-                      {stageType.responsible_authority && (
-                        <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Position Selection */}
           <div className="px-1">
             <Label className="text-sm font-medium">
@@ -398,7 +454,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
             </Label>
             <p className="text-xs text-gray-500 mt-1">
               {selectedPosition
-                ? "✓ Position selected - Click 'Add Stage' to confirm"
+                ? "✓ Position selected - Select a stage type to confirm"
                 : "Hover over stages and click a placement option"}
             </p>
           </div>
