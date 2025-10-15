@@ -89,10 +89,13 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
       const data = payload[0];
       const percentage = totalCount > 0 ? ((data.value / totalCount) * 100).toFixed(1) : 0;
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900">{`Service Type: ${data.name} (${percentage}%)`}</p>
-          <p className="text-gray-600">{`Purposes: ${data.value}`}</p>
-          <p className="text-gray-500 text-sm">{`Status: ${activeStatus === "SIGNED" ? "Signed" : "Completed"}`}</p>
+        <div
+          className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg"
+          style={{ transform: "translate(10px, -100%)" }}
+        >
+          <p className="font-medium text-gray-900 text-sm">{`Service Type: ${data.name} (${percentage}%)`}</p>
+          <p className="text-gray-600 text-xs">{`Purposes: ${data.value}`}</p>
+          <p className="text-gray-500 text-xs">{`Status: ${activeStatus === "SIGNED" ? "Signed" : "Completed"}`}</p>
         </div>
       );
     }
@@ -194,7 +197,13 @@ export const ServiceTypesPerformanceChart: React.FC<ServiceTypesPerformanceChart
                     <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 9999 }} />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  wrapperStyle={{ zIndex: 9999, pointerEvents: "none", outline: "none" }}
+                  cursor={false}
+                  isAnimationActive={false}
+                  allowEscapeViewBox={{ x: true, y: true }}
+                />
               </PieChart>
             </ResponsiveContainer>
 
