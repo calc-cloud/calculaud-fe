@@ -81,9 +81,12 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
       const percentage = totalUSD > 0 ? ((amounts.total_usd / totalUSD) * 100).toFixed(1) : 0;
 
       return (
-        <div className="bg-white p-4 border border-gray-200 rounded-lg shadow-lg">
-          <p className="font-medium text-gray-900 mb-2">{`Budget Source: ${data.name} (${percentage}%)`}</p>
-          <div className="space-y-1 text-sm">
+        <div
+          className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg"
+          style={{ transform: 'translate(10px, -100%)' }}
+        >
+          <p className="font-medium text-gray-900 mb-2 text-sm">{`Budget Source: ${data.name} (${percentage}%)`}</p>
+          <div className="space-y-0.5 text-xs">
             <p className="text-gray-600">{`ILS: ${amounts.ils.toLocaleString()}`}</p>
             <p className="text-gray-600">{`Support USD: $${amounts.support_usd.toLocaleString()}`}</p>
             <p className="text-gray-600">{`Available USD: $${amounts.available_usd.toLocaleString()}`}</p>
@@ -169,7 +172,13 @@ export const BudgetSourceDistributionChart: React.FC<BudgetSourceDistributionCha
                     <Cell key={`cell-${index}`} fill={entry.color} className="hover:opacity-80 transition-opacity" />
                   ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} wrapperStyle={{ zIndex: 9999 }} />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  wrapperStyle={{ zIndex: 9999, pointerEvents: 'none', outline: 'none' }}
+                  cursor={false}
+                  isAnimationActive={false}
+                  allowEscapeViewBox={{ x: true, y: true }}
+                />
               </PieChart>
             </ResponsiveContainer>
 
