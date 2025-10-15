@@ -26,6 +26,77 @@ interface SelectedPosition {
   position: PositionType;
 }
 
+// Constants
+const TEMP_NEW_STAGE_ID = -1;
+
+// Helper Functions
+
+/**
+ * Groups stages by priority and returns them as an array of groups
+ * Each group contains stages with the same priority
+ */
+const groupStagesByPriority = (stages: ReturnType<typeof convertPurchaseToStages>) => {
+  const priorityGroups: Map<number, typeof stages> = new Map();
+
+  stages.forEach((stage) => {
+    if (!priorityGroups.has(stage.priority)) {
+      priorityGroups.set(stage.priority, []);
+    }
+    const group = priorityGroups.get(stage.priority);
+    if (group) {
+      group.push(stage);
+    }
+  });
+
+  const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
+  return sortedPriorities
+    .map((priority) => {
+      const group = priorityGroups.get(priority);
+      return group || [];
+    })
+    .filter((group) => group.length > 0);
+};
+
+/**
+ * Creates a new stage object for insertion into the timeline
+ */
+const createNewStageObject = (stageTypeId: number, stageTypeData: any, purchaseId: number, priority: number) => {
+  return {
+    id: TEMP_NEW_STAGE_ID,
+    stage_type_id: stageTypeId,
+    priority,
+    stage_type: stageTypeData,
+    purchase_id: purchaseId,
+    value: null,
+    completion_date: null,
+    days_since_previous_stage: null,
+  };
+};
+
+/**
+ * Inserts a new stage into the grouped stages array based on the selected position
+ */
+const insertStageIntoGroups = (
+  groupedStages: ReturnType<typeof groupStagesByPriority>,
+  selectedPosition: SelectedPosition,
+  newStage: ReturnType<typeof createNewStageObject>
+) => {
+  const { index, position } = selectedPosition;
+
+  if (position === "inside") {
+    // Add to existing parallel group
+    groupedStages[index].push(newStage);
+  } else if (position === "above") {
+    // Insert new stage group above
+    groupedStages.splice(index, 0, [newStage]);
+  } else if (position === "below") {
+    // Insert new stage group below
+    groupedStages.splice(index + 1, 0, [newStage]);
+  }
+
+  return groupedStages;
+};
+
 export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
   isOpen,
   onClose,
@@ -70,29 +141,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
       const stages = convertPurchaseToStages(purchase);
 
       // Group stages by priority to build the nested structure
-      const priorityGroups: Map<number, typeof stages> = new Map();
-      stages.forEach((stage) => {
-        if (!priorityGroups.has(stage.priority)) {
-          priorityGroups.set(stage.priority, []);
-        }
-        const group = priorityGroups.get(stage.priority);
-        if (group) {
-          group.push(stage);
-        }
-      });
+      const groupedStages = groupStagesByPriority(stages);
 
-      // Convert to sorted array of groups
-      const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
-      const groupedStages = sortedPriorities
-        .map((priority) => {
-          const group = priorityGroups.get(priority);
-          return group || [];
-        })
-        .filter((group) => group.length > 0);
-
-      // Modify the grouped stages based on selected position
-      const { index, position } = selectedPosition;
-
+      // Get selected stage type data
       const selectedStageTypeData = stageTypesData?.items.find((st) => st.id === parseInt(selectedStageTypeId));
 
       if (!selectedStageTypeData) {
@@ -100,53 +151,23 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
         return;
       }
 
-      if (position === "inside") {
-        // Add to existing parallel group
-        groupedStages[index].push({
-          id: -1, // Temporary ID for new stage
-          stage_type_id: parseInt(selectedStageTypeId),
-          priority: groupedStages[index][0].priority,
-          stage_type: selectedStageTypeData,
-          purchase_id: purchase.id,
-          value: null,
-          completion_date: null,
-          days_since_previous_stage: null,
-        });
-      } else if (position === "above") {
-        // Insert new stage group above
-        groupedStages.splice(index, 0, [
-          {
-            id: -1,
-            stage_type_id: parseInt(selectedStageTypeId),
-            priority: -1, // Will be recalculated
-            stage_type: selectedStageTypeData,
-            purchase_id: purchase.id,
-            value: null,
-            completion_date: null,
-            days_since_previous_stage: null,
-          },
-        ]);
-      } else if (position === "below") {
-        // Insert new stage group below
-        groupedStages.splice(index + 1, 0, [
-          {
-            id: -1,
-            stage_type_id: parseInt(selectedStageTypeId),
-            priority: -1,
-            stage_type: selectedStageTypeData,
-            purchase_id: purchase.id,
-            value: null,
-            completion_date: null,
-            days_since_previous_stage: null,
-          },
-        ]);
-      }
+      // Create new stage object
+      const priority = selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
+      const newStage = createNewStageObject(
+        parseInt(selectedStageTypeId),
+        selectedStageTypeData,
+        purchase.id,
+        priority
+      );
+
+      // Insert new stage into grouped stages
+      insertStageIntoGroups(groupedStages, selectedPosition, newStage);
 
       // Convert back to nested array format for API
       const nestedStages: Array<StageUpdateItem | StageUpdateItem[]> = groupedStages.map((group) => {
         const stageItems = group.map((stage) => {
           const item: StageUpdateItem = {};
-          if (stage.id === -1) {
+          if (stage.id === TEMP_NEW_STAGE_ID) {
             // New stage
             item.stage_type_id = stage.stage_type_id;
           } else {
@@ -184,6 +205,60 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
   // Get selected stage type for preview
   const selectedStageType = stageTypesData?.items.find((st) => st.id.toString() === selectedStageTypeId);
 
+  // Reusable component for stage type select items
+  const StageTypeSelectItems = () => (
+    <>
+      {stageTypesData?.items?.map((stageType) => (
+        <SelectItem key={stageType.id} value={stageType.id.toString()}>
+          <div className="flex flex-col">
+            <div className="font-medium">{stageType.display_name}</div>
+            <div className="text-xs text-gray-500">{stageType.description}</div>
+            {stageType.responsible_authority && (
+              <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
+            )}
+          </div>
+        </SelectItem>
+      ))}
+    </>
+  );
+
+  // Reusable component for new stage placeholder with selector
+  const NewStagePlaceholder = ({
+    compact = false,
+    className = "",
+    onMouseEnter,
+    onMouseLeave,
+  }: {
+    compact?: boolean;
+    className?: string;
+    onMouseEnter?: (e: React.MouseEvent) => void;
+    onMouseLeave?: (e: React.MouseEvent) => void;
+  }) => (
+    <div
+      className={`bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg ${compact ? "p-2" : "p-3"} ${className}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className="flex items-center gap-2 mb-2 text-blue-600">
+        <Workflow className={compact ? "w-3 h-3" : "w-4 h-4"} />
+        <span className={`font-semibold ${compact ? "text-xs" : "text-sm"}`}>New Stage</span>
+      </div>
+      <div className="space-y-1">
+        <Label className="text-xs font-medium text-blue-700">
+          Stage Type <span className="text-red-500">*</span>
+        </Label>
+        <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
+          <SelectTrigger className={`bg-white border-blue-300 focus:ring-blue-500 ${compact ? "h-8 text-xs" : ""}`}>
+            <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <StageTypeSelectItems />
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   // Render stage preview in modal
   const StageItem = ({ stage, index, isLast }: { stage: any; index: number; isLast: boolean }) => {
     const isParallel = Array.isArray(stage);
@@ -196,14 +271,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     return (
       <div className={`relative ${!isLast ? "mb-3" : ""}`}>
         {/* Above placeholder */}
-        {isAboveSelected && (
-          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-2 mb-3 animate-pulse">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Workflow className="w-3 h-3" />
-              <span className="text-sm font-semibold">{selectedStageType?.display_name || "New Stage"}</span>
-            </div>
-          </div>
-        )}
+        {isAboveSelected && <NewStagePlaceholder className="mb-3" />}
 
         {/* Stage item */}
         <div className="relative">
@@ -256,13 +324,21 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                     </div>
                   ))}
                   {isInsideSelected && (
-                    <div className="bg-blue-50 border-2 border-dashed border-blue-400 px-2 py-1 text-xs rounded text-blue-600 font-medium animate-pulse">
-                      {selectedStageType?.display_name || "New Stage"}
-                    </div>
+                    <NewStagePlaceholder
+                      compact
+                      className="w-full relative z-30 rounded"
+                      onMouseEnter={(e) => {
+                        e.stopPropagation();
+                        setHoveredIndex(null);
+                      }}
+                      onMouseLeave={(e) => {
+                        e.stopPropagation();
+                      }}
+                    />
                   )}
                 </div>
 
-                {isHovered && (
+                {isHovered && !isInsideSelected && (
                   <div
                     className="absolute inset-0 rounded-lg flex items-center justify-center z-10 transition-all pointer-events-none"
                     onMouseEnter={() => setButtonHover("inside")}
@@ -317,14 +393,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
         </div>
 
         {/* Below placeholder */}
-        {isBelowSelected && (
-          <div className="bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg p-2 mt-3 animate-pulse">
-            <div className="flex items-center gap-2 text-blue-600">
-              <Workflow className="w-3 h-3" />
-              <span className="text-sm font-semibold">{selectedStageType?.display_name || "New Stage"}</span>
-            </div>
-          </div>
-        )}
+        {isBelowSelected && <NewStagePlaceholder className="mt-3" />}
       </div>
     );
   };
@@ -334,23 +403,10 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     if (!purchase) return [];
 
     const stages = convertPurchaseToStages(purchase);
-    const priorityGroups: Map<number, typeof stages> = new Map();
+    const groupedStages = groupStagesByPriority(stages);
 
-    stages.forEach((stage) => {
-      if (!priorityGroups.has(stage.priority)) {
-        priorityGroups.set(stage.priority, []);
-      }
-      const group = priorityGroups.get(stage.priority);
-      if (group) {
-        group.push(stage);
-      }
-    });
-
-    const sortedPriorities = Array.from(priorityGroups.keys()).sort((a, b) => a - b);
-    return sortedPriorities
-      .map((priority) => {
-        const group = priorityGroups.get(priority);
-        if (!group) return null;
+    return groupedStages
+      .map((group) => {
         return group.length === 1 ? group[0] : group;
       })
       .filter(Boolean);
@@ -360,52 +416,27 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Add Stage to Timeline</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 flex flex-col">
-          {/* Stage Type Selection */}
-          <div className="px-1">
-            <Label className="text-sm font-medium">
-              Stage Type <span className="text-red-500">*</span>
-            </Label>
-            <Select value={selectedStageTypeId} onValueChange={setSelectedStageTypeId} disabled={isLoading}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Select a stage type">{selectedStageType?.display_name}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {stageTypesData?.items?.map((stageType) => (
-                  <SelectItem key={stageType.id} value={stageType.id.toString()}>
-                    <div className="flex flex-col">
-                      <div className="font-medium">{stageType.display_name}</div>
-                      <div className="text-xs text-gray-500">{stageType.description}</div>
-                      {stageType.responsible_authority && (
-                        <div className="text-xs text-blue-600">Responsible: {stageType.responsible_authority.name}</div>
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+        <div className="flex-1 min-h-0 flex flex-col space-y-4 overflow-hidden">
           {/* Position Selection */}
-          <div className="px-1">
+          <div className="px-1 flex-shrink-0">
             <Label className="text-sm font-medium">
               Stage Position <span className="text-red-500">*</span>
             </Label>
             <p className="text-xs text-gray-500 mt-1">
               {selectedPosition
-                ? "✓ Position selected - Click 'Add Stage' to confirm"
+                ? "✓ Position selected - Select a stage type to confirm"
                 : "Hover over stages and click a placement option"}
             </p>
           </div>
 
           {/* Stages Preview */}
-          <div className="overflow-y-auto max-h-[500px]">
-            <div className="rounded-lg p-4 border-2 border-gray-300">
+          <div className="flex-1 min-h-0 rounded-lg border-2 border-gray-300 overflow-hidden flex flex-col">
+            <div className="overflow-y-auto p-4">
               {groupedStages.length > 0 ? (
                 groupedStages.map((stage, index) => (
                   <StageItem key={index} stage={stage} index={index} isLast={index === groupedStages.length - 1} />
@@ -419,7 +450,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0">
           <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
