@@ -159,7 +159,8 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
         }
 
         // Create new stage object
-        const priority = selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
+        const priority =
+          selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
         const newStage = createNewStageObject(
           parseInt(selectedStageTypeId),
           selectedStageTypeData,
@@ -339,7 +340,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs font-semibold ${allDeleted ? "text-red-700 line-through" : "text-purple-700"}`}>
+                    <span
+                      className={`text-xs font-semibold ${allDeleted ? "text-red-700 line-through" : "text-purple-700"}`}
+                    >
                       Parallel Stages
                     </span>
                     <Badge
@@ -478,7 +481,9 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
                     variant="ghost"
                     size="sm"
                     className={`h-7 w-7 p-0 ml-2 flex-shrink-0 ${
-                      isDeleted ? "text-red-600 hover:text-red-700 hover:bg-red-100" : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                      isDeleted
+                        ? "text-red-600 hover:text-red-700 hover:bg-red-100"
+                        : "text-gray-500 hover:text-red-600 hover:bg-red-50"
                     }`}
                     onClick={(e) => {
                       e.stopPropagation();
