@@ -272,7 +272,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onAddStage(purchase)}>
                   <Workflow className="h-4 w-4 mr-2" />
-                  Add Stage
+                  Edit timeline
                 </DropdownMenuItem>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>

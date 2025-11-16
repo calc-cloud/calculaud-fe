@@ -13,6 +13,7 @@ import {
   getContentsDisplay,
   getEMFIds,
   getDemandIds,
+  getOrderIds,
   getHierarchyInfo,
   getAuthorityInfo,
   getStagesDisplay,
@@ -235,6 +236,24 @@ export const createColumns = (
       );
     },
     ...COLUMN_SIZES.demandIds,
+  },
+
+  {
+    id: "orderIds",
+    accessorFn: (row) => getOrderIds(row).allIds,
+    header: () => <SimpleHeaderWrapper>Order IDs</SimpleHeaderWrapper>,
+    cell: ({ row }) => {
+      const orderIds = getOrderIds(row.original);
+
+      return orderIds.ids.length > 0 ? (
+        <TooltipCell trigger={<MultiItemDisplay items={orderIds.ids} />} content={<p>{orderIds.allIds}</p>} />
+      ) : (
+        <CellWrapper>
+          <div className="text-sm text-muted-foreground">-</div>
+        </CellWrapper>
+      );
+    },
+    ...COLUMN_SIZES.orderIds,
   },
 
   {
