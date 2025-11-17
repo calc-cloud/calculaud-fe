@@ -74,6 +74,7 @@ describe("TanStackPurposeTable", () => {
     purchases: false,
     emfIds: false,
     demandIds: false,
+    orderIds: false,
     totalCost: true,
     expectedDelivery: false,
     createdAt: false,

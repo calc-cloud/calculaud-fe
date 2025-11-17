@@ -1,4 +1,4 @@
-import { Workflow, Check } from "lucide-react";
+import { Workflow, Check, Trash2 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +108,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<SelectedPosition | null>(null);
   const [buttonHover, setButtonHover] = useState<PositionType | null>(null);
+  const [deletedStageIds, setDeletedStageIds] = useState<Set<number>>(new Set());
 
   const { data: stageTypesData } = useStageTypes();
   const { toast } = useToast();
@@ -119,6 +120,7 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
       setHoveredIndex(null);
       setSelectedPosition(null);
       setButtonHover(null);
+      setDeletedStageIds(new Set());
     }
   }, [isOpen]);
 
@@ -132,36 +134,43 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
   };
 
   const handleSubmit = async () => {
-    if (!selectedStageTypeId || !selectedPosition || !purchase) {
-      toast({ title: "Please select a stage type and position", variant: "destructive" });
+    if (!purchase) {
+      toast({ title: "Purchase data is missing", variant: "destructive" });
       return;
     }
 
     try {
       const stages = convertPurchaseToStages(purchase);
 
+      // Filter out deleted stages
+      const filteredStages = stages.filter((stage) => !deletedStageIds.has(stage.id));
+
       // Group stages by priority to build the nested structure
-      const groupedStages = groupStagesByPriority(stages);
+      const groupedStages = groupStagesByPriority(filteredStages);
 
-      // Get selected stage type data
-      const selectedStageTypeData = stageTypesData?.items.find((st) => st.id === parseInt(selectedStageTypeId));
+      // If a new stage is being added, insert it
+      if (selectedStageTypeId && selectedPosition) {
+        // Get selected stage type data
+        const selectedStageTypeData = stageTypesData?.items.find((st) => st.id === parseInt(selectedStageTypeId));
 
-      if (!selectedStageTypeData) {
-        toast({ title: "Invalid stage type", variant: "destructive" });
-        return;
+        if (!selectedStageTypeData) {
+          toast({ title: "Invalid stage type", variant: "destructive" });
+          return;
+        }
+
+        // Create new stage object
+        const priority =
+          selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
+        const newStage = createNewStageObject(
+          parseInt(selectedStageTypeId),
+          selectedStageTypeData,
+          purchase.id,
+          priority
+        );
+
+        // Insert new stage into grouped stages
+        insertStageIntoGroups(groupedStages, selectedPosition, newStage);
       }
-
-      // Create new stage object
-      const priority = selectedPosition.position === "inside" ? groupedStages[selectedPosition.index][0].priority : -1;
-      const newStage = createNewStageObject(
-        parseInt(selectedStageTypeId),
-        selectedStageTypeData,
-        purchase.id,
-        priority
-      );
-
-      // Insert new stage into grouped stages
-      insertStageIntoGroups(groupedStages, selectedPosition, newStage);
 
       // Convert back to nested array format for API
       const nestedStages: Array<StageUpdateItem | StageUpdateItem[]> = groupedStages.map((group) => {
@@ -188,11 +197,24 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     }
   };
 
+  const handleDeleteStage = (stageId: number) => {
+    setDeletedStageIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(stageId)) {
+        newSet.delete(stageId);
+      } else {
+        newSet.add(stageId);
+      }
+      return newSet;
+    });
+  };
+
   const handleClose = () => {
     setSelectedStageTypeId("");
     setHoveredIndex(null);
     setSelectedPosition(null);
     setButtonHover(null);
+    setDeletedStageIds(new Set());
     onClose();
   };
 
@@ -268,6 +290,18 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     const isBelowSelected = selectedPosition?.index === index && selectedPosition?.position === "below";
     const isInsideSelected = selectedPosition?.index === index && selectedPosition?.position === "inside";
 
+    // Get stage IDs for deletion tracking
+    const getStageIds = (stageItem: any): number[] => {
+      if (Array.isArray(stageItem)) {
+        return stageItem.map((s: any) => s.id).filter((id: number) => id !== undefined);
+      }
+      return stageItem.id !== undefined ? [stageItem.id] : [];
+    };
+
+    const stageIds = getStageIds(stage);
+    const isDeleted = stageIds.some((id) => deletedStageIds.has(id));
+    const allDeleted = stageIds.length > 0 && stageIds.every((id) => deletedStageIds.has(id));
+
     return (
       <div className={`relative ${!isLast ? "mb-3" : ""}`}>
         {/* Above placeholder */}
@@ -297,32 +331,96 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
             {isParallel ? (
               <div
                 className={`relative rounded-lg p-2 shadow-sm transition-all ${
-                  isHovered ? "bg-purple-100 border-2 border-purple-300" : "bg-purple-50 border-2 border-purple-200"
+                  allDeleted
+                    ? "bg-red-50 border-2 border-red-300 opacity-60"
+                    : isHovered
+                      ? "bg-purple-100 border-2 border-purple-300"
+                      : "bg-purple-50 border-2 border-purple-200"
                 }`}
               >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs font-semibold text-purple-700">Parallel Stages</span>
-                  <Badge
-                    variant="secondary"
-                    className="text-xs px-1 py-0 h-4 bg-purple-100 text-purple-800 border-purple-200"
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs font-semibold ${allDeleted ? "text-red-700 line-through" : "text-purple-700"}`}
+                    >
+                      Parallel Stages
+                    </span>
+                    <Badge
+                      variant="secondary"
+                      className={`text-xs px-1 py-0 h-4 border-purple-200 ${
+                        allDeleted ? "bg-red-100 text-red-800" : "bg-purple-100 text-purple-800"
+                      }`}
+                    >
+                      <Workflow className="w-3 h-3" />
+                    </Badge>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`h-6 w-6 p-0 ${allDeleted ? "text-red-600 hover:text-red-700 hover:bg-red-100" : "text-gray-500 hover:text-red-600 hover:bg-red-50"}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // If all are deleted, un-delete all. Otherwise, delete all.
+                      setDeletedStageIds((prev) => {
+                        const newSet = new Set(prev);
+                        if (allDeleted) {
+                          // Remove all stage IDs from deleted set
+                          stageIds.forEach((id) => {
+                            newSet.delete(id);
+                          });
+                        } else {
+                          // Add all stage IDs to deleted set
+                          stageIds.forEach((id) => {
+                            newSet.add(id);
+                          });
+                        }
+                        return newSet;
+                      });
+                    }}
                   >
-                    <Workflow className="w-3 h-3" />
-                  </Badge>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {stage.map((item: any, i: number) => (
-                    <div
-                      key={i}
-                      className="bg-white border border-purple-300 px-2 py-1 text-xs rounded text-purple-900 font-medium shadow-sm flex items-center gap-1.5"
-                    >
-                      <span>{item.stage_type?.display_name || item}</span>
-                      {item.completion_date && (
-                        <div className="w-3 h-3 rounded-full border bg-green-500 border-green-500 flex items-center justify-center flex-shrink-0">
-                          <Check className="w-2 h-2 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {stage.map((item: any, i: number) => {
+                    const itemIsDeleted = item.id !== undefined && deletedStageIds.has(item.id);
+                    return (
+                      <div
+                        key={i}
+                        className={`bg-white border px-2 py-1 text-xs rounded font-medium shadow-sm flex items-center gap-1.5 ${
+                          itemIsDeleted
+                            ? "border-red-300 text-red-600 line-through opacity-60"
+                            : "border-purple-300 text-purple-900"
+                        }`}
+                      >
+                        <span>{item.stage_type?.display_name || item}</span>
+                        {item.completion_date && !itemIsDeleted && (
+                          <div className="w-3 h-3 rounded-full border bg-green-500 border-green-500 flex items-center justify-center flex-shrink-0">
+                            <Check className="w-2 h-2 text-white" />
+                          </div>
+                        )}
+                        {item.id !== undefined && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className={`h-5 w-5 p-0 flex-shrink-0 ${
+                              itemIsDeleted
+                                ? "text-red-600 hover:text-red-700 hover:bg-red-100"
+                                : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteStage(item.id);
+                            }}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })}
                   {isInsideSelected && (
                     <NewStagePlaceholder
                       compact
@@ -358,16 +456,44 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
             ) : (
               <div
                 className={`rounded-lg p-3 shadow-sm transition-all ${
-                  isHovered ? "bg-gray-100 border-2 border-gray-300" : "bg-white border-2 border-gray-200"
+                  isDeleted
+                    ? "bg-red-50 border-2 border-red-300 opacity-60"
+                    : isHovered
+                      ? "bg-gray-100 border-2 border-gray-300"
+                      : "bg-white border-2 border-gray-200"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-800">{stage.stage_type?.display_name || stage}</span>
-                  {stage.completion_date && (
-                    <div className="w-4 h-4 rounded-full border-2 bg-green-500 border-green-500 flex items-center justify-center flex-shrink-0 ml-2">
-                      <Check className="w-2 h-2 text-white" />
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 flex-1">
+                    <span
+                      className={`text-sm font-medium ${isDeleted ? "text-red-600 line-through" : "text-gray-800"}`}
+                    >
+                      {stage.stage_type?.display_name || stage}
+                    </span>
+                    {stage.completion_date && !isDeleted && (
+                      <div className="w-4 h-4 rounded-full border-2 bg-green-500 border-green-500 flex items-center justify-center flex-shrink-0">
+                        <Check className="w-2 h-2 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`h-7 w-7 p-0 ml-2 flex-shrink-0 ${
+                      isDeleted
+                        ? "text-red-600 hover:text-red-700 hover:bg-red-100"
+                        : "text-gray-500 hover:text-red-600 hover:bg-red-50"
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (stage.id !== undefined) {
+                        handleDeleteStage(stage.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             )}
@@ -454,8 +580,11 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!selectedStageTypeId || !selectedPosition || isLoading}>
-            {isLoading ? "Adding..." : "Add Stage"}
+          <Button
+            onClick={handleSubmit}
+            disabled={isLoading || (deletedStageIds.size === 0 && (!selectedStageTypeId || !selectedPosition))}
+          >
+            {isLoading ? "Processing..." : "Confirm"}
           </Button>
         </DialogFooter>
       </DialogContent>

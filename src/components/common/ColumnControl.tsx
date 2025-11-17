@@ -19,6 +19,7 @@ export interface ColumnVisibility {
   purchases: boolean;
   emfIds: boolean;
   demandIds: boolean;
+  orderIds: boolean;
   totalCost: boolean;
   expectedDelivery: boolean;
   createdAt: boolean;
@@ -38,6 +39,7 @@ export const DEFAULT_COLUMN_VISIBILITY: ColumnVisibility = {
   purchases: true,
   emfIds: true,
   demandIds: false,
+  orderIds: false,
   totalCost: true,
   expectedDelivery: true,
   createdAt: false,
@@ -57,6 +59,7 @@ const COLUMN_LABELS = {
   purchases: "Purchases",
   emfIds: "EMF IDs",
   demandIds: "Demand IDs",
+  orderIds: "Order IDs",
   totalCost: "Total Cost",
   expectedDelivery: "Expected Delivery",
   createdAt: "Created At",
