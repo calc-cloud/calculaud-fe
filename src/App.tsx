@@ -68,11 +68,11 @@ const App = () => {
 
   // Reset retry flag on logout
   useEffect(() => {
-    if (!auth.isAuthenticated && !isAutoRetrying) {
+    if (!auth.isAuthenticated && !isAutoRetrying && !auth.isLoading) {
       sessionStorage.removeItem(RETRY_ATTEMPTED_KEY);
       setIsAutoRetrying(false);
     }
-  }, [auth.isAuthenticated, isAutoRetrying]);
+  }, [auth.isAuthenticated, isAutoRetrying, auth.isLoading]);
 
   // Helper: Get loading message based on current state
   const getLoadingMessage = (): string => {
