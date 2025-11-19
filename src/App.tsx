@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
@@ -21,20 +21,23 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const RETRY_ATTEMPTED_KEY = "auth_retry_attempted";
+
 const App = () => {
   const auth = useAuth();
   const [isAutoRetrying, setIsAutoRetrying] = useState(false);
-  const hasAttemptedAutoRetry = useRef(false);
 
   // Auto-retry when authenticated but no roles
   useEffect(() => {
     const attemptRetry = async () => {
+      const hasAttempted = sessionStorage.getItem(RETRY_ATTEMPTED_KEY) === "true";
+
       // Early return if conditions not met
-      if (!auth.isAuthenticated || hasRequiredRole(auth.user) || hasAttemptedAutoRetry.current) {
+      if (!auth.isAuthenticated || hasRequiredRole(auth.user) || hasAttempted) {
         return;
       }
 
-      hasAttemptedAutoRetry.current = true;
+      sessionStorage.setItem(RETRY_ATTEMPTED_KEY, "true");
       setIsAutoRetrying(true);
 
       // Remove bad token, wait, then re-authenticate
@@ -66,7 +69,7 @@ const App = () => {
   // Reset retry flag on logout
   useEffect(() => {
     if (!auth.isAuthenticated && !isAutoRetrying) {
-      hasAttemptedAutoRetry.current = false;
+      sessionStorage.removeItem(RETRY_ATTEMPTED_KEY);
       setIsAutoRetrying(false);
     }
   }, [auth.isAuthenticated, isAutoRetrying]);
