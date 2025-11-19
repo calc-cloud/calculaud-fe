@@ -39,28 +39,26 @@ const App = () => {
 
       // Remove bad token, wait, then re-authenticate
       await auth.removeUser();
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       await auth.signinRedirect();
     };
 
     attemptRetry().catch((error) => {
-      console.error('Auto-retry failed:', error);
+      console.error("Auto-retry failed:", error); // eslint-disable-line no-console
       setIsAutoRetrying(false);
     });
-  }, [auth.isAuthenticated, auth.user]);
-
+  }, [auth]);
 
   // Set up API token provider
   useEffect(() => {
     apiService.setTokenProvider(auth.user?.access_token ? () => auth.user?.access_token : null);
     return () => apiService.setTokenProvider(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.user?.access_token]);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
     if (!auth.isAuthenticated && !auth.activeNavigator && !auth.isLoading && !isAutoRetrying) {
-      auth.signinRedirect().catch(console.error);
+      auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.isAuthenticated, auth.activeNavigator, auth.isLoading, isAutoRetrying]);
@@ -75,11 +73,11 @@ const App = () => {
 
   // Helper: Get loading message based on current state
   const getLoadingMessage = (): string => {
-    if (auth.activeNavigator === 'signoutRedirect') return 'Logging out...';
-    if (auth.activeNavigator === 'signinRedirect') return 'Redirecting to login...';
-    if (auth.activeNavigator === 'signinSilent') return 'Refreshing session...';
-    if (isAutoRetrying) return 'Retrying authentication...';
-    return 'Loading...';
+    if (auth.activeNavigator === "signoutRedirect") return "Logging out...";
+    if (auth.activeNavigator === "signinRedirect") return "Redirecting to login...";
+    if (auth.activeNavigator === "signinSilent") return "Refreshing session...";
+    if (isAutoRetrying) return "Retrying authentication...";
+    return "Loading...";
   };
 
   // Consolidated loading state

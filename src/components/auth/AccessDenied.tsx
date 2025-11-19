@@ -21,12 +21,12 @@ const AccessDenied = () => {
 
       // Wait 2 seconds for ADFS session cache to be fully populated with group claims
       // This helps when WIA authenticates too quickly before AD group queries complete
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Trigger new sign-in (will use existing ADFS session with groups)
       await auth.signinRedirect();
     } catch (error) {
-      console.error('Retry failed:', error);
+      console.error("Retry failed:", error); // eslint-disable-line no-console
       setIsRetrying(false);
     }
   };
@@ -82,14 +82,9 @@ const AccessDenied = () => {
         </p>
 
         <div className="flex gap-3 justify-center">
-          <Button
-            onClick={handleRetry}
-            disabled={isRetrying}
-            className="flex items-center gap-2"
-            variant="default"
-          >
-            <RefreshCw className={`h-4 w-4 ${isRetrying ? 'animate-spin' : ''}`} />
-            {isRetrying ? 'Retrying...' : 'Retry Authentication'}
+          <Button onClick={handleRetry} disabled={isRetrying} className="flex items-center gap-2" variant="default">
+            <RefreshCw className={`h-4 w-4 ${isRetrying ? "animate-spin" : ""}`} />
+            {isRetrying ? "Retrying..." : "Retry Authentication"}
           </Button>
 
           <Button onClick={handleLogout} className="flex items-center gap-2" variant="outline">
