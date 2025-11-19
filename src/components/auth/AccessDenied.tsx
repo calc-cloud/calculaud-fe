@@ -1,4 +1,5 @@
-import { AlertTriangle, LogOut } from "lucide-react";
+import { AlertTriangle, LogOut, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 
 import { Button } from "@/components/ui/button";
@@ -6,9 +7,28 @@ import { getUserRoles } from "@/utils/roleUtils";
 
 const AccessDenied = () => {
   const auth = useAuth();
+  const [isRetrying, setIsRetrying] = useState(false);
 
   const handleLogout = async () => {
     await auth.signoutRedirect();
+  };
+
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    try {
+      // Remove the bad token completely
+      await auth.removeUser();
+
+      // Wait 2 seconds for ADFS session cache to be fully populated with group claims
+      // This helps when WIA authenticates too quickly before AD group queries complete
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Trigger new sign-in (will use existing ADFS session with groups)
+      await auth.signinRedirect();
+    } catch (error) {
+      console.error('Retry failed:', error);
+      setIsRetrying(false);
+    }
   };
 
   const getDisplayName = (): string => {
@@ -52,14 +72,31 @@ const AccessDenied = () => {
           </div>
         </div>
 
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-gray-500 mb-4">
           Please contact your administrator to request access to either the "{adminRole}" or "{userRole}" role.
         </p>
 
-        <Button onClick={handleLogout} className="flex items-center gap-2 mx-auto" variant="outline">
-          <LogOut className="h-4 w-4" />
-          Sign Out
-        </Button>
+        <p className="text-sm text-gray-600 mb-6 bg-blue-50 p-3 rounded border border-blue-200">
+          If you just logged in and believe this is an error, try clicking "Retry Authentication" below. This may help
+          if your group memberships were not loaded during the initial login.
+        </p>
+
+        <div className="flex gap-3 justify-center">
+          <Button
+            onClick={handleRetry}
+            disabled={isRetrying}
+            className="flex items-center gap-2"
+            variant="default"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRetrying ? 'animate-spin' : ''}`} />
+            {isRetrying ? 'Retrying...' : 'Retry Authentication'}
+          </Button>
+
+          <Button onClick={handleLogout} className="flex items-center gap-2" variant="outline">
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+        </div>
       </div>
     </div>
   );
