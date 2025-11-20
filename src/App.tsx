@@ -73,6 +73,38 @@ const App = () => {
     }
   }, [auth.isAuthenticated, isAutoRetrying, auth.isLoading]);
 
+  // Handle silent renewal failures (e.g., expired ADFS session after sleep)
+  useEffect(() => {
+    const handleSilentRenewError = (error: Error) => {
+      console.error("Silent renewal failed:", error); // eslint-disable-line no-console
+
+      // When silent renewal fails (e.g., MSIS9621 error), redirect to full login
+      auth
+        .removeUser()
+        .then(() => {
+          // Only redirect if not already redirecting
+          if (!auth.activeNavigator) {
+            auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
+          }
+        })
+        .catch((error) => {
+          console.error("Failed to remove user:", error); // eslint-disable-line no-console
+          // Try redirecting anyway
+          if (!auth.activeNavigator) {
+            auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
+          }
+        });
+    };
+
+    // Subscribe to silent renewal errors
+    auth.events?.addSilentRenewError(handleSilentRenewError);
+
+    // Cleanup subscription
+    return () => {
+      auth.events?.removeSilentRenewError(handleSilentRenewError);
+    };
+  }, [auth]);
+
   // Helper: Get loading message based on current state
   const getLoadingMessage = (): string => {
     if (auth.activeNavigator === "signoutRedirect") return "Logging out...";
