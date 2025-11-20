@@ -78,21 +78,17 @@ const App = () => {
     const handleSilentRenewError = (error: Error) => {
       console.error("Silent renewal failed:", error); // eslint-disable-line no-console
 
-      // When silent renewal fails (e.g., MSIS9621 error), redirect to full login
+      // Clear retry flag so auto-retry can work if needed next time
+      sessionStorage.removeItem(RETRY_ATTEMPTED_KEY);
+
+      // Remove user and redirect to login
       auth
         .removeUser()
-        .then(() => {
-          // Only redirect if not already redirecting
-          if (!auth.activeNavigator) {
-            auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
-          }
-        })
+        .then(() => auth.signinRedirect())
         .catch((error) => {
           console.error("Failed to remove user:", error); // eslint-disable-line no-console
           // Try redirecting anyway
-          if (!auth.activeNavigator) {
-            auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
-          }
+          auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
         });
     };
 
