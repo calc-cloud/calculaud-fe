@@ -1,4 +1,4 @@
-import { LogOut, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { Link, useLocation } from "react-router-dom";
@@ -9,9 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { hasAdminRole } from "@/utils/roleUtils";
@@ -28,10 +26,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);
-  };
-
-  const handleLogout = async () => {
-    await auth.signoutRedirect();
   };
 
   const getUserInitials = () => {
@@ -152,11 +146,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       </p>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
