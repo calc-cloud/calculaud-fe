@@ -1,4 +1,4 @@
-import { AlertTriangle, LogOut, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 
@@ -8,10 +8,6 @@ import { getUserRoles } from "@/utils/roleUtils";
 const AccessDenied = () => {
   const auth = useAuth();
   const [isRetrying, setIsRetrying] = useState(false);
-
-  const handleLogout = async () => {
-    await auth.signoutRedirect();
-  };
 
   const handleRetry = async () => {
     setIsRetrying(true);
@@ -81,11 +77,6 @@ const AccessDenied = () => {
           <Button onClick={handleRetry} disabled={isRetrying} className="flex items-center gap-2" variant="default">
             <RefreshCw className={`h-4 w-4 ${isRetrying ? "animate-spin" : ""}`} />
             {isRetrying ? "Retrying..." : "Retry Authentication"}
-          </Button>
-
-          <Button onClick={handleLogout} className="flex items-center gap-2" variant="outline">
-            <LogOut className="h-4 w-4" />
-            Sign Out
           </Button>
         </div>
       </div>
