@@ -1,4 +1,4 @@
-import { AlertTriangle, LogOut, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 
@@ -9,19 +9,11 @@ const AccessDenied = () => {
   const auth = useAuth();
   const [isRetrying, setIsRetrying] = useState(false);
 
-  const handleLogout = async () => {
-    await auth.signoutRedirect();
-  };
-
   const handleRetry = async () => {
     setIsRetrying(true);
     try {
       // Remove the bad token completely
       await auth.removeUser();
-
-      // Wait 2 seconds for ADFS session cache to be fully populated with group claims
-      // This helps when WIA authenticates too quickly before AD group queries complete
-      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Trigger new sign-in (will use existing ADFS session with groups)
       await auth.signinRedirect();
@@ -85,11 +77,6 @@ const AccessDenied = () => {
           <Button onClick={handleRetry} disabled={isRetrying} className="flex items-center gap-2" variant="default">
             <RefreshCw className={`h-4 w-4 ${isRetrying ? "animate-spin" : ""}`} />
             {isRetrying ? "Retrying..." : "Retry Authentication"}
-          </Button>
-
-          <Button onClick={handleLogout} className="flex items-center gap-2" variant="outline">
-            <LogOut className="h-4 w-4" />
-            Sign Out
           </Button>
         </div>
       </div>

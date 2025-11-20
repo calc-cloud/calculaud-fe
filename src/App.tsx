@@ -40,9 +40,8 @@ const App = () => {
       sessionStorage.setItem(RETRY_ATTEMPTED_KEY, "true");
       setIsAutoRetrying(true);
 
-      // Remove bad token, wait, then re-authenticate
+      // Remove bad token and re-authenticate
       await auth.removeUser();
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       await auth.signinRedirect();
     };
 
