@@ -18,6 +18,7 @@ const authConfig = {
   silentRequestTimeout: 10000, // 10 second timeout for silent renewal
   includeIdTokenInSilentRenew: true,
   revokeAccessTokenOnSignout: true,
+  monitorSession: false, // Disable automatic session monitoring to reduce unnecessary checks
   metadata: {
     token_endpoint: `${import.meta.env.VITE_API_BASE_URL}/auth/token`,
     authorization_endpoint: import.meta.env.VITE_AUTH_AUTHORIZATION_ENDPOINT,
