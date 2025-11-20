@@ -74,6 +74,34 @@ const App = () => {
     }
   }, [auth.isAuthenticated, isAutoRetrying, auth.isLoading]);
 
+  // Handle silent renewal failures (e.g., expired ADFS session after sleep)
+  useEffect(() => {
+    const handleSilentRenewError = (error: Error) => {
+      console.error("Silent renewal failed:", error); // eslint-disable-line no-console
+
+      // Clear retry flag so auto-retry can work if needed next time
+      sessionStorage.removeItem(RETRY_ATTEMPTED_KEY);
+
+      // Remove user and redirect to login
+      auth
+        .removeUser()
+        .then(() => auth.signinRedirect())
+        .catch((error) => {
+          console.error("Failed to remove user:", error); // eslint-disable-line no-console
+          // Try redirecting anyway
+          auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
+        });
+    };
+
+    // Subscribe to silent renewal errors
+    auth.events?.addSilentRenewError(handleSilentRenewError);
+
+    // Cleanup subscription
+    return () => {
+      auth.events?.removeSilentRenewError(handleSilentRenewError);
+    };
+  }, [auth]);
+
   // Helper: Get loading message based on current state
   const getLoadingMessage = (): string => {
     if (auth.activeNavigator === "signoutRedirect") return "Logging out...";
