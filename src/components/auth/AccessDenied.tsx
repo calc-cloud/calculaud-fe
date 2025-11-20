@@ -19,10 +19,6 @@ const AccessDenied = () => {
       // Remove the bad token completely
       await auth.removeUser();
 
-      // Wait 2 seconds for ADFS session cache to be fully populated with group claims
-      // This helps when WIA authenticates too quickly before AD group queries complete
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
       // Trigger new sign-in (will use existing ADFS session with groups)
       await auth.signinRedirect();
     } catch (error) {
