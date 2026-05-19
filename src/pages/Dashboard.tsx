@@ -49,6 +49,14 @@ const Dashboard: React.FC = () => {
       }
     }
 
+    // Parse status filters
+    if (searchParams.get("status")) {
+      const statuses = searchParams.get("status")?.split(",").filter(Boolean);
+      if (statuses && statuses.length > 0) {
+        filters.status = statuses;
+      }
+    }
+
     // Parse date/time filters
     if (searchParams.get("start_date")) {
       filters.start_date = searchParams.get("start_date") || undefined;
@@ -72,6 +80,11 @@ const Dashboard: React.FC = () => {
     // Add service type IDs
     if (filters.service_type_id && filters.service_type_id.length > 0) {
       params.set("service_type_id", filters.service_type_id.join(","));
+    }
+
+    // Add status filters
+    if (filters.status && filters.status.length > 0) {
+      params.set("status", filters.status.join(","));
     }
 
     // Add date/time filters
@@ -163,6 +176,7 @@ const Dashboard: React.FC = () => {
     let count = 0;
     if (filters.relative_time && filters.relative_time !== "all_time") count++;
     if (filters.service_type_id && filters.service_type_id.length > 0) count += filters.service_type_id.length;
+    if (filters.status && filters.status.length > 0) count += filters.status.length;
     return count;
   };
 
@@ -199,7 +213,7 @@ const Dashboard: React.FC = () => {
                 showHierarchy: false,
                 showMaterials: false,
                 showSuppliers: false,
-                showStatus: false,
+                showStatus: true,
                 showPendingAuthority: false,
                 showBudgetSources: false,
                 showFlagged: false,

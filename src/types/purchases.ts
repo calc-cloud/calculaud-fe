@@ -28,6 +28,8 @@ export interface Stage {
   priority: number;
   value: string | null;
   completion_date: string | null;
+  note: string | null;
+  custom_name: string | null;
   days_since_previous_stage: number | null;
   stage_type: StageType;
 }
@@ -69,6 +71,8 @@ export interface CreateCostRequest {
 export interface StageUpdateItem {
   id?: number;
   stage_type_id?: number;
+  custom_name?: string;
+  note?: string;
 }
 
 export interface PurchaseUpdateRequest {

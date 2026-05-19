@@ -29,11 +29,13 @@ const hasSpecificRole = (user: User | null | undefined, roleToCheck: string): bo
 };
 
 export const hasAdminRole = (user: User | null | undefined): boolean => {
+  if (import.meta.env.VITE_BYPASS_AUTH === "true") return true;
   const adminRole = import.meta.env.VITE_ADMIN_ROLE || "calAdmins";
   return hasSpecificRole(user, adminRole);
 };
 
 export const hasUserRole = (user: User | null | undefined): boolean => {
+  if (import.meta.env.VITE_BYPASS_AUTH === "true") return true;
   const userRole = import.meta.env.VITE_USER_ROLE || "calUsers";
   return hasSpecificRole(user, userRole);
 };

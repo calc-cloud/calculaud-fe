@@ -233,6 +233,7 @@ export const CreatePurposeModal: React.FC<CreatePurposeModalProps> = ({ isOpen, 
               value={formData.description}
               onChange={(e) => handleFieldChange("description", e.target.value)}
               rows={3}
+              dir="rtl"
             />
           </div>
 

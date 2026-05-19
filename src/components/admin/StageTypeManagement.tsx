@@ -1,6 +1,6 @@
 import { BaseQueryParams } from "@/services/BaseService";
 import { stageTypeService } from "@/services/stageTypeService";
-import { StageType, StageTypesResponse, StageTypeCreateRequest, StageTypeUpdateRequest } from "@/types/stageTypes";
+import { StageType, StageTypesResponse, StageTypeRequest, StageTypeUpdateRequest } from "@/types/stageTypes";
 
 import { EntityManagement, EntityManagementConfig } from "./EntityManagement";
 import StageTypeModal from "./StageTypeModal";
@@ -10,7 +10,7 @@ const StageTypeModalAdapter: React.FC<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editItem: StageType | null;
-  onSave: (data: StageTypeCreateRequest | StageTypeUpdateRequest, editId?: number) => Promise<void>;
+  onSave: (data: StageTypeRequest | StageTypeUpdateRequest, editId?: number) => Promise<void>;
 }> = ({ open, onOpenChange, editItem, onSave }) => {
   const handleSave = async (
     data: {
@@ -18,6 +18,8 @@ const StageTypeModalAdapter: React.FC<{
       display_name: string;
       description: string;
       responsible_authority_id: number;
+      value_required: boolean;
+      is_optional: boolean;
     },
     editId?: number
   ) => {
@@ -31,7 +33,7 @@ const StageTypeManagement: React.FC = () => {
   const config: EntityManagementConfig<
     StageType,
     StageTypesResponse,
-    StageTypeCreateRequest,
+    StageTypeRequest,
     StageTypeUpdateRequest,
     BaseQueryParams
   > = {

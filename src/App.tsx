@@ -23,12 +23,15 @@ const queryClient = new QueryClient();
 
 const RETRY_ATTEMPTED_KEY = "auth_retry_attempted";
 
+const BYPASS_AUTH = import.meta.env.VITE_BYPASS_AUTH === "true";
+
 const App = () => {
   const auth = useAuth();
   const [isAutoRetrying, setIsAutoRetrying] = useState(false);
 
   // Auto-retry when authenticated but no roles
   useEffect(() => {
+    if (BYPASS_AUTH) return;
     const attemptRetry = async () => {
       const hasAttempted = sessionStorage.getItem(RETRY_ATTEMPTED_KEY) === "true";
 
@@ -53,12 +56,14 @@ const App = () => {
 
   // Set up API token provider
   useEffect(() => {
+    if (BYPASS_AUTH) return;
     apiService.setTokenProvider(auth.user?.access_token ? () => auth.user?.access_token : null);
     return () => apiService.setTokenProvider(null);
   }, [auth.user?.access_token]);
 
   // Redirect unauthenticated users to login
   useEffect(() => {
+    if (BYPASS_AUTH) return;
     if (!auth.isAuthenticated && !auth.activeNavigator && !auth.isLoading && !isAutoRetrying) {
       auth.signinRedirect().catch(console.error); // eslint-disable-line no-console
     }
@@ -67,6 +72,7 @@ const App = () => {
 
   // Reset retry flag on logout
   useEffect(() => {
+    if (BYPASS_AUTH) return;
     if (!auth.isAuthenticated && !isAutoRetrying && !auth.isLoading) {
       sessionStorage.removeItem(RETRY_ATTEMPTED_KEY);
       setIsAutoRetrying(false);
@@ -75,6 +81,7 @@ const App = () => {
 
   // Handle silent renewal failures (e.g., expired ADFS session after sleep)
   useEffect(() => {
+    if (BYPASS_AUTH) return;
     const handleSilentRenewError = (error: Error) => {
       console.error("Silent renewal failed:", error); // eslint-disable-line no-console
 
@@ -101,67 +108,69 @@ const App = () => {
     };
   }, [auth]);
 
-  // Helper: Get loading message based on current state
-  const getLoadingMessage = (): string => {
-    if (auth.activeNavigator === "signoutRedirect") return "Logging out...";
-    if (auth.activeNavigator === "signinRedirect") return "Redirecting to login...";
-    if (auth.activeNavigator === "signinSilent") return "Refreshing session...";
-    if (isAutoRetrying) return "Retrying authentication...";
-    return "Loading...";
-  };
+  if (!BYPASS_AUTH) {
+    // Helper: Get loading message based on current state
+    const getLoadingMessage = (): string => {
+      if (auth.activeNavigator === "signoutRedirect") return "Logging out...";
+      if (auth.activeNavigator === "signinRedirect") return "Redirecting to login...";
+      if (auth.activeNavigator === "signinSilent") return "Refreshing session...";
+      if (isAutoRetrying) return "Retrying authentication...";
+      return "Loading...";
+    };
 
-  // Consolidated loading state
-  if (auth.isLoading || isAutoRetrying || auth.activeNavigator) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">{getLoadingMessage()}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Authentication error
-  if (auth.error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto p-6">
-          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-red-500" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
-          <p className="text-gray-600 mb-4">{auth.error.message}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Not authenticated - show redirecting message
-  if (!auth.isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-pulse mb-4">
-            <div className="w-12 h-12 bg-blue-200 rounded-full mx-auto mb-2" />
-            <div className="w-24 h-2 bg-blue-200 rounded mx-auto" />
+    // Consolidated loading state
+    if (auth.isLoading || isAutoRetrying || auth.activeNavigator) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600 text-lg">{getLoadingMessage()}</p>
           </div>
-          <p className="text-gray-600 text-lg">Redirecting to login...</p>
         </div>
-      </div>
-    );
+      );
+    }
+
+    // Authentication error
+    if (auth.error) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center max-w-md mx-auto p-6">
+            <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-red-500" />
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Error</h2>
+            <p className="text-gray-600 mb-4">{auth.error.message}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // Not authenticated - show redirecting message
+    if (!auth.isAuthenticated) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-pulse mb-4">
+              <div className="w-12 h-12 bg-blue-200 rounded-full mx-auto mb-2" />
+              <div className="w-24 h-2 bg-blue-200 rounded mx-auto" />
+            </div>
+            <p className="text-gray-600 text-lg">Redirecting to login...</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Check if user has required role
+    if (!hasRequiredRole(auth.user)) {
+      return <AccessDenied />;
+    }
   }
 
-  // Check if user has required role
-  if (!hasRequiredRole(auth.user)) {
-    return <AccessDenied />;
-  }
-
-  // User is authenticated and has required role - render app
+  // User is authenticated (or auth is bypassed) - render app
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

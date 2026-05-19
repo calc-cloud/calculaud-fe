@@ -23,6 +23,7 @@ interface StageTypeModalProps {
       description: string;
       responsible_authority_id: number;
       value_required: boolean;
+      is_optional: boolean;
     },
     editId?: number
   ) => Promise<void>;
@@ -34,6 +35,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
   const [description, setDescription] = useState("");
   const [responsibleAuthorityId, setResponsibleAuthorityId] = useState<number | null>(null);
   const [valueRequired, setValueRequired] = useState(false);
+  const [isOptional, setIsOptional] = useState(false);
   const [responsibleAuthorities, setResponsibleAuthorities] = useState<ResponsibleAuthority[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingAuthorities, setIsLoadingAuthorities] = useState(false);
@@ -70,12 +72,14 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
       setDescription(editItem.description);
       setResponsibleAuthorityId(editItem.responsible_authority_id);
       setValueRequired(editItem.value_required);
+      setIsOptional(editItem.is_optional);
     } else {
       setName("");
       setDisplayName("");
       setDescription("");
       setResponsibleAuthorityId(null);
       setValueRequired(false);
+      setIsOptional(false);
     }
   }, [editItem]);
 
@@ -137,6 +141,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
           description: description.trim(),
           responsible_authority_id: responsibleAuthorityId,
           value_required: valueRequired,
+          is_optional: isOptional,
         },
         editItem?.id
       );
@@ -162,6 +167,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
       setDescription(editItem?.description || "");
       setResponsibleAuthorityId(editItem?.responsible_authority_id || null);
       setValueRequired(editItem?.value_required || false);
+      setIsOptional(editItem?.is_optional || false);
     }
     if (!isLoading) {
       onOpenChange(open);
@@ -259,6 +265,23 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
               <p className="text-xs text-gray-500 mt-1">Check if this stage type requires a value to be entered</p>
             </div>
           )}
+
+          <div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isOptional"
+                checked={isOptional}
+                onCheckedChange={(checked) => setIsOptional(checked === true)}
+                disabled={isLoading}
+              />
+              <Label htmlFor="isOptional" className="text-sm">
+                Optional
+              </Label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Optional stages can be removed from a purchase's timeline
+            </p>
+          </div>
 
           <div className="flex justify-end space-x-2 pt-2">
             <Button variant="outline" onClick={handleClose} size="sm" disabled={isLoading}>

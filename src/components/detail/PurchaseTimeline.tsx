@@ -31,7 +31,7 @@ interface PurchaseTimelineProps {
   totalPurchases: number;
   editingStage: number | null;
   selectedStage: any | null;
-  editForm: { date: string; text: string };
+  editForm: { date: string; text: string; note: string };
   isUpdatingStage: boolean;
   onStageClick: (stage: any) => void;
   onEditCancel: () => void;
@@ -40,7 +40,7 @@ interface PurchaseTimelineProps {
   onDeletePurchase: (purchaseId: string) => Promise<void>;
   onEditBudgetSource: (purchase: any) => void;
   onAddStage: (purchase: any) => void;
-  setEditForm: (form: { date: string; text: string }) => void;
+  setEditForm: (form: { date: string; text: string; note: string }) => void;
   isAdmin: boolean;
   // Utility functions
   getStageDisplayDate: (stage: any) => string;
@@ -118,10 +118,10 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
           >
             {/* Collapsed Content */}
             {!isExpanded && (
-              <div className="text-center">
+              <div className="text-center" dir="rtl">
                 <div className="flex items-center justify-center mb-1">
                   <h4 className="font-medium text-gray-800 text-xs leading-tight break-words">
-                    {stage.stage_type.display_name || "Unknown Stage"}
+                    {stage.custom_name || stage.stage_type.display_name || "Unknown Stage"}
                   </h4>
                   {hasMultipleStagesWithSamePriority(stages, stage) && (
                     <Badge
@@ -138,6 +138,9 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 {getStageDisplayDate(stage) && (
                   <div className="text-xs text-gray-500">{getStageDisplayDate(stage)}</div>
                 )}
+                {stage.note && (
+                  <div className="text-xs text-gray-400 italic mt-1 break-words">{stage.note}</div>
+                )}
               </div>
             )}
 
@@ -147,7 +150,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <h4 className="font-medium text-gray-800 text-sm">{stage.stage_type.display_name}</h4>
+                      <h4 className="font-medium text-gray-800 text-sm" dir="rtl">{stage.custom_name || stage.stage_type.display_name}</h4>
                       {hasMultipleStagesWithSamePriority(stages, stage) && (
                         <Badge
                           variant={getPriorityVariant(stage.priority)}
@@ -199,6 +202,17 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                         />
                       </div>
                     )}
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">Note</label>
+                      <textarea
+                        value={editForm.note}
+                        onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
+                        placeholder="Add a note..."
+                        rows={2}
+                        dir="rtl"
+                        className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      />
+                    </div>
                     <div className="flex space-x-2">
                       <button
                         onClick={(e) => {

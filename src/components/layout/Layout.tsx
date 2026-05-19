@@ -18,11 +18,13 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+const BYPASS_AUTH = import.meta.env.VITE_BYPASS_AUTH === "true";
+
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const auth = useAuth();
-  const isAdmin = hasAdminRole(auth.user);
+  const isAdmin = BYPASS_AUTH || hasAdminRole(auth.user);
 
   const handleCreatePurpose = () => {
     setIsModalOpen(true);

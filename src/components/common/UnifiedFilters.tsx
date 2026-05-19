@@ -573,6 +573,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
 
   // Create toggle functions using the generic helper
   const toggleServiceType = createToggleFunction<number>("service_type", filters, onFiltersChange);
+  const toggleStatus = createToggleFunction<string>("status", filters, onFiltersChange);
 
   // Calculate active filters count
   const activeFiltersCount = countActiveFilters(filters);
@@ -589,6 +590,14 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
     onFiltersChange({
       ...filters,
       service_type: updatedServiceTypes.length > 0 ? updatedServiceTypes : undefined,
+    });
+  };
+
+  const removeStatus = (status: string) => {
+    const updated = (filters.status || []).filter((s) => s !== status);
+    onFiltersChange({
+      ...filters,
+      status: updated.length > 0 ? updated : undefined,
     });
   };
 
@@ -742,6 +751,44 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
           </div>
         )}
 
+        {/* Status Filter */}
+        {visibility.showStatus && (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-700">Status:</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-48 justify-between">
+                  <span>
+                    {filters.status && filters.status.length > 0
+                      ? `${filters.status.length} selected`
+                      : "Select statuses"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-60 p-0" align="start">
+                <div className="p-3 space-y-2">
+                  {PURPOSE_STATUSES_DISPLAY.map((status) => {
+                    const statusInfo = getStatusDisplayFromLabel(status);
+                    return (
+                      <div
+                        key={status}
+                        className="flex items-center space-x-3 cursor-pointer py-1 hover:bg-gray-50 rounded px-2"
+                        onClick={() => toggleStatus(status)}
+                      >
+                        <Checkbox checked={(filters.status || []).includes(status)} />
+                        <Badge variant={statusInfo.variant} className={`text-xs ${statusInfo.className}`}>
+                          {status}
+                        </Badge>
+                      </div>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
+
         {/* Clear Filters Button */}
         {activeFiltersCount > 0 && onClearFilters && (
           <Button variant="outline" size="sm" onClick={onClearFilters} className="gap-2 flex-shrink-0">
@@ -792,6 +839,20 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
                   />
                 </Badge>
               ) : null;
+            })}
+
+            {/* Status Badges */}
+            {filters.status?.map((status) => {
+              const statusInfo = getStatusDisplayFromLabel(status);
+              return (
+                <Badge key={status} variant={statusInfo.variant} className={`gap-1 ${statusInfo.className}`}>
+                  {status}
+                  <X
+                    className="h-3 w-3 cursor-pointer hover:text-red-600"
+                    onClick={() => removeStatus(status)}
+                  />
+                </Badge>
+              );
             })}
           </div>
         </div>

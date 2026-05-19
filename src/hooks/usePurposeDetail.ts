@@ -31,7 +31,7 @@ export const usePurposeDetail = () => {
   // Timeline state
   const [editingStage, setEditingStage] = useState<number | null>(null);
   const [selectedStage, setSelectedStage] = useState<any | null>(null);
-  const [editForm, setEditForm] = useState({ date: "", text: "" });
+  const [editForm, setEditForm] = useState({ date: "", text: "", note: "" });
   const [isUpdatingStage, setIsUpdatingStage] = useState(false);
 
   // Real API data loading
@@ -257,19 +257,19 @@ export const usePurposeDetail = () => {
   const handleStageClick = (stage: any) => {
     setSelectedStage(stage);
     // Automatically start editing when clicking on a stage
-    handleEditStart(stage.id, stage.completion_date, stage.value);
+    handleEditStart(stage.id, stage.completion_date, stage.value, stage.note);
   };
 
-  const handleEditStart = (stageId: number, date: string, value: string) => {
+  const handleEditStart = (stageId: number, date: string, value: string, note: string) => {
     setEditingStage(stageId);
     // For incomplete stages (no date), use today's date as default
-    const formDate = date ? formatDateForInput(date) : new Date().toISOString().split("T")[0];
-    setEditForm({ date: formDate, text: value });
+    const formDate = date ? formatDateForInput(date) : "";
+    setEditForm({ date: formDate, text: value, note: note || "" });
   };
 
   const handleEditCancel = () => {
     setEditingStage(null);
-    setEditForm({ date: "", text: "" });
+    setEditForm({ date: "", text: "", note: "" });
     // Close the popup completely instead of showing expanded read mode
     setSelectedStage(null);
   };
@@ -277,7 +277,7 @@ export const usePurposeDetail = () => {
   const handleCloseStagePopup = () => {
     setSelectedStage(null);
     setEditingStage(null);
-    setEditForm({ date: "", text: "" });
+    setEditForm({ date: "", text: "", note: "" });
   };
 
   const handleSaveStage = async (stage: any) => {
@@ -298,6 +298,7 @@ export const usePurposeDetail = () => {
       // Use the edited date from the form for both completed and incomplete stages
       // editForm.date is already in "YYYY-MM-DD" format from HTML date input
       updateData.completion_date = editForm.date || null;
+      updateData.note = editForm.note || null;
 
       // Call the API
       await stageService.updateStage(stage.id, updateData);
@@ -309,7 +310,7 @@ export const usePurposeDetail = () => {
 
       // Close the editing mode
       setEditingStage(null);
-      setEditForm({ date: "", text: "" });
+      setEditForm({ date: "", text: "", note: "" });
       setSelectedStage(null);
 
       // Refresh the purpose data to show updated stage

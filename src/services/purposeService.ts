@@ -488,6 +488,8 @@ class PurposeService {
       priority: stage.priority || 0,
       value: stage.value || null,
       completion_date: stage.completion_date || null,
+      note: stage.note || null,
+      custom_name: stage.custom_name || null,
       days_since_previous_stage: stage.days_since_previous_stage ?? null,
       stage_type: stage.stage_type || {
         id: "",
