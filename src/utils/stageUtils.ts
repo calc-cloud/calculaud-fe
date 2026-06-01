@@ -23,6 +23,8 @@ export const convertPurchaseToStages = (purchase: any): Stage[] => {
         priority: stage.priority,
         value: stage.value || null,
         completion_date: stage.completion_date,
+        note: stage.note || null,
+        custom_name: stage.custom_name || null,
         days_since_previous_stage: stage.days_since_previous_stage ?? null,
         stage_type: stage.stage_type,
       })
@@ -51,6 +53,8 @@ export const convertPurchaseToStages = (purchase: any): Stage[] => {
         priority: 0,
         value: formatPurchaseId(purchase.id),
         completion_date: purchase.creation_date,
+        note: null,
+        custom_name: null,
         days_since_previous_stage: null,
         stage_type: {
           id: 0,
@@ -58,6 +62,7 @@ export const convertPurchaseToStages = (purchase: any): Stage[] => {
           display_name: "Created",
           description: "Purchase creation",
           value_required: false,
+          is_optional: false,
           responsible_authority_id: 0,
           created_at: purchase.creation_date,
           responsible_authority: {
@@ -114,7 +119,7 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
   ) {
     const days = purchase.days_since_last_completion;
     const stageNames = purchase.current_pending_stages
-      .map((stage: any) => stage.stage_type.display_name || stage.stage_type.name)
+      .map((stage: any) => stage.custom_name || stage.stage_type.display_name || stage.stage_type.name)
       .join(", ");
     const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
     return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
@@ -129,7 +134,9 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
   } else {
     days = calculateDaysSinceLastStageCompletion(purchase);
   }
-  const stageNames = pendingStages.map((stage) => stage.stage_type.display_name || stage.stage_type.name).join(", ");
+  const stageNames = pendingStages
+    .map((stage) => stage.custom_name || stage.stage_type.display_name || stage.stage_type.name)
+    .join(", ");
   const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 };

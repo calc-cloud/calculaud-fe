@@ -203,6 +203,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({ isOp
               onChange={(e) => handleFieldChange("description", e.target.value)}
               placeholder="Enter purpose description..."
               rows={3}
+              dir="rtl"
             />
           </div>
 
@@ -314,6 +315,7 @@ export const EditGeneralDataModal: React.FC<EditGeneralDataModalProps> = ({ isOp
               onChange={(e) => handleFieldChange("comments", e.target.value)}
               placeholder="Enter status message..."
               rows={2}
+              dir="rtl"
             />
           </div>
 

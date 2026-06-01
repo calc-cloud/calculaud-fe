@@ -24,7 +24,7 @@ import {
   saveColumnSizing,
   saveColumnVisibility,
 } from "@/utils/columnStorage";
-import { exportPurposesToCSV } from "@/utils/csvExport";
+import { exportPurposesToExcel } from "@/utils/excelExport";
 import { clearFilters } from "@/utils/filterUtils";
 import { togglePurposeFlag } from "@/utils/purposeActions";
 import { SortConfig } from "@/utils/sorting";
@@ -299,7 +299,7 @@ const Search: React.FC = () => {
   const endIndex = Math.min(startIndex + filteredPurposes.length, totalCount);
 
   const handleExport = () => {
-    exportPurposesToCSV(filters, sortConfig, toast, setIsExportLoading);
+    exportPurposesToExcel(filters, sortConfig, toast, setIsExportLoading);
   };
 
   // Count active filters
@@ -339,7 +339,7 @@ const Search: React.FC = () => {
         <div className="relative flex-1 max-w-md">
           <SearchIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by description, content, or EMF ID..."
+            placeholder="Search by description, supplier, hierarchy, service type, content, EMF ID..."
             value={filters.search_query || ""}
             onChange={(e) => setFilters({ ...filters, search_query: e.target.value })}
             className="pl-10 focus-visible:outline-none"

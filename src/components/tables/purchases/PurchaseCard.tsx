@@ -14,6 +14,8 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
   const status = getPurchaseStatus(purchase);
   const purchaseId = formatPurchaseId(purchase.id);
 
+  const pendingStageNotes = (purchase.current_pending_stages || []).filter((s) => s.note).map((s) => s.note as string);
+
   if (compact) {
     return (
       <div className="rounded-md p-2 border border-gray-200 bg-gray-50 transition-colors hover:shadow-sm">
@@ -24,6 +26,11 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
         <div className="text-xs text-gray-700 truncate" title={status.stageName}>
           {status.stageName}
         </div>
+        {pendingStageNotes.length > 0 && (
+          <div className="text-xs text-gray-400 italic mt-1 truncate" title={pendingStageNotes.join(" | ")}>
+            {pendingStageNotes.join(" | ")}
+          </div>
+        )}
       </div>
     );
   }
@@ -46,6 +53,9 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
         <div className="text-sm font-medium truncate" title={status.stageName}>
           {status.stageName}
         </div>
+        {pendingStageNotes.length > 0 && (
+          <div className="text-xs text-gray-400 italic break-words">{pendingStageNotes.join(" | ")}</div>
+        )}
       </div>
 
       {/* Progress indicator for pending items */}

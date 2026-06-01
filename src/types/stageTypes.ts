@@ -7,6 +7,7 @@ export interface StageType {
   display_name: string;
   description: string;
   value_required: boolean;
+  is_optional: boolean;
   responsible_authority_id: number;
   created_at: string;
   responsible_authority: ResponsibleAuthority;
@@ -17,6 +18,7 @@ export interface StageTypeRequest {
   display_name: string;
   description: string;
   value_required: boolean;
+  is_optional: boolean;
   responsible_authority_id: number;
 }
 
@@ -25,6 +27,7 @@ export interface StageTypeUpdateRequest {
   display_name?: string;
   description?: string;
   value_required?: boolean;
+  is_optional?: boolean;
   responsible_authority_id?: number;
 }
 
