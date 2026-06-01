@@ -54,7 +54,14 @@ const groupStagesByPriority = (stages: ReturnType<typeof convertPurchaseToStages
     .filter((group) => group.length > 0);
 };
 
-const createNewStageObject = (stageTypeId: number, stageTypeData: any, purchaseId: number, priority: number, customName: string | null = null, customNote: string | null = null) => {
+const createNewStageObject = (
+  stageTypeId: number,
+  stageTypeData: any,
+  purchaseId: number,
+  priority: number,
+  customName: string | null = null,
+  customNote: string | null = null
+) => {
   return {
     id: TEMP_NEW_STAGE_ID,
     stage_type_id: stageTypeId,
@@ -136,7 +143,17 @@ const NewStagePlaceholder = ({
   onMouseLeave?: (e: React.MouseEvent) => void;
   formProps: NewStageFormProps;
 }) => {
-  const { selectedStageTypeId, setSelectedStageTypeId, customStageName, setCustomStageName, customStageNote, setCustomStageNote, isLoading, stageTypesData, selectedStageTypeLabel } = formProps;
+  const {
+    selectedStageTypeId,
+    setSelectedStageTypeId,
+    customStageName,
+    setCustomStageName,
+    customStageNote,
+    setCustomStageNote,
+    isLoading,
+    stageTypesData,
+    selectedStageTypeLabel,
+  } = formProps;
   return (
     <div
       className={`bg-blue-50 border-2 border-dashed border-blue-400 rounded-lg ${compact ? "p-2" : "p-3"} ${className}`}
@@ -243,9 +260,7 @@ const StageItem = ({
     return fresh ? fresh.is_optional : s.stage_type?.is_optional === true;
   };
 
-  const isGroupOptional = isParallel
-    ? stage.every((s: any) => isStageOptional(s))
-    : isStageOptional(stage);
+  const isGroupOptional = isParallel ? stage.every((s: any) => isStageOptional(s)) : isStageOptional(stage);
 
   const isAboveSelected = selectedPosition?.index === index && selectedPosition?.position === "above";
   const isBelowSelected = selectedPosition?.index === index && selectedPosition?.position === "below";
@@ -280,11 +295,7 @@ const StageItem = ({
       {isAboveSelected && <NewStagePlaceholder className="mb-3" formProps={formProps} />}
 
       {/* Stage item - outer wrapper handles hover to include the button area */}
-      <div
-        className="relative"
-        onMouseEnter={() => onHoverEnter(index)}
-        onMouseLeave={onHoverLeave}
-      >
+      <div className="relative" onMouseEnter={() => onHoverEnter(index)} onMouseLeave={onHoverLeave}>
         {isHovered && (
           <div
             className="absolute z-20"
@@ -437,9 +448,7 @@ const StageItem = ({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 flex-1">
-                  <span
-                    className={`text-sm font-medium ${isDeleted ? "text-red-600 line-through" : "text-gray-800"}`}
-                  >
+                  <span className={`text-sm font-medium ${isDeleted ? "text-red-600 line-through" : "text-gray-800"}`}>
                     {stage.custom_name || stage.stage_type?.display_name || stage}
                   </span>
                   {stage.completion_date && !isDeleted && (
@@ -589,15 +598,29 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
             created_at: new Date().toISOString(),
             responsible_authority: null,
           };
-          const newStage = createNewStageObject(-1, customStageTypeData, purchase.id, priority, customStageName.trim(), customStageNote.trim() || null);
+          const newStage = createNewStageObject(
+            -1,
+            customStageTypeData,
+            purchase.id,
+            priority,
+            customStageName.trim(),
+            customStageNote.trim() || null
+          );
           insertStageIntoGroups(groupedStages, selectedPosition, newStage);
         } else {
-          const selectedStageTypeData = stageTypesData?.items.find((st: any) => st.id === parseInt(selectedStageTypeId));
+          const selectedStageTypeData = stageTypesData?.items.find(
+            (st: any) => st.id === parseInt(selectedStageTypeId)
+          );
           if (!selectedStageTypeData) {
             toast({ title: "Invalid stage type", variant: "destructive" });
             return;
           }
-          const newStage = createNewStageObject(parseInt(selectedStageTypeId), selectedStageTypeData, purchase.id, priority);
+          const newStage = createNewStageObject(
+            parseInt(selectedStageTypeId),
+            selectedStageTypeData,
+            purchase.id,
+            priority
+          );
           insertStageIntoGroups(groupedStages, selectedPosition, newStage);
         }
       }
@@ -645,13 +668,12 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
     }
   };
 
-  const selectedStageType = selectedStageTypeId === "custom"
-    ? null
-    : stageTypesData?.items.find((st: any) => st.id.toString() === selectedStageTypeId);
+  const selectedStageType =
+    selectedStageTypeId === "custom"
+      ? null
+      : stageTypesData?.items.find((st: any) => st.id.toString() === selectedStageTypeId);
 
-  const selectedStageTypeLabel = selectedStageTypeId === "custom"
-    ? "Custom"
-    : selectedStageType?.display_name;
+  const selectedStageTypeLabel = selectedStageTypeId === "custom" ? "Custom" : selectedStageType?.display_name;
 
   const formProps: NewStageFormProps = {
     selectedStageTypeId,
@@ -737,7 +759,13 @@ export const AddSingleStageModal: React.FC<AddSingleStageModalProps> = ({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isLoading || (deletedStageIds.size === 0 && (!selectedStageTypeId || !selectedPosition || (selectedStageTypeId === "custom" && !customStageName.trim())))}
+            disabled={
+              isLoading ||
+              (deletedStageIds.size === 0 &&
+                (!selectedStageTypeId ||
+                  !selectedPosition ||
+                  (selectedStageTypeId === "custom" && !customStageName.trim())))
+            }
           >
             {isLoading ? "Processing..." : "Confirm"}
           </Button>

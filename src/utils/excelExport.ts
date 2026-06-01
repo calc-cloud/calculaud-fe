@@ -44,7 +44,11 @@ const transformCell = (col: string, value: string): string => {
   if (col === "Status") return STATUS_DISPLAY[value] ?? value;
   if (col === "Creation Time" || col === "Last Modified") return formatDate(value);
   if (col === "Purchases") return formatPurchaseCount(value);
-  if (MULTI_VALUE_COLUMNS.has(col)) return value.split("\n").filter((v) => v.trim()).join(", ");
+  if (MULTI_VALUE_COLUMNS.has(col))
+    return value
+      .split("\n")
+      .filter((v) => v.trim())
+      .join(", ");
   return value;
 };
 

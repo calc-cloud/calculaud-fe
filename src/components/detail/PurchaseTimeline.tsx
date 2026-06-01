@@ -138,9 +138,7 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 {getStageDisplayDate(stage) && (
                   <div className="text-xs text-gray-500">{getStageDisplayDate(stage)}</div>
                 )}
-                {stage.note && (
-                  <div className="text-xs text-gray-400 italic mt-1 break-words">{stage.note}</div>
-                )}
+                {stage.note && <div className="text-xs text-gray-400 italic mt-1 break-words">{stage.note}</div>}
               </div>
             )}
 
@@ -150,7 +148,9 @@ export const PurchaseTimeline: React.FC<PurchaseTimelineProps> = ({
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <h4 className="font-medium text-gray-800 text-sm" dir="rtl">{stage.custom_name || stage.stage_type.display_name}</h4>
+                      <h4 className="font-medium text-gray-800 text-sm" dir="rtl">
+                        {stage.custom_name || stage.stage_type.display_name}
+                      </h4>
                       {hasMultipleStagesWithSamePriority(stages, stage) && (
                         <Badge
                           variant={getPriorityVariant(stage.priority)}

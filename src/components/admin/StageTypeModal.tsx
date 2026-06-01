@@ -278,9 +278,7 @@ const StageTypeModal: React.FC<StageTypeModalProps> = ({ open, onOpenChange, edi
                 Optional
               </Label>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Optional stages can be removed from a purchase's timeline
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Optional stages can be removed from a purchase's timeline</p>
           </div>
 
           <div className="flex justify-end space-x-2 pt-2">

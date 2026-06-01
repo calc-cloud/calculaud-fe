@@ -134,7 +134,9 @@ export const getStagesText = (purchase: any, showPurchasePrefix: boolean = false
   } else {
     days = calculateDaysSinceLastStageCompletion(purchase);
   }
-  const stageNames = pendingStages.map((stage) => stage.custom_name || stage.stage_type.display_name || stage.stage_type.name).join(", ");
+  const stageNames = pendingStages
+    .map((stage) => stage.custom_name || stage.stage_type.display_name || stage.stage_type.name)
+    .join(", ");
   const baseText = days === null ? `Waiting for ${stageNames}` : `${days} days in ${stageNames}`;
   return showPurchasePrefix ? `Purchase ${purchase.id}: ${baseText}` : baseText;
 };

@@ -14,9 +14,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
   const status = getPurchaseStatus(purchase);
   const purchaseId = formatPurchaseId(purchase.id);
 
-  const pendingStageNotes = (purchase.current_pending_stages || [])
-    .filter((s) => s.note)
-    .map((s) => s.note as string);
+  const pendingStageNotes = (purchase.current_pending_stages || []).filter((s) => s.note).map((s) => s.note as string);
 
   if (compact) {
     return (
@@ -56,9 +54,7 @@ export const PurchaseCard: React.FC<PurchaseCardProps> = ({ purchase, compact = 
           {status.stageName}
         </div>
         {pendingStageNotes.length > 0 && (
-          <div className="text-xs text-gray-400 italic break-words">
-            {pendingStageNotes.join(" | ")}
-          </div>
+          <div className="text-xs text-gray-400 italic break-words">{pendingStageNotes.join(" | ")}</div>
         )}
       </div>
 

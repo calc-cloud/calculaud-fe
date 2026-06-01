@@ -847,10 +847,7 @@ export const InlineFilters: React.FC<InlineFiltersProps> = ({
               return (
                 <Badge key={status} variant={statusInfo.variant} className={`gap-1 ${statusInfo.className}`}>
                   {status}
-                  <X
-                    className="h-3 w-3 cursor-pointer hover:text-red-600"
-                    onClick={() => removeStatus(status)}
-                  />
+                  <X className="h-3 w-3 cursor-pointer hover:text-red-600" onClick={() => removeStatus(status)} />
                 </Badge>
               );
             })}
